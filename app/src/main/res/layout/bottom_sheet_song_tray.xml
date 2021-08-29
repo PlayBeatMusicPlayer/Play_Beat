@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_theme_color">
+
+    <View
+        android:layout_width="25dp"
+        android:layout_height="2.5dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"
+        android:background="@color/grey" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:src="@drawable/ic_close_white" />
+
+
+    <ImageView
+        android:id="@+id/fullScreenAlbumArt"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.3"
+        android:scaleType="centerCrop"
+        android:src="@drawable/splash_screen_img_v2" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_above="@+id/bottomView"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="0dp"
+        android:alpha="0.9"
+        android:background="@drawable/curved_all_edges">
+
+        <TextView
+            android:id="@+id/songTextTV"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_toStartOf="@id/favouriteSongIV"
+            android:layout_marginTop="20dp"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:maxLines="1"
+            android:fontFamily="@font/segoe_ui"
+            android:text="Song name"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/artistsNameTV"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/songTextTV"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="3dp"
+            android:text="Artist name"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:maxLines="1"
+            android:layout_toStartOf="@id/favouriteSongIV"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+
+        <ImageView
+            android:id="@+id/favouriteSongIV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            android:elevation="20dp"
+            android:src="@drawable/ic_unfilled_heart" />
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_below="@id/artistsNameTV"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="15dp"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark" />
+
+        <TextView
+            android:id="@+id/startTimeTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/seekBar"
+            android:layout_alignStart="@id/seekBar"
+            android:layout_marginStart="10dp"
+            android:text="00:00"
+            android:textColor="@color/teal_200"
+            android:textSize="12sp" />
+
+
+        <TextView
+            android:id="@+id/endTimeTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/seekBar"
+            android:layout_alignEnd="@id/seekBar"
+            android:layout_marginEnd="10dp"
+            android:text="00:00"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:id="@+id/llPlayPauseBtn"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/seekBar"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="10dp">
+
+            <ImageView
+                android:id="@+id/backwardIv"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:contentDescription="@string/backwardiv"
+                android:src="@drawable/ic_backward"
+                android:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/playPauseIV"
+                android:layout_width="30dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:contentDescription="@string/playpauseiv"
+                android:src="@drawable/ic_play" />
+
+            <ImageView
+                android:id="@+id/forwardIV"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:contentDescription="@string/forwardiv"
+                android:src="@drawable/ic_forward" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="20dp"
+            android:src="@drawable/loop_songs" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            android:src="@drawable/shuffle_songs"
+            app:shapeAppearanceOverlay="@style/circular_50" />
+
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/bottomView"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_alignParentBottom="true" />
+</RelativeLayout>

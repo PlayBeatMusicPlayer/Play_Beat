@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Play Beat</string>
+    <string name="splash_screen_img">splash_screen_img</string>
+    <string name="backwardiv">backwardIv</string>
+    <string name="playpauseiv">playPauseIV</string>
+    <string name="forwardiv">forwardIV</string>
+</resources>
