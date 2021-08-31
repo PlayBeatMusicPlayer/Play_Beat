@@ -19,8 +19,12 @@
 
     </style>
 
-    <style name="circular">
+    <style name="circular_10">
         <item name="cornerSize">10%</item>
+    </style>
+
+    <style name="circular_5">
+        <item name="cornerSize">5%</item>
     </style>
 
     <style name="circular_50">
@@ -31,7 +35,7 @@
         <!--        <item name="android:background">@drawable/transparent_background</item>-->
         <item name="behavior_peekHeight">1000dp</item>
         <item name="behavior_draggable">true</item>
-<!--        <item name="behavior_expandedOffset">500dp</item>-->
+        <!--        <item name="behavior_expandedOffset">500dp</item>-->
     </style>
 
     <style name="AppModalDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">

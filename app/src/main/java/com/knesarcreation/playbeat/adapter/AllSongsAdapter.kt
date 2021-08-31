@@ -54,8 +54,16 @@ class AllSongsAdapter(
         holder.artistName.text = allSongModel.artistsName
         holder.albumName.text = allSongModel.albumName
 
-        Glide.with(context).asBitmap().load(allSongModel.bitmap).into(holder.albumArtIV)
-
+//        val albumArt = SongAlbumArt.get((allSongModel.path))
+        val albumArt = allSongModel.albumArt
+        if (albumArt != null) {
+            Glide.with(context).asBitmap()
+                .load(albumArt)
+                .into(holder.albumArtIV)
+        } else {
+            Glide.with(context).load(R.drawable.music_note_1).into(holder.albumArtIV)
+        }
+//        Glide.with(context).asBitmap().load(allSongModel.bitmap).into(holder.albumArtIV)
 
         holder.rlAudio.setOnClickListener {
             listener.onClick(allSongModel, position)
@@ -91,4 +99,5 @@ class AllSongsAdapter(
         }
         return bitmap!!
     }
+
 }

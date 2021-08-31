@@ -4,11 +4,8 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.provider.MediaStore
@@ -26,14 +23,16 @@ import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.fragment.BottomSheetPlayingSong
 import com.knesarcreation.playbeat.model.AllSongsModel
 import com.knesarcreation.playbeat.utils.CustomProgressDialog
+import com.knesarcreation.playbeat.utils.SongAlbumArt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.FileNotFoundException
-import java.io.IOException
+import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 import kotlin.math.floor
 
-class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem {
+class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem,
+    BottomSheetPlayingSong.OnControlSongFromBottomSheet {
     private lateinit var arrowBackIV: ImageView
     private lateinit var albumArtIV: ImageView
     private lateinit var backwardIv: ImageView
@@ -50,15 +49,19 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem {
     private lateinit var openBottomSheetView: View
     private val allSongList = ArrayList<AllSongsModel>()
     lateinit var progressBar: CustomProgressDialog
-    private var mMediaPlayer: MediaPlayer? = null
     private var elapsedRunningSong: CountDownTimer? = null
-    private var millisLeft = 0L
     private var totalDurationInMillis = 0L
     private var clickedSongPos = 0
     private lateinit var bottomSheetPlayingSong: BottomSheetPlayingSong
 
     companion object {
         const val READ_STORAGE_PERMISSION = 101
+        var millisLeft = 0L
+        var mMediaPlayer: MediaPlayer? = null
+        var isLoop = false
+        var isShuffled = false
+        var random = 0
+        var backStackedSongs = ArrayList<Int>()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,7 +84,14 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem {
         }
 
         openBottomSheetView.setOnClickListener {
-            bottomSheetPlayingSong = BottomSheetPlayingSong(allSongList, clickedSongPos)
+            bottomSheetPlayingSong =
+                BottomSheetPlayingSong(
+                    this,
+                    allSongList,
+                    clickedSongPos,
+                    millisLeft,
+                    this
+                )
             bottomSheetPlayingSong.show(supportFragmentManager, "bottomSheetPlayingSong")
         }
 
@@ -136,22 +146,24 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem {
     @SuppressLint("Range")
     private fun getMusic() {
 
-        val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            MediaStore.Audio.Media.getContentUri(
-                MediaStore.VOLUME_EXTERNAL
-            )
-        } else {
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-        }
+        /* val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+             MediaStore.Audio.Media.getContentUri(
+                 MediaStore.VOLUME_EXTERNAL
+             )
+         } else {
+             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+         }*/
+        val collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.DISPLAY_NAME,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.SIZE,
             MediaStore.Audio.Media.DURATION,
+            MediaStore.Audio.Media.SIZE,
+            MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM_ID,
+            MediaStore.Audio.Media.DATA, // path
         )
 
         // Show only audios that are at least 1 minutes in duration.
@@ -166,49 +178,50 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem {
 
         query?.use { cursor ->
             // Cache column indices.
-            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-            val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
-            val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
-            val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
-            val artistsColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
-            val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
-            val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
+//            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
+//            val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
+//            val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
+//            val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
+//            val artistsColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+//            val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
+//            val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
 
 
             while (cursor.moveToNext()) {
                 //Get values of columns of a given audio
-                val id = cursor.getLong(idColumn)
-                val name = cursor.getString(nameColumn)
-                val duration = cursor.getInt(durationColumn)
-                val size = cursor.getInt(sizeColumn)
-                val album = cursor.getString(albumColumn)
-                val artist = cursor.getString(artistsColumn)
-                val albumId = cursor.getLong(albumIdColumn)
+                val id = cursor.getLong(0)
+                val name = cursor.getString(1)
+                val duration = cursor.getInt(2)
+                val size = cursor.getInt(3)
+                val album = cursor.getString(4)
+                val artist = cursor.getString(5)
+                val albumId = cursor.getLong(6)
+                val path = cursor.getString(7)
 
                 //getting album art uri
-                var bitmap: Bitmap? = null
-                val sArtworkUri = Uri
-                    .parse("content://media/external/audio/albumart")
-                val albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId)
+//                var bitmap: Bitmap? = null
+//                val sArtworkUri = Uri
+//                    .parse("content://media/external/audio/albumart")
+//                val albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId)
+//
+//                try {
+                /*if (Build.VERSION.SDK_INT < 28) {*/
+//                    bitmap = MediaStore.Images.Media.getBitmap(
+//                        contentResolver, albumArtUri
+//                    )
+//                    bitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true)
+                /*} else {
+                    val source =
+                        ImageDecoder.createSource(this.contentResolver, albumArtUri)
+                    bitmap = ImageDecoder.decodeBitmap(source)
+                }*/
 
-                try {
-                    /*if (Build.VERSION.SDK_INT < 28) {*/
-                    bitmap = MediaStore.Images.Media.getBitmap(
-                        contentResolver, albumArtUri
-                    )
-                    bitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true)
-                    /*} else {
-                        val source =
-                            ImageDecoder.createSource(this.contentResolver, albumArtUri)
-                        bitmap = ImageDecoder.decodeBitmap(source)
-                    }*/
-
-                } catch (e: FileNotFoundException) {
-                    e.printStackTrace()
-                    bitmap = BitmapFactory.decodeResource(resources, R.drawable.music_note_1)
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
+//                } catch (e: FileNotFoundException) {
+//                    e.printStackTrace()
+//                    bitmap = BitmapFactory.decodeResource(resources, R.drawable.music_note_1)
+//                } catch (e: IOException) {
+//                    e.printStackTrace()
+//                }
 
                 // getting audio uri
                 val contentUri: Uri = ContentUris.withAppendedId(
@@ -216,8 +229,20 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem {
                     id
                 )
 
+                val albumArt = SongAlbumArt.get((path))
+
                 val allSongsModel =
-                    AllSongsModel(albumId, contentUri, name, artist, album, size, duration, bitmap)
+                    AllSongsModel(
+                        albumId,
+                        albumArt,
+                        name,
+                        artist,
+                        album,
+                        size,
+                        duration,
+                        null,
+                        contentUri
+                    )
                 allSongList.add(allSongsModel)
             }
             runOnUiThread {
@@ -265,6 +290,7 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem {
             playSong(position)
         } else if (mMediaPlayer != null) {
             mMediaPlayer?.stop()
+            mMediaPlayer?.release()
             playSong(position)
         }
     }
@@ -284,7 +310,15 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem {
         totalDurationInMillis = allSongModel.duration.toLong()
         songNameTV.text = allSongModel.songName
         artistOrAlbumNameTV.text = allSongModel.artistsName
-        Glide.with(this).asBitmap().load(allSongModel.bitmap).into(albumArtIV)
+
+//        val albumArt = SongAlbumArt.get((allSongModel.path))
+        val albumArt = allSongModel.albumArt
+        if (albumArt != null) {
+            Glide.with(this).load(albumArt).centerCrop().into(albumArtIV)
+        } else {
+            Glide.with(this).load(R.drawable.music_note_1).into(albumArtIV)
+        }
+
         val songDuration = millisToMinutesAndSeconds(allSongModel.duration)
         endDurationTV.text = songDuration
         runningSongCountDownTime(allSongModel.duration)
@@ -323,12 +357,28 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem {
 
         forwardIV.setOnClickListener {
             if (mMediaPlayer != null) {
+                if (!isShuffled) {
+                    incrementSongByOne()
+                } else {
+                    //if shuffled enabled
+                    random = Random().nextInt(allSongList.size)
+                    clickedSongPos = random
+                    backStackedSongs.add(clickedSongPos)
+                }
                 mMediaPlayer?.stop()
-                clickedSongPos++
                 playSong(clickedSongPos)
             } else {
                 playSong(clickedSongPos)
             }
+        }
+    }
+
+    private fun incrementSongByOne() {
+        if (clickedSongPos != allSongList.size - 1) {
+            clickedSongPos++
+        } else {
+            clickedSongPos = -1
+            clickedSongPos++
         }
     }
 
@@ -359,16 +409,110 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem {
                 )
 
                 mSeekBar.progress = seekProgress.toInt()
+
+                if (mSeekBar.progress in (maxSeekProgress - 1)..maxSeekProgress) {
+                    Log.d(
+                        "MaxSeekAllSongsPage",
+                        "onTick: maxSeek: $maxSeekProgress,${mSeekBar.progress} "
+                    )
+                    //for getting random value at last tick of count
+                    random = Random().nextInt(allSongList.size)
+                    backStackedSongs.add(clickedSongPos)
+                }
+
+                // time and seek bar will not run if song is in paused state
+                if (mMediaPlayer != null) {
+                    if (mMediaPlayer?.isPlaying == false) {
+                        elapsedRunningSong?.cancel()
+                    }
+                }
             }
 
             override fun onFinish() {
-//                playPauseIV.setImageResource(R.drawable.ic_play)
-                if (clickedSongPos == (allSongList.size - 1)) clickedSongPos =
-                    0 else clickedSongPos++
-                if (mMediaPlayer != null)
+                /* if (clickedSongPos == (allSongList.size - 1)) {
+                     clickedSongPos = 0
+                 } else {
+
+                 }*/
+                if (!isLoop && !isShuffled) {
+                    // normal running player
+                    incrementSongByOne()
                     playSong(clickedSongPos)
+                } else {
+                    if (isShuffled) {
+                        // shuffled
+                        Log.d("ActivityRandom", "onFinish:$random ")
+                        if (mMediaPlayer != null) {
+                            //getting random songs and playing it
+                            playSong(random)
+                            clickedSongPos = random
+                        }
+                    } else if (isLoop) {
+                        // looped one song
+                        if (mMediaPlayer != null) {
+                            playSong(clickedSongPos)
+                        }
+                    }
+                }
             }
         }
         elapsedRunningSong?.start()
+    }
+
+    override fun onSeekChangeListener(seekBar: SeekBar) {
+        if (mMediaPlayer != null /*&& fromUser*/) {
+            mMediaPlayer?.seekTo((seekBar.progress * 1000))
+            runningSongCountDownTime((totalDurationInMillis - (seekBar.progress * 1000)).toInt())
+        }
+    }
+
+    override fun onForwardClick(clickedSongPos: Int) {
+        if (mMediaPlayer != null) {
+            if (isShuffled) {
+                this.clickedSongPos = clickedSongPos
+            } else {
+                this.clickedSongPos++
+            }
+            mMediaPlayer?.stop()
+            mMediaPlayer?.release()
+            playSong(clickedSongPos)
+        } else {
+            playSong(clickedSongPos)
+        }
+    }
+
+    override fun onBackWardClick(clickedSongPos: Int) {
+        if (mMediaPlayer != null) {
+            if (isShuffled) {
+                this.clickedSongPos = clickedSongPos
+            } else {
+                this.clickedSongPos--
+            }
+            mMediaPlayer?.stop()
+            mMediaPlayer?.release()
+            playSong(clickedSongPos)
+        } else {
+            playSong(clickedSongPos)
+        }
+    }
+
+    override fun onPauseOrPlayClick() {
+        if (mMediaPlayer != null) {
+            if (mMediaPlayer?.isPlaying == true) {
+                mMediaPlayer?.pause()
+                playPauseIV.setImageResource(R.drawable.ic_play)
+                elapsedRunningSong?.cancel()
+            } else {
+                mMediaPlayer?.start()
+                playPauseIV.setImageResource(R.drawable.ic_pause)
+                //resume song
+                runningSongCountDownTime(millisLeft.toInt())
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+//        rlPlayingSong.visibility = View.GONE
     }
 }
