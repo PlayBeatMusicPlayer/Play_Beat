@@ -6,6 +6,8 @@
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/all_songs_card_gradient.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/background_bottom_shadow.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/background_top_shadow.xml" value="0.2101851851851852" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/bottom_shadow_app_theme_color.xml" value="0.1" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/bottom_shadow_light_black.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/card_gradient.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/curved_all_edges.xml" value="0.125" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/curved_top_right_top_left_black.xml" value="0.26458333333333334" />
@@ -20,7 +22,7 @@
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/activity_home_page.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/activity_main.xml" value="0.2484375" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/activity_splash_screen.xml" value="0.2484375" />
-        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/bottom_sheet_song_tray.xml" value="0.264" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/bottom_sheet_song_tray.xml" value="0.176" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/dialog_progress.xml" value="0.24461538461538462" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/recycler_all_songs_item.xml" value="0.264" />
       </map>

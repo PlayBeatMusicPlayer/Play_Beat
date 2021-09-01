@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.knesarcreation.playbeat.ActionPlay
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.fragment.BottomSheetPlayingSong
@@ -32,7 +33,7 @@ import kotlin.collections.ArrayList
 import kotlin.math.floor
 
 class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem,
-    BottomSheetPlayingSong.OnControlSongFromBottomSheet {
+    BottomSheetPlayingSong.OnControlSongFromBottomSheet ,ActionPlay{
     private lateinit var arrowBackIV: ImageView
     private lateinit var albumArtIV: ImageView
     private lateinit var backwardIv: ImageView
@@ -56,7 +57,7 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem,
 
     companion object {
         const val READ_STORAGE_PERMISSION = 101
-        var millisLeft = 0L
+        /*var millisLeft = 0L*/
         var mMediaPlayer: MediaPlayer? = null
         var isLoop = false
         var isShuffled = false
@@ -89,7 +90,7 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem,
                     this,
                     allSongList,
                     clickedSongPos,
-                    millisLeft,
+                   /* millisLeft,*/
                     this
                 )
             bottomSheetPlayingSong.show(supportFragmentManager, "bottomSheetPlayingSong")
@@ -335,7 +336,7 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem,
                     mMediaPlayer?.start()
                     playPauseIV.setImageResource(R.drawable.ic_pause)
                     //resume song
-                    runningSongCountDownTime(millisLeft.toInt())
+                    runningSongCountDownTime(totalDurationInMillis.toInt() - mMediaPlayer?.currentPosition!!)
                 }
             }
         }
@@ -394,21 +395,21 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem,
         }
         elapsedRunningSong = object : CountDownTimer(durationInMillis.toLong(), 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                millisLeft = millisUntilFinished
+               /* millisLeft = millisUntilFinished*/
                 val elapsedTime = (totalDurationInMillis - millisUntilFinished)
                 val millisToMinutesAndSeconds = millisToMinutesAndSeconds(elapsedTime.toInt())
                 startDurationTV.text = millisToMinutesAndSeconds
 
                 val maxSeekProgress = totalDurationInMillis / 1000
-                val seekProgress =
-                    ((elapsedTime.toDouble() / totalDurationInMillis.toDouble()) * maxSeekProgress)
+                val seekProgress = mMediaPlayer?.currentPosition!! / 1000
+                   /* ((elapsedTime.toDouble() / totalDurationInMillis.toDouble()) * maxSeekProgress)*/
 
                 Log.d(
                     "elapsedTime",
                     "onTick: elapsedTime: $elapsedTime totalDurationInMillis $durationInMillis  seekProgress: $seekProgress"
                 )
 
-                mSeekBar.progress = seekProgress.toInt()
+                mSeekBar.progress = seekProgress
 
                 if (mSeekBar.progress in (maxSeekProgress - 1)..maxSeekProgress) {
                     Log.d(
@@ -429,11 +430,6 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem,
             }
 
             override fun onFinish() {
-                /* if (clickedSongPos == (allSongList.size - 1)) {
-                     clickedSongPos = 0
-                 } else {
-
-                 }*/
                 if (!isLoop && !isShuffled) {
                     // normal running player
                     incrementSongByOne()
@@ -506,7 +502,7 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem,
                 mMediaPlayer?.start()
                 playPauseIV.setImageResource(R.drawable.ic_pause)
                 //resume song
-                runningSongCountDownTime(millisLeft.toInt())
+                runningSongCountDownTime(totalDurationInMillis.toInt() - mMediaPlayer?.currentPosition!!)
             }
         }
     }
@@ -514,5 +510,16 @@ class AllSongsActivity : AppCompatActivity(), AllSongsAdapter.OnClickSongItem,
     override fun onResume() {
         super.onResume()
 //        rlPlayingSong.visibility = View.GONE
+    }
+
+    override fun playPauseClicked() {
+
+    }
+
+    override fun playPrevClicked() {
+    }
+
+    override fun playNextClicked() {
+
     }
 }

@@ -1,7 +1,10 @@
 package com.knesarcreation.playbeat.fragment
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
@@ -9,6 +12,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.graphics.drawable.toBitmap
+import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions.withCrossFade
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
@@ -25,7 +30,7 @@ class BottomSheetPlayingSong(
     private var mContext: Context,
     private var allSongList: ArrayList<AllSongsModel>,
     private var clickedSongPos: Int,
-    private var millisLeft: Long,
+    /* private var millisLeft: Long,*/
     private var listener: OnControlSongFromBottomSheet
 ) :
     BottomSheetDialogFragment() {
@@ -46,6 +51,11 @@ class BottomSheetPlayingSong(
     private lateinit var rlToolbar: RelativeLayout
     private lateinit var shuffleSongIV: ImageView
     private lateinit var loopSongIV: ImageView
+    private lateinit var albumArtBottomGradient: ImageView
+    private lateinit var albumArtTopGradient: ImageView
+    private lateinit var fullScreenBG: ImageView
+    private lateinit var rlParentBG: RelativeLayout
+    private lateinit var controllingSongIVBG: ImageView
     private var random = 0
 
     interface OnControlSongFromBottomSheet {
@@ -76,6 +86,11 @@ class BottomSheetPlayingSong(
         closeSheetIV = view.findViewById(R.id.closeSheetIV)
         fullScreenBlurredAlbumArt = view.findViewById(R.id.fullScreenBlurredAlbumArt)
         shuffleSongIV = view.findViewById(R.id.shuffleSongIV)
+        albumArtBottomGradient = view.findViewById(R.id.albumArtBottomGradient)
+        albumArtTopGradient = view.findViewById(R.id.albumArtTopGradient)
+        rlParentBG = view.findViewById(R.id.rlParentBG)
+        fullScreenBG = view.findViewById(R.id.fullScreenBG)
+        controllingSongIVBG = view.findViewById(R.id.controllingSongIVBG)
 
         songTextTV.isSelected = true
 
@@ -86,7 +101,7 @@ class BottomSheetPlayingSong(
                 elapsedRunningSong?.cancel()
             } else {
                 playPauseIV.setImageResource(R.drawable.ic_pause)
-                runningSongCountDownTime(AllSongsActivity.millisLeft)
+                runningSongCountDownTime(totalDurationInMillis - (AllSongsActivity.mMediaPlayer?.currentPosition)!!.toLong())
             }
             listener.onPauseOrPlayClick()
         }
@@ -149,7 +164,7 @@ class BottomSheetPlayingSong(
         }
 
         playSong()
-        runningSongCountDownTime(millisLeft)
+        runningSongCountDownTime(totalDurationInMillis - (AllSongsActivity.mMediaPlayer?.currentPosition)!!.toLong())
 
         return view
     }
@@ -229,20 +244,82 @@ class BottomSheetPlayingSong(
                 .into(nowPlayingAlbumArtIV)
 
             //Blurred Full screen image
-            val blurBitmap = BlurBuilder().blur(mContext, bitmap, 25f)
+           /* controllingSongIVBG.setImageResource(R.drawable.spydi)
+
+            val bgCurveBitmap = ((controllingSongIVBG.drawable)as BitmapDrawable).toBitmap()
+
+            val blurBitmap = BlurBuilder().blur(mContext, bgCurveBitmap, 23f)
             Glide.with(mContext).asBitmap().load(blurBitmap).centerCrop()
                 .transition(withCrossFade(factory))
-                .into(fullScreenBlurredAlbumArt)
+                .into(controllingSongIVBG)*/
+
+            Palette.from(bitmap).generate {
+                val swatch = it?.dominantSwatch
+                if (swatch != null) {
+                    albumArtBottomGradient.setBackgroundResource(R.drawable.gradient_background_bottom_shadow)
+                    rlParentBG.setBackgroundResource(R.drawable.app_theme_background_drawable)
+                    albumArtTopGradient.setBackgroundResource(R.drawable.gradient_background_top_shadow)
+
+                    val gradientDrawableBottomTop = GradientDrawable(
+                        GradientDrawable.Orientation.BOTTOM_TOP,
+                        intArrayOf(swatch.rgb, 0x00000000)
+                    )
+                    val gradientDrawableTopBottom = GradientDrawable(
+                        GradientDrawable.Orientation.TOP_BOTTOM,
+                        intArrayOf(swatch.rgb, swatch.population)
+                    )
+                    albumArtBottomGradient.background = gradientDrawableBottomTop
+                    albumArtTopGradient.background = gradientDrawableTopBottom
+
+
+                    // parent background
+                    val gradientDrawableParent = GradientDrawable(
+                        GradientDrawable.Orientation.BOTTOM_TOP,
+                        intArrayOf(swatch.rgb, swatch.rgb)
+                    )
+                    rlParentBG.background = gradientDrawableParent
+
+                }
+            }
+
         } else {
             val originalBitmap = BitmapFactory.decodeResource(resources, R.drawable.music_note_1)
             Glide.with(mContext).asBitmap().load(originalBitmap).transition(withCrossFade(factory))
                 .into(nowPlayingAlbumArtIV)
 
+            Palette.from(originalBitmap).generate {
+                val swatch = it?.dominantSwatch
+                if (swatch != null) {
+                    albumArtBottomGradient.setBackgroundResource(R.drawable.gradient_background_bottom_shadow)
+                    rlParentBG.setBackgroundResource(R.drawable.app_theme_background_drawable)
+                    albumArtTopGradient.setBackgroundResource(R.drawable.gradient_background_top_shadow)
+
+                    val gradientDrawableBottomTop = GradientDrawable(
+                        GradientDrawable.Orientation.BOTTOM_TOP,
+                        intArrayOf(swatch.rgb, 0x00000000)
+                    )
+                    val gradientDrawableTopBottom = GradientDrawable(
+                        GradientDrawable.Orientation.TOP_BOTTOM,
+                        intArrayOf(swatch.rgb, swatch.population)
+                    )
+                    albumArtBottomGradient.background = gradientDrawableBottomTop
+                    albumArtTopGradient.background = gradientDrawableTopBottom
+
+
+                    // parent background
+                    val gradientDrawableParent = GradientDrawable(
+                        GradientDrawable.Orientation.BOTTOM_TOP,
+                        intArrayOf(swatch.rgb, swatch.rgb)
+                    )
+                    rlParentBG.background = gradientDrawableParent
+
+                }
+            }
             //Blurred Full screen image
-            val blurredBitMap = BlurBuilder().blur(mContext, originalBitmap, 25f)
+           /* val blurredBitMap = BlurBuilder().blur(mContext, originalBitmap, 25f)
             Glide.with(mContext).asBitmap().load(blurredBitMap).centerCrop()
                 .transition(withCrossFade(factory))
-                .into(fullScreenBlurredAlbumArt)
+                .into(fullScreenBlurredAlbumArt)*/
         }
         mSeekBar.max = ((allSongsModel.duration.toDouble() / 1000).toInt())
         val songDuration = millisToMinutesAndSeconds(totalDurationInMillis)
@@ -261,7 +338,7 @@ class BottomSheetPlayingSong(
         }
         elapsedRunningSong = object : CountDownTimer(durationInMillis, 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                millisLeft = millisUntilFinished
+                /* millisLeft = millisUntilFinished*/
                 setUpSeekBar(millisUntilFinished)
             }
 
