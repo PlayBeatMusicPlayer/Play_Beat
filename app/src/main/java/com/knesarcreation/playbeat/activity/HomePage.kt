@@ -19,7 +19,7 @@ class HomePage : AppCompatActivity() {
         initialization()
 
         cvAllSongs.setOnClickListener {
-            startActivity(Intent(this, AllSongsActivity::class.java))
+            startActivity(Intent(this, PlayerActivity::class.java))
         }
 
         arrowBackIV.setOnClickListener {

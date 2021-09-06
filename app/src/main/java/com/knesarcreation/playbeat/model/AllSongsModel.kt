@@ -1,20 +1,20 @@
 package com.knesarcreation.playbeat.model
 
-import android.graphics.Bitmap
 import android.net.Uri
 
 data class AllSongsModel(
-    var albumId:Long,
+    var albumId: Long,
     var albumArt: ByteArray?,
     var songName: String,
     var artistsName: String,
     var albumName: String,
     var size: Int,
     var duration: Int,
-    var bitmap:Bitmap?,
-    var uri:Uri?
+    var data: String,
+    var audioUri: Uri?,
+    var artUri: String
 ) {
-    constructor() : this(0L,null, "", "", "", 0, 0,null,null)
+    constructor() : this(0L, null, "", "", "", 0, 0/*null*/, "", null, "")
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -32,8 +32,8 @@ data class AllSongsModel(
         if (albumName != other.albumName) return false
         if (size != other.size) return false
         if (duration != other.duration) return false
-        if (bitmap != other.bitmap) return false
-        if (uri != other.uri) return false
+        /* if (bitmap != other.bitmap) return false*/
+        if (audioUri != other.audioUri) return false
 
         return true
     }
@@ -46,8 +46,8 @@ data class AllSongsModel(
         result = 31 * result + albumName.hashCode()
         result = 31 * result + size
         result = 31 * result + duration
-        result = 31 * result + (bitmap?.hashCode() ?: 0)
-        result = 31 * result + (uri?.hashCode() ?: 0)
+        /* result = 31 * result + (bitmap?.hashCode() ?: 0)*/
+        result = 31 * result + (audioUri?.hashCode() ?: 0)
         return result
     }
 }

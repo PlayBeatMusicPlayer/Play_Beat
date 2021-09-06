@@ -16,6 +16,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.model.AllSongsModel
 import java.io.FileNotFoundException
@@ -55,15 +56,11 @@ class AllSongsAdapter(
         holder.albumName.text = allSongModel.albumName
 
 //        val albumArt = SongAlbumArt.get((allSongModel.path))
-        val albumArt = allSongModel.albumArt
-        if (albumArt != null) {
-            Glide.with(context).asBitmap()
-                .load(albumArt)
-                .into(holder.albumArtIV)
-        } else {
-            Glide.with(context).load(R.drawable.music_note_1).into(holder.albumArtIV)
-        }
-//        Glide.with(context).asBitmap().load(allSongModel.bitmap).into(holder.albumArtIV)
+        val artUri = allSongModel.artUri
+
+        Glide.with(context).load(artUri)
+            .apply(RequestOptions.placeholderOf(R.drawable.music_note_1).centerCrop())
+            .into(holder.albumArtIV)
 
         holder.rlAudio.setOnClickListener {
             listener.onClick(allSongModel, position)

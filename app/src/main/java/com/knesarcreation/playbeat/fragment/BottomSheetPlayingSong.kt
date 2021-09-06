@@ -1,9 +1,7 @@
 package com.knesarcreation.playbeat.fragment
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -12,16 +10,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.core.graphics.drawable.toBitmap
+import androidx.core.net.toUri
 import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions.withCrossFade
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.knesarcreation.playbeat.R
-import com.knesarcreation.playbeat.activity.AllSongsActivity
+import com.knesarcreation.playbeat.activity.AllSongsActivity.Companion.backStackedSongs
+import com.knesarcreation.playbeat.activity.AllSongsActivity.Companion.isLoop
+import com.knesarcreation.playbeat.activity.AllSongsActivity.Companion.isShuffled
+import com.knesarcreation.playbeat.activity.AllSongsActivity.Companion.musicPlayerService
+import com.knesarcreation.playbeat.activity.AllSongsActivity.Companion.random
 import com.knesarcreation.playbeat.model.AllSongsModel
-import com.knesarcreation.playbeat.utils.BlurBuilder
+import com.knesarcreation.playbeat.utils.UriToBitmapConverter
 import java.util.*
 import kotlin.math.floor
 
@@ -56,12 +58,12 @@ class BottomSheetPlayingSong(
     private lateinit var fullScreenBG: ImageView
     private lateinit var rlParentBG: RelativeLayout
     private lateinit var controllingSongIVBG: ImageView
-    private var random = 0
+    private var randomPosition = 0
 
     interface OnControlSongFromBottomSheet {
         fun onSeekChangeListener(seekBar: SeekBar)
-        fun onForwardClick(clickedSongPos: Int)
-        fun onBackWardClick(clickedSongPos: Int)
+        fun onNextBtnClicked(clickedSongPos: Int)
+        fun onPrevBtnClicked(clickedSongPos: Int)
         fun onPauseOrPlayClick()
     }
 
@@ -71,9 +73,9 @@ class BottomSheetPlayingSong(
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.bottom_sheet_song_tray, container, false)
-        backwardIv = view.findViewById(R.id.backwardIv)
+        backwardIv = view.findViewById(R.id.skipPrevAudio)
         playPauseIV = view.findViewById(R.id.playPauseIV)
-        forwardIV = view.findViewById(R.id.forwardIV)
+        forwardIV = view.findViewById(R.id.skipNextAudio)
         songTextTV = view.findViewById(R.id.songTextTV)
         artistNameTV = view.findViewById(R.id.artistsNameTV)
         nowPlayingAlbumArtIV = view.findViewById(R.id.nowPlayingAlbumArtIV)
@@ -96,43 +98,43 @@ class BottomSheetPlayingSong(
 
 
         playPauseIV.setOnClickListener {
-            if (AllSongsActivity.mMediaPlayer?.isPlaying == true) {
-                playPauseIV.setImageResource(R.drawable.ic_play)
+            if (musicPlayerService?.isPlaying() == true) {
+                playPauseIV.setImageResource(R.drawable.ic_play_audio)
                 elapsedRunningSong?.cancel()
             } else {
                 playPauseIV.setImageResource(R.drawable.ic_pause)
-                runningSongCountDownTime(totalDurationInMillis - (AllSongsActivity.mMediaPlayer?.currentPosition)!!.toLong())
+                runningSongCountDownTime(totalDurationInMillis - (musicPlayerService?.currentPosition())!!.toLong())
             }
             listener.onPauseOrPlayClick()
         }
 
         forwardIV.setOnClickListener {
-            if (AllSongsActivity.isShuffled) {
-                random = Random().nextInt(allSongList.size)
-                clickedSongPos = random
+            if (isShuffled) {
+                randomPosition = Random().nextInt(allSongList.size)
+                clickedSongPos = randomPosition
                 // adding back stack songs to go play previous song
-                AllSongsActivity.backStackedSongs.add(clickedSongPos)
+                backStackedSongs.add(clickedSongPos)
             } else {
                 incrementSongByOne()
             }
             playSong()
             runningSongCountDownTime(allSongList[clickedSongPos].duration.toLong())
-            listener.onForwardClick(clickedSongPos)
+            listener.onNextBtnClicked(clickedSongPos)
             Log.d("SheetRandomF", "onFinish:$clickedSongPos ")
             playPauseIV.setImageResource(R.drawable.ic_pause)
         }
 
         backwardIv.setOnClickListener {
-            Log.d("backStackSongs", "onCreateView:${AllSongsActivity.backStackedSongs} ")
-            if (AllSongsActivity.isShuffled) {
+            Log.d("backStackSongs", "onCreateView:$backStackedSongs ")
+            if (isShuffled) {
                 //getting index of last played song
-                if (AllSongsActivity.backStackedSongs.isNotEmpty() && AllSongsActivity.backStackedSongs.size >= 2) {
+                if (backStackedSongs.isNotEmpty() && backStackedSongs.size >= 2) {
                     val lastIndex =
-                        AllSongsActivity.backStackedSongs[AllSongsActivity.backStackedSongs.size - 2]
+                        backStackedSongs[backStackedSongs.size - 2]
                     clickedSongPos = lastIndex
-                    AllSongsActivity.backStackedSongs.removeAt(AllSongsActivity.backStackedSongs.size - 1)
+                    backStackedSongs.removeAt(backStackedSongs.size - 1)
                 } else {
-                    AllSongsActivity.backStackedSongs.clear()
+                    backStackedSongs.clear()
                     decrementSongPosByOne()
                 }
             } else {
@@ -140,7 +142,7 @@ class BottomSheetPlayingSong(
             }
             playSong()
             runningSongCountDownTime(allSongList[clickedSongPos].duration.toLong())
-            listener.onBackWardClick(clickedSongPos)
+            listener.onPrevBtnClicked(clickedSongPos)
             Log.d("SheetRandomB", "onFinish:$clickedSongPos ")
             playPauseIV.setImageResource(R.drawable.ic_pause)
         }
@@ -163,56 +165,58 @@ class BottomSheetPlayingSong(
             dismiss()
         }
 
-        playSong()
-        runningSongCountDownTime(totalDurationInMillis - (AllSongsActivity.mMediaPlayer?.currentPosition)!!.toLong())
+        if (clickedSongPos != -1) {
+            playSong()
+        }
+        runningSongCountDownTime(totalDurationInMillis - (musicPlayerService?.currentPosition())!!.toLong())
 
         return view
     }
 
     private fun manageShuffledSing() {
-        if (!AllSongsActivity.isShuffled) {
+        if (!isShuffled) {
             shuffleSongIV.setImageResource(R.drawable.ic_shuffle_disable)
         } else {
             shuffleSongIV.setImageResource(R.drawable.ic_shuffle_enable)
         }
 
         shuffleSongIV.setOnClickListener {
-            if (!AllSongsActivity.isShuffled) {
+            if (!isShuffled) {
                 shuffleSongIV.setImageResource(R.drawable.ic_shuffle_enable)
                 //disable shuffle if loop enabled
                 loopSongIV.setImageResource(R.drawable.loop_songs)
-                AllSongsActivity.isLoop = false
+                isLoop = false
 
                 Toast.makeText(mContext, "Shuffled enable", Toast.LENGTH_SHORT).show()
-                AllSongsActivity.isShuffled = true
+                isShuffled = true
             } else {
                 shuffleSongIV.setImageResource(R.drawable.ic_shuffle_disable)
                 Toast.makeText(mContext, "Shuffled disabled", Toast.LENGTH_SHORT).show()
-                AllSongsActivity.isShuffled = false
+                isShuffled = false
             }
         }
     }
 
     private fun manageLoopSong() {
-        if (!AllSongsActivity.isLoop) {
+        if (!isLoop) {
             loopSongIV.setImageResource(R.drawable.loop_songs)
         } else {
             loopSongIV.setImageResource(R.drawable.loop_one_song)
         }
 
         loopSongIV.setOnClickListener {
-            if (!AllSongsActivity.isLoop) {
+            if (!isLoop) {
                 loopSongIV.setImageResource(R.drawable.loop_one_song)
                 //disable shuffle if loop enabled
                 shuffleSongIV.setImageResource(R.drawable.ic_shuffle_disable)
-                AllSongsActivity.isShuffled = false
+                isShuffled = false
 
                 Toast.makeText(mContext, "Loop song", Toast.LENGTH_SHORT).show()
-                AllSongsActivity.isLoop = true
+                isLoop = true
             } else {
                 loopSongIV.setImageResource(R.drawable.loop_songs)
                 Toast.makeText(mContext, "Loop list", Toast.LENGTH_SHORT).show()
-                AllSongsActivity.isLoop = false
+                isLoop = false
             }
         }
     }
@@ -224,36 +228,40 @@ class BottomSheetPlayingSong(
         artistNameTV.text = allSongsModel.artistsName
 
 
-        if (AllSongsActivity.mMediaPlayer != null) {
-            if (AllSongsActivity.mMediaPlayer?.isPlaying == true) {
+        if (musicPlayerService != null) {
+            if (musicPlayerService?.isPlaying() == true) {
                 playPauseIV.setImageResource(R.drawable.ic_pause)
             } else {
-                playPauseIV.setImageResource(R.drawable.ic_play)
+                playPauseIV.setImageResource(R.drawable.ic_play_audio)
             }
         } else {
             // rare case
-            playPauseIV.setImageResource(R.drawable.ic_play)
+            playPauseIV.setImageResource(R.drawable.ic_play_audio)
         }
 
 //        val albumArt = SongAlbumArt.get((allSongsModel.path))
-        val albumArt = allSongsModel.albumArt
+        val albumArtUri = allSongsModel.artUri
+        val albumArt = UriToBitmapConverter.getBitmap(
+            (mContext).contentResolver!!,
+            albumArtUri.toUri()
+        )
         val factory = DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
         if (albumArt != null) {
-            val bitmap = BitmapFactory.decodeByteArray(albumArt, 0, albumArt.size)
-            Glide.with(mContext).asBitmap().load(bitmap).transition(withCrossFade(factory))
+//            val bitmap = BitmapFactory.decodeByteArray(albumArt, 0, albumArt.size)
+            Glide.with(mContext).asBitmap().load(albumArt).transition(withCrossFade(factory))
                 .into(nowPlayingAlbumArtIV)
 
             //Blurred Full screen image
-           /* controllingSongIVBG.setImageResource(R.drawable.spydi)
+            /* controllingSongIVBG.setImageResource(R.drawable.spydi)
 
-            val bgCurveBitmap = ((controllingSongIVBG.drawable)as BitmapDrawable).toBitmap()
+             val bgCurveBitmap = ((controllingSongIVBG.drawable)as BitmapDrawable).toBitmap()
 
-            val blurBitmap = BlurBuilder().blur(mContext, bgCurveBitmap, 23f)
-            Glide.with(mContext).asBitmap().load(blurBitmap).centerCrop()
-                .transition(withCrossFade(factory))
-                .into(controllingSongIVBG)*/
+             val blurBitmap = BlurBuilder().blur(mContext, bgCurveBitmap, 23f)
+             Glide.with(mContext).asBitmap().load(blurBitmap).centerCrop()
+                 .transition(withCrossFade(factory))
+                 .into(controllingSongIVBG)*/
 
-            Palette.from(bitmap).generate {
+            Palette.from(albumArt).generate {
                 val swatch = it?.dominantSwatch
                 if (swatch != null) {
                     albumArtBottomGradient.setBackgroundResource(R.drawable.gradient_background_bottom_shadow)
@@ -316,10 +324,10 @@ class BottomSheetPlayingSong(
                 }
             }
             //Blurred Full screen image
-           /* val blurredBitMap = BlurBuilder().blur(mContext, originalBitmap, 25f)
-            Glide.with(mContext).asBitmap().load(blurredBitMap).centerCrop()
-                .transition(withCrossFade(factory))
-                .into(fullScreenBlurredAlbumArt)*/
+            /* val blurredBitMap = BlurBuilder().blur(mContext, originalBitmap, 25f)
+             Glide.with(mContext).asBitmap().load(blurredBitMap).centerCrop()
+                 .transition(withCrossFade(factory))
+                 .into(fullScreenBlurredAlbumArt)*/
         }
         mSeekBar.max = ((allSongsModel.duration.toDouble() / 1000).toInt())
         val songDuration = millisToMinutesAndSeconds(totalDurationInMillis)
@@ -348,24 +356,24 @@ class BottomSheetPlayingSong(
                 } else {
 
                 }*/
-                if (!AllSongsActivity.isLoop && !AllSongsActivity.isShuffled) {
+                if (!isLoop && !isShuffled) {
                     // normal running player
                     incrementSongByOne()
                     playSong()
                     runningSongCountDownTime(allSongList[clickedSongPos].duration.toLong())
                 } else {
-                    if (AllSongsActivity.isShuffled) {
+                    if (isShuffled) {
                         // shuffled
-                        random = AllSongsActivity.random
-                        if (AllSongsActivity.mMediaPlayer != null) {
-                            clickedSongPos = random
+                        randomPosition = random
+                        if (musicPlayerService != null) {
+                            clickedSongPos = randomPosition
                             //getting random songs and playing it
                             playSong()
-                            runningSongCountDownTime(allSongList[random].duration.toLong())
+                            runningSongCountDownTime(allSongList[randomPosition].duration.toLong())
                         }
-                    } else if (AllSongsActivity.isLoop) {
+                    } else if (isLoop) {
                         // looped one song
-                        if (AllSongsActivity.mMediaPlayer != null) {
+                        if (musicPlayerService != null) {
                             playSong()
                             runningSongCountDownTime(allSongList[clickedSongPos].duration.toLong())
                         }
@@ -406,8 +414,8 @@ class BottomSheetPlayingSong(
 
         mSeekBar.progress = seekProgress.toInt()
 
-        if (AllSongsActivity.mMediaPlayer != null) {
-            if (AllSongsActivity.mMediaPlayer?.isPlaying == false) {
+        if (musicPlayerService != null) {
+            if (musicPlayerService?.isPlaying() == false) {
                 elapsedRunningSong?.cancel()
             }
         }
