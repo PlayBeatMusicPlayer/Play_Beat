@@ -31,7 +31,7 @@ class HomeFragment : Fragment() {
         mViewPager = _binding!!.mViewPager
         mTabLayout = _binding!!.tabLayout
 
-        val list = listOf(AllSongFragment(), AlbumFragment(), ArtistsFragment())
+        val list = listOf(AllSongFragment(), AllAlbumsFragment(), AllArtistsFragment())
         pagerAdapter = ViewPagerAdapter(childFragmentManager, list)
         mTabLayout.setupWithViewPager(mViewPager)
         mViewPager.offscreenPageLimit = 3

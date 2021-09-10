@@ -4,50 +4,16 @@ import android.net.Uri
 
 data class AllSongsModel(
     var albumId: Long,
-    var albumArt: ByteArray?,
     var songName: String,
     var artistsName: String,
     var albumName: String,
     var size: Int,
     var duration: Int,
     var data: String,
-    var audioUri: Uri?,
+    var audioUri: String,
     var artUri: String
 ) {
-    constructor() : this(0L, null, "", "", "", 0, 0/*null*/, "", null, "")
+    constructor() : this(0L, "", "", "", 0, 0/*null*/, "", "", "")
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
 
-        other as AllSongsModel
-
-        if (albumId != other.albumId) return false
-        if (albumArt != null) {
-            if (other.albumArt == null) return false
-            if (!albumArt.contentEquals(other.albumArt)) return false
-        } else if (other.albumArt != null) return false
-        if (songName != other.songName) return false
-        if (artistsName != other.artistsName) return false
-        if (albumName != other.albumName) return false
-        if (size != other.size) return false
-        if (duration != other.duration) return false
-        /* if (bitmap != other.bitmap) return false*/
-        if (audioUri != other.audioUri) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = albumId.hashCode()
-        result = 31 * result + (albumArt?.contentHashCode() ?: 0)
-        result = 31 * result + songName.hashCode()
-        result = 31 * result + artistsName.hashCode()
-        result = 31 * result + albumName.hashCode()
-        result = 31 * result + size
-        result = 31 * result + duration
-        /* result = 31 * result + (bitmap?.hashCode() ?: 0)*/
-        result = 31 * result + (audioUri?.hashCode() ?: 0)
-        return result
-    }
 }

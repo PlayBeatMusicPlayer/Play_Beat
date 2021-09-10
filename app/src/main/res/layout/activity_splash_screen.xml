@@ -4,14 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/app_theme_gradient_background"
     tools:context=".activity.SplashScreenActivity">
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginTop="150dp"
         android:contentDescription="@string/splash_screen_img"
         android:scaleType="centerCrop"
-        android:src="@drawable/splash_screen_img_v2" />
+        android:src="@drawable/ic_play_beat_logo" />
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/lottieSplash"

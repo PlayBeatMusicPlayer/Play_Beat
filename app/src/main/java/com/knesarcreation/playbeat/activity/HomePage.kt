@@ -1,3 +1,4 @@
+/*
 package com.knesarcreation.playbeat.activity
 
 import android.content.Intent
@@ -32,4 +33,4 @@ class HomePage : AppCompatActivity() {
         cvFav = findViewById(R.id.cvFav)
         arrowBackIV = findViewById(R.id.arrowBackIV)
     }
-}
+}*/

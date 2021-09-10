@@ -68,23 +68,21 @@ dependencies {
     implementation "androidx.media:media:1.4.1"
     implementation "androidx.media2:media2:1.0.0-alpha04"
 
-    if (findProject(':exoplayer-library-core') != null) {
-        api project(':exoplayer-library-core')
-        api project(':exoplayer-library-ui')
-        api project(':exoplayer-extension-mediasession')
-        api project(':exoplayer-extension-cast')
-    } else {
-        api "com.google.android.exoplayer:exoplayer-core:2.11.5"
-        api "com.google.android.exoplayer:exoplayer-ui:2.11.5"
-        api "com.google.android.exoplayer:extension-mediasession:2.11.5"
-        api "com.google.android.exoplayer:extension-cast:2.11.5"
-    }
+//    if (findProject(':exoplayer-library-core') != null) {
+//        api project(':exoplayer-library-core')
+//        api project(':exoplayer-library-ui')
+//        api project(':exoplayer-extension-mediasession')
+//        api project(':exoplayer-extension-cast')
+//    } else {
+//        api "com.google.android.exoplayer:exoplayer-core:2.11.5"
+//        api "com.google.android.exoplayer:exoplayer-ui:2.11.5"
+//        api "com.google.android.exoplayer:extension-mediasession:2.11.5"
+//        api "com.google.android.exoplayer:extension-cast:2.11.5"
+//    }
 
     implementation 'com.google.code.gson:gson:2.8.6'
 
     //custom bottom bar
-    implementation 'com.ashokvarma.android:bottom-navigation-bar:2.2.0'
-    implementation 'me.majiajie:pager-bottom-tab-strip:2.4.0'
     implementation 'com.github.ibrahimsn98:SmoothBottomBar:1.7.8'
 
     implementation("androidx.navigation:navigation-fragment-ktx:2.4.0-alpha08")

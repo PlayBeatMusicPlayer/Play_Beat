@@ -8,19 +8,28 @@
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable-v24/ic_album.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable-v24/ic_recommended.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/all_songs_card_gradient.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/app_theme_background_drawable.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/app_theme_bg_drawable.xml" value="0.15092592592592594" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/background_bottom_shadow.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/background_top_shadow.xml" value="0.2101851851851852" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/bottom_shadow_app_theme_color.xml" value="0.1" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/bottom_shadow_light_black.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/card_gradient.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/curved_all_edges.xml" value="0.125" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/curved_tab_background.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/curved_top_right_top_left_black.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/curved_transparent_edge.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/fillin_heart.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/gradient_background_bottom_shadow.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/gradient_background_top_shadow.xml" value="0.19444444444444445" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_album.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_album_play_btn.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_audio_file_placeholder_svg.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_back_arrow_ios.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_baseline_play_circle_24.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_close_white.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_fav.xml" value="0.18425925925925926" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_forward.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_noti_pause_circle.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_noti_play_circle.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_noti_skip_next.xml" value="0.26458333333333334" />
@@ -29,26 +38,41 @@
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_pause_audio.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_play.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_play_audio.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_play_beat_logo.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_play_white_circle.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_shuffle.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_shuffle_enable.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_skip_next.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_skip_previous.xml" value="0.19444444444444445" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_splash_screen_bckground.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/ic_unfav.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/kkk.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/little_curved_all_edges.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/outline_favorite_24.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/drawable/shadow_from_left.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/activity_album_songs.xml" value="0.2484375" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/activity_all_songs.xml" value="0.2" />
-        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/activity_bottom_bar_fragment.xml" value="0.264" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/activity_bottom_bar_fragment.xml" value="0.2" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/activity_home_page.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/activity_home_screen_v2.xml" value="0.2" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/activity_main.xml" value="0.2484375" />
-        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/activity_splash_screen.xml" value="0.2484375" />
-        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/bottom_sheet_song_tray.xml" value="0.176" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/activity_splash_screen.xml" value="0.264" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/bottom_sheet_song_tray.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/dialog_progress.xml" value="0.24461538461538462" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/fragment_album.xml" value="0.2484375" />
-        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/fragment_all_song.xml" value="0.2484375" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/fragment_album_song.xml" value="0.2" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/fragment_album_song_test.xml" value="0.264" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/fragment_all_song.xml" value="0.264" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/fragment_artists.xml" value="0.2484375" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/fragment_artists_tracks_and_album.xml" value="0.2890262751159196" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/fragment_blank.xml" value="0.2484375" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/fragment_favourite.xml" value="0.23333333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/fragment_home_fragments_container.xml" value="0.23333333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/fragment_setting.xml" value="0.23333333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/home_fragment.xml" value="0.2484375" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/recycler_album_items.xml" value="0.2" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/recycler_all_songs_item.xml" value="0.264" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/layout/recycler_grid_album_items.xml" value="0.4" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/PlayBeat/app/src/main/res/menu/bottom_bar_menu.xml" value="0.2484375" />
       </map>
     </option>

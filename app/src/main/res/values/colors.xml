@@ -52,4 +52,5 @@
     <color name="peach_pink">#FDEBFA</color>
     <color name="_blue">#E0F2F8</color>
     <color name="bright_orange">#DC973F</color>
+    <color name="rippleColor">#419A9A9A</color>
 </resources>

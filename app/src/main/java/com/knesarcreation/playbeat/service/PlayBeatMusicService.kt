@@ -29,7 +29,6 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import com.knesarcreation.playbeat.R
-import com.knesarcreation.playbeat.activity.PlayerActivity
 import com.knesarcreation.playbeat.fragment.AllSongFragment
 import com.knesarcreation.playbeat.model.AllSongsModel
 import com.knesarcreation.playbeat.utils.ApplicationChannel.Companion.CHANNEL_ID
@@ -57,7 +56,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     private var telephonyManager: TelephonyManager? = null
 
     //List of available Audio files
-//    private var audioList: ArrayList<AllSongsModel>? = null
+    private var audioList: ArrayList<AllSongsModel>? = null
     private var audioIndex = -1
     private var activeAudio //an object of the currently playing audio
             : AllSongsModel? = null
@@ -101,7 +100,6 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     }
 
     private fun initMediaPlayer() {
-        mediaPlayer = MediaPlayer()
         //Set up MediaPlayer event listeners
 
         //mediaPlayer?.setOnBufferingUpdateListener(this)
@@ -188,13 +186,14 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         try {
             //Load data from SharedPreferences
             val storage = StorageUtil(applicationContext)
+            audioList = storage.loadAudio()
             audioIndex = storage.loadAudioIndex()
 
             Log.d("audioIndexService", "onStartCommand:  $audioIndex")
 
-            if (audioIndex != -1 && audioIndex < PlayerActivity.audioList.size) {
+            if (audioIndex != -1 && audioIndex < audioList!!.size) {
                 //index is in a valid range
-                activeAudio = PlayerActivity.audioList[audioIndex]
+                activeAudio = audioList!![audioIndex]
             } else {
                 stopSelf()
             }
@@ -211,14 +210,15 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
         if (mediaSessionManager == null) {
             try {
+                mediaPlayer = MediaPlayer()
                 initMediaSession()
-                initMediaPlayer()
+                //initMediaPlayer()
             } catch (e: RemoteException) {
                 e.printStackTrace()
                 stopSelf()
             }
-            buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
-            buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+            //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+            //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
         }
 
         //Handle Intent action from MediaSession.TransportControls
@@ -226,12 +226,12 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         return START_STICKY
     }
 
-    fun playMedia() {
+    private fun playMedia() {
         if (mediaPlayer == null) return
         if (!mediaPlayer?.isPlaying!!) {
             mediaPlayer?.start()
-            /** Update UI of [PlayerActivity] */
-            val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_PLAYER_UI)
+            /** Update UI of [AllSongFragment] */
+            val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
             sendBroadcast(updatePlayer)
         }
     }
@@ -248,8 +248,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
             if (mediaPlayer?.isPlaying!!) {
                 mediaPlayer?.pause()
                 resumePosition = mediaPlayer?.currentPosition!!
-                /** Update UI of [PlayerActivity] */
-                val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_PLAYER_UI)
+                /** Update UI of [AllSongFragment] */
+                val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
                 sendBroadcast(updatePlayer)
             }
         }
@@ -258,23 +258,24 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     fun resumeMedia() {
         if (mediaPlayer == null) return
         if (!mediaPlayer?.isPlaying!!) {
+            initMediaPlayer()
             mediaPlayer?.seekTo(resumePosition)
             mediaPlayer?.start()
 
-            /** Update UI of [PlayerActivity] */
-            val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_PLAYER_UI)
+            /** Update UI of [AllSongFragment] */
+            val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
             sendBroadcast(updatePlayer)
         }
     }
 
     fun skipToNext() {
-        if (audioIndex == PlayerActivity.audioList.size - 1) {
+        if (audioIndex == audioList!!.size - 1) {
             //if last in playlist
             audioIndex = 0
-            activeAudio = PlayerActivity.audioList[audioIndex]
+            activeAudio = audioList!![audioIndex]
         } else {
             //get next in playlist
-            activeAudio = PlayerActivity.audioList[++audioIndex]
+            activeAudio = audioList!![++audioIndex]
         }
 
         Toast.makeText(applicationContext, "${audioIndex}", Toast.LENGTH_SHORT).show()
@@ -285,8 +286,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         mediaPlayer!!.reset()
         initMediaPlayer()
 
-        /** Update UI of [PlayerActivity] */
-        val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_PLAYER_UI)
+        /** Update UI of [AllSongFragment] */
+        val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
         sendBroadcast(updatePlayer)
     }
 
@@ -294,15 +295,15 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         if (audioIndex == 0) {
             //if first in playlist
             //set index to the last of audioList
-            audioIndex = PlayerActivity.audioList.size - 1
-            activeAudio = PlayerActivity.audioList[audioIndex]
+            audioIndex = audioList!!.size - 1
+            activeAudio = audioList!![audioIndex]
         } else {
             //get previous in playlist
-            activeAudio = PlayerActivity.audioList[--audioIndex]
+            activeAudio = audioList!![--audioIndex]
         }
 
-        /** Update UI of [PlayerActivity] */
-        val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_PLAYER_UI)
+        /** Update UI of [AllSongFragment] */
+        val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
         sendBroadcast(updatePlayer)
 
         //Update stored index
@@ -552,12 +553,14 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     // Broad cast receivers .......................................................
     private val playNewAudio: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+            val storageUtil = StorageUtil(applicationContext)
 
+            audioList = storageUtil.loadAudio()
             //Get the new media index form SharedPreferences
-            audioIndex = StorageUtil(applicationContext).loadAudioIndex()
-            if (audioIndex != -1 && audioIndex < PlayerActivity.audioList.size) {
+            audioIndex = storageUtil.loadAudioIndex()
+            if (audioIndex != -1 && audioIndex < audioList!!.size) {
                 //index is in a valid range
-                activeAudio = PlayerActivity.audioList[audioIndex]
+                activeAudio = audioList!![audioIndex]
             } else {
                 stopSelf()
             }
@@ -566,8 +569,12 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
             //A PLAY_NEW_AUDIO action received
             //reset mediaPlayer to play the new Audio
-            stopMedia()
-            mediaPlayer!!.reset()
+
+            if (mediaPlayer != null && mediaPlayer?.isPlaying!!) {
+                stopMedia()
+                mediaPlayer!!.reset()
+            }
+
             initMediaPlayer()
             updateMetaData()
             buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
@@ -577,7 +584,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
     private fun registerPlayNewAudio() {
         //Register playNewMedia receiver
-        val filter = IntentFilter(PlayerActivity.Broadcast_PLAY_NEW_AUDIO)
+        val filter = IntentFilter(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
         registerReceiver(playNewAudio, filter)
     }
 
@@ -659,32 +666,29 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                     }
 
 
-                        if (keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
-                            resumePosition = 0
-                            skipToNext()
-                            updateMetaData()
-                            buildNotification(
-                                PlaybackStatus.PLAYING,
-                                PlaybackStatus.UN_FAVOURITE,
-                                1f
-                            )
-                            Log.d("skipToNextEarphone", "onMediaButtonEvent: run ")
-                            return true
-                        }
-                        if (keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS) {
-                            resumePosition = 0
-                            skipToPrevious()
-                            updateMetaData()
-                            buildNotification(
-                                PlaybackStatus.PLAYING,
-                                PlaybackStatus.UN_FAVOURITE,
-                                1f
-                            )
-                            return true
-                        }
-
-
-//                    }
+                    if (keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
+                        resumePosition = 0
+                        skipToNext()
+                        updateMetaData()
+                        buildNotification(
+                            PlaybackStatus.PLAYING,
+                            PlaybackStatus.UN_FAVOURITE,
+                            1f
+                        )
+                        Log.d("skipToNextEarphone", "onMediaButtonEvent: run ")
+                        return true
+                    }
+                    if (keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS) {
+                        resumePosition = 0
+                        skipToPrevious()
+                        updateMetaData()
+                        buildNotification(
+                            PlaybackStatus.PLAYING,
+                            PlaybackStatus.UN_FAVOURITE,
+                            1f
+                        )
+                        return true
+                    }
                 }
                 return false
 
@@ -784,6 +788,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
     override fun onDestroy() {
         super.onDestroy()
+        Toast.makeText(applicationContext, "Destroyed", Toast.LENGTH_SHORT).show()
+        Log.d("PlayBeatServiceDestroyed", "onDestroy: Destroyed")
         if (mediaPlayer != null) {
             stopMedia()
             mediaPlayer!!.release()

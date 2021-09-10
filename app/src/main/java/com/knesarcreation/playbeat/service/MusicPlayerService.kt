@@ -1,3 +1,4 @@
+/*
 package com.knesarcreation.playbeat.service
 
 import android.app.Service
@@ -19,7 +20,7 @@ class MusicPlayerService : Service() {
     private var allSongList = ArrayList<AllSongsModel>()
     var uri: Uri? = null
     var position: Int = -1
-    lateinit var ap :ActionPlay
+    lateinit var ap: ActionPlay
 
     override fun onBind(p0: Intent?): IBinder {
         Log.d("OnBind", "onBind: Called")
@@ -87,8 +88,8 @@ class MusicPlayerService : Service() {
 
     fun createMediaPlayer(position: Int, context: Context) {
         val allSongModel = AllSongsActivity.allSongList[position]
-        uri = allSongModel.audioUri
+        uri = Uri.parse(allSongModel.audioUri)
         mMediaPlayer = MediaPlayer.create(context, uri)
     }
 
-}
+}*/

@@ -6,21 +6,23 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.knesarcreation.playbeat.activity.PlayerActivity
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.databinding.FragmentAllSongBinding
 import com.knesarcreation.playbeat.model.AllSongsModel
 import com.knesarcreation.playbeat.service.PlayBeatMusicService
+import com.knesarcreation.playbeat.utils.AudioPlayingFromCategory
 import com.knesarcreation.playbeat.utils.CustomProgressDialog
 import com.knesarcreation.playbeat.utils.StorageUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
 
 class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSongItem {
@@ -32,12 +34,13 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
 
     private var audioIndexPos = -1
     private var isDestroyedActivity = false
+    private var audioList = CopyOnWriteArrayList<AllSongsModel>()
 
     companion object {
-        var audioList = ArrayList<AllSongsModel>()
         const val Broadcast_PLAY_NEW_AUDIO = " com.knesarcreation.playbeat.utils.PlayNewAudio"
-        const val Broadcast_UPDATE_PLAYER_UI = " com.knesarcreation.playbeat.utils.UpdatePlayerUi"
-         var musicService: PlayBeatMusicService? = null
+        const val Broadcast_BOTTOM_UPDATE_PLAYER_UI =
+            " com.knesarcreation.playbeat.utils.UpdatePlayerUi"
+        var musicService: PlayBeatMusicService? = null
     }
 
     override fun onCreateView(
@@ -62,7 +65,7 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
 
     @SuppressLint("Range")
     private fun loadAudio() {
-        PlayerActivity.audioList.clear()
+        audioList.clear()
         val collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 
         val projection = arrayOf(
@@ -131,124 +134,85 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
                 val allSongsModel =
                     AllSongsModel(
                         albumId,
-                        null,
                         name,
                         artist,
                         album,
                         size,
                         duration,
                         data,
-                        contentUri,
+                        contentUri.toString(),
                         artUri
                     )
-                PlayerActivity.audioList.add(allSongsModel)
+                audioList.add(allSongsModel)
             }
 
             // Stuff that updates the UI
             (activity as AppCompatActivity).runOnUiThread {
                 allSongsAdapter =
-                    AllSongsAdapter(activity as Context, PlayerActivity.audioList, this)
+                    AllSongsAdapter(activity as Context, audioList, this)
                 binding!!.rvAllSongs.adapter = allSongsAdapter
                 cursor.close()
-//                progressBar.dismiss()
+                // progressBar.dismiss()
             }
         }
 
+        // after loading audio start the service
+        startService()
     }
 
-    private fun playAudio(activeAudio: AllSongsModel?, audioIndex: Int) {
-        this.audioIndexPos = audioIndex
-        //Check is service is active
-        if (!serviceBound) {
+    private fun startService() {
+        if (musicService == null) {
             val storage = StorageUtil(activity as AppCompatActivity)
-            // storage.storeAudio(audioList)
-            storage.storeAudioIndex(audioIndex)
+            storage.storeAudio(audioList)
+            storage.storeAudioIndex(0) // since service is creating firstTime
 
             val playerIntent = Intent(activity as Context, PlayBeatMusicService::class.java)
-            //playerIntent.putExtra("audioPosition", audioIndex)
             (activity as AppCompatActivity).startService(playerIntent)
             (activity as AppCompatActivity).bindService(
                 playerIntent,
                 this,
                 Context.BIND_AUTO_CREATE
             )
-
-        } else {
-            //Store the new audioIndex to SharedPreferences
-            val storage = StorageUtil(activity as Context)
-            storage.storeAudioIndex(audioIndex)
-
-            //Service is active
-            //Send a broadcast to the service -> PLAY_NEW_AUDIO
-            val broadcastIntent = Intent(Broadcast_PLAY_NEW_AUDIO)
-            (activity as AppCompatActivity).sendBroadcast(broadcastIntent)
+            Log.d("AlbumFragment.musicService", "playAudio: its null... service created")
         }
-
-        //updatePlayingMusic(audioIndex)
-
+        val updatePlayer = Intent(Broadcast_BOTTOM_UPDATE_PLAYER_UI)
+        (activity as Context).sendBroadcast(updatePlayer)
     }
 
+    private fun playAudio(audioIndex: Int) {
+        this.audioIndexPos = audioIndex
+        val storage = StorageUtil(activity as Context)
+        if (AudioPlayingFromCategory.audioPlayingFromAlbumORArtist) {
+            storage.storeAudio(audioList)
+            AudioPlayingFromCategory.audioPlayingFromAlbumORArtist = false
+        }
+        //Store the new audioIndex to SharedPreferences
+        storage.storeAudioIndex(audioIndex)
 
-    /*  private fun controlAudio() {
-          binding!!.skipNextAudio.setOnClickListener {
-              val audioIndexPos = getSongFromPos()
-              val storage = StorageUtil(activity as AppCompatActivity)
-              storage.storeAudioIndex(audioIndexPos)
-              val broadcastIntent = Intent(PlayerActivity.Broadcast_PLAY_NEW_AUDIO)
-              (activity as AppCompatActivity).sendBroadcast(broadcastIntent)
-              updatePlayingMusic(audioIndexPos)
-              // Toast.makeText(this, "Skipped Next", Toast.LENGTH_SHORT).show()
-          }
+        //Service is active send broadcast
+        val broadcastIntent = Intent(Broadcast_PLAY_NEW_AUDIO)
+        (activity as AppCompatActivity).sendBroadcast(broadcastIntent)
 
-          binding!!.playPauseIV.setOnClickListener {
-              if (musicService?.mediaPlayer!!.isPlaying) {
-                  musicService?.pauseMedia()
-                  binding!!.playPauseIV.setImageResource(R.drawable.ic_play_audio)
-              } else if (!musicService?.mediaPlayer!!.isPlaying) {
-                  musicService?.playMedia()
-                  binding!!.playPauseIV.setImageResource(R.drawable.ic_pause_audio)
-                  musicService?.updateMetaData()
-                  musicService?.buildNotification(
-                      PlaybackStatus.PLAYING,
-                      PlaybackStatus.UN_FAVOURITE,
-                      1f
-                  )
-              }
-          }
-      }*/
-
-    /*   private fun updatePlayingMusic(audioIndex: Int) {
-           binding!!.songNameTV.text = PlayerActivity.audioList[audioIndex].songName
-           binding!!.artistOrAlbumNameTV.text = PlayerActivity.audioList[audioIndex].artistsName
-           Glide.with(this).load(PlayerActivity.audioList[audioIndexPos].artUri)
-               .apply(RequestOptions.placeholderOf(R.drawable.music_note_1).centerCrop())
-               .into(binding!!.albumArtIV)
-           if (musicService?.mediaPlayer != null) {
-               if (musicService?.mediaPlayer!!.isPlaying) {
-                   binding!!.playPauseIV.setImageResource(R.drawable.ic_pause_audio)
-               } else {
-                   binding!!.playPauseIV.setImageResource(R.drawable.ic_play_audio)
-               }
-           }
-       }*/
+        val updatePlayer = Intent(Broadcast_BOTTOM_UPDATE_PLAYER_UI)
+        (activity as Context).sendBroadcast(updatePlayer)
+    }
 
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         // We've bound to LocalService, cast the IBinder and get LocalService instance
         val binder = service as PlayBeatMusicService.LocalBinder
         musicService = binder.getService()
-        serviceBound = true
+        //serviceBound = true
+        Log.d("AllSongServicesBounded", "onServiceConnected: true")
         //controlAudio()
         // Toast.makeText(this, "Service Bound", Toast.LENGTH_SHORT).show()
     }
 
     override fun onServiceDisconnected(p0: ComponentName?) {
-        serviceBound = false
+        musicService = null
     }
 
     override fun onClick(allSongModel: AllSongsModel, position: Int) {
-        playAudio(allSongModel, position)
-        val updatePlayer = Intent(Broadcast_UPDATE_PLAYER_UI)
-        (activity as AppCompatActivity).sendBroadcast(updatePlayer)
+        playAudio(position)
     }
 
 

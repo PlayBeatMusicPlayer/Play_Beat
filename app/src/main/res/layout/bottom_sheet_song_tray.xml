@@ -4,7 +4,7 @@
     android:id="@+id/rlParentBG"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/app_theme_background_drawable">
+    android:background="@drawable/app_theme_gradient_background">
 
     <ImageView
         android:id="@+id/fullScreenBG"

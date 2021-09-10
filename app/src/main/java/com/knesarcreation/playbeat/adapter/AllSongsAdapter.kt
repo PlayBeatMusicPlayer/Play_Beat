@@ -21,10 +21,11 @@ import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.model.AllSongsModel
 import java.io.FileNotFoundException
 import java.io.IOException
+import java.util.concurrent.CopyOnWriteArrayList
 
 class AllSongsAdapter(
     var context: Context,
-    var allSongList: ArrayList<AllSongsModel>,
+    var allSongList: CopyOnWriteArrayList<AllSongsModel>,
     var listener: OnClickSongItem
 ) :
     RecyclerView.Adapter<AllSongsAdapter.AllSongsViewHolder>() {
@@ -39,7 +40,7 @@ class AllSongsAdapter(
         val songName: TextView = view.findViewById(R.id.songNameTV)
         val artistName: TextView = view.findViewById(R.id.artistNameTV)
         val albumName: TextView = view.findViewById(R.id.albumNameTv)
-        val albumArtIV: ImageView = view.findViewById(R.id.songPosterIV)
+        val albumArtIV: ImageView = view.findViewById(R.id.album_art_iv)
         val rlAudio: RelativeLayout = view.findViewById(R.id.rlAudio)
     }
 
@@ -59,7 +60,7 @@ class AllSongsAdapter(
         val artUri = allSongModel.artUri
 
         Glide.with(context).load(artUri)
-            .apply(RequestOptions.placeholderOf(R.drawable.music_note_1).centerCrop())
+            .apply(RequestOptions.placeholderOf(R.drawable.ic_audio_file_placeholder_svg).centerCrop())
             .into(holder.albumArtIV)
 
         holder.rlAudio.setOnClickListener {

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="240dp"
+    android:layout_height="115dp"
+    android:paddingStart="15dp"
+    android:paddingTop="5dp"
+    android:paddingEnd="5dp"
+    android:paddingBottom="5dp"
+    tools:ignore="RtlSymmetry">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardCornerRadius="10dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/albumArtIV"
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:contentDescription="@null"
+                android:scaleType="centerCrop"
+                android:src="@drawable/artist_cover_img" />
+
+            <ImageView
+                android:id="@+id/albumArtOverlay"
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentEnd="true"
+                android:contentDescription="@null"
+                android:background="@drawable/shadow_from_left" />
+
+            <ImageView
+                android:id="@+id/albumArtLeftDarkBG"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_toStartOf="@id/albumArtIV"
+                android:background="@drawable/album_card_dark_bg"
+                android:contentDescription="@null" />
+
+            <!--  <ImageView
+                  android:layout_width="30dp"
+                  android:layout_height="30dp"
+                  android:layout_alignParentEnd="true"
+                  android:layout_centerVertical="true"
+                  android:layout_marginEnd="35dp"
+                  android:alpha="0.5"
+                  android:contentDescription="@null"
+                  android:src="@drawable/ic_play_white_circle" />-->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/playAlbum"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_below="@id/albumNameTV"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="10dp"
+                android:alpha="0.8"
+                android:background="?selectableItemBackgroundBorderless"
+                android:padding="2.5dp"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/semi_transparent"
+                app:cornerRadius="50dp"
+                app:icon="@drawable/ic_play_white_circle"
+                app:iconGravity="end"
+                app:iconPadding="0dp"
+                app:iconSize="30dp" />
+
+
+            <TextView
+                android:id="@+id/albumNameTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="50dp"
+                android:layout_marginEnd="20dp"
+                android:ellipsize="marquee"
+                android:fontFamily="@font/segoe_ui"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                tools:text="Dil Hi Toh Hai Season 3 2021" />
+
+            <TextView
+                android:id="@+id/artisNameTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/albumNameTV"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="1dp"
+                android:layout_marginEnd="20dp"
+                android:layout_toStartOf="@id/playAlbum"
+                android:fontFamily="@font/segoe_ui"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:textColor="@color/grey"
+                android:textSize="11sp"
+                android:textStyle="normal"
+                tools:text="Artist name" />
+
+
+        </RelativeLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+
+    <!--
+
+
+
+     <TextView
+         android:id="@+id/noOfTracks"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_marginStart="10dp"
+         android:layout_marginTop="55dp"
+         android:layout_toEndOf="@id/albumArtIV"
+         android:fontFamily="@font/segoe_ui"
+         android:text="2021"
+         android:textColor="@color/grey"
+         android:textSize="11sp"
+         android:textStyle="normal" />-->
+
+</RelativeLayout>

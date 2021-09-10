@@ -21,6 +21,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PlayBeat">
         <activity
+            android:name=".activity.AlbumSongsActivity"
+            android:exported="true" />
+        <activity
             android:name=".activity.PlayerActivity"
             android:exported="true"
             android:screenOrientation="portrait"
@@ -41,7 +44,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.HomePage"
             android:exported="true"
@@ -61,10 +63,7 @@
             android:name=".service.MusicPlayerService"
             android:enabled="true"
             android:exported="false" />
-
         <service android:name=".service.PlayBeatMusicService" />
-
-
     </application>
 
 </manifest>

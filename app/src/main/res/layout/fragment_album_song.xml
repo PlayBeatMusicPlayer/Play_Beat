@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.AlbumFragment">
+
+    <ImageView
+        android:id="@+id/blurredCoverIV"
+        android:layout_width="match_parent"
+        android:layout_height="210dp"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop" />
+
+    <ImageView
+        android:id="@+id/topViewIV"
+        android:layout_width="match_parent"
+        android:layout_height="210dp"
+        android:background="@drawable/gradient_background_bottom_shadow"
+        android:contentDescription="@null" />
+
+    <!--back arrow-->
+    <ImageView
+        android:id="@+id/arrowBackIV"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/curved_all_edges"
+        android:contentDescription="@null"
+        android:paddingTop="5dp"
+        android:paddingEnd="2dp"
+        android:paddingBottom="5dp"
+        android:src="@drawable/ic_back_arrow_ios"
+        tools:ignore="RtlSymmetry" />
+
+    <!--album art-->
+    <RelativeLayout
+        android:layout_width="250dp"
+        android:layout_height="200dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp">
+
+        <ImageView
+            android:layout_width="160dp"
+            android:layout_height="180dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_album"
+            app:shapeAppearanceOverlay="@style/circular_5" />
+
+        <RelativeLayout
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/curved_all_edges"
+            android:elevation="20dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/albumArtIV"
+                android:layout_width="180dp"
+                android:layout_height="180dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/album_png"
+                app:shapeAppearanceOverlay="@style/circular_5" />
+
+
+        </RelativeLayout>
+    </RelativeLayout>
+
+
+    <ImageView
+        android:id="@+id/bottomShadowIV"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/topViewIV"
+        android:background="@color/app_theme_color"
+        android:contentDescription="@null" />
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/playAlbum"
+        android:layout_width="135dp"
+        android:layout_height="55dp"
+        android:layout_below="@id/topViewIV"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp"
+        android:contentDescription="@null"
+        android:text="Play All"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        app:backgroundTint="@color/semi_transparent"
+        app:cornerRadius="60dp"
+        app:elevation="10dp"
+        app:icon="@drawable/ic_album_play_btn"
+        app:iconGravity="end"
+        app:iconSize="30dp"
+        app:rippleColor="@color/rippleColor" />
+
+    <TextView
+        android:id="@+id/albumNameTV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/playAlbum"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="50dp"
+        android:ellipsize="marquee"
+        android:fontFamily="@font/segoe_ui"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:text="Album Name"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/artistNameTV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/albumNameTV"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="3dp"
+        android:layout_toStartOf="@id/playAlbum"
+        android:ellipsize="marquee"
+        android:fontFamily="@font/segoe_ui"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:text="Artist Name"
+        android:textColor="@color/grey"
+        android:textSize="13sp"
+        android:textStyle="normal" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvAlbumAudio"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/artistNameTV"
+        android:layout_marginTop="18dp"
+        android:nestedScrollingEnabled="false"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/recycler_album_items"
+
+        />
+
+</RelativeLayout>

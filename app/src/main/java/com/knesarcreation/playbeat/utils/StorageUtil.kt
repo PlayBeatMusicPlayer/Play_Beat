@@ -8,6 +8,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.knesarcreation.playbeat.model.AllSongsModel
 import java.lang.reflect.Type
+import java.util.concurrent.CopyOnWriteArrayList
 
 
 class StorageUtil(context: Context) {
@@ -18,19 +19,13 @@ class StorageUtil(context: Context) {
     private var preferences: SharedPreferences? = null
     private val mContext: Context = context
 
-    fun storeAudio(arrayList: ArrayList<AllSongsModel>?) {
+    fun storeAudio(arrayList: CopyOnWriteArrayList<AllSongsModel>?) {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         val editor = preferences!!.edit()
         val gson = Gson()
         val json: String = gson.toJson(arrayList)
         editor.putString("audioArrayList", json)
         editor.apply()
-
-        val gsona = Gson()
-        val jsona = preferences!!.getString("audioArrayList", null)
-        val type: Type = object : TypeToken<ArrayList<AllSongsModel?>>() {}.type
-        val fromJson = gsona.fromJson<ArrayList<AllSongsModel>>(jsona, type)
-        Log.d("fromJsonDAta", "storeAudio: $fromJson")
     }
 
     fun loadAudio(): ArrayList<AllSongsModel> {

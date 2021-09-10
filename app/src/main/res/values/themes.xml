@@ -19,8 +19,8 @@
 
     </style>
 
-    <style name="circular_10">
-        <item name="cornerSize">10%</item>
+    <style name="circular_15">
+        <item name="cornerSize">15%</item>
     </style>
 
     <style name="circular_5">

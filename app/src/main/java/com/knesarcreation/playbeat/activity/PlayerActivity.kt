@@ -1,3 +1,4 @@
+/*
 package com.knesarcreation.playbeat.activity
 
 import android.annotation.SuppressLint
@@ -85,7 +86,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, AllSongsAdapter.O
             Audio.Media.DISPLAY_NAME,
             Audio.Media.DURATION,
             Audio.Media.SIZE,
-            Audio.Media.ALBUM,
+            Audio.Media.ALBUM_FRAGMENT,
             Audio.Media.ARTIST,
             Audio.Media.ALBUM_ID,
             Audio.Media.DATA, // path
@@ -108,7 +109,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, AllSongsAdapter.O
             val durationColumn = cursor.getColumnIndexOrThrow(Audio.Media.DURATION)
             val sizeColumn = cursor.getColumnIndexOrThrow(Audio.Media.SIZE)
             val artistsColumn = cursor.getColumnIndexOrThrow(Audio.Media.ARTIST)
-            val albumColumn = cursor.getColumnIndexOrThrow(Audio.Media.ALBUM)
+            val albumColumn = cursor.getColumnIndexOrThrow(Audio.Media.ALBUM_FRAGMENT)
             val albumIdColumn = cursor.getColumnIndexOrThrow(Audio.Media.ALBUM_ID)
             val dataColumn = cursor.getColumnIndexOrThrow(Audio.Media.DATA)
 
@@ -140,14 +141,13 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, AllSongsAdapter.O
                 val allSongsModel =
                     AllSongsModel(
                         albumId,
-                        null,
                         name,
                         artist,
                         album,
                         size,
                         duration,
                         data,
-                        contentUri,
+                        contentUri.toString(),
                         artUri
                     )
                 audioList.add(allSongsModel)
@@ -229,7 +229,9 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, AllSongsAdapter.O
             0
         } else {
             //get next in playlist
-            /*audioList[++audioIndexPos]*/
+            */
+/*audioList[++audioIndexPos]*//*
+
             ++audioIndexPos
         }
     }
@@ -313,4 +315,4 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, AllSongsAdapter.O
         isDestroyedActivity = true
     }
 
-}
+}*/
