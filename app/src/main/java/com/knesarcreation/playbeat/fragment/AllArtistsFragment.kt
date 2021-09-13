@@ -60,7 +60,7 @@ class AllArtistsFragment : Fragment() {
         val sortOrder = "${MediaStore.Audio.Artists.ARTIST} ASC"
 
         val query =
-            (activity as Context).contentResolver.query(
+            (activity as AppCompatActivity).contentResolver.query(
                 collection,
                 projection,
                 null,
@@ -75,7 +75,8 @@ class AllArtistsFragment : Fragment() {
             val artistsIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Artists.ARTIST)
             val noOfAlbumsColumn =
                 cursor.getColumnIndexOrThrow(MediaStore.Audio.Artists.NUMBER_OF_ALBUMS)
-            val noOfTracksColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Artists.NUMBER_OF_TRACKS)
+            val noOfTracksColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Audio.Artists.NUMBER_OF_TRACKS)
 
 
             while (cursor.moveToNext()) {
@@ -99,7 +100,7 @@ class AllArtistsFragment : Fragment() {
                         noOfAlbum,
                         noOfTracks,
 
-                    )
+                        )
                 artistsList.add(allSongsModel)
             }
 

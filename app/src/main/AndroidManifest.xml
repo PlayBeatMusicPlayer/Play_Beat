@@ -20,19 +20,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PlayBeat">
-        <activity
-            android:name=".activity.AlbumSongsActivity"
-            android:exported="true" />
-        <activity
-            android:name=".activity.PlayerActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
-        <activity
-            android:name=".activity.AllSongsActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
+        <!-- <activity
+             android:name=".activity.AlbumSongsActivity"
+             android:exported="true" />
+         <activity
+             android:name=".activity.PlayerActivity"
+             android:exported="true"
+             android:screenOrientation="portrait"
+             tools:ignore="LockedOrientationActivity" />
+         <activity
+             android:name=".activity.AllSongsActivity"
+             android:exported="true"
+             android:screenOrientation="portrait"
+             tools:ignore="LockedOrientationActivity" />-->
         <activity
             android:name=".activity.SplashScreenActivity"
             android:exported="true"
@@ -44,11 +44,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activity.HomePage"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
+        <!-- <activity
+             android:name=".activity.HomePage"
+             android:exported="true"
+             android:screenOrientation="portrait"
+             tools:ignore="LockedOrientationActivity" />-->
         <activity
             android:name=".activity.ActivityBottomBarFragmentContainer"
             android:exported="true"
@@ -59,11 +59,15 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
-        <service
-            android:name=".service.MusicPlayerService"
+        <!-- <service
+             android:name=".service.MusicPlayerService"
+             android:enabled="true"
+             android:exported="false" />-->
+
+        <service android:name=".service.PlayBeatMusicService"
             android:enabled="true"
-            android:exported="false" />
-        <service android:name=".service.PlayBeatMusicService" />
+            />
+
     </application>
 
 </manifest>

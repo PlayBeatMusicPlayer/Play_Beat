@@ -27,7 +27,6 @@ import com.knesarcreation.playbeat.model.AlbumModel
 import com.knesarcreation.playbeat.model.AllSongsModel
 import com.knesarcreation.playbeat.utils.*
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.TimeUnit
 
 class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConnection*/ {
 
@@ -120,10 +119,11 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
         )
 
         // Show only audios that are at least 1 minutes in duration.
-        val selection =
-            "${MediaStore.Audio.Media.DURATION} >= ? AND ${MediaStore.Audio.Albums.ALBUM} =?"
+//        val selection =
+//            "${MediaStore.Audio.Media.DURATION} >= ? AND ${MediaStore.Audio.Albums.ALBUM} =?"
+        val selection = "${MediaStore.Audio.Albums.ALBUM} =?"
         val selectionArgs = arrayOf(
-            TimeUnit.MILLISECONDS.convert(20, TimeUnit.SECONDS).toString(),
+            /*TimeUnit.MILLISECONDS.convert(20, TimeUnit.SECONDS).toString(),*/
             albumData?.albumName
         )
 

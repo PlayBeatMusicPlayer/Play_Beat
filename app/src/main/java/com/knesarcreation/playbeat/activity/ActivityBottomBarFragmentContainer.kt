@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -24,7 +25,8 @@ import com.knesarcreation.playbeat.utils.StorageUtil
 import me.ibrahimsn.lib.OnItemSelectedListener
 
 class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnection*/,
-    AllAlbumsFragment.OnAlbumItemClicked, AllArtistsFragment.OpenArtisFragment {
+    AllAlbumsFragment.OnAlbumItemClicked, AllArtistsFragment.OpenArtisFragment,
+    ArtistsTracksAndAlbumFragment.OnArtistAlbumItemClicked {
     private lateinit var binding: ActivityBottomBarFragmentBinding
     private val homeFragment = HomeFragment()
     private val playlistsFragment = PlaylistsFragment()
@@ -38,6 +40,10 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private var audioList = ArrayList<AllSongsModel>()
     private var isAlbumFragOpened = false
     private var isArtistsFragOpened = false
+    private var isAlbumOpenedFromArtisFrag = false
+    private var isNotiBuild = false
+    private var runnableAudioProgress: Runnable? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -65,11 +71,15 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         registerUpdatePlayerUI()
         controlAudio()
 
-        if (AllSongFragment.musicService?.mediaPlayer != null) {
-            audioList = StorageUtil(this).loadAudio()
-            audioIndexPos = StorageUtil(this).loadAudioIndex()
-            updatePlayingMusic(audioIndexPos)
+        if (AllSongFragment.musicService != null) {
+            // if service is bounded
+            if (AllSongFragment.musicService?.mediaPlayer != null) {
+                audioList = StorageUtil(this).loadAudio()
+                audioIndexPos = StorageUtil(this).loadAudioIndex()
+                updatePlayingMusic(audioIndexPos)
+            }
         }
+
     }
 
     private fun updatePlayingMusic(audioIndex: Int) {
@@ -98,6 +108,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             val audioIndexPos = getSongFromPos()
             val storage = StorageUtil(this)
             storage.storeAudioIndex(audioIndexPos)
+            AllSongFragment.musicService?.pausedByManually = false
             val broadcastIntent = Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
             sendBroadcast(broadcastIntent)
             updatePlayingMusic(audioIndexPos)
@@ -105,38 +116,65 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         }
 
         binding.playPauseIV.setOnClickListener {
-            if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
-                AllSongFragment.musicService?.pauseMedia()
-                AllSongFragment.musicService?.buildNotification(
-                    PlaybackStatus.PAUSED,
-                    PlaybackStatus.UN_FAVOURITE,
-                    0f
-                )
-                binding.playPauseIV.setImageResource(R.drawable.ic_play_audio)
-            } else if (!AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
-                AllSongFragment.musicService?.resumeMedia()
-                binding.playPauseIV.setImageResource(R.drawable.ic_pause_audio)
-                AllSongFragment.musicService?.updateMetaData()
-                AllSongFragment.musicService?.buildNotification(
-                    PlaybackStatus.PLAYING,
-                    PlaybackStatus.UN_FAVOURITE,
-                    1f
-                )
+            if (AllSongFragment.musicService != null) {
+                if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
+                    AllSongFragment.musicService?.pauseMedia()
+                    AllSongFragment.musicService?.pausedByManually = true
+                    AllSongFragment.musicService?.buildNotification(
+                        PlaybackStatus.PAUSED,
+                        PlaybackStatus.UN_FAVOURITE,
+                        0f
+                    )
+                    binding.playPauseIV.setImageResource(R.drawable.ic_play_audio)
+                } else if (!AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
+                    AllSongFragment.musicService?.resumeMedia()
+                    AllSongFragment.musicService?.pausedByManually = false
+                    binding.playPauseIV.setImageResource(R.drawable.ic_pause_audio)
+                    AllSongFragment.musicService?.updateMetaData()
+                    AllSongFragment.musicService?.buildNotification(
+                        PlaybackStatus.PLAYING,
+                        PlaybackStatus.UN_FAVOURITE,
+                        1f
+                    )
+                    // calling two times for the first time
+                    if (!isNotiBuild) {
+                        isNotiBuild = true
+                        AllSongFragment.musicService?.buildNotification(
+                            PlaybackStatus.PLAYING,
+                            PlaybackStatus.UN_FAVOURITE,
+                            1f
+                        )
+
+                    }
+                }
             }
         }
     }
 
+    /*override fun onSaveInstanceState(savedInstanceState: Bundle) {
+        savedInstanceState.putBoolean("ServiceState", AllSongFragment.serviceBound);
+        super.onSaveInstanceState(savedInstanceState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        AllSongFragment.serviceBound = savedInstanceState!!.getBoolean("ServiceState")
+    }*/
+
     private fun handleAudioProgress() {
-        this.runOnUiThread(object : Runnable {
+        runnableAudioProgress = object : Runnable {
             override fun run() {
-                if (AllSongFragment.musicService?.mediaPlayer != null) {
-                    binding.audioProgress.progress =
-                        AllSongFragment.musicService?.mediaPlayer?.currentPosition!!
-                    handler.postDelayed(this, 1000)
+                if (AllSongFragment.musicService != null) {
+                    if (AllSongFragment.musicService?.mediaPlayer != null) {
+                        binding.audioProgress.progress =
+                            AllSongFragment.musicService?.mediaPlayer?.currentPosition!!
+                        handler.postDelayed(this, 1000)
+                    }
                 }
             }
 
-        })
+        }
+        runOnUiThread(runnableAudioProgress)
     }
 
     private fun getSongFromPos(): Int {
@@ -154,16 +192,17 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
     private val updatePlayerUI: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-
             val storageUtil = StorageUtil(context)
             audioList = storageUtil.loadAudio()
             Log.d("AudioListFragmentContainerActivity", "onReceive:  $audioList ")
 
+            // AllSongFragment.musicService?.pausedByManually = false
             //Get the new media index form SharedPreferences
             audioIndexPos = storageUtil.loadAudioIndex()
             //UpdatePlayer UI
             if (!isDestroyedActivity)
                 updatePlayingMusic(audioIndexPos)
+
         }
     }
 
@@ -172,7 +211,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         val filter = IntentFilter(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
         registerReceiver(updatePlayerUI, filter)
     }
-
 
     private fun setBottomBarFragmentState(state: FragmentState): FragmentTransaction {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
@@ -188,7 +226,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         transaction.hide(artistsTracksAndAlbumFragment)
                         transaction.show(albumSongFragment)
                     }
-                    isArtistsFragOpened -> {
+                    isArtistsFragOpened || isAlbumOpenedFromArtisFrag -> {
                         transaction.hide(homeFragment)
                         transaction.hide(playlistsFragment)
                         transaction.hide(settingFragment)
@@ -227,8 +265,14 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(settingFragment)
                 transaction.show(albumSongFragment)
                 transaction.hide(artistsTracksAndAlbumFragment)
-                isAlbumFragOpened = true
+
+                isAlbumFragOpened = !isAlbumOpenedFromArtisFrag
                 isArtistsFragOpened = false
+                Toast.makeText(
+                    this,
+                    "$isAlbumOpenedFromArtisFrag , $isAlbumFragOpened",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             FragmentState.ARTIST_TRACK_ALBUM_FRAGMENT -> {
                 transaction.hide(homeFragment)
@@ -271,6 +315,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         ARTIST_TRACK_ALBUM_FRAGMENT,
     }
 
+
     override fun onBackPressed() {
         if (supportFragmentManager.backStackEntryCount > 0 || !homeFragment.isHidden) {
             super.onBackPressed()
@@ -284,14 +329,15 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     setBottomBarFragmentState(FragmentState.HOME).commit()
                     binding.bottomBar.itemActiveIndex = 0
                 }
-            } else if (isArtistsFragOpened) {
-                if (!playlistsFragment.isHidden || !settingFragment.isHidden) {
+            } else if (isArtistsFragOpened || isAlbumOpenedFromArtisFrag) {
+                if (!playlistsFragment.isHidden /* if open*/ || !settingFragment.isHidden /*if open*/) {
                     setBottomBarFragmentState(FragmentState.ARTIST_TRACK_ALBUM_FRAGMENT).commit()
                     binding.bottomBar.itemActiveIndex = 0
                 } else {
                     isArtistsFragOpened = false
                     setBottomBarFragmentState(FragmentState.HOME).commit()
                     binding.bottomBar.itemActiveIndex = 0
+                    isAlbumOpenedFromArtisFrag = false
                 }
             } else {
                 setBottomBarFragmentState(FragmentState.HOME).commit()
@@ -305,6 +351,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
     override fun onDestroy() {
         super.onDestroy()
+        //handler.removeCallbacks(runnableAudioProgress!!)
         isDestroyedActivity = true
     }
 
@@ -316,6 +363,13 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     override fun onOpenArtistFragment(artistsData: String) {
         viewModel.artistsData.value = artistsData
         setBottomBarFragmentState(FragmentState.ARTIST_TRACK_ALBUM_FRAGMENT).commit()
+    }
+
+    override fun openArtistAlbum(album: String) {
+        viewModel.albumData.value = album
+
+        isAlbumOpenedFromArtisFrag = true
+        setBottomBarFragmentState(FragmentState.ALBUM_FRAGMENT).commit()
     }
 
 

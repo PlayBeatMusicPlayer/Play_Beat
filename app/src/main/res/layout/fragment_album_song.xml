@@ -60,7 +60,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
             android:background="@drawable/curved_all_edges"
-            android:elevation="20dp">
+            android:elevation="10dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/albumArtIV"

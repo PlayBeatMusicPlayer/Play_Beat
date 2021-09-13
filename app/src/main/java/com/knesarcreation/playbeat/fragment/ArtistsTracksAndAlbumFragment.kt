@@ -11,21 +11,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.knesarcreation.playbeat.adapter.AllAlbumsAdapter
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.adapter.ArtistsAlbumAdapter
 import com.knesarcreation.playbeat.databinding.FragmentArtistsTracksAndAlbumBinding
 import com.knesarcreation.playbeat.model.AlbumModel
 import com.knesarcreation.playbeat.model.AllSongsModel
 import com.knesarcreation.playbeat.model.ArtistsModel
-import com.knesarcreation.playbeat.utils.AudioPlayingFromCategory
-import com.knesarcreation.playbeat.utils.DataObservableClass
-import com.knesarcreation.playbeat.utils.StorageUtil
+import com.knesarcreation.playbeat.utils.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.TimeUnit
 
 class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongItem {
 
@@ -35,6 +37,12 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
     private var artistsModel: ArtistsModel? = null
     private var audioList = CopyOnWriteArrayList<AllSongsModel>()
     private val albumList = CopyOnWriteArrayList<AlbumModel>()
+    private var progressBar: CustomProgressDialog? = null
+    private var listener: OnArtistAlbumItemClicked? = null
+
+    interface OnArtistAlbumItemClicked {
+        fun openArtistAlbum(album: String)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,12 +53,27 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
         val view = binding?.root
         binding?.artisNameTVToolbar?.isSelected = true
         binding?.artisNameTV?.isSelected = true
+
+        binding?.arrowBackIV?.setOnClickListener {
+            (activity as AppCompatActivity).onBackPressed()
+        }
+
         viewmodel = activity?.run {
             ViewModelProvider(this)[DataObservableClass::class.java]
         } ?: throw Exception("Invalid Activity")
 
+        progressBar = CustomProgressDialog(requireContext())
+        progressBar!!.setMessage("Please wait...")
+        progressBar!!.setIsCancelable(true)
+        progressBar!!.setCanceledOnOutsideTouch(true)
+
         viewmodel.artistsData.observe(viewLifecycleOwner, {
             convertGsonToAlbumModel(it)
+
+            binding?.rvAlbums?.setHasFixedSize(true)
+            binding?.rvAlbums?.setItemViewCacheSize(20)
+            binding?.rvTracks?.setHasFixedSize(true)
+            binding?.rvTracks?.setItemViewCacheSize(20)
 
             binding?.artisNameTV?.text = artistsModel?.artistName
             binding?.artisNameTVToolbar?.text = artistsModel?.artistName
@@ -62,22 +85,29 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
                     "${artistsModel?.noOfTracks} Tracks  |  ${artistsModel?.noOfAlbums} Albums"
             }
 
+            progressBar!!.show()
+            lifecycleScope.launch(Dispatchers.IO) {
+                loadAlbumFromMedia()
+            }
             loadArtistFromMedia()
-            loadAlbumFromMedia()
+
 
         })
+
+        binding?.playAll?.setOnClickListener { /*starting from 0*/ playAudio(0) }
+
+        binding?.playAllToolbar?.setOnClickListener { playAudio(0) }
 
         return view
     }
 
     private fun loadAlbumFromMedia() {
-
         albumList.clear()
         val collection = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
 
         val projection = arrayOf(
             MediaStore.Audio.Albums._ID,
-            MediaStore.Audio.Albums.ALBUM_ID,
+            //MediaStore.Audio.Albums.ALBUM_ID,
             MediaStore.Audio.Albums.ALBUM,
             MediaStore.Audio.Albums.ARTIST,
         )
@@ -101,7 +131,7 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
         query?.use { cursor ->
             // Cache column indices.
             val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums._ID)
-            val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ID)
+            //val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ID)
             val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM)
             val artistsColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ARTIST)
 
@@ -109,7 +139,7 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
             while (cursor.moveToNext()) {
                 //Get values of columns of a given audio
                 val id = cursor.getLong(idColumn)
-                val albumId = cursor.getLong(albumIdColumn)
+                //val albumId = cursor.getLong(albumIdColumn)
                 val album = cursor.getString(albumColumn)
                 val artist = cursor.getString(artistsColumn)
 
@@ -118,14 +148,25 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
                 val sArtworkUri = Uri
                     .parse("content://media/external/audio/albumart")
                 //val albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId)
-                val artUri = Uri.withAppendedPath(sArtworkUri, albumId.toString()).toString()
+                val artUri = Uri.withAppendedPath(sArtworkUri, id.toString()).toString()
+
+
+                val bitmap =
+                    UriToBitmapConverter.getBitmap(context?.contentResolver!!, artUri.toUri())
+
+                //val albumBitmap = if (bitmap != null) {
+                //    UriToBitmapConverter.getBitmap(context?.contentResolver!!, artUri.toUri())
+                //} else {
+                //   BitmapFactory.decodeResource(resources, R.drawable.album_png)
+                //}
 
                 val albumModel =
                     AlbumModel(
-                        albumId,
+                        id,
                         album,
                         artist,
-                        artUri
+                        artUri,
+                        bitmap
                     )
                 if (!albumList.contains(albumModel)) {
                     albumList.add(albumModel)
@@ -137,21 +178,19 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
                 binding?.rvAlbums?.adapter =
                     ArtistsAlbumAdapter(
                         activity as Context,
-                        albumList
-                        /*object : AllAlbumsAdapter.OnAlbumClicked {
+                        albumList,
+                        object : AllAlbumsAdapter.OnAlbumClicked {
                             override fun onClicked(albumModel: AlbumModel) {
                                 val gson = Gson()
                                 val album = gson.toJson(albumModel)
-                                listener?.openAlbum(album)
+                                listener?.openArtistAlbum(album)
                             }
-                        }*/
+                        }
                     )
-
+                progressBar!!.dismiss()
                 cursor.close()
             }
         }
-
-
     }
 
     private fun loadArtistFromMedia() {
@@ -170,10 +209,12 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
         )
 
         // Show only audios that are at least 1 minutes in duration.
+        // val selection =
+        //   "${MediaStore.Audio.Media.DURATION} >= ? AND ${MediaStore.Audio.Artists.ARTIST} =?"
         val selection =
-            "${MediaStore.Audio.Media.DURATION} >= ? AND ${MediaStore.Audio.Artists.ARTIST} =?"
+            "${MediaStore.Audio.Artists.ARTIST} =?"
         val selectionArgs = arrayOf(
-            TimeUnit.MILLISECONDS.convert(20, TimeUnit.SECONDS).toString(),
+            //TimeUnit.MILLISECONDS.convert(20, TimeUnit.SECONDS).toString(),
             artistsModel?.artistName
         )
 
@@ -259,6 +300,10 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
     }
 
     override fun onClick(allSongModel: AllSongsModel, position: Int) {
+        playAudio(position)
+    }
+
+    private fun playAudio(position: Int) {
         val storageUtil = StorageUtil(activity as Context)
         AudioPlayingFromCategory.audioPlayingFromAlbumORArtist = true
 
@@ -275,4 +320,13 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
         )
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        try {
+            listener = context as OnArtistAlbumItemClicked
+        } catch (e: ClassCastException) {
+            e.printStackTrace()
+        }
+    }
 }

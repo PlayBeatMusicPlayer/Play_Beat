@@ -4,15 +4,11 @@ import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Binder
 import android.os.IBinder
 import android.os.RemoteException
@@ -68,6 +64,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
     //AudioPlayer notification ID
     private val NOTIFICATION_ID = 101
+    var pausedByManually = false
+    private var isTaskRemoved = false
 
     companion object {
         const val ACTION_PLAY = "com.knesarcreation.playbeat.service.ACTION_PLAY"
@@ -107,8 +105,9 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         //Reset so that the MediaPlayer is not pointing to another data source
         mediaPlayer?.reset()
 
-        mediaPlayer = MediaPlayer.create(applicationContext, Uri.parse(activeAudio!!.data))
+        mediaPlayer = MediaPlayer.create(applicationContext, activeAudio?.audioUri!!.toUri())
 
+        Toast.makeText(applicationContext, "Media initialize", Toast.LENGTH_SHORT).show()
         mediaPlayer?.setOnCompletionListener {
             if (!it?.isPlaying!!) {
                 skipToNext()
@@ -163,12 +162,16 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                         if (mediaPlayer != null) {
                             if (ongoingCall) {
                                 ongoingCall = false
-                                resumeMedia()
-                                buildNotification(
-                                    PlaybackStatus.PLAYING,
-                                    PlaybackStatus.UN_FAVOURITE,
-                                    1f
-                                )
+                                if (!pausedByManually) {
+                                    // if user manually paused, so don't resume audio when call ends or went on idle mode
+                                    // else call this resumeMedia() method
+                                    resumeMedia()
+                                    buildNotification(
+                                        PlaybackStatus.PLAYING,
+                                        PlaybackStatus.UN_FAVOURITE,
+                                        1f
+                                    )
+                                }
                             }
                         }
                 }
@@ -203,10 +206,10 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         }
 
         //Request audio focus
-        if (!requestAudioFocus()) {
-            //Could not gain focus
-            stopSelf()
-        }
+        //if (!requestAudioFocus()) {
+        //Could not gain focus
+        //   stopSelf()
+        //}
 
         if (mediaSessionManager == null) {
             try {
@@ -262,6 +265,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
             mediaPlayer?.seekTo(resumePosition)
             mediaPlayer?.start()
 
+            requestAudioFocus()
+
             /** Update UI of [AllSongFragment] */
             val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
             sendBroadcast(updatePlayer)
@@ -278,7 +283,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
             activeAudio = audioList!![++audioIndex]
         }
 
-        Toast.makeText(applicationContext, "${audioIndex}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(applicationContext, "$audioIndex", Toast.LENGTH_SHORT).show()
         //Update stored index
         StorageUtil(applicationContext).storeAudioIndex(audioIndex)
         stopMedia()
@@ -315,7 +320,6 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     }
 
     override fun onAudioFocusChange(focusState: Int) {
-        //Invoked when the audio focus of the system is updated.
         //Invoked when the audio focus of the system is updated.
         when (focusState) {
             AudioManager.AUDIOFOCUS_GAIN -> {
@@ -403,7 +407,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
             UriToBitmapConverter.getBitmap(contentResolver, activeAudio?.artUri!!.toUri())
                 ?: BitmapFactory.decodeResource(
                     resources,
-                    R.drawable.music_note_1
+                    R.drawable.play_beat_logo
                 )
 
         // Create a new Notification
@@ -416,7 +420,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                     .setShowActionsInCompactView(1, 2)
             )
             .setLargeIcon(largeIcon)
-            .setSmallIcon(R.drawable.ic_play_audio) // Set Notification content information
+            .setSmallIcon(R.drawable.play_beat_logo) // Set Notification content information
             .setContentText(activeAudio!!.artistsName)
             .setContentTitle(activeAudio!!.albumName)
             .setContentInfo(activeAudio!!.songName) // Add playback actions
@@ -431,7 +435,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setProgress(mediaPlayer?.duration!!, mediaPlayer?.currentPosition!!, false)
+        //.setProgress(mediaPlayer?.duration!!, mediaPlayer?.currentPosition!!, false)
+
         startForeground(NOTIFICATION_ID, notificationBuilder.build())
 
         if (mediaPlayer != null) {
@@ -539,8 +544,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     }
 
     private fun removeAudioFocus(): Boolean {
-        return AudioManager.AUDIOFOCUS_REQUEST_GRANTED ==
-                audioManager!!.abandonAudioFocus(this)
+        val audioFocus = audioManager?.abandonAudioFocus(this) ?: false
+        return AudioManager.AUDIOFOCUS_REQUEST_GRANTED == audioFocus
     }
 
     inner class LocalBinder : Binder() {
@@ -565,6 +570,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 stopSelf()
             }
 
+            pausedByManually = false
             requestAudioFocus()
 
             //A PLAY_NEW_AUDIO action received
@@ -578,6 +584,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
             initMediaPlayer()
             updateMetaData()
             buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+            buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
         }
     }
 
@@ -587,15 +594,6 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         val filter = IntentFilter(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
         registerReceiver(playNewAudio, filter)
     }
-
-    /*  private fun registerMediaBtn() {
-          val filter = IntentFilter(Intent.ACTION_MEDIA_BUTTON)
-          val receiver = MediaButtonIntentReceiver()
-          filter.priority = 1255488526
-          registerReceiver(receiver, filter)
-
-      }*/
-
 
     private val becomingNoisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -630,7 +628,6 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
         //Set mediaSession's MetaData
         updateMetaData()
-
 
         // Attach Callback to receive MediaSession updates
         mediaSession?.setCallback(object : MediaSessionCompat.Callback() {
@@ -697,18 +694,23 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
             // Implement callbacks
             override fun onPlay() {
                 super.onPlay()
+                pausedByManually = false
                 resumeMedia()
                 buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
             }
 
             override fun onPause() {
                 super.onPause()
+                pausedByManually = true
                 pauseMedia()
                 buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+                if (isTaskRemoved)
+                    stopServiceIfTaskRemoved()
             }
 
             override fun onSkipToNext() {
                 super.onSkipToNext()
+                pausedByManually = false
                 skipToNext()
                 //update meta data of notification and build it
                 updateMetaData()
@@ -718,6 +720,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
             override fun onSkipToPrevious() {
                 super.onSkipToPrevious()
+                pausedByManually = false
                 skipToPrevious()
                 //update meta data of notification and build it
                 updateMetaData()
@@ -727,6 +730,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
             override fun onStop() {
                 super.onStop()
+                pausedByManually = false
                 removeNotification()
                 //Stop the service
                 stopSelf()
@@ -786,28 +790,40 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         )
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        Toast.makeText(applicationContext, "Destroyed", Toast.LENGTH_SHORT).show()
-        Log.d("PlayBeatServiceDestroyed", "onDestroy: Destroyed")
-        if (mediaPlayer != null) {
-            stopMedia()
-            mediaPlayer!!.release()
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        isTaskRemoved = true
+        stopServiceIfTaskRemoved()
+    }
+
+    private fun stopServiceIfTaskRemoved() {
+        if (!mediaPlayer?.isPlaying!!) {
+            Toast.makeText(applicationContext, "Destroyed", Toast.LENGTH_SHORT).show()
+            Log.d("PlayBeatServiceDestroyed", "onDestroy: Destroyed")
+            if (mediaPlayer != null) {
+                stopMedia()
+                mediaPlayer!!.release()
+            }
+            removeAudioFocus()
+
+            //Disable the PhoneStateListener
+            if (phoneStateListener != null) {
+                telephonyManager?.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE)
+            }
+
+            removeNotification()
+            stopForeground(true)
+
+            //unregister BroadcastReceivers
+            unregisterReceiver(becomingNoisyReceiver)
+            unregisterReceiver(playNewAudio)
+
+            //clear cached playlist
+            //StorageUtil(applicationContext).clearCachedAudioPlaylist()
+            // mediaPlayer = null
+            stopSelf()
+            AllSongFragment.musicService = null
+            //stopService(Intent(this, PlayBeatMusicService::class.java))
         }
-        removeAudioFocus()
-
-        //Disable the PhoneStateListener
-        if (phoneStateListener != null) {
-            telephonyManager?.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE)
-        }
-
-        removeNotification()
-
-        //unregister BroadcastReceivers
-        unregisterReceiver(becomingNoisyReceiver)
-        unregisterReceiver(playNewAudio)
-
-        //clear cached playlist
-        StorageUtil(applicationContext).clearCachedAudioPlaylist()
     }
 }

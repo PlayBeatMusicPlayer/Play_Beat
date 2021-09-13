@@ -1,5 +1,6 @@
 package com.knesarcreation.playbeat.fragment
 
+import android.Manifest
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
@@ -7,6 +8,8 @@ import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -36,7 +39,6 @@ class AllAlbumsFragment : Fragment() {
             loadAlbum()
         }
 
-
         return view
     }
 
@@ -46,7 +48,7 @@ class AllAlbumsFragment : Fragment() {
 
         val projection = arrayOf(
             MediaStore.Audio.Albums._ID,
-            MediaStore.Audio.Albums.ALBUM_ID,
+            //MediaStore.Audio.Albums.ALBUM_ID,
             MediaStore.Audio.Albums.ALBUM,
             MediaStore.Audio.Albums.ARTIST,
         )
@@ -59,7 +61,7 @@ class AllAlbumsFragment : Fragment() {
         val sortOrder = "${MediaStore.Audio.Albums.ALBUM} ASC"
 
         val query =
-            (activity as Context).contentResolver.query(
+            (activity as AppCompatActivity).contentResolver.query(
                 collection,
                 projection,
                 null,
@@ -70,7 +72,7 @@ class AllAlbumsFragment : Fragment() {
         query?.use { cursor ->
             // Cache column indices.
             val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums._ID)
-            val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ID)
+            //val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ID)
             val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM)
             val artistsColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ARTIST)
 
@@ -78,7 +80,7 @@ class AllAlbumsFragment : Fragment() {
             while (cursor.moveToNext()) {
                 //Get values of columns of a given audio
                 val id = cursor.getLong(idColumn)
-                val albumId = cursor.getLong(albumIdColumn)
+                //val albumId = cursor.getLong(albumIdColumn)
                 val album = cursor.getString(albumColumn)
                 val artist = cursor.getString(artistsColumn)
 
@@ -87,14 +89,15 @@ class AllAlbumsFragment : Fragment() {
                 val sArtworkUri = Uri
                     .parse("content://media/external/audio/albumart")
                 //val albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId)
-                val artUri = Uri.withAppendedPath(sArtworkUri, albumId.toString()).toString()
+                val artUri = Uri.withAppendedPath(sArtworkUri, id.toString()).toString()
 
                 val albumModel =
                     AlbumModel(
-                        albumId,
+                        id,
                         album,
                         artist,
-                        artUri
+                        artUri,
+                        null
                     )
                 if (!albumList.contains(albumModel)) {
                     albumList.add(albumModel)

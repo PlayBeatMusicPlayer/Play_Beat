@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -25,9 +26,9 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
 
+
 class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSongItem {
     private lateinit var allSongsAdapter: AllSongsAdapter
-    var serviceBound = false
     lateinit var progressBar: CustomProgressDialog
     private var _binding: FragmentAllSongBinding? = null
     private val binding get() = _binding
@@ -37,10 +38,12 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
     private var audioList = CopyOnWriteArrayList<AllSongsModel>()
 
     companion object {
-        const val Broadcast_PLAY_NEW_AUDIO = " com.knesarcreation.playbeat.utils.PlayNewAudio"
+        const val Broadcast_PLAY_NEW_AUDIO = "com.knesarcreation.playbeat.utils.PlayNewAudio"
         const val Broadcast_BOTTOM_UPDATE_PLAYER_UI =
-            " com.knesarcreation.playbeat.utils.UpdatePlayerUi"
+            "com.knesarcreation.playbeat.utils.UpdatePlayerUi"
+        const val READ_STORAGE_PERMISSION = 101
         var musicService: PlayBeatMusicService? = null
+        //var serviceBound = false
     }
 
     override fun onCreateView(
@@ -51,16 +54,14 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
         _binding = FragmentAllSongBinding.inflate(inflater, container, false)
         val view = binding?.root
 
+        //checkPermission(activity as Context)
+
         lifecycleScope.launch(Dispatchers.IO) {
             loadAudio()
         }
 
         return view!!
 
-    }
-
-    override fun onResume() {
-        super.onResume()
     }
 
     @SuppressLint("Range")
@@ -165,7 +166,10 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
             val storage = StorageUtil(activity as AppCompatActivity)
             storage.storeAudio(audioList)
             storage.storeAudioIndex(0) // since service is creating firstTime
-
+            Log.d(
+                "AlbumFragment.musicService",
+                "playAudio: its null... service created : Service is  null"
+            )
             val playerIntent = Intent(activity as Context, PlayBeatMusicService::class.java)
             (activity as AppCompatActivity).startService(playerIntent)
             (activity as AppCompatActivity).bindService(
@@ -173,7 +177,10 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
                 this,
                 Context.BIND_AUTO_CREATE
             )
-            Log.d("AlbumFragment.musicService", "playAudio: its null... service created")
+            Log.d(
+                "AlbumFragment.musicService",
+                "playAudio: its null... service created : Service is  null"
+            )
         }
         val updatePlayer = Intent(Broadcast_BOTTOM_UPDATE_PLAYER_UI)
         (activity as Context).sendBroadcast(updatePlayer)
@@ -202,14 +209,17 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
         val binder = service as PlayBeatMusicService.LocalBinder
         musicService = binder.getService()
         //serviceBound = true
-        Log.d("AllSongServicesBounded", "onServiceConnected: true")
+        Log.d("AllSongServicesBounded", "onServiceConnected: connected servic")
         //controlAudio()
         // Toast.makeText(this, "Service Bound", Toast.LENGTH_SHORT).show()
     }
 
     override fun onServiceDisconnected(p0: ComponentName?) {
         musicService = null
+        Toast.makeText(activity as Context, "null serivce", Toast.LENGTH_SHORT).show()
+        //serviceBound = false
     }
+
 
     override fun onClick(allSongModel: AllSongsModel, position: Int) {
         playAudio(position)
@@ -221,4 +231,35 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
         isDestroyedActivity = true
     }
 
+
+    /* override fun onRequestPermissionsResult(
+         requestCode: Int,
+         permissions: Array<out String>,
+         grantResults: IntArray
+     ) {
+         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+         when (requestCode) {
+             READ_STORAGE_PERMISSION -> {
+                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                     if (ContextCompat.checkSelfPermission(
+                             activity as Context,
+                             android.Manifest.permission.READ_EXTERNAL_STORAGE
+                         ) == PackageManager.PERMISSION_GRANTED
+                     ) {
+                         lifecycleScope.launch(Dispatchers.IO) {
+                             loadAudio()
+                         }
+                     }
+                 } else {
+                     Toast.makeText(
+                         activity as Context,
+                         "Permission is required to show music",
+                         Toast.LENGTH_SHORT
+                     )
+                         .show()
+                     (context as AppCompatActivity).finish()
+                 }
+             }
+         }
+     }*/
 }

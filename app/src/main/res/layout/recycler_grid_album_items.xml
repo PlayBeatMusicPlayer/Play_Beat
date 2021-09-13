@@ -11,8 +11,10 @@
     tools:ignore="RtlSymmetry">
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cvAlbumCard"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:foreground="?selectableItemBackground"
         app:cardCornerRadius="10dp">
 
         <RelativeLayout
@@ -23,18 +25,18 @@
                 android:id="@+id/albumArtIV"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:contentDescription="@null"
                 android:scaleType="centerCrop"
-                android:src="@drawable/artist_cover_img" />
+                android:src="@drawable/album_png" />
 
             <ImageView
                 android:id="@+id/albumArtOverlay"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentEnd="true"
-                android:contentDescription="@null"
-                android:background="@drawable/shadow_from_left" />
+                android:background="@drawable/shadow_from_left"
+                android:contentDescription="@null" />
 
             <ImageView
                 android:id="@+id/albumArtLeftDarkBG"
@@ -53,25 +55,18 @@
                   android:alpha="0.5"
                   android:contentDescription="@null"
                   android:src="@drawable/ic_play_white_circle" />-->
-            <com.google.android.material.button.MaterialButton
+            <ImageView
                 android:id="@+id/playAlbum"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_below="@id/albumNameTV"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentBottom="true"
                 android:layout_marginEnd="10dp"
-                android:alpha="0.8"
-                android:background="?selectableItemBackgroundBorderless"
-                android:padding="2.5dp"
+                android:contentDescription="@null"
+                android:foreground="@drawable/custom_ripple"
+                android:src="@drawable/ic_play_white_circle"
                 android:textAllCaps="false"
-                android:textColor="@color/white"
-                app:backgroundTint="@color/semi_transparent"
-                app:cornerRadius="50dp"
-                app:icon="@drawable/ic_play_white_circle"
-                app:iconGravity="end"
-                app:iconPadding="0dp"
-                app:iconSize="30dp" />
+                android:textColor="@color/white" />
 
 
             <TextView

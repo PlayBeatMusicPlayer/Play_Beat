@@ -1,12 +1,15 @@
 package com.knesarcreation.playbeat.model
 
+import android.graphics.Bitmap
+
 data class AlbumModel(
-    var albumId: Long,
+    var id: Long,
     var albumName: String,
     var artistName: String,
     var artUri: String,
+    var albumBitmap: Bitmap?
 ) {
-    constructor() : this(0L, "", "", "")
+    constructor() : this(0L, "", "", "",null)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
