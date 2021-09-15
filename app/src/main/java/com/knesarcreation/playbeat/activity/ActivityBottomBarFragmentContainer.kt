@@ -20,9 +20,11 @@ import com.knesarcreation.playbeat.databinding.ActivityBottomBarFragmentBinding
 import com.knesarcreation.playbeat.fragment.*
 import com.knesarcreation.playbeat.model.AllSongsModel
 import com.knesarcreation.playbeat.utils.DataObservableClass
+import com.knesarcreation.playbeat.utils.MakeStatusBarTransparent
 import com.knesarcreation.playbeat.utils.PlaybackStatus
 import com.knesarcreation.playbeat.utils.StorageUtil
 import me.ibrahimsn.lib.OnItemSelectedListener
+import java.util.concurrent.CopyOnWriteArrayList
 
 class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnection*/,
     AllAlbumsFragment.OnAlbumItemClicked, AllArtistsFragment.OpenArtisFragment,
@@ -37,7 +39,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private var isDestroyedActivity = false
     private var handler = Handler(Looper.getMainLooper())
     private lateinit var viewModel: DataObservableClass
-    private var audioList = ArrayList<AllSongsModel>()
+    private var audioList = CopyOnWriteArrayList<AllSongsModel>()
     private var isAlbumFragOpened = false
     private var isArtistsFragOpened = false
     private var isAlbumOpenedFromArtisFrag = false
@@ -45,12 +47,13 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private var runnableAudioProgress: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         binding = ActivityBottomBarFragmentBinding.inflate(layoutInflater)
         setContentView(binding.root)
         //navigationController = findNavController(R.id.fragmentContainer)
         //setUpSmoothBottomMenu()
+
+        MakeStatusBarTransparent().transparent(this)
 
         binding.songNameTV.isSelected = true
         binding.bottomBar.onItemSelectedListener = onItemSelectedListener
@@ -80,6 +83,10 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             }
         }
 
+        binding.rlPlayingSong.setOnClickListener {
+            val nowPlayingSheet = NowPlayingBottomDialogFragment(this)
+            nowPlayingSheet.show(supportFragmentManager, "nowPlayingSheet")
+        }
     }
 
     private fun updatePlayingMusic(audioIndex: Int) {
@@ -180,12 +187,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private fun getSongFromPos(): Int {
         return if (audioIndexPos == audioList.size - 1) {
             //if last in playlist
-            //audioIndexPos = 0
-            //audioList[audioIndexPos]
             0
         } else {
             //get next in playlist
-            /*audioList[++audioIndexPos]*/
             ++audioIndexPos
         }
     }
@@ -315,7 +319,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         ARTIST_TRACK_ALBUM_FRAGMENT,
     }
 
-
     override fun onBackPressed() {
         if (supportFragmentManager.backStackEntryCount > 0 || !homeFragment.isHidden) {
             super.onBackPressed()
@@ -347,7 +350,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         }
 
     }
-
 
     override fun onDestroy() {
         super.onDestroy()

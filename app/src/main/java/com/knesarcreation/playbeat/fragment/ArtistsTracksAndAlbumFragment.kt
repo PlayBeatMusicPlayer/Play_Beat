@@ -44,6 +44,7 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
         fun openArtistAlbum(album: String)
     }
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

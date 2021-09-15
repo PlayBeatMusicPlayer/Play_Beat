@@ -27,11 +27,11 @@ class StorageUtil(context: Context) {
         editor.apply()
     }
 
-    fun loadAudio(): ArrayList<AllSongsModel> {
+    fun loadAudio(): CopyOnWriteArrayList<AllSongsModel> {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         val gson = Gson()
         val json = preferences!!.getString("audioArrayList", null)
-        val type: Type = object : TypeToken<ArrayList<AllSongsModel?>>() {}.type
+        val type: Type = object : TypeToken<CopyOnWriteArrayList<AllSongsModel?>>() {}.type
         return gson.fromJson(json, type)
     }
 
@@ -52,6 +52,18 @@ class StorageUtil(context: Context) {
         val editor = preferences!!.edit()
         editor.clear()
         editor.apply()
+    }
+
+    fun saveIsShuffled(isShuffled:Boolean) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putBoolean("isShuffled", isShuffled)
+        editor.apply()
+    }
+
+    fun getIsShuffled(): Boolean {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getBoolean("isShuffled", false)
     }
 
 }

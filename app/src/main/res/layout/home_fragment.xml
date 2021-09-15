@@ -7,33 +7,40 @@
     android:background="@color/app_theme_color"
     tools:context=".fragment.HomeFragment">
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="20dp"
-        android:background="@color/app_theme_color"
-        app:tabGravity="fill"
-        app:tabIndicator="@drawable/curved_tab_background"
-        app:tabIndicatorColor="#69696C"
-        app:tabIndicatorHeight="40dp"
-        app:tabMode="fixed"
-        app:tabPaddingTop="5dp"
-        app:tabRippleColor="@color/transparent"
-        app:tabSelectedTextColor="@color/white"
-        app:tabTextColor="@color/white" />
+        android:layout_height="match_parent">
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/mViewPager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="70dp" />
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="35dp"
+            android:layout_marginEnd="20dp"
+            android:background="@color/app_theme_color"
+            app:tabGravity="fill"
+            app:tabIndicator="@drawable/curved_tab_background"
+            app:tabIndicatorColor="#69696C"
+            app:tabIndicatorHeight="40dp"
+            app:tabMode="fixed"
+            app:tabPaddingTop="5dp"
+            app:tabRippleColor="@color/transparent"
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextColor="@color/white" />
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/mViewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_below="@id/tabLayout" />
+
+    </RelativeLayout>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/parentFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -11,6 +11,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.utils.MakeStatusBarTransparent
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreenActivity : AppCompatActivity() {
@@ -23,7 +24,7 @@ class SplashScreenActivity : AppCompatActivity() {
 //        this.window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_splash_screen)
-
+        MakeStatusBarTransparent().transparent(this)
         requestStoragePermission()
 
         mPermRequest!!.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)

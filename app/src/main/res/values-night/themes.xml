@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Theme.PlayBeat" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
@@ -16,8 +16,11 @@
         <item name="colorOnSecondary">@color/white</item>
 
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <!--        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>-->
         <item name="bottomSheetDialogTheme">@style/AppModalDialogTheme</item>
+        <!--        <item name="android:windowTranslucentStatus">true</item>-->
+        <item name="android:navigationBarColor">@color/app_theme_color</item>
         <!-- Customize your theme here. -->
     </style>
 
@@ -33,14 +36,16 @@
         <item name="cornerSize">50%</item>
     </style>
 
-    <style name="bottomSheet" parent="Widget.Design.BottomSheet.Modal">
+    <style name="bottomSheet" parent="Widget.MaterialComponents.BottomSheet.Modal">
         <!--        <item name="android:background">@drawable/transparent_background</item>-->
-        <item name="behavior_peekHeight">1000dp</item>
-        <item name="behavior_draggable">true</item>
+<!--        <item name="behavior_peekHeight">1000dp</item>-->
+        <!--<item name="behavior_draggable">true</item>-->
         <!--        <item name="behavior_expandedOffset">500dp</item>-->
+        <item name="paddingTopSystemWindowInsets">false</item>
     </style>
 
-    <style name="AppModalDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+    <style name="AppModalDialogTheme" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/bottomSheet</item>
     </style>
+
 </resources>

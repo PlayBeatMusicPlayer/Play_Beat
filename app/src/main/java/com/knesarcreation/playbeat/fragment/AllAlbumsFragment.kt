@@ -15,14 +15,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
 import com.knesarcreation.playbeat.adapter.AllAlbumsAdapter
-import com.knesarcreation.playbeat.databinding.FragmentAlbumBinding
+import com.knesarcreation.playbeat.databinding.FragmentAllAlbumsBinding
 import com.knesarcreation.playbeat.model.AlbumModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AllAlbumsFragment : Fragment() {
 
-    private var _binding: FragmentAlbumBinding? = null
+    private var _binding: FragmentAllAlbumsBinding? = null
     private val binding get() = _binding
     private val albumList = ArrayList<AlbumModel>()
     var listener: OnAlbumItemClicked? = null
@@ -32,7 +32,7 @@ class AllAlbumsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        _binding = FragmentAlbumBinding.inflate(inflater, container, false)
+        _binding = FragmentAllAlbumsBinding.inflate(inflater, container, false)
         val view = binding!!.root
 
         lifecycleScope.launch(Dispatchers.IO) {

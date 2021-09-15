@@ -85,6 +85,9 @@ dependencies {
     //custom bottom bar
     implementation 'com.github.ibrahimsn98:SmoothBottomBar:1.7.8'
 
+    //custom seek bar
+    implementation 'com.xw.repo:bubbleseekbar:3.4-lite'
+
     implementation("androidx.navigation:navigation-fragment-ktx:2.4.0-alpha08")
     implementation("androidx.navigation:navigation-ui-ktx:2.4.0-alpha08")
 

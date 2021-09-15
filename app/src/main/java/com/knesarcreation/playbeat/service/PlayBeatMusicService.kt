@@ -31,6 +31,7 @@ import com.knesarcreation.playbeat.utils.ApplicationChannel.Companion.CHANNEL_ID
 import com.knesarcreation.playbeat.utils.PlaybackStatus
 import com.knesarcreation.playbeat.utils.StorageUtil
 import com.knesarcreation.playbeat.utils.UriToBitmapConverter
+import java.util.concurrent.CopyOnWriteArrayList
 
 
 class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener {
@@ -52,7 +53,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     private var telephonyManager: TelephonyManager? = null
 
     //List of available Audio files
-    private var audioList: ArrayList<AllSongsModel>? = null
+    private var audioList: CopyOnWriteArrayList<AllSongsModel>? = null
     private var audioIndex = -1
     private var activeAudio //an object of the currently playing audio
             : AllSongsModel? = null
@@ -107,20 +108,19 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
         mediaPlayer = MediaPlayer.create(applicationContext, activeAudio?.audioUri!!.toUri())
 
-        Toast.makeText(applicationContext, "Media initialize", Toast.LENGTH_SHORT).show()
         mediaPlayer?.setOnCompletionListener {
             if (!it?.isPlaying!!) {
                 skipToNext()
                 //update meta data of notification and build it
                 updateMetaData()
                 buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
-                Toast.makeText(applicationContext, "Next", Toast.LENGTH_SHORT).show()
+               // Toast.makeText(applicationContext, "Next", Toast.LENGTH_SHORT).show()
             }
         }
 
         mediaPlayer?.setOnPreparedListener {
             playMedia()
-            Toast.makeText(this, "Played", Toast.LENGTH_SHORT).show()
+           // Toast.makeText(this, "Played", Toast.LENGTH_SHORT).show()
         }
 
         mediaPlayer?.setOnErrorListener { _, what, extra ->
@@ -283,7 +283,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
             activeAudio = audioList!![++audioIndex]
         }
 
-        Toast.makeText(applicationContext, "$audioIndex", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(applicationContext, "$audioIndex", Toast.LENGTH_SHORT).show()
         //Update stored index
         StorageUtil(applicationContext).storeAudioIndex(audioIndex)
         stopMedia()
@@ -317,6 +317,16 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         //reset mediaPlayer
         mediaPlayer!!.reset()
         initMediaPlayer()
+    }
+
+    fun onSeekTo(position: Long) {
+        resumePosition = position.toInt()
+        mediaPlayer?.seekTo(resumePosition)
+        if (mediaPlayer?.isPlaying!!) {
+            buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+        } else {
+            buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+        }
     }
 
     override fun onAudioFocusChange(focusState: Int) {
