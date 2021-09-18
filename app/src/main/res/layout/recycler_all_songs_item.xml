@@ -17,7 +17,7 @@
         android:layout_height="55dp"
         android:background="@drawable/little_curved_all_edges"
         android:scaleType="centerCrop"
-        android:src="@drawable/ic_audio_file_placeholder_svg"
+        android:src="@drawable/artist_icon_placeholder"
         app:shapeAppearanceOverlay="@style/circular_15" />
 
     <TextView

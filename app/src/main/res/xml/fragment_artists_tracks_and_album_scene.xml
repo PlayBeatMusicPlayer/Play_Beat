@@ -91,7 +91,9 @@
             android:layout_width="match_parent"
             android:layout_height="245dp"
             motion:layout_constraintTop_toTopOf="parent"
-            motion:layout_constraintStart_toStartOf="parent" />
+            motion:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp" />
         <Constraint
             android:id="@+id/bottomShadowIV"
             motion:layout_constraintEnd_toEndOf="parent"
@@ -144,7 +146,9 @@
             android:layout_height="50dp"
             motion:layout_constraintTop_toTopOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
-            android:alpha="0" />
+            android:alpha="0"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp" />
         <Constraint
             android:id="@+id/bottomShadowIV"
             motion:layout_constraintEnd_toEndOf="parent"

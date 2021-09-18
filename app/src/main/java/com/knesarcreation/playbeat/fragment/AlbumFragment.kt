@@ -36,7 +36,7 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
     private var albumData: AlbumModel? = null
     private var audioList = CopyOnWriteArrayList<AllSongsModel>()
     private var isAudioListSaved = false
-
+    private lateinit var storageUtil: StorageUtil
     /*companion object {
         var isAlbumSongPlaying = false
     }*/
@@ -53,6 +53,8 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
             (activity as AppCompatActivity).onBackPressed()
         }
         binding?.albumNameTV?.isSelected = true
+
+        storageUtil = StorageUtil(activity as Context)
 
         viewModel = activity?.run {
             ViewModelProvider(this)[DataObservableClass::class.java]
@@ -99,6 +101,7 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
 
     private fun playAllAudioInAlbum() {
         binding?.playAlbum?.setOnClickListener {
+            storageUtil.saveIsShuffled(false)
             playAudio(0)
         }
     }
@@ -211,11 +214,11 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
     }
 
     override fun onAudioPlayed(audioModel: AllSongsModel, position: Int) {
+        storageUtil.saveIsShuffled(false)
         playAudio(position)
     }
 
     private fun playAudio(position: Int) {
-        val storageUtil = StorageUtil(activity as Context)
         AudioPlayingFromCategory.audioPlayingFromAlbumORArtist = true
 
         storageUtil.storeAudio(audioList)

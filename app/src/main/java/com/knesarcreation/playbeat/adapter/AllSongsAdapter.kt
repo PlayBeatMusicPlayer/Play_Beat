@@ -60,7 +60,7 @@ class AllSongsAdapter(
         val artUri = allSongModel.artUri
 
         Glide.with(context).load(artUri)
-            .apply(RequestOptions.placeholderOf(R.drawable.ic_audio_file_placeholder_svg).centerCrop())
+            .apply(RequestOptions.placeholderOf(R.drawable.audio_icon_placeholder).centerCrop())
             .into(holder.albumArtIV)
 
         holder.rlAudio.setOnClickListener {

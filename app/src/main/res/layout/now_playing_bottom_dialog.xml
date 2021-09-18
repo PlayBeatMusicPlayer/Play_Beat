@@ -1,24 +1,208 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nowPlayingBottomSheetContainer"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="@drawable/app_theme_background_drawable"
+    android:clickable="true"
+    android:focusable="true"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    app:behavior_draggable="true"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="135dp"
+    app:layout_behavior="@string/bottom_sheet_behavior">
 
-    <FrameLayout
-        android:id="@+id/parentLayout"
+    <RelativeLayout
+        android:id="@+id/rlParentNowPlaying"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
-        <!-- app:behaviour_peakHeight="96dp"
-                app:behaviour_hideable="true"
-                app:layout_behavior="@string/bottom_sheet_behavior"-->
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        tools:ignore="UselessParent">
+
         <RelativeLayout
-            android:id="@+id/rlParentBG"
+            android:id="@+id/rlSmallbottomBarPlayingSong"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:ignore="UselessParent">
+            android:layout_height="70dp"
+            android:background="@color/app_theme_color"
+            android:elevation="0dp">
+
+            <ProgressBar
+                android:id="@+id/audioProgress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_alignParentTop="true" />
+
+            <View
+                android:id="@+id/openBottomSheetView"
+                android:layout_width="match_parent"
+                android:layout_height="200dp" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/albumArtIV"
+                android:layout_width="46dp"
+                android:layout_height="46dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="20dp"
+                android:background="@color/semi_transparent"
+                android:src="@drawable/ic_audio_file_placeholder_svg"
+                app:shapeAppearanceOverlay="@style/circular_50" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="5dp"
+                android:background="@android:color/transparent"
+                android:layout_toStartOf="@id/llPlayPauseBtn1"
+                android:layout_toEndOf="@id/albumArtIV"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/songNameTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:maxLines="1"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:text="Unknown"
+                    android:textColor="@color/white"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/artistOrAlbumNameTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="unknown"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/llPlayPauseBtn1"
+                android:layout_width="95dp"
+                android:background="@android:color/transparent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:clipToPadding="false"
+                android:clipChildren="false"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="10dp">
+
+                <!--<ImageView
+                    android:id="@+id/skipPrevAudio1"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/backwardiv"
+                    android:src="@drawable/ic_noti_skip_prev"
+                    android:visibility="gone" />-->
+
+                <ImageView
+                    android:id="@+id/playPauseIV1"
+                    android:layout_width="30dp"
+                    android:layout_height="35dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="20dp"
+                    android:padding="2dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/playpauseiv"
+                    android:src="@drawable/ic_play_audio" />
+
+                <ImageView
+                    android:id="@+id/skipNextAudio1"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:padding="5dp"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_toEndOf="@id/playPauseIV1"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/forwardiv"
+                    android:src="@drawable/ic_noti_skip_next" />
+
+                <androidx.mediarouter.app.MediaRouteButton
+                    android:id="@+id/castBtn"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_centerInParent="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="10dp"
+                    android:layout_toEndOf="@id/playPauseIV1"
+                    android:mediaRouteTypes="user"
+                    android:visibility="visible"
+                    app:mediaRouteButtonTint="@color/white" />
+
+            </RelativeLayout>
+
+            <!--<LinearLayout
+                android:id="@+id/llSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/llPlayPauseBtn"
+                android:layout_alignStart="@id/albumArtIV"
+                android:layout_alignEnd="@id/llPlayPauseBtn"
+                android:layout_alignParentBottom="true"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/startTimeTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00"
+                    android:textColor="@color/teal_200"
+                    android:textSize="12sp" />
+
+                <SeekBar
+                    android:id="@+id/seekBar"
+                    android:layout_width="260dp"
+                    android:layout_height="35dp"
+                    android:theme="@style/ThemeOverlay.AppCompat.Dark" />
+
+                <TextView
+                    android:id="@+id/endTimeTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+            </LinearLayout>-->
+
+        </RelativeLayout>
+
+        <me.ibrahimsn.lib.SmoothBottomBar
+            android:id="@+id/bottomBar"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_below="@id/rlSmallbottomBarPlayingSong"
+            android:layout_marginBottom="-5dp"
+            android:elevation="0dp"
+            app:backgroundColor="@color/app_theme_color"
+            app:layout_anchorGravity="bottom"
+            app:layout_dodgeInsetEdges="top"
+            app:menu="@menu/bottom_bar_menu" />
+
+        <RelativeLayout
+            android:id="@+id/rlNowPlayingBottomSheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0">
+
 
             <ImageView
                 android:id="@+id/bottomBackground"
@@ -40,7 +224,6 @@
                 android:background="@drawable/bottom_black_shadow"
                 android:contentDescription="@null" />
 
-
             <RelativeLayout
                 android:id="@+id/rlCoverArt"
                 android:layout_width="match_parent"
@@ -56,7 +239,7 @@
                 <ImageView
                     android:id="@+id/albumArtBottomGradient"
                     android:layout_width="match_parent"
-                    android:layout_height="250dp"
+                    android:layout_height="230dp"
                     android:layout_alignParentBottom="true"
                     android:background="@drawable/gradient_background_bottom_shadow"
                     android:contentDescription="@null" />
@@ -65,10 +248,10 @@
                     android:id="@+id/albumArtTopGradient"
                     android:layout_width="match_parent"
                     android:layout_height="80dp"
-                    android:visibility="gone"
                     android:layout_alignTop="@id/nowPlayingAlbumArtIV"
                     android:background="@drawable/gradient_background_top_shadow"
-                    android:contentDescription="@null" />
+                    android:contentDescription="@null"
+                    android:visibility="gone" />
 
             </RelativeLayout>
 
@@ -78,7 +261,7 @@
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="25dp"
+                android:layout_marginTop="35dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginBottom="20dp">
 
@@ -97,7 +280,7 @@
                     android:layout_centerInParent="true"
                     android:layout_marginStart="10dp"
                     android:contentDescription="@null"
-                    android:src="@drawable/ic_close_white" />
+                    android:src="@drawable/down_arrow" />
 
                 <!-- <TextView
                      android:layout_width="wrap_content"
@@ -113,17 +296,6 @@
                      android:textStyle="bold" />-->
 
             </RelativeLayout>
-
-            <ImageView
-                android:id="@+id/likedAudioIV"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_above="@id/rlAudioControl"
-                android:layout_alignParentEnd="true"
-                android:layout_marginBottom="-20dp"
-                android:contentDescription="@null"
-                android:src="@drawable/liked_audio" />
-
 
             <RelativeLayout
                 android:id="@+id/rlAudioControl"
@@ -186,8 +358,7 @@
                     android:layout_above="@id/llPlayPauseBtn"
                     android:layout_below="@id/llSongNameAndArtistsName"
                     android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:nestedScrollingEnabled="true">
+                    android:layout_marginEnd="10dp">
 
                     <androidx.appcompat.widget.AppCompatSeekBar
                         android:id="@+id/seekBar"
@@ -245,27 +416,31 @@
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
                     android:layout_marginEnd="10dp"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginBottom="40dp"
+                    android:background="@android:color/transparent"
                     android:gravity="center">
 
                     <ImageView
                         android:id="@+id/loopOneSong"
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
                         android:layout_gravity="center"
                         android:layout_marginStart="20dp"
                         android:layout_marginEnd="20dp"
+                        android:padding="5dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_repeat_24" />
 
 
                     <ImageView
                         android:id="@+id/skipPrevAudio"
-                        android:layout_width="30dp"
-                        android:layout_height="40dp"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
                         android:layout_gravity="center"
                         android:layout_marginStart="20dp"
-                        android:layout_weight="1"
+                        android:layout_marginEnd="20dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/backwardiv"
                         android:src="@drawable/avd_music_previous"
                         android:visibility="visible" />
@@ -282,6 +457,7 @@
                             android:layout_height="40dp"
                             android:layout_centerInParent="true"
                             android:layout_gravity="center"
+                            android:background="?attr/selectableItemBackgroundBorderless"
                             android:contentDescription="@string/playpauseiv"
                             android:src="@drawable/asl_playpause" />
                     </androidx.cardview.widget.CardView>
@@ -289,21 +465,24 @@
 
                     <ImageView
                         android:id="@+id/skipNextAudio"
-                        android:layout_width="30dp"
-                        android:layout_height="40dp"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
                         android:layout_gravity="center"
+                        android:layout_marginStart="20dp"
                         android:layout_marginEnd="20dp"
-                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/forwardiv"
                         android:src="@drawable/avd_music_next" />
 
                     <ImageView
                         android:id="@+id/shuffleSongIV"
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:padding="5dp"
                         android:layout_gravity="center"
                         android:layout_marginStart="20dp"
                         android:layout_marginEnd="20dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_shuffle" />
 
@@ -312,12 +491,53 @@
 
             </RelativeLayout>
 
-            <View
+            <RelativeLayout
                 android:id="@+id/bottomView"
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
-                android:layout_alignParentBottom="true" />
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:background="@android:color/transparent"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/likedAudioIV"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="10dp"
+                    android:layout_toStartOf="@id/sleepTimeIV"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
+                    android:src="@drawable/liked_audio" />
+
+                <ImageView
+                    android:id="@+id/sleepTimeIV"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_centerInParent="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_sleep_time" />
+
+                <ImageView
+                    android:id="@+id/queueAudioIV"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    android:layout_toEndOf="@id/sleepTimeIV"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:contentDescription="@null"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_queue_music" />
+
+
+            </RelativeLayout>
         </RelativeLayout>
 
-    </FrameLayout>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </RelativeLayout>
+
+</FrameLayout>

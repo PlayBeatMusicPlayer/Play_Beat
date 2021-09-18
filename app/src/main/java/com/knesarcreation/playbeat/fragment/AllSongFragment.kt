@@ -18,7 +18,6 @@ import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.databinding.FragmentAllSongBinding
 import com.knesarcreation.playbeat.model.AllSongsModel
 import com.knesarcreation.playbeat.service.PlayBeatMusicService
-import com.knesarcreation.playbeat.utils.AudioPlayingFromCategory
 import com.knesarcreation.playbeat.utils.CustomProgressDialog
 import com.knesarcreation.playbeat.utils.StorageUtil
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +35,7 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
     private var audioIndexPos = -1
     private var isDestroyedActivity = false
     private var audioList = CopyOnWriteArrayList<AllSongsModel>()
+    private lateinit var storage: StorageUtil
 
     companion object {
         const val Broadcast_PLAY_NEW_AUDIO = "com.knesarcreation.playbeat.utils.PlayNewAudio"
@@ -59,6 +59,8 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
         lifecycleScope.launch(Dispatchers.IO) {
             loadAudio()
         }
+
+        storage = StorageUtil(activity as AppCompatActivity)
 
         return view!!
 
@@ -154,18 +156,24 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
                 binding!!.rvAllSongs.adapter = allSongsAdapter
                 cursor.close()
                 // progressBar.dismiss()
+                // after loading audio start the service
+                startService()
             }
         }
-
-        // after loading audio start the service
-        startService()
     }
 
     private fun startService() {
         if (musicService == null) {
-            val storage = StorageUtil(activity as AppCompatActivity)
-            storage.storeAudio(audioList)
-            storage.storeAudioIndex(0) // since service is creating firstTime
+            if (storage.getIsOpenFirstTime()) {
+                storage.storeAudio(audioList)
+                storage.storeAudioIndex(0) // since service is creating firstTime
+                storage.saveAppOpenedFirstTime(false)
+            } else {
+                //audioList = storage.loadAudio()
+                audioIndexPos = storage.loadAudioIndex()
+            }
+            //Toast.makeText(activity as Context, "$loadAudio", Toast.LENGTH_SHORT).show()
+
             Log.d(
                 "AlbumFragment.musicService",
                 "playAudio: its null... service created : Service is  null"
@@ -188,11 +196,12 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
 
     private fun playAudio(audioIndex: Int) {
         this.audioIndexPos = audioIndex
-        val storage = StorageUtil(activity as Context)
-        if (AudioPlayingFromCategory.audioPlayingFromAlbumORArtist) {
+        /*if (AudioPlayingFromCategory.audioPlayingFromAlbumORArtist) {
             storage.storeAudio(audioList)
             AudioPlayingFromCategory.audioPlayingFromAlbumORArtist = false
-        }
+        }*/
+        //store audio to prefs
+        storage.storeAudio(audioList)
         //Store the new audioIndex to SharedPreferences
         storage.storeAudioIndex(audioIndex)
 
@@ -216,12 +225,13 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
 
     override fun onServiceDisconnected(p0: ComponentName?) {
         musicService = null
-        Toast.makeText(activity as Context, "null serivce", Toast.LENGTH_SHORT).show()
+        Toast.makeText(activity as Context, "null service", Toast.LENGTH_SHORT).show()
         //serviceBound = false
     }
 
 
     override fun onClick(allSongModel: AllSongsModel, position: Int) {
+        storage.saveIsShuffled(false)
         playAudio(position)
     }
 

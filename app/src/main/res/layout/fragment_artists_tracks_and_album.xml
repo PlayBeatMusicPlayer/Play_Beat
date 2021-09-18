@@ -10,11 +10,11 @@
 
     <ImageView
         android:id="@+id/coverArtistImage"
-        android:layout_width="match_parent"
+        android:layout_width="245dp"
         android:layout_height="245dp"
         android:contentDescription="@null"
         android:scaleType="fitXY"
-        android:src="@drawable/artist_cover_img"
+        android:src="@drawable/artist_icon_placeholder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

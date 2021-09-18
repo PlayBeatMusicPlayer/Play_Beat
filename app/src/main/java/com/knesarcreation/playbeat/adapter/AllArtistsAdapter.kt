@@ -47,7 +47,7 @@ class AllArtistsAdapter(
         holder.noOfTracks.text = "${artistsModel.noOfTracks} Tracks"
         holder.noOfAlbums.text = "${artistsModel.noOfAlbums} Albums"
 
-        holder.artistAvatar.setImageResource(R.drawable.artists_avatar)
+        holder.artistAvatar.setImageResource(R.drawable.artist_icon_placeholder)
         holder.forwardIconIV.visibility = View.VISIBLE
         holder.rlParentView.setOnClickListener {
             listener.getArtistData(artistsModel)

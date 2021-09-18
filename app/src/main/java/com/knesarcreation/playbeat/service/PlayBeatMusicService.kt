@@ -76,6 +76,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         const val ACTION_STOP = "com.knesarcreation.playbeat.service.ACTION_STOP"
         const val ACTION_FAVOURITE = "com.knesarcreation.playbeat.service.ACTION_FAVOURITE"
         const val ACTION_UN_FAVOURITE = "com.knesarcreation.playbeat.service.ACTION_UNFAVOURITE"
+        const val OPEN_CONTENT = "com.knesarcreation.playbeat.service.OPEN_CONTENT"
     }
 
     override fun onCreate() {
@@ -90,7 +91,12 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         registerBecomingNoisyReceiver()
         //Listen for new Audio to play -- BroadcastReceiver
         registerPlayNewAudio()
+
+        //register on click notification receiver
+        registerContentReceiver()
         //registerMediaBtn()
+
+        resumePosition = StorageUtil(applicationContext).getAudioResumePos()
 
     }
 
@@ -110,17 +116,25 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
         mediaPlayer?.setOnCompletionListener {
             if (!it?.isPlaying!!) {
-                skipToNext()
+                val isRepeatAudio = StorageUtil(applicationContext).getIsRepeatAudio()
+                if (isRepeatAudio) {
+                    stopMedia()
+                    //reset mediaPlayer
+                    mediaPlayer!!.reset()
+                    initMediaPlayer()
+                } else {
+                    skipToNext()
+                }
                 //update meta data of notification and build it
                 updateMetaData()
                 buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
-               // Toast.makeText(applicationContext, "Next", Toast.LENGTH_SHORT).show()
+                // Toast.makeText(applicationContext, "Next", Toast.LENGTH_SHORT).show()
             }
         }
 
         mediaPlayer?.setOnPreparedListener {
             playMedia()
-           // Toast.makeText(this, "Played", Toast.LENGTH_SHORT).show()
+            // Toast.makeText(this, "Played", Toast.LENGTH_SHORT).show()
         }
 
         mediaPlayer?.setOnErrorListener { _, what, extra ->
@@ -274,6 +288,9 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     }
 
     fun skipToNext() {
+        val storageUtil = StorageUtil(applicationContext)
+        audioList!!.clear()
+        audioList = storageUtil.loadAudio()
         if (audioIndex == audioList!!.size - 1) {
             //if last in playlist
             audioIndex = 0
@@ -285,7 +302,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
         //Toast.makeText(applicationContext, "$audioIndex", Toast.LENGTH_SHORT).show()
         //Update stored index
-        StorageUtil(applicationContext).storeAudioIndex(audioIndex)
+        storageUtil.storeAudioIndex(audioIndex)
         stopMedia()
         //reset mediaPlayer
         mediaPlayer!!.reset()
@@ -564,61 +581,6 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         }
     }
 
-
-    // Broad cast receivers .......................................................
-    private val playNewAudio: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val storageUtil = StorageUtil(applicationContext)
-
-            audioList = storageUtil.loadAudio()
-            //Get the new media index form SharedPreferences
-            audioIndex = storageUtil.loadAudioIndex()
-            if (audioIndex != -1 && audioIndex < audioList!!.size) {
-                //index is in a valid range
-                activeAudio = audioList!![audioIndex]
-            } else {
-                stopSelf()
-            }
-
-            pausedByManually = false
-            requestAudioFocus()
-
-            //A PLAY_NEW_AUDIO action received
-            //reset mediaPlayer to play the new Audio
-
-            if (mediaPlayer != null && mediaPlayer?.isPlaying!!) {
-                stopMedia()
-                mediaPlayer!!.reset()
-            }
-
-            initMediaPlayer()
-            updateMetaData()
-            buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
-            buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
-        }
-    }
-
-
-    private fun registerPlayNewAudio() {
-        //Register playNewMedia receiver
-        val filter = IntentFilter(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
-        registerReceiver(playNewAudio, filter)
-    }
-
-    private val becomingNoisyReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            //pause audio on ACTION_AUDIO_BECOMING_NOISY
-            pauseMedia()
-            buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
-        }
-    }
-
-    private fun registerBecomingNoisyReceiver() {
-        //register after getting audio focus
-        val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
-        registerReceiver(becomingNoisyReceiver, intentFilter)
-    }
-
     @SuppressLint("ServiceCast")
     @Throws(RemoteException::class)
     private fun initMediaSession() {
@@ -706,6 +668,9 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 super.onPlay()
                 pausedByManually = false
                 resumeMedia()
+                /** Update UI of [AllSongFragment] */
+                val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
+                sendBroadcast(updatePlayer)
                 buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
             }
 
@@ -713,6 +678,9 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 super.onPause()
                 pausedByManually = true
                 pauseMedia()
+                /** Update UI of [AllSongFragment] */
+                val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
+                sendBroadcast(updatePlayer)
                 buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
                 if (isTaskRemoved)
                     stopServiceIfTaskRemoved()
@@ -722,6 +690,11 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 super.onSkipToNext()
                 pausedByManually = false
                 skipToNext()
+
+                /** Update UI of [AllSongFragment] */
+                val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
+                sendBroadcast(updatePlayer)
+
                 //update meta data of notification and build it
                 updateMetaData()
                 buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
@@ -732,6 +705,11 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 super.onSkipToPrevious()
                 pausedByManually = false
                 skipToPrevious()
+
+                /** Update UI of [AllSongFragment] */
+                val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
+                sendBroadcast(updatePlayer)
+
                 //update meta data of notification and build it
                 updateMetaData()
                 buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
@@ -808,6 +786,19 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
     private fun stopServiceIfTaskRemoved() {
         if (!mediaPlayer?.isPlaying!!) {
+            //store audio resume pos
+
+            if (mediaPlayer?.currentPosition == 0) {
+                // if user didn't resume audio then medial player current pos will we zero
+                // at that time save the RESUME POSITION which we will get from PREFS
+                StorageUtil(applicationContext).storeAudioResumePos(resumePosition)
+                Toast.makeText(this, "$resumePosition", Toast.LENGTH_SHORT).show()
+            } else {
+                StorageUtil(applicationContext).storeAudioResumePos(mediaPlayer?.currentPosition!!)
+            }
+
+            StorageUtil(applicationContext).storeLastAudioMaxSeekProg(mediaPlayer?.duration!!)
+
             Toast.makeText(applicationContext, "Destroyed", Toast.LENGTH_SHORT).show()
             Log.d("PlayBeatServiceDestroyed", "onDestroy: Destroyed")
             if (mediaPlayer != null) {
@@ -827,6 +818,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
             //unregister BroadcastReceivers
             unregisterReceiver(becomingNoisyReceiver)
             unregisterReceiver(playNewAudio)
+            unregisterReceiver(openContent)
 
             //clear cached playlist
             //StorageUtil(applicationContext).clearCachedAudioPlaylist()
@@ -835,5 +827,69 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
             AllSongFragment.musicService = null
             //stopService(Intent(this, PlayBeatMusicService::class.java))
         }
+    }
+
+    // Broad cast receivers .......................................................
+    private val playNewAudio: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val storageUtil = StorageUtil(applicationContext)
+
+            audioList = storageUtil.loadAudio()
+            //Get the new media index form SharedPreferences
+            audioIndex = storageUtil.loadAudioIndex()
+            if (audioIndex != -1 && audioIndex < audioList!!.size) {
+                //index is in a valid range
+                activeAudio = audioList!![audioIndex]
+            } else {
+                stopSelf()
+            }
+
+            pausedByManually = false
+            requestAudioFocus()
+
+            //A PLAY_NEW_AUDIO action received
+            //reset mediaPlayer to play the new Audio
+
+            if (mediaPlayer != null && mediaPlayer?.isPlaying!!) {
+                stopMedia()
+                mediaPlayer!!.reset()
+            }
+
+            initMediaPlayer()
+            updateMetaData()
+            buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+            buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+        }
+    }
+
+    private fun registerPlayNewAudio() {
+        //Register playNewMedia receiver
+        val filter = IntentFilter(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
+        registerReceiver(playNewAudio, filter)
+    }
+
+    private val becomingNoisyReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            //pause audio on ACTION_AUDIO_BECOMING_NOISY
+            pauseMedia()
+            buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+        }
+    }
+
+    private fun registerBecomingNoisyReceiver() {
+        //register after getting audio focus
+        val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+        registerReceiver(becomingNoisyReceiver, intentFilter)
+    }
+
+    private val openContent: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+
+        }
+    }
+
+    private fun registerContentReceiver() {
+        val intentFiler = IntentFilter(OPEN_CONTENT)
+        registerReceiver(openContent, intentFiler)
     }
 }

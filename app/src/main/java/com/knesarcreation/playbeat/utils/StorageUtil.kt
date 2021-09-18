@@ -47,14 +47,31 @@ class StorageUtil(context: Context) {
         return preferences!!.getInt("audioIndex", -1) //return -1 if no data found
     }
 
-    fun clearCachedAudioPlaylist() {
+    fun storeAudioResumePos(position: Int) {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         val editor = preferences!!.edit()
-        editor.clear()
+        editor.putInt("resumePos", position)
         editor.apply()
     }
 
-    fun saveIsShuffled(isShuffled:Boolean) {
+    fun getAudioResumePos(): Int {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getInt("resumePos", 0)
+    }
+
+    fun storeLastAudioMaxSeekProg(position: Int) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putInt("maxSeekProg", position)
+        editor.apply()
+    }
+
+    fun getLastAudioMaxSeekProg(): Int {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getInt("maxSeekProg", 100)
+    }
+
+    fun saveIsShuffled(isShuffled: Boolean) {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         val editor = preferences!!.edit()
         editor.putBoolean("isShuffled", isShuffled)
@@ -66,4 +83,34 @@ class StorageUtil(context: Context) {
         return preferences!!.getBoolean("isShuffled", false)
     }
 
+    fun saveAppOpenedFirstTime(value: Boolean) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putBoolean("firstTime", value)
+        editor.apply()
+    }
+
+    fun getIsOpenFirstTime(): Boolean {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getBoolean("firstTime", true)
+    }
+
+    fun saveIsRepeatAudio(isRepeat: Boolean) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putBoolean("isRepeat", isRepeat)
+        editor.apply()
+    }
+
+    fun getIsRepeatAudio(): Boolean {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getBoolean("isRepeat", false)
+    }
+
+    fun clearCachedAudioPlaylist() {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.clear()
+        editor.apply()
+    }
 }

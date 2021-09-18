@@ -34,16 +34,15 @@
         <item name="cornerSize">50%</item>
     </style>
 
-    <style name="bottomSheet" parent="Widget.MaterialComponents.BottomSheet.Modal">
-        <!--        <item name="android:background">@drawable/transparent_background</item>-->
-<!--        <item name="behavior_peekHeight">1000dp</item>-->
-        <!--<item name="behavior_draggable">true</item>-->
+    <style name="bottomSheet" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/curved_top_right_top_left_app_theme_color</item>
+        <item name="behavior_draggable">true</item>
         <!--        <item name="behavior_expandedOffset">500dp</item>-->
-        <item name="paddingTopSystemWindowInsets">true</item>
+        <!--        <item name="paddingTopSystemWindowInsets">true</item>-->
 
     </style>
 
-    <style name="AppModalDialogTheme" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+    <style name="AppModalDialogTheme" parent="Theme.Design.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/bottomSheet</item>
     </style>
 

@@ -20,7 +20,7 @@
             android:layout_marginEnd="20dp"
             android:background="@color/app_theme_color"
             app:tabGravity="fill"
-            app:tabIndicator="@drawable/curved_tab_background"
+            app:tabIndicator="@drawable/curved_light_transparent_bg"
             app:tabIndicatorColor="#69696C"
             app:tabIndicatorHeight="40dp"
             app:tabMode="fixed"

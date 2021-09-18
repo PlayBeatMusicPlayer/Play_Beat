@@ -18,14 +18,12 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.databinding.RecyclerGridAlbumItemsBinding
-import com.knesarcreation.playbeat.fragment.AllAlbumsFragment
 import com.knesarcreation.playbeat.fragment.AllSongFragment
 import com.knesarcreation.playbeat.model.AlbumModel
 import com.knesarcreation.playbeat.model.AllSongsModel
 import com.knesarcreation.playbeat.utils.AudioPlayingFromCategory
 import com.knesarcreation.playbeat.utils.StorageUtil
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.TimeUnit
 
 class ArtistsAlbumAdapter(
     var context: Context,
@@ -83,6 +81,7 @@ class ArtistsAlbumAdapter(
         }
 
         holder.playAlbumBtn.setOnClickListener {
+            StorageUtil(context).saveIsShuffled(false)
             loadAlbumAudio(albumModel)
         }
 
@@ -143,7 +142,7 @@ class ArtistsAlbumAdapter(
 
         // Show only audios that are at least 1 minutes in duration.
         //val selection =
-          //  "${MediaStore.Audio.Media.DURATION} >= ? AND ${MediaStore.Audio.Albums.ALBUM} =?"
+        //  "${MediaStore.Audio.Media.DURATION} >= ? AND ${MediaStore.Audio.Albums.ALBUM} =?"
         val selection =
             "${MediaStore.Audio.Albums.ALBUM} =?"
         val selectionArgs = arrayOf(

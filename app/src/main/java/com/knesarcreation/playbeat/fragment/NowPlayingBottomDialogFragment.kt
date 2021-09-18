@@ -31,7 +31,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.databinding.NowPlayingBottomDialogBinding
 import com.knesarcreation.playbeat.model.AllSongsModel
-import com.knesarcreation.playbeat.utils.MakeStatusBarTransparent
 import com.knesarcreation.playbeat.utils.PlaybackStatus
 import com.knesarcreation.playbeat.utils.StorageUtil
 import com.knesarcreation.playbeat.utils.UriToBitmapConverter
@@ -49,7 +48,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
     private var isNotiBuild = false
     private var shuffledList = CopyOnWriteArrayList<AllSongsModel>()
     private var isShuffled = false
-    private var savedAudioIndex = -1
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val bottomSheetDialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
         bottomSheetDialog.setOnShowListener { dialog ->
@@ -89,7 +88,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
         binding?.songTextTV!!.isSelected = true
         binding?.closeSheetIV!!.setOnClickListener { dismiss() }
 
-        MakeStatusBarTransparent().transparent(mContext as AppCompatActivity)
+        //MakeStatusBarTransparent().transparent(mContext as AppCompatActivity)
 
         registerUpdatePlayerUI()
 
@@ -135,6 +134,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
                 binding?.shuffleSongIV?.setImageResource(R.drawable.ic_shuffle)
             }
         }
+
         return view
 
     }
@@ -326,7 +326,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
             } else {
                 val originalBitmap = BitmapFactory.decodeResource(
                     mContext.resources,
-                    R.drawable.audio_file_placeholder
+                    R.drawable.audio_icon_placeholder
                 )
                 Glide.with(mContext).load(originalBitmap)
                     .transition(withCrossFade(factory))

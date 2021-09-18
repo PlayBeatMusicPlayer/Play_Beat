@@ -39,6 +39,7 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
     private val albumList = CopyOnWriteArrayList<AlbumModel>()
     private var progressBar: CustomProgressDialog? = null
     private var listener: OnArtistAlbumItemClicked? = null
+    private lateinit var storageUtil: StorageUtil
 
     interface OnArtistAlbumItemClicked {
         fun openArtistAlbum(album: String)
@@ -58,6 +59,8 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
         binding?.arrowBackIV?.setOnClickListener {
             (activity as AppCompatActivity).onBackPressed()
         }
+
+        storageUtil = StorageUtil(activity as Context)
 
         viewmodel = activity?.run {
             ViewModelProvider(this)[DataObservableClass::class.java]
@@ -95,9 +98,15 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
 
         })
 
-        binding?.playAll?.setOnClickListener { /*starting from 0*/ playAudio(0) }
+        binding?.playAll?.setOnClickListener { /*starting from 0*/
+            storageUtil.saveIsShuffled(false)
+            playAudio(0)
+        }
 
-        binding?.playAllToolbar?.setOnClickListener { playAudio(0) }
+        binding?.playAllToolbar?.setOnClickListener {
+            storageUtil.saveIsShuffled(false)
+            playAudio(0)
+        }
 
         return view
     }
@@ -301,11 +310,11 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
     }
 
     override fun onClick(allSongModel: AllSongsModel, position: Int) {
+        storageUtil.saveIsShuffled(false)
         playAudio(position)
     }
 
     private fun playAudio(position: Int) {
-        val storageUtil = StorageUtil(activity as Context)
         AudioPlayingFromCategory.audioPlayingFromAlbumORArtist = true
 
         storageUtil.storeAudio(audioList)
