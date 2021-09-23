@@ -16,7 +16,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.databinding.ActivityAllSongsBinding
-import com.knesarcreation.playbeat.model.AllSongsModel
+import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.receiver.MediaButtonIntentReceiver
 import com.knesarcreation.playbeat.service.PlayBeatMusicService
 import com.knesarcreation.playbeat.service.PlayBeatMusicService.LocalBinder

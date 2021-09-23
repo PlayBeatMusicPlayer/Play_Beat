@@ -29,8 +29,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.knesarcreation.playbeat.R
-import com.knesarcreation.playbeat.databinding.NowPlayingBottomDialogBinding
-import com.knesarcreation.playbeat.model.AllSongsModel
+import com.knesarcreation.playbeat.databinding.BottomSheetNowPlayingBinding
+import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.utils.PlaybackStatus
 import com.knesarcreation.playbeat.utils.StorageUtil
 import com.knesarcreation.playbeat.utils.UriToBitmapConverter
@@ -39,7 +39,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogFragment() {
 
-    private var _binding: NowPlayingBottomDialogBinding? = null
+    private var _binding: BottomSheetNowPlayingBinding? = null
     private val binding get() = _binding
     private var audioList = CopyOnWriteArrayList<AllSongsModel>()
     private var audioIndex = -1
@@ -82,7 +82,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
         savedInstanceState: Bundle?
     ): View? {
 
-        _binding = NowPlayingBottomDialogBinding.inflate(inflater, container, false)
+        _binding = BottomSheetNowPlayingBinding.inflate(inflater, container, false)
         val view = binding?.root
 
         binding?.songTextTV!!.isSelected = true

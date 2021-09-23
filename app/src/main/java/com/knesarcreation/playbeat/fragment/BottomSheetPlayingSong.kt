@@ -18,7 +18,7 @@ import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions.withCross
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.knesarcreation.playbeat.R
-import com.knesarcreation.playbeat.model.AllSongsModel
+import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.utils.UriToBitmapConverter
 import java.util.*
 import kotlin.math.floor

@@ -13,10 +13,13 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
+import com.knesarcreation.playbeat.database.AllSongsModel
+import com.knesarcreation.playbeat.database.QueueListModel
+import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.FragmentAllSongBinding
-import com.knesarcreation.playbeat.model.AllSongsModel
 import com.knesarcreation.playbeat.service.PlayBeatMusicService
 import com.knesarcreation.playbeat.utils.CustomProgressDialog
 import com.knesarcreation.playbeat.utils.StorageUtil
@@ -26,7 +29,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
 
 
-class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSongItem {
+class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClickSongItem */ {
     private lateinit var allSongsAdapter: AllSongsAdapter
     lateinit var progressBar: CustomProgressDialog
     private var _binding: FragmentAllSongBinding? = null
@@ -35,7 +38,10 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
     private var audioIndexPos = -1
     private var isDestroyedActivity = false
     private var audioList = CopyOnWriteArrayList<AllSongsModel>()
+    private var tempAudioList = CopyOnWriteArrayList<AllSongsModel>()
     private lateinit var storage: StorageUtil
+    private lateinit var mViewModelClass: ViewModelClass
+    private var serviceStarted = false
 
     companion object {
         const val Broadcast_PLAY_NEW_AUDIO = "com.knesarcreation.playbeat.utils.PlayNewAudio"
@@ -56,10 +62,35 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
 
         //checkPermission(activity as Context)
 
+        mViewModelClass = ViewModelProvider(this)[ViewModelClass::class.java]
+
         lifecycleScope.launch(Dispatchers.IO) {
             loadAudio()
         }
 
+        allSongsAdapter =
+            AllSongsAdapter(
+                activity as Context,
+                AllSongsAdapter.OnClickListener { allSongModel, position ->
+                    onClickAudio(allSongModel, position)
+                })
+        binding!!.rvAllSongs.adapter = allSongsAdapter
+        binding!!.rvAllSongs.itemAnimator = null
+        binding!!.rvAllSongs.scrollToPosition(0)
+        mViewModelClass.getAllSong().observe(viewLifecycleOwner, {
+            if (it != null) {
+                audioList.clear()
+
+                val sortedList = it.sortedBy { allSongsModel -> allSongsModel.songName }
+                audioList.addAll(sortedList)
+
+                allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.songName })
+                // progressBar.dismiss()
+
+                //saving data here to keep update the list
+                //storage.storeAudio(audioList)
+            }
+        })
         storage = StorageUtil(activity as AppCompatActivity)
 
         return view!!
@@ -68,12 +99,12 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
 
     @SuppressLint("Range")
     private fun loadAudio() {
-        audioList.clear()
+        tempAudioList.clear()
         val collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.DISPLAY_NAME,
+            MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.SIZE,
             MediaStore.Audio.Media.ALBUM,
@@ -101,7 +132,7 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
         query?.use { cursor ->
             // Cache column indices.
             val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-            val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
+            val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
             val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
             val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
             val artistsColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
@@ -109,6 +140,7 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
             val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
             val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
 
+            mViewModelClass.deleteSongs(lifecycleScope)
 
             while (cursor.moveToNext()) {
                 //Get values of columns of a given audio
@@ -136,6 +168,7 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
 
                 val allSongsModel =
                     AllSongsModel(
+                        id,
                         albumId,
                         name,
                         artist,
@@ -146,33 +179,45 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
                         contentUri.toString(),
                         artUri
                     )
-                audioList.add(allSongsModel)
+
+                /*storage.loadAudioIndex()
+                val playingAudio = storage.loadAudio()[]*/
+                allSongsModel.playingOrPause = -1
+                tempAudioList.add(allSongsModel)
             }
 
-            // Stuff that updates the UI
-            (activity as AppCompatActivity).runOnUiThread {
-                allSongsAdapter =
-                    AllSongsAdapter(activity as Context, audioList, this)
-                binding!!.rvAllSongs.adapter = allSongsAdapter
-                cursor.close()
-                // progressBar.dismiss()
-                // after loading audio start the service
-                startService()
+            cursor.close()
+
+            // update audio to DB
+            for (audioData in tempAudioList) {
+                mViewModelClass.insertAllSongs(audioData, lifecycleScope)
             }
+
+            startService()
         }
     }
 
     private fun startService() {
         if (musicService == null) {
-            if (storage.getIsOpenFirstTime()) {
-                storage.storeAudio(audioList)
+            if (storage.getIsAudioPlayedFirstTime()) {
+                // if app opened first time
+                storage.storeAudio(tempAudioList)
                 storage.storeAudioIndex(0) // since service is creating firstTime
-                storage.saveAppOpenedFirstTime(false)
             } else {
                 //audioList = storage.loadAudio()
                 audioIndexPos = storage.loadAudioIndex()
+
+                Log.d("audioIndexAllAudio", "startService: $audioIndexPos ")
+
+                //highlight the paused audio when app opens and service is closed
+                val audio = storage.loadAudio()
+                mViewModelClass.updateSong(
+                    audio[audioIndexPos].songId,
+                    audio[audioIndexPos].songName,
+                    0, /*pause*/
+                    (context as AppCompatActivity).lifecycleScope
+                )
             }
-            //Toast.makeText(activity as Context, "$loadAudio", Toast.LENGTH_SHORT).show()
 
             Log.d(
                 "AlbumFragment.musicService",
@@ -190,16 +235,16 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
                 "playAudio: its null... service created : Service is  null"
             )
         }
-        val updatePlayer = Intent(Broadcast_BOTTOM_UPDATE_PLAYER_UI)
-        (activity as Context).sendBroadcast(updatePlayer)
+
+        if (!storage.getIsAudioPlayedFirstTime()) {
+            val updatePlayer = Intent(Broadcast_BOTTOM_UPDATE_PLAYER_UI)
+            (activity as Context).sendBroadcast(updatePlayer)
+        }
+
     }
 
     private fun playAudio(audioIndex: Int) {
         this.audioIndexPos = audioIndex
-        /*if (AudioPlayingFromCategory.audioPlayingFromAlbumORArtist) {
-            storage.storeAudio(audioList)
-            AudioPlayingFromCategory.audioPlayingFromAlbumORArtist = false
-        }*/
         //store audio to prefs
         storage.storeAudio(audioList)
         //Store the new audioIndex to SharedPreferences
@@ -229,19 +274,68 @@ class AllSongFragment : Fragment(), ServiceConnection, AllSongsAdapter.OnClickSo
         //serviceBound = false
     }
 
-
-    override fun onClick(allSongModel: AllSongsModel, position: Int) {
-        storage.saveIsShuffled(false)
-        playAudio(position)
-    }
-
-
     override fun onDestroy() {
         super.onDestroy()
         isDestroyedActivity = true
     }
 
 
+    private fun onClickAudio(allSongModel: AllSongsModel, position: Int) {
+        mViewModelClass.deleteQueue(lifecycleScope)
+
+        storage.saveIsShuffled(false)
+        val currentPlayingAudioIndex = storage.loadAudioIndex()
+        val audioList = storage.loadAudio()
+        val currentPlayingSongModel = audioList[currentPlayingAudioIndex]
+
+        mViewModelClass.updateSong(
+            currentPlayingSongModel.songId,
+            currentPlayingSongModel.songName,
+            -1,
+            (context as AppCompatActivity).lifecycleScope
+        )
+
+        mViewModelClass.updateSong(
+            allSongModel.songId,
+            allSongModel.songName,
+            1,
+            (context as AppCompatActivity).lifecycleScope
+        )
+
+        playAudio(position)
+
+        // adding queue list to DB and show highlight of current audio
+        for (audio in this.audioList) {
+            val queueListModel = QueueListModel(
+                audio.songId,
+                audio.albumId,
+                audio.songName,
+                audio.artistsName,
+                audio.albumName,
+                audio.size,
+                audio.duration,
+                audio.data,
+                audio.audioUri,
+                audio.artUri,
+                -1
+            )
+            mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+        }
+
+        mViewModelClass.updateQueueAudio(
+            currentPlayingSongModel.songId,
+            currentPlayingSongModel.songName,
+            -1,
+            (context as AppCompatActivity).lifecycleScope
+        )
+
+        mViewModelClass.updateQueueAudio(
+            allSongModel.songId,
+            allSongModel.songName,
+            1,
+            (context as AppCompatActivity).lifecycleScope
+        )
+    }
     /* override fun onRequestPermissionsResult(
          requestCode: Int,
          permissions: Array<out String>,

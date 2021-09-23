@@ -19,7 +19,7 @@
     <color name="dark_grey">#1b262c</color>
     <color name="soil_color">#324047</color>
     <color name="dark_orange">#ff5f40</color>
-    <color name="light_grey">#F1EEEE</color>
+   <!-- <color name="light_grey">#F1EEEE</color>-->
     <color name="red">#E62525</color>
     <color name="dark_red">#DA0505</color>
     <color name="bright_red">#ff414d</color>
@@ -53,4 +53,5 @@
     <color name="_blue">#E0F2F8</color>
     <color name="bright_orange">#DC973F</color>
     <color name="rippleColor">#419A9A9A</color>
+    <color name="light_grey">#69696C</color>
 </resources>

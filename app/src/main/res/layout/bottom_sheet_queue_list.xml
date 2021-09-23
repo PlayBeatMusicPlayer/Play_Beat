@@ -59,7 +59,6 @@
 
     </RelativeLayout>
 
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -185,20 +184,23 @@
             android:textSize="17sp"
             android:textStyle="bold" />
 
-        <androidx.recyclerview.widget.RecyclerView
+        <com.ernestoyaquello.dragdropswiperecyclerview.DragDropSwipeRecyclerView
             android:id="@+id/rvUpNext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/upNextTV"
+            android:nestedScrollingEnabled="true"
             android:paddingTop="10dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/recycler_all_songs_item" />
+            app:behind_swiped_item_bg_color="@color/bright_red"
+            app:behind_swiped_item_icon="@drawable/ic_delete"
+            app:behind_swiped_item_icon_margin="16dp"
+            app:item_layout="@layout/recycler_all_songs_item" />
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="20dp"
-            android:layout_marginTop="10dp"
             android:layout_below="@id/upNextTV"
+            android:layout_marginTop="10dp"
             android:background="@drawable/gradient_background_top_shadow"
             android:contentDescription="@null" />
 

@@ -22,9 +22,9 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.AlbumAdapter
+import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.databinding.FragmentAlbumSongBinding
 import com.knesarcreation.playbeat.model.AlbumModel
-import com.knesarcreation.playbeat.model.AllSongsModel
 import com.knesarcreation.playbeat.utils.*
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -112,7 +112,7 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
 
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.DISPLAY_NAME,
+            MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.SIZE,
             MediaStore.Audio.Media.ALBUM,
@@ -145,7 +145,7 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
         query?.use { cursor ->
             // Cache column indices.
             val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-            val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
+            val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
             val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
             val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
             val artistsColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
@@ -180,6 +180,7 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
 
                 val allSongsModel =
                     AllSongsModel(
+                        id,
                         albumId,
                         name,
                         artist,
@@ -190,6 +191,7 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
                         contentUri.toString(),
                         albumArtUri
                     )
+                allSongsModel.playingOrPause = -1
                 audioList.add(allSongsModel)
 
             }

@@ -132,6 +132,7 @@
         android:layout_toStartOf="@id/playAlbum"
         android:ellipsize="marquee"
         android:fontFamily="@font/segoe_ui"
+        android:visibility="gone"
         android:marqueeRepeatLimit="marquee_forever"
         android:maxLines="1"
         android:singleLine="true"

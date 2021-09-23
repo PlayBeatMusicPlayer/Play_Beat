@@ -32,7 +32,7 @@ import com.knesarcreation.playbeat.ActionPlay
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.fragment.BottomSheetPlayingSong
-import com.knesarcreation.playbeat.model.AllSongsModel
+import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.receiver.MediaButtonIntentReceiver
 import com.knesarcreation.playbeat.service.MusicPlayerService
 import com.knesarcreation.playbeat.utils.ApplicationChannel.Companion.ACTION_NEXT

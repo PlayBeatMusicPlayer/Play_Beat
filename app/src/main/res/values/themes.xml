@@ -19,6 +19,7 @@
          <item name="android:windowTranslucentNavigation">true</item>-->
         <!--        <item name="android:windowIsFloating">false</item>-->
         <!-- Customize your theme here. -->
+        <item name="android:navigationBarColor">@color/app_theme_color</item>
 
     </style>
 
@@ -44,6 +45,13 @@
 
     <style name="AppModalDialogTheme" parent="Theme.Design.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/bottomSheet</item>
+    </style>
+
+    <style name="ThemeButtonColorToggle" parent="Theme.PlayBeat">
+        <item name="colorPrimary">@color/teal_200</item>
+        <item name="colorButtonNormal">@color/teal_200</item>
+        <item name="strokeColor">@color/teal_200</item>
+        <item name="strokeWidth">@dimen/mtrl_btn_stroke_size</item>
     </style>
 
 </resources>

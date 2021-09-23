@@ -32,9 +32,9 @@
 
             <ImageView
                 android:id="@+id/albumArtOverlay"
-                android:layout_width="100dp"
+                android:layout_width="35dp"
                 android:layout_height="match_parent"
-                android:layout_alignParentEnd="true"
+                android:layout_alignStart="@id/albumArtIV"
                 android:background="@drawable/shadow_from_left"
                 android:contentDescription="@null" />
 

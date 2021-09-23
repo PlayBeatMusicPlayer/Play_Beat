@@ -12,7 +12,7 @@ import android.util.Log
 import android.widget.Toast
 import com.knesarcreation.playbeat.ActionPlay
 import com.knesarcreation.playbeat.activity.AllSongsActivity
-import com.knesarcreation.playbeat.model.AllSongsModel
+import com.knesarcreation.playbeat.database.AllSongsModel
 
 class MusicPlayerService : Service() {
     private val mBinder = MyBinder()

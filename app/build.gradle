@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -96,6 +97,15 @@ dependencies {
     implementation 'com.google.android.gms:play-services-cast-framework:20.0.0'
 
     implementation 'org.nanohttpd:nanohttpd:2.3.1'
+
+    //custom recyclerview
+    implementation 'com.ernestoyaquello.dragdropswiperecyclerview:drag-drop-swipe-recyclerview:1.1.0'
+
+    //room library
+    implementation "androidx.room:room-runtime:2.3.0"
+    kapt "androidx.room:room-compiler:2.3.0"
+    implementation "androidx.room:room-ktx:2.3.0"
+
 //    implementation "androidx.legacy:legacy-support-v4:1.0.0"
     //Blurry
 //    implementation 'jp.wasabeef:blurry:4.0.0'

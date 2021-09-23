@@ -20,16 +20,16 @@ import com.google.gson.reflect.TypeToken
 import com.knesarcreation.playbeat.adapter.AllAlbumsAdapter
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.adapter.ArtistsAlbumAdapter
+import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.databinding.FragmentArtistsTracksAndAlbumBinding
 import com.knesarcreation.playbeat.model.AlbumModel
-import com.knesarcreation.playbeat.model.AllSongsModel
 import com.knesarcreation.playbeat.model.ArtistsModel
 import com.knesarcreation.playbeat.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.CopyOnWriteArrayList
 
-class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongItem {
+class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongItem*/ {
 
     private var _binding: FragmentArtistsTracksAndAlbumBinding? = null
     private val binding get() = _binding
@@ -209,7 +209,7 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
 
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.DISPLAY_NAME,
+            MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.SIZE,
             MediaStore.Audio.Media.ALBUM,
@@ -243,7 +243,7 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
         query?.use { cursor ->
             // Cache column indices.
             val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-            val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
+            val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
             val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
             val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
             val artistsColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
@@ -279,6 +279,7 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
 
                 val allSongsModel =
                     AllSongsModel(
+                        id,
                         albumId,
                         name,
                         artist,
@@ -289,6 +290,7 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
                         contentUri.toString(),
                         albumArtUri
                     )
+                allSongsModel.playingOrPause = -1
                 audioList.add(allSongsModel)
 
             }
@@ -296,11 +298,19 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
             // Stuff that updates the UI
             (activity as AppCompatActivity).runOnUiThread {
                 val albumAdapter =
-                    AllSongsAdapter(activity as Context, audioList, this)
+                    AllSongsAdapter(activity as Context, AllSongsAdapter.OnClickListener{allSongModel, position ->
+                        onClickAudio(allSongModel, position)
+                    })
                 binding!!.rvTracks.adapter = albumAdapter
+                albumAdapter.submitList(audioList)
             }
             cursor.close()
         }
+    }
+
+    private fun onClickAudio(allSongModel: AllSongsModel, position: Int) {
+        storageUtil.saveIsShuffled(false)
+        playAudio(position)
     }
 
     private fun convertGsonToAlbumModel(artistsDataString: String) {
@@ -309,10 +319,10 @@ class ArtistsTracksAndAlbumFragment : Fragment(), AllSongsAdapter.OnClickSongIte
         artistsModel = gson.fromJson(artistsDataString, type)
     }
 
-    override fun onClick(allSongModel: AllSongsModel, position: Int) {
+   /* override fun onClick(allSongModel: AllSongsModel, position: Int) {
         storageUtil.saveIsShuffled(false)
         playAudio(position)
-    }
+    }*/
 
     private fun playAudio(position: Int) {
         AudioPlayingFromCategory.audioPlayingFromAlbumORArtist = true

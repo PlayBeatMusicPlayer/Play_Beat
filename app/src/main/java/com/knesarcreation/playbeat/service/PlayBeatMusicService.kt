@@ -9,9 +9,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.os.Binder
-import android.os.IBinder
-import android.os.RemoteException
+import android.os.*
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -21,12 +19,17 @@ import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.KeyEvent
+import android.view.View
+import android.widget.ImageView
+import android.widget.RelativeLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
+import com.google.android.material.button.MaterialButton
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.fragment.AllSongFragment
-import com.knesarcreation.playbeat.model.AllSongsModel
 import com.knesarcreation.playbeat.utils.ApplicationChannel.Companion.CHANNEL_ID
 import com.knesarcreation.playbeat.utils.PlaybackStatus
 import com.knesarcreation.playbeat.utils.StorageUtil
@@ -67,6 +70,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     private val NOTIFICATION_ID = 101
     var pausedByManually = false
     private var isTaskRemoved = false
+    private var sleepCountDownTimer: CountDownTimer? = null
+    var isSleepTimeRunning = false
 
     companion object {
         const val ACTION_PLAY = "com.knesarcreation.playbeat.service.ACTION_PLAY"
@@ -93,7 +98,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         registerPlayNewAudio()
 
         //register on click notification receiver
-        registerContentReceiver()
+       // registerContentReceiver()
         //registerMediaBtn()
 
         resumePosition = StorageUtil(applicationContext).getAudioResumePos()
@@ -291,6 +296,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         val storageUtil = StorageUtil(applicationContext)
         audioList!!.clear()
         audioList = storageUtil.loadAudio()
+        audioIndex = storageUtil.loadAudioIndex()
+        val tempIndex: Int = audioIndex
         if (audioIndex == audioList!!.size - 1) {
             //if last in playlist
             audioIndex = 0
@@ -310,10 +317,16 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
         /** Update UI of [AllSongFragment] */
         val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
+        val bundle = Bundle()
+        bundle.putInt("index", tempIndex)
+        updatePlayer.putExtras(bundle)
         sendBroadcast(updatePlayer)
     }
 
     fun skipToPrevious() {
+        val storageUtil = StorageUtil(applicationContext)
+        audioIndex = storageUtil.loadAudioIndex()
+        val tempIndex: Int = audioIndex
         if (audioIndex == 0) {
             //if first in playlist
             //set index to the last of audioList
@@ -326,10 +339,13 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
         /** Update UI of [AllSongFragment] */
         val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
+        val bundle = Bundle()
+        bundle.putInt("index", tempIndex)
+        updatePlayer.putExtras(bundle)
         sendBroadcast(updatePlayer)
 
         //Update stored index
-        StorageUtil(applicationContext).storeAudioIndex(audioIndex)
+        storageUtil.storeAudioIndex(audioIndex)
         stopMedia()
         //reset mediaPlayer
         mediaPlayer!!.reset()
@@ -668,9 +684,10 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 super.onPlay()
                 pausedByManually = false
                 resumeMedia()
-                /** Update UI of [AllSongFragment] */
+                /* */
+                /** Update UI of [AllSongFragment] *//*
                 val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
-                sendBroadcast(updatePlayer)
+                sendBroadcast(updatePlayer)*/
                 buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
             }
 
@@ -678,9 +695,9 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 super.onPause()
                 pausedByManually = true
                 pauseMedia()
-                /** Update UI of [AllSongFragment] */
+                /** Update UI of [AllSongFragment] *//*
                 val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
-                sendBroadcast(updatePlayer)
+                sendBroadcast(updatePlayer)*/
                 buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
                 if (isTaskRemoved)
                     stopServiceIfTaskRemoved()
@@ -818,7 +835,11 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
             //unregister BroadcastReceivers
             unregisterReceiver(becomingNoisyReceiver)
             unregisterReceiver(playNewAudio)
-            unregisterReceiver(openContent)
+            //unregisterReceiver(openContent)
+
+            if (sleepCountDownTimer != null) {
+                sleepCountDownTimer?.cancel()
+            }
 
             //clear cached playlist
             //StorageUtil(applicationContext).clearCachedAudioPlaylist()
@@ -891,5 +912,114 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     private fun registerContentReceiver() {
         val intentFiler = IntentFilter(OPEN_CONTENT)
         registerReceiver(openContent, intentFiler)
+    }
+
+    fun stopSleepTimer(sleepTimerTV: TextView, sleepTimeIV: ImageView) {
+        if (sleepCountDownTimer != null) {
+            sleepCountDownTimer?.cancel()
+            isSleepTimeRunning = false
+            StorageUtil(applicationContext).saveSleepTime(0)
+            sleepTimeIV.visibility = View.VISIBLE
+            sleepTimerTV.visibility = View.GONE
+        }
+    }
+
+    fun startSleepTimeCountDown(
+        countingTimeTV: TextView,
+        rlEndTimeCountDown: RelativeLayout?,
+        endAudioTimeBtn: MaterialButton?,
+        sleepTimeInMin: Long,
+        sleepTimeIV: ImageView,
+        sleepTimerTV: TextView
+    ) {
+        if (sleepCountDownTimer != null) {
+            sleepCountDownTimer?.cancel()
+        }
+
+        sleepCountDownTimer = object : CountDownTimer(sleepTimeInMin, 1000) {
+            override fun onTick(millis: Long) {
+                isSleepTimeRunning = true
+                countingTimeTV.text = millisToMinutesAndSeconds(millis)
+                sleepTimerTV.text = millisToMinutesAndSeconds(millis)
+                sleepTimeIV.visibility = View.GONE
+                sleepTimerTV.visibility = View.VISIBLE
+
+                Log.d(
+                    "sleepTimeCounter", "onTick: sleep time: ${(sleepTimeInMin)}" +
+                            "millis: $millis ,Diff: ${(sleepTimeInMin) - millis}"
+                )
+                StorageUtil(applicationContext).saveSleepTime(millis)
+
+            }
+
+            override fun onFinish() {
+                if (mediaPlayer != null) {
+                    pauseMedia()
+                    pausedByManually = false
+                    buildNotification(
+                        PlaybackStatus.PAUSED,
+                        PlaybackStatus.UN_FAVOURITE,
+                        0f
+                    )
+                    isSleepTimeRunning = false
+                    StorageUtil(applicationContext).saveSleepTime(0)
+                    rlEndTimeCountDown?.visibility = View.GONE
+                    endAudioTimeBtn?.visibility = View.VISIBLE
+                    sleepTimeIV.visibility = View.VISIBLE
+                    sleepTimerTV.visibility = View.GONE
+                }
+            }
+        }.start()
+    }
+
+    fun startSleepTimeCountDown(
+        sleepTimeInMin: Long,
+        sleepTimeIV: ImageView,
+        sleepTimerTV: TextView
+    ) {
+        if (sleepCountDownTimer != null) {
+            sleepCountDownTimer?.cancel()
+        }
+
+        sleepCountDownTimer = object : CountDownTimer(sleepTimeInMin, 1000) {
+            override fun onTick(millis: Long) {
+                isSleepTimeRunning = true
+                //countingTimeTV.text = millisToMinutesAndSeconds(millis)
+                sleepTimerTV.text = millisToMinutesAndSeconds(millis)
+                sleepTimeIV.visibility = View.GONE
+                sleepTimerTV.visibility = View.VISIBLE
+
+                Log.d(
+                    "sleepTimeCounter", "onTick: sleep time: ${(sleepTimeInMin)}" +
+                            "millis: $millis ,Diff: ${(sleepTimeInMin) - millis}"
+                )
+                StorageUtil(applicationContext).saveSleepTime(millis)
+
+            }
+
+            override fun onFinish() {
+                if (mediaPlayer != null) {
+                    pauseMedia()
+                    pausedByManually = false
+                    buildNotification(
+                        PlaybackStatus.PAUSED,
+                        PlaybackStatus.UN_FAVOURITE,
+                        0f
+                    )
+                    isSleepTimeRunning = false
+                    StorageUtil(applicationContext).saveSleepTime(0)
+                    //rlEndTimeCountDown?.visibility = View.GONE
+                    //endAudioTimeBtn?.visibility = View.VISIBLE
+                    sleepTimeIV.visibility = View.VISIBLE
+                    sleepTimerTV.visibility = View.GONE
+                }
+            }
+        }.start()
+    }
+
+    private fun millisToMinutesAndSeconds(millis: Long): String {
+        val minutes = kotlin.math.floor((millis / 60000).toDouble())
+        val seconds = ((millis % 60000) / 1000)
+        return if (seconds.toInt() == 60) "${(minutes.toInt() + 1)} : 00" else "${minutes.toInt()} : ${if (seconds < 10) "0" else ""}$seconds "
     }
 }

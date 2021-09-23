@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,12 +7,12 @@
     android:layout_height="wrap_content"
     android:background="@drawable/app_theme_background_drawable"
     android:clickable="true"
-    android:focusable="true"
     android:clipChildren="false"
     android:clipToPadding="false"
+    android:focusable="true"
     app:behavior_draggable="true"
     app:behavior_hideable="false"
-    app:behavior_peekHeight="135dp"
+    app:behavior_peekHeight="65dp"
     app:layout_behavior="@string/bottom_sheet_behavior">
 
     <RelativeLayout
@@ -25,11 +23,13 @@
         tools:ignore="UselessParent">
 
         <RelativeLayout
-            android:id="@+id/rlSmallbottomBarPlayingSong"
+            android:id="@+id/rl_mini_player_bottomsheet"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="65dp"
+            android:layout_marginBottom="-10dp"
             android:background="@color/app_theme_color"
-            android:elevation="0dp">
+            android:elevation="0dp"
+            android:visibility="gone">
 
             <ProgressBar
                 android:id="@+id/audioProgress"
@@ -38,10 +38,10 @@
                 android:layout_height="2dp"
                 android:layout_alignParentTop="true" />
 
-            <View
+            <!--<View
                 android:id="@+id/openBottomSheetView"
                 android:layout_width="match_parent"
-                android:layout_height="200dp" />
+                android:layout_height="200dp" />-->
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/albumArtIV"
@@ -59,9 +59,9 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="15dp"
                 android:layout_marginEnd="5dp"
-                android:background="@android:color/transparent"
                 android:layout_toStartOf="@id/llPlayPauseBtn1"
                 android:layout_toEndOf="@id/albumArtIV"
+                android:background="@android:color/transparent"
                 android:orientation="vertical">
 
                 <TextView
@@ -75,30 +75,30 @@
                     android:singleLine="true"
                     android:text="Unknown"
                     android:textColor="@color/white"
-                    android:textSize="17sp" />
+                    android:textSize="15sp" />
 
                 <TextView
                     android:id="@+id/artistOrAlbumNameTV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="unknown"
                     android:textColor="@color/white"
                     android:textSize="12sp" />
+
             </LinearLayout>
 
             <RelativeLayout
                 android:id="@+id/llPlayPauseBtn1"
                 android:layout_width="95dp"
-                android:background="@android:color/transparent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:clipToPadding="false"
-                android:clipChildren="false"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="10dp">
+                android:layout_marginEnd="10dp"
+                android:background="@android:color/transparent"
+                android:clipChildren="false"
+                android:clipToPadding="false">
 
                 <!--<ImageView
                     android:id="@+id/skipPrevAudio1"
@@ -117,21 +117,21 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="20dp"
-                    android:padding="2dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/playpauseiv"
+                    android:padding="2dp"
                     android:src="@drawable/ic_play_audio" />
 
                 <ImageView
                     android:id="@+id/skipNextAudio1"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:padding="5dp"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center"
                     android:layout_toEndOf="@id/playPauseIV1"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/forwardiv"
+                    android:padding="5dp"
                     android:src="@drawable/ic_noti_skip_next" />
 
                 <androidx.mediarouter.app.MediaRouteButton
@@ -188,8 +188,8 @@
         <me.ibrahimsn.lib.SmoothBottomBar
             android:id="@+id/bottomBar"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:layout_below="@id/rlSmallbottomBarPlayingSong"
+            android:layout_height="62dp"
+            android:layout_below="@id/rl_mini_player_bottomsheet"
             android:layout_marginBottom="-5dp"
             android:elevation="0dp"
             app:backgroundColor="@color/app_theme_color"
@@ -239,7 +239,7 @@
                 <ImageView
                     android:id="@+id/albumArtBottomGradient"
                     android:layout_width="match_parent"
-                    android:layout_height="230dp"
+                    android:layout_height="150dp"
                     android:layout_alignParentBottom="true"
                     android:background="@drawable/gradient_background_bottom_shadow"
                     android:contentDescription="@null" />
@@ -427,9 +427,9 @@
                         android:layout_gravity="center"
                         android:layout_marginStart="20dp"
                         android:layout_marginEnd="20dp"
-                        android:padding="5dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@null"
+                        android:padding="5dp"
                         android:src="@drawable/ic_repeat_24" />
 
 
@@ -478,12 +478,12 @@
                         android:id="@+id/shuffleSongIV"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
-                        android:padding="5dp"
                         android:layout_gravity="center"
                         android:layout_marginStart="20dp"
                         android:layout_marginEnd="20dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@null"
+                        android:padding="5dp"
                         android:src="@drawable/ic_shuffle" />
 
                 </LinearLayout>
@@ -506,28 +506,48 @@
                     android:layout_height="60dp"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="10dp"
-                    android:layout_toStartOf="@id/sleepTimeIV"
+                    android:layout_toStartOf="@id/rlSleepTimer"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@null"
                     android:src="@drawable/liked_audio" />
 
-                <ImageView
-                    android:id="@+id/sleepTimeIV"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_centerInParent="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@null"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_sleep_time" />
+                <RelativeLayout
+                    android:id="@+id/rlSleepTimer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true">
+
+                    <ImageView
+                        android:id="@+id/sleepTimeIV"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_centerInParent="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@null"
+                        android:padding="8dp"
+                        android:src="@drawable/ic_sleep_time"
+                        android:visibility="visible" />
+
+                    <TextView
+                        android:id="@+id/sleepTimerTV"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="00 : 00"
+                        android:textColor="@color/cyan"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+                </RelativeLayout>
+
 
                 <ImageView
                     android:id="@+id/queueAudioIV"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="10dp"
-                    android:layout_toEndOf="@id/sleepTimeIV"
+                    android:layout_marginStart="15dp"
+                    android:layout_toEndOf="@id/rlSleepTimer"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:contentDescription="@null"

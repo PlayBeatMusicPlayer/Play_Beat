@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.knesarcreation.playbeat.databinding.RecyclerAlbumItemsBinding
-import com.knesarcreation.playbeat.model.AllSongsModel
+import com.knesarcreation.playbeat.database.AllSongsModel
 import java.util.concurrent.CopyOnWriteArrayList
 
 class AlbumAdapter(

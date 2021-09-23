@@ -20,7 +20,7 @@ import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.databinding.RecyclerGridAlbumItemsBinding
 import com.knesarcreation.playbeat.fragment.AllSongFragment
 import com.knesarcreation.playbeat.model.AlbumModel
-import com.knesarcreation.playbeat.model.AllSongsModel
+import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.utils.AudioPlayingFromCategory
 import com.knesarcreation.playbeat.utils.StorageUtil
 import java.util.concurrent.CopyOnWriteArrayList
@@ -200,6 +200,7 @@ class ArtistsAlbumAdapter(
 
                 val allSongsModel =
                     AllSongsModel(
+                        id,
                         albumId,
                         name,
                         artist,
@@ -208,8 +209,10 @@ class ArtistsAlbumAdapter(
                         duration,
                         data,
                         contentUri.toString(),
-                        albumArtUri
+                        albumArtUri,
+
                     )
+                allSongsModel.playingOrPause = -1
                 audioList.add(allSongsModel)
 
             }

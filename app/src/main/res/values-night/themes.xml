@@ -48,4 +48,11 @@
         <item name="bottomSheetStyle">@style/bottomSheet</item>
     </style>
 
+    <style name="ThemeButtonColorToggle" parent="Theme.PlayBeat">
+        <item name="colorPrimary">@color/teal_200</item>
+        <item name="colorButtonNormal">@color/teal_200</item>
+        <item name="strokeColor">@color/teal_200</item>
+        <item name="strokeWidth">@dimen/mtrl_btn_stroke_size</item>
+    </style>
+
 </resources>

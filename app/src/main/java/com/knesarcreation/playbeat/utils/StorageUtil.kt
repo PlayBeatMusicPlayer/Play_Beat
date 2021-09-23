@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.knesarcreation.playbeat.model.AllSongsModel
+import com.knesarcreation.playbeat.database.AllSongsModel
 import java.lang.reflect.Type
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -83,14 +83,14 @@ class StorageUtil(context: Context) {
         return preferences!!.getBoolean("isShuffled", false)
     }
 
-    fun saveAppOpenedFirstTime(value: Boolean) {
+    fun saveIsAudioPlayedFirstTime(value: Boolean) {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         val editor = preferences!!.edit()
         editor.putBoolean("firstTime", value)
         editor.apply()
     }
 
-    fun getIsOpenFirstTime(): Boolean {
+    fun getIsAudioPlayedFirstTime(): Boolean {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         return preferences!!.getBoolean("firstTime", true)
     }
@@ -106,6 +106,30 @@ class StorageUtil(context: Context) {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         return preferences!!.getBoolean("isRepeat", false)
     }
+
+    fun saveSleepTime(timeInMin: Long) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putLong("sleepTime", timeInMin)
+        editor.apply()
+    }
+
+    fun getSleepTime(): Long {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getLong("sleepTime", 0L)
+    }
+
+    /*fun saveSystemTime(systemTime: Long) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putLong("systemTime", systemTime)
+        editor.apply()
+    }
+
+    fun getSystemTime(): Long {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getLong("systemTime", 0)
+    }*/
 
     fun clearCachedAudioPlaylist() {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)

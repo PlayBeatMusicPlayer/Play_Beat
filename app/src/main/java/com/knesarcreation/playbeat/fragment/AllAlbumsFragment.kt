@@ -48,7 +48,7 @@ class AllAlbumsFragment : Fragment() {
 
         val projection = arrayOf(
             MediaStore.Audio.Albums._ID,
-            //MediaStore.Audio.Albums.ALBUM_ID,
+            MediaStore.Audio.Albums.ALBUM_ID,
             MediaStore.Audio.Albums.ALBUM,
             MediaStore.Audio.Albums.ARTIST,
         )
