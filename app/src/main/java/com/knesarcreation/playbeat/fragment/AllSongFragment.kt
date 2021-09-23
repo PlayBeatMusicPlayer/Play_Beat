@@ -45,7 +45,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
 
     companion object {
         const val Broadcast_PLAY_NEW_AUDIO = "com.knesarcreation.playbeat.utils.PlayNewAudio"
-        const val Broadcast_BOTTOM_UPDATE_PLAYER_UI =
+        const val Broadcast_UPDATE_MINI_PLAYER =
             "com.knesarcreation.playbeat.utils.UpdatePlayerUi"
         const val READ_STORAGE_PERMISSION = 101
         var musicService: PlayBeatMusicService? = null
@@ -237,7 +237,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         }
 
         if (!storage.getIsAudioPlayedFirstTime()) {
-            val updatePlayer = Intent(Broadcast_BOTTOM_UPDATE_PLAYER_UI)
+            val updatePlayer = Intent(Broadcast_UPDATE_MINI_PLAYER)
             (activity as Context).sendBroadcast(updatePlayer)
         }
 
@@ -254,8 +254,8 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         val broadcastIntent = Intent(Broadcast_PLAY_NEW_AUDIO)
         (activity as AppCompatActivity).sendBroadcast(broadcastIntent)
 
-        val updatePlayer = Intent(Broadcast_BOTTOM_UPDATE_PLAYER_UI)
-        (activity as Context).sendBroadcast(updatePlayer)
+        /*val updatePlayer = Intent(Broadcast_BOTTOM_UPDATE_PLAYER_UI)
+        (activity as Context).sendBroadcast(updatePlayer)*/
     }
 
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -281,60 +281,67 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
 
 
     private fun onClickAudio(allSongModel: AllSongsModel, position: Int) {
-        mViewModelClass.deleteQueue(lifecycleScope)
-
         storage.saveIsShuffled(false)
-        val currentPlayingAudioIndex = storage.loadAudioIndex()
+        val prevPlayingAudioIndex = storage.loadAudioIndex()
         val audioList = storage.loadAudio()
-        val currentPlayingSongModel = audioList[currentPlayingAudioIndex]
+        val prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
 
-        mViewModelClass.updateSong(
-            currentPlayingSongModel.songId,
-            currentPlayingSongModel.songName,
-            -1,
-            (context as AppCompatActivity).lifecycleScope
-        )
+        // restricting to update if clicked audio is same
+        if (allSongModel.songId != prevPlayingAudioModel.songId) {
+            mViewModelClass.deleteQueue(lifecycleScope)
 
-        mViewModelClass.updateSong(
-            allSongModel.songId,
-            allSongModel.songName,
-            1,
-            (context as AppCompatActivity).lifecycleScope
-        )
+            mViewModelClass.updateSong(
+                prevPlayingAudioModel.songId,
+                prevPlayingAudioModel.songName,
+                -1,
+                (context as AppCompatActivity).lifecycleScope
+            )
+
+            mViewModelClass.updateSong(
+                allSongModel.songId,
+                allSongModel.songName,
+                1,
+                (context as AppCompatActivity).lifecycleScope
+            )
+        }
+
 
         playAudio(position)
 
-        // adding queue list to DB and show highlight of current audio
-        for (audio in this.audioList) {
-            val queueListModel = QueueListModel(
-                audio.songId,
-                audio.albumId,
-                audio.songName,
-                audio.artistsName,
-                audio.albumName,
-                audio.size,
-                audio.duration,
-                audio.data,
-                audio.audioUri,
-                audio.artUri,
-                -1
+        // restricting to update if clicked audio is same
+        if (allSongModel.songId != prevPlayingAudioModel.songId) {
+            // adding queue list to DB and show highlight of current audio
+            for (audio in this.audioList) {
+                val queueListModel = QueueListModel(
+                    audio.songId,
+                    audio.albumId,
+                    audio.songName,
+                    audio.artistsName,
+                    audio.albumName,
+                    audio.size,
+                    audio.duration,
+                    audio.data,
+                    audio.audioUri,
+                    audio.artUri,
+                    -1
+                )
+                mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+            }
+
+            mViewModelClass.updateQueueAudio(
+                prevPlayingAudioModel.songId,
+                prevPlayingAudioModel.songName,
+                -1,
+                (context as AppCompatActivity).lifecycleScope
             )
-            mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+
+            mViewModelClass.updateQueueAudio(
+                allSongModel.songId,
+                allSongModel.songName,
+                1,
+                (context as AppCompatActivity).lifecycleScope
+            )
         }
-
-        mViewModelClass.updateQueueAudio(
-            currentPlayingSongModel.songId,
-            currentPlayingSongModel.songName,
-            -1,
-            (context as AppCompatActivity).lifecycleScope
-        )
-
-        mViewModelClass.updateQueueAudio(
-            allSongModel.songId,
-            allSongModel.songName,
-            1,
-            (context as AppCompatActivity).lifecycleScope
-        )
     }
     /* override fun onRequestPermissionsResult(
          requestCode: Int,

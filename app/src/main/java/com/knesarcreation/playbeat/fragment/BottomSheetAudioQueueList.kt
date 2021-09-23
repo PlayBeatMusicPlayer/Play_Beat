@@ -301,7 +301,7 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                 Log.d("updateCurrentPlayingAudioList", "updateCurrentPlayingAudio: $loadAudio")
                 for (nowPlayingAudios in loadAudio!!) {
                     for (audio in it) {
-                        if (nowPlayingAudios.songName == audio.songName) {
+                        if (nowPlayingAudios.songId == audio.songId) {
                             // sorted list
                             val queueListModel = AllSongsModel(
                                 audio.songId,
@@ -364,7 +364,7 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
         val broadcastIntent = Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
         (activity as AppCompatActivity).sendBroadcast(broadcastIntent)
 
-        val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
+        val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
         (activity as Context).sendBroadcast(updatePlayer)
     }
 

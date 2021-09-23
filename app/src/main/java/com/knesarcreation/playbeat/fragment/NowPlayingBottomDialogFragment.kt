@@ -144,7 +144,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
             //handleStartTimeAndSeekBar()
             if (AllSongFragment.musicService != null) {
                 if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
-                    AllSongFragment.musicService?.pauseMedia()
+                    AllSongFragment.musicService?.pauseMedia(false)
                     AllSongFragment.musicService?.pausedByManually = true
                     AllSongFragment.musicService?.buildNotification(
                         PlaybackStatus.PAUSED,
@@ -153,7 +153,8 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
                     )
                     binding!!.playPauseIV.isSelected = false
                 } else if (!AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
-                    AllSongFragment.musicService?.resumeMedia()
+                    // resume through button
+                    AllSongFragment.musicService?.resumeMedia(isResumedThroughService = false)
                     AllSongFragment.musicService?.pausedByManually = false
                     binding!!.playPauseIV.isSelected = true
                     AllSongFragment.musicService?.updateMetaData()
@@ -429,7 +430,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
 
     private fun registerUpdatePlayerUI() {
         //Register playNewMedia receiver
-        val filter = IntentFilter(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
+        val filter = IntentFilter(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
         (mContext as AppCompatActivity).registerReceiver(updatePlayerUI, filter)
     }
 }

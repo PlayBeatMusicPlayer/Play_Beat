@@ -417,7 +417,8 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
     private fun updateBottomPlayPauseIV() {
         if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
-            AllSongFragment.musicService?.pauseMedia()
+            // pause through button
+            AllSongFragment.musicService?.pauseMedia(false)
             AllSongFragment.musicService?.pausedByManually = true
             AllSongFragment.musicService?.buildNotification(
                 PlaybackStatus.PAUSED,
@@ -439,7 +440,8 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 lifecycleScope
             )
         } else if (!AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
-            AllSongFragment.musicService?.resumeMedia()
+            // resume through button
+            AllSongFragment.musicService?.resumeMedia(isResumedThroughService = false)
             AllSongFragment.musicService?.pausedByManually = false
             binding.bottomSheet.playPauseIV1.setImageResource(R.drawable.ic_pause_audio)
             AllSongFragment.musicService?.updateMetaData()
@@ -482,12 +484,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         handleAudioProgressBar()
         handleStartTimeAndSeekBar()
 
-        //update end time
-//        binding.bottomSheet.seekBar.max =
-//            (audioList[audioIndexPos].duration.toDouble() / 1000).toInt()
-        /* val audioDuration =
-             millisToMinutesAndSeconds(audioList[audioIndexPos].duration)
-         binding.bottomSheet.endTimeTV.text = audioDuration*/
 
     }
 
@@ -687,7 +683,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
     /** Managing Now playing bottom sheet........................................................*/
 
-    private fun updateViews(audioIndexPos: Int) {
+    private fun updateExpandedPlayerViews(audioIndexPos: Int) {
         if (audioIndexPos != -1) {
             val allSongsModel = audioList[audioIndexPos]
             binding.bottomSheet.songTextTV.text = allSongsModel.songName
@@ -974,6 +970,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         override fun onReceive(context: Context, intent: Intent) {
             isShuffled = storage.getIsShuffled()
             audioList = storage.loadAudio()
+            val bundle = intent.extras
 
             Log.d("AudioListFragmentContainerActivity", "onReceive:  $audioList ")
 
@@ -995,9 +992,21 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 binding.bottomSheet.shuffleSongIV.setImageResource(R.drawable.ic_shuffle)
             }
 
-            //Get the media index form SharedPreferences
+            var prevPlayingAudioIndex = 0
+            if (audioIndexPos != -1) {
+                prevPlayingAudioIndex = audioIndexPos
+            }
+
+            /*  if(AllSongFragment.musicService?.mediaPlayer !=null){
+                  if(AllSongFragment.musicService?.mediaPlayer?.isPlaying!!){
+                       prevPlayingAudioIndex =
+                  }
+              }*/
+
+            //Get the current playing media index form SharedPreferences
             audioIndexPos = storage.loadAudioIndex()
 
+            Log.d("prevPlayingAudioIndex", "onReceive: $prevPlayingAudioIndex , $audioIndexPos")
             // AllSongFragment.musicService?.pausedByManually = false
 
             //this condition is used to prevent redundant update of views when pause or play the audio
@@ -1013,7 +1022,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     binding.bottomSheet.playPauseIV.isSelected =
                         AllSongFragment.musicService?.mediaPlayer?.isPlaying!!
                 }
-
             } else {
                 binding.bottomSheet.audioProgress.max = audioList[audioIndexPos].duration
                 binding.bottomSheet.audioProgress.progress = storage.getAudioResumePos()
@@ -1022,68 +1030,78 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
                 //update ui
                 if (!isDestroyedActivity) {
-                    updatePlayingMusic(audioIndexPos)
-                    updateViews(audioIndexPos)
+                    if (audioList[prevPlayingAudioIndex].songId != audioList[audioIndexPos].songId) {
+                        updatePlayingMusic(audioIndexPos)
+                    } else {
+                        // if playPause btn pressed from notification
+                        if (bundle != null) {
+                            val pausedFromNoti = bundle.getBoolean("pausedFromNoti", false)
+                            if (pausedFromNoti) {
+                                updatePlayingMusic(audioIndexPos)
+                            }
+                        }
+                    }
+                    updateExpandedPlayerViews(audioIndexPos)
                     updateAudioController()
                 }
             }
 
-
-            val bundle = intent.extras
-            if (bundle != null) {
-                val previousRunningAudioIndex = bundle.getInt("index")
-                // remove previous audio highlight
-                mViewModelClass.updateSong(
-                    audioList[previousRunningAudioIndex].songId,
-                    audioList[previousRunningAudioIndex].songName,
-                    -1,//default
-                    lifecycleScope
-                )
-                mViewModelClass.updateQueueAudio(
-                    audioList[previousRunningAudioIndex].songId,
-                    audioList[previousRunningAudioIndex].songName,
-                    -1,//default
-                    lifecycleScope
-                )
-            }
-
-            //saving list with current playing audio
-            val list = CopyOnWriteArrayList<AllSongsModel>()
-            for ((index, audio) in audioList.withIndex()) {
-                val allSongsModel = AllSongsModel(
-                    audio.songId,
-                    audio.albumId,
-                    audio.songName,
-                    audio.artistsName,
-                    audio.albumName,
-                    audio.size,
-                    audio.duration,
-                    audio.data,
-                    audio.audioUri,
-                    audio.artUri
-                )
-                if (index == audioIndexPos) {
-                    if (AllSongFragment.musicService?.mediaPlayer != null) {
-                        if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
-                            allSongsModel.playingOrPause = 1 /*playing*/
-                        } else {
-                            allSongsModel.playingOrPause = 0 /*pause*/
-                        }
-                    }
-
-                    list.add(allSongsModel)
-                } else {
-                    list.add(allSongsModel)
+            if (audioList[prevPlayingAudioIndex].songId != audioList[audioIndexPos].songId) {
+                if (bundle != null) {
+                    val previousRunningAudioIndex = bundle.getInt("index")
+                    // remove previous audio highlight
+                    mViewModelClass.updateSong(
+                        audioList[previousRunningAudioIndex].songId,
+                        audioList[previousRunningAudioIndex].songName,
+                        -1,//default
+                        lifecycleScope
+                    )
+                    mViewModelClass.updateQueueAudio(
+                        audioList[previousRunningAudioIndex].songId,
+                        audioList[previousRunningAudioIndex].songName,
+                        -1,//default
+                        lifecycleScope
+                    )
                 }
-            }
 
-            storage.storeAudio(list)
+                //saving list with current playing audio
+                val list = CopyOnWriteArrayList<AllSongsModel>()
+                for ((index, audio) in audioList.withIndex()) {
+                    val allSongsModel = AllSongsModel(
+                        audio.songId,
+                        audio.albumId,
+                        audio.songName,
+                        audio.artistsName,
+                        audio.albumName,
+                        audio.size,
+                        audio.duration,
+                        audio.data,
+                        audio.audioUri,
+                        audio.artUri
+                    )
+                    if (index == audioIndexPos) {
+                        if (AllSongFragment.musicService?.mediaPlayer != null) {
+                            if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
+                                allSongsModel.playingOrPause = 1 /*playing*/
+                            } else {
+                                allSongsModel.playingOrPause = 0 /*pause*/
+                            }
+                        }
+
+                        list.add(allSongsModel)
+                    } else {
+                        list.add(allSongsModel)
+                    }
+                }
+
+                storage.storeAudio(list)
+            }
         }
     }
 
     private fun registerUpdatePlayerUI() {
         //Register playNewMedia receiver
-        val filter = IntentFilter(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
+        val filter = IntentFilter(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
         registerReceiver(updatePlayerUI, filter)
     }
 
