@@ -290,6 +290,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         if (allSongModel.songId != prevPlayingAudioModel.songId) {
             mViewModelClass.deleteQueue(lifecycleScope)
 
+
             mViewModelClass.updateSong(
                 prevPlayingAudioModel.songId,
                 prevPlayingAudioModel.songName,
@@ -303,8 +304,8 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                 1,
                 (context as AppCompatActivity).lifecycleScope
             )
-        }
 
+        }
 
         playAudio(position)
 

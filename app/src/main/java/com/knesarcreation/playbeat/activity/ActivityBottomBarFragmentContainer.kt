@@ -418,7 +418,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private fun updateBottomPlayPauseIV() {
         if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
             // pause through button
-            AllSongFragment.musicService?.pauseMedia(false)
+            AllSongFragment.musicService?.pauseMedia()
             AllSongFragment.musicService?.pausedByManually = true
             AllSongFragment.musicService?.buildNotification(
                 PlaybackStatus.PAUSED,
@@ -441,7 +441,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             )
         } else if (!AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
             // resume through button
-            AllSongFragment.musicService?.resumeMedia(isResumedThroughService = false)
+            AllSongFragment.musicService?.resumeMedia()
             AllSongFragment.musicService?.pausedByManually = false
             binding.bottomSheet.playPauseIV1.setImageResource(R.drawable.ic_pause_audio)
             AllSongFragment.musicService?.updateMetaData()
@@ -1030,9 +1030,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
                 //update ui
                 if (!isDestroyedActivity) {
-                    if (audioList[prevPlayingAudioIndex].songId != audioList[audioIndexPos].songId) {
-                        updatePlayingMusic(audioIndexPos)
-                    } else {
+                    /*if (audioList[prevPlayingAudioIndex].songId != audioList[audioIndexPos].songId) {
+                    }
+                    else {
                         // if playPause btn pressed from notification
                         if (bundle != null) {
                             val pausedFromNoti = bundle.getBoolean("pausedFromNoti", false)
@@ -1040,13 +1040,14 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                                 updatePlayingMusic(audioIndexPos)
                             }
                         }
-                    }
+                    }*/
+                    updatePlayingMusic(audioIndexPos)
                     updateExpandedPlayerViews(audioIndexPos)
                     updateAudioController()
                 }
             }
 
-            if (audioList[prevPlayingAudioIndex].songId != audioList[audioIndexPos].songId) {
+            /*if (audioList[prevPlayingAudioIndex].songId != audioList[audioIndexPos].songId) {*/
                 if (bundle != null) {
                     val previousRunningAudioIndex = bundle.getInt("index")
                     // remove previous audio highlight
@@ -1095,7 +1096,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 }
 
                 storage.storeAudio(list)
-            }
+           /* }*/
         }
     }
 

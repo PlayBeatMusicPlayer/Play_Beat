@@ -39,6 +39,7 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
     private lateinit var queueLisAdapter: QueueListAdapter
     private lateinit var audioModel: AllSongsModel
     private lateinit var mViewModelClass: ViewModelClass
+    private var isSwipedToDel = false
 
     interface OnRepeatAudioListener {
         fun onRepeatIconClicked()
@@ -180,6 +181,7 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                         } else {
                             if (AllSongFragment.musicService?.mediaPlayer != null) {
                                 if (AllSongFragment.musicService?.mediaPlayer?.isPlaying!!) {
+                                    isSwipedToDel = true
                                     mViewModelClass.updateQueueAudio(
                                         audioModel.songId,
                                         audioModel.songName,
@@ -199,8 +201,11 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                 "CurrentPlayingModel",
                                 "onItemSwiped: pos: $position -model $deleteModel "
                             )
-                            if (deleteModel.songName != audioModel.songName) {
+                            if (deleteModel.songId != audioModel.songId) {
                                 currentPlayingAudioIndex = audioList.indexOf(audioModel)
+                                storageUtil?.storeAudioIndex(currentPlayingAudioIndex)
+                                Toast.makeText(mContext, "del: $isSwipedToDel $currentPlayingAudioIndex", Toast.LENGTH_SHORT)
+                                    .show()
                             }
                         }
 
@@ -327,7 +332,12 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                 audioList.addAll(list)
                 currentPlayingAudioIndex = storageUtil?.loadAudioIndex()!!
 
-                updateCurrentPlayingAudio()
+
+                if (!isSwipedToDel) {
+                    updateCurrentPlayingAudio()
+                } else {
+                    isSwipedToDel = false
+                }
 
                 // audioModel = audioList[audioIndex]
                 // binding?.rvUpNext?.scrollToPosition(currentPlayingAudioIndex)
@@ -364,8 +374,8 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
         val broadcastIntent = Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
         (activity as AppCompatActivity).sendBroadcast(broadcastIntent)
 
-        val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
-        (activity as Context).sendBroadcast(updatePlayer)
+        /*val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
+        (activity as Context).sendBroadcast(updatePlayer)*/
     }
 
     override fun onClick(allSongModel: AllSongsModel, position: Int) {

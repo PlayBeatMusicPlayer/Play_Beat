@@ -144,7 +144,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
             //handleStartTimeAndSeekBar()
             if (AllSongFragment.musicService != null) {
                 if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
-                    AllSongFragment.musicService?.pauseMedia(false)
+                    AllSongFragment.musicService?.pauseMedia()
                     AllSongFragment.musicService?.pausedByManually = true
                     AllSongFragment.musicService?.buildNotification(
                         PlaybackStatus.PAUSED,
@@ -154,7 +154,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
                     binding!!.playPauseIV.isSelected = false
                 } else if (!AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
                     // resume through button
-                    AllSongFragment.musicService?.resumeMedia(isResumedThroughService = false)
+                    AllSongFragment.musicService?.resumeMedia()
                     AllSongFragment.musicService?.pausedByManually = false
                     binding!!.playPauseIV.isSelected = true
                     AllSongFragment.musicService?.updateMetaData()
