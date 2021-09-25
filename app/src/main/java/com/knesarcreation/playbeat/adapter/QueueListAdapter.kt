@@ -21,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 class QueueListAdapter(
     var context: Context,
-    var queueList: ArrayList<AllSongsModel>,
+    queueList: ArrayList<AllSongsModel>,
     var listener: OnClickQueueItem
 ) :
     DragDropSwipeAdapter<AllSongsModel, QueueListAdapter.QueueListViewHolder>(queueList) {

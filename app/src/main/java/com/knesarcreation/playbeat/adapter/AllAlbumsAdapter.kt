@@ -1,6 +1,7 @@
 package com.knesarcreation.playbeat.adapter
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -59,6 +60,7 @@ class AllAlbumsAdapter(
             .into(holder.albumIV)
 
         holder.rlParentView.setOnClickListener {
+            Log.d("AlbumAdapterAlbumId", "onBindViewHolder: albumId: ${albumModel.id} ")
             listener.onClicked(albumModel)
         }
     }

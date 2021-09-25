@@ -20,4 +20,13 @@ interface AllSongsDao {
     @Query("SELECT * FROM allSongsModel")
     fun getAllSongs(): LiveData<List<AllSongsModel>>
 
+    /* @Query("SELECT * FROM allSongsModel where albumName =:albumName")
+     fun getAudioAccordingAlbum(albumName: String): LiveData<List<AllSongsModel>>*/
+
+    @Query("SELECT * FROM allSongsModel where albumName =:albumName")
+    fun getAudioAccordingAlbum(albumName: String): List<AllSongsModel>
+
+    @Query("SELECT * FROM allSongsModel where artistsName = :artistName")
+    fun getAudioAccordingArtists(artistName: String): List<AllSongsModel>
+
 }

@@ -54,7 +54,7 @@ dependencies {
 
     // kotlin coroutine
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0'
-    def arch_version = '2.4.0-alpha03'
+    def arch_version = '2.4.0-beta01'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$arch_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$arch_version"
 
@@ -66,7 +66,7 @@ dependencies {
     implementation 'androidx.palette:palette-ktx:1.0.0'
 
     //media
-    implementation "androidx.media:media:1.4.1"
+    implementation "androidx.media:media:1.4.2"
     implementation "androidx.media2:media2:1.0.0-alpha04"
 
 //    if (findProject(':exoplayer-library-core') != null) {

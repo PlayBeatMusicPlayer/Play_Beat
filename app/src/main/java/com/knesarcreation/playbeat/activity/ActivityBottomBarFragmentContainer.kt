@@ -1066,6 +1066,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 }
 
                 //saving list with current playing audio
+            Log.d("ActivityminiPlayer", "onReceive: $audioList ")
                 val list = CopyOnWriteArrayList<AllSongsModel>()
                 for ((index, audio) in audioList.withIndex()) {
                     val allSongsModel = AllSongsModel(

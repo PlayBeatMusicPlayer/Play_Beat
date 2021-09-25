@@ -21,11 +21,14 @@ import com.knesarcreation.playbeat.adapter.AllAlbumsAdapter
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.adapter.ArtistsAlbumAdapter
 import com.knesarcreation.playbeat.database.AllSongsModel
+import com.knesarcreation.playbeat.database.QueueListModel
+import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.FragmentArtistsTracksAndAlbumBinding
 import com.knesarcreation.playbeat.model.AlbumModel
 import com.knesarcreation.playbeat.model.ArtistsModel
 import com.knesarcreation.playbeat.utils.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -40,6 +43,9 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
     private var progressBar: CustomProgressDialog? = null
     private var listener: OnArtistAlbumItemClicked? = null
     private lateinit var storageUtil: StorageUtil
+    private lateinit var mViewModelClass: ViewModelClass
+    private lateinit var allSongsAdapter: AllSongsAdapter
+    private var launchAlumData: Job? = null
 
     interface OnArtistAlbumItemClicked {
         fun openArtistAlbum(album: String)
@@ -55,6 +61,10 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
         val view = binding?.root
         binding?.artisNameTVToolbar?.isSelected = true
         binding?.artisNameTV?.isSelected = true
+
+        mViewModelClass =
+            ViewModelProvider(this)[ViewModelClass::class.java]
+
 
         binding?.arrowBackIV?.setOnClickListener {
             (activity as AppCompatActivity).onBackPressed()
@@ -76,7 +86,7 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
 
             binding?.rvAlbums?.setHasFixedSize(true)
             binding?.rvAlbums?.setItemViewCacheSize(20)
-            binding?.rvTracks?.setHasFixedSize(true)
+            //binding?.rvTracks?.setHasFixedSize(true)
             binding?.rvTracks?.setItemViewCacheSize(20)
 
             binding?.artisNameTV?.text = artistsModel?.artistName
@@ -93,8 +103,8 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
             lifecycleScope.launch(Dispatchers.IO) {
                 loadAlbumFromMedia()
             }
-            loadArtistFromMedia()
-
+            //loadArtistFromMedia()
+            getAudioAccordingAlbum()
 
         })
 
@@ -203,6 +213,40 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
         }
     }
 
+    private fun getAudioAccordingAlbum() {
+        allSongsAdapter =
+            AllSongsAdapter(
+                activity as Context,
+                AllSongsAdapter.OnClickListener { allSongModel, position ->
+                    onClickAudio(allSongModel, position)
+                })
+        binding!!.rvTracks.adapter = allSongsAdapter
+        binding!!.rvTracks.itemAnimator = null
+        binding!!.rvTracks.scrollToPosition(0)
+
+        mViewModelClass.getAllSong().observe(viewLifecycleOwner) {
+            if (launchAlumData != null && launchAlumData?.isActive!!) {
+                launchAlumData?.cancel()
+            }
+            launchAlumData = lifecycleScope.launch(Dispatchers.IO) {
+                val audioArtist: List<AllSongsModel> =
+                    mViewModelClass.getAudioAccordingArtist(artistsModel?.artistName!!)
+                audioList.clear()
+                val sortedList = audioArtist.sortedBy { allSongsModel -> allSongsModel.songName }
+                audioList.addAll(sortedList)
+
+                (activity as AppCompatActivity).runOnUiThread {
+                    allSongsAdapter.submitList(audioArtist.sortedBy { allSongsModel -> allSongsModel.songName })
+                    // allSongsAdapter.notifyDataSetChanged()
+                    Log.d(
+                        "ArtistsAlbumFrag",
+                        "getAudioAccordingAlbum: ${artistsModel?.artistName!!}  , audioAlbum : $audioList"
+                    )
+                }
+            }
+        }
+    }
+
     private fun loadArtistFromMedia() {
         audioList.clear()
         val collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
@@ -298,9 +342,11 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
             // Stuff that updates the UI
             (activity as AppCompatActivity).runOnUiThread {
                 val albumAdapter =
-                    AllSongsAdapter(activity as Context, AllSongsAdapter.OnClickListener{allSongModel, position ->
-                        onClickAudio(allSongModel, position)
-                    })
+                    AllSongsAdapter(
+                        activity as Context,
+                        AllSongsAdapter.OnClickListener { allSongModel, position ->
+                            onClickAudio(allSongModel, position)
+                        })
                 binding!!.rvTracks.adapter = albumAdapter
                 albumAdapter.submitList(audioList)
             }
@@ -310,7 +356,68 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
 
     private fun onClickAudio(allSongModel: AllSongsModel, position: Int) {
         storageUtil.saveIsShuffled(false)
+
+        val prevPlayingAudioIndex = storageUtil.loadAudioIndex()
+        val audioList = storageUtil.loadAudio()
+        val prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
+
+        // restricting to update if clicked audio is same
+        if (allSongModel.songId != prevPlayingAudioModel.songId) {
+            mViewModelClass.deleteQueue(lifecycleScope)
+
+
+            mViewModelClass.updateSong(
+                prevPlayingAudioModel.songId,
+                prevPlayingAudioModel.songName,
+                -1,
+                (context as AppCompatActivity).lifecycleScope
+            )
+
+            mViewModelClass.updateSong(
+                allSongModel.songId,
+                allSongModel.songName,
+                1,
+                (context as AppCompatActivity).lifecycleScope
+            )
+
+        }
+
         playAudio(position)
+
+        // restricting to update if clicked audio is same
+        if (allSongModel.songId != prevPlayingAudioModel.songId) {
+            // adding queue list to DB and show highlight of current audio
+            for (audio in this.audioList) {
+                val queueListModel = QueueListModel(
+                    audio.songId,
+                    audio.albumId,
+                    audio.songName,
+                    audio.artistsName,
+                    audio.albumName,
+                    audio.size,
+                    audio.duration,
+                    audio.data,
+                    audio.audioUri,
+                    audio.artUri,
+                    -1
+                )
+                mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+            }
+
+            mViewModelClass.updateQueueAudio(
+                prevPlayingAudioModel.songId,
+                prevPlayingAudioModel.songName,
+                -1,
+                (context as AppCompatActivity).lifecycleScope
+            )
+
+            mViewModelClass.updateQueueAudio(
+                allSongModel.songId,
+                allSongModel.songName,
+                1,
+                (context as AppCompatActivity).lifecycleScope
+            )
+        }
     }
 
     private fun convertGsonToAlbumModel(artistsDataString: String) {
@@ -319,10 +426,10 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
         artistsModel = gson.fromJson(artistsDataString, type)
     }
 
-   /* override fun onClick(allSongModel: AllSongsModel, position: Int) {
-        storageUtil.saveIsShuffled(false)
-        playAudio(position)
-    }*/
+    /* override fun onClick(allSongModel: AllSongsModel, position: Int) {
+         storageUtil.saveIsShuffled(false)
+         playAudio(position)
+     }*/
 
     private fun playAudio(position: Int) {
         AudioPlayingFromCategory.audioPlayingFromAlbumORArtist = true

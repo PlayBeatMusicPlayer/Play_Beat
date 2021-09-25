@@ -281,6 +281,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
 
 
     private fun onClickAudio(allSongModel: AllSongsModel, position: Int) {
+        Toast.makeText(activity as Context, "${allSongModel.songName}", Toast.LENGTH_SHORT).show()
         storage.saveIsShuffled(false)
         val prevPlayingAudioIndex = storage.loadAudioIndex()
         val audioList = storage.loadAudio()

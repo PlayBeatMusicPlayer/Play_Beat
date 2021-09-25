@@ -16,19 +16,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.knesarcreation.playbeat.R
-import com.knesarcreation.playbeat.adapter.AlbumAdapter
+import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.database.AllSongsModel
+import com.knesarcreation.playbeat.database.QueueListModel
+import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.FragmentAlbumSongBinding
 import com.knesarcreation.playbeat.model.AlbumModel
 import com.knesarcreation.playbeat.utils.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.util.concurrent.CopyOnWriteArrayList
 
-class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConnection*/ {
+class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, ServiceConnection*/ {
 
     private lateinit var viewModel: DataObservableClass
     private var _binding: FragmentAlbumSongBinding? = null
@@ -37,9 +43,9 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
     private var audioList = CopyOnWriteArrayList<AllSongsModel>()
     private var isAudioListSaved = false
     private lateinit var storageUtil: StorageUtil
-    /*companion object {
-        var isAlbumSongPlaying = false
-    }*/
+    private lateinit var mViewModelClass: ViewModelClass
+    private lateinit var allSongsAdapter: AllSongsAdapter
+    private var launchAlumData: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,6 +54,10 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
         // Inflate the layout for this fragment
         _binding = FragmentAlbumSongBinding.inflate(inflater, container, false)
         val view = binding!!.root
+
+        mViewModelClass =
+            ViewModelProvider(this)[ViewModelClass::class.java]
+
 
         binding?.arrowBackIV!!.setOnClickListener {
             (activity as AppCompatActivity).onBackPressed()
@@ -63,7 +73,6 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
         viewModel.albumData.observe(viewLifecycleOwner, {
             convertGsonToAlbumModel(it)
             binding?.albumNameTV!!.text = albumData?.albumName
-
             //setting album art to IV
             Glide.with(activity as Context).load(albumData?.artUri).apply(
                 RequestOptions.placeholderOf(
@@ -92,12 +101,46 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
                     .into(binding?.blurredCoverIV!!)
             }
 
-            loadAlbumSongs()
+            // loadAlbumSongs()
+            getAudioAccordingAlbum()
+
         })
+
 
         playAllAudioInAlbum()
         return view
     }
+
+    private fun getAudioAccordingAlbum() {
+        allSongsAdapter =
+            AllSongsAdapter(
+                activity as Context,
+                AllSongsAdapter.OnClickListener { allSongModel, position ->
+                    onClickAudio(allSongModel, position)
+                })
+        binding!!.rvAlbumAudio.adapter = allSongsAdapter
+        binding!!.rvAlbumAudio.itemAnimator = null
+        binding!!.rvAlbumAudio.scrollToPosition(0)
+
+        mViewModelClass.getAllSong().observe(viewLifecycleOwner) {
+            if (launchAlumData != null && launchAlumData?.isActive!!) {
+                launchAlumData?.cancel()
+            }
+            launchAlumData = lifecycleScope.launch(Dispatchers.IO) {
+                val audioAlbum: List<AllSongsModel> =
+                    mViewModelClass.getAudioAccordingAlbum(albumData?.albumName!!)
+                audioList.clear()
+                val sortedList = audioAlbum.sortedBy { allSongsModel -> allSongsModel.songName }
+                audioList.addAll(sortedList)
+
+                (activity as AppCompatActivity).runOnUiThread {
+                    allSongsAdapter.submitList(audioAlbum.sortedBy { allSongsModel -> allSongsModel.songName })
+                }
+
+            }
+        }
+    }
+
 
     private fun playAllAudioInAlbum() {
         binding?.playAlbum?.setOnClickListener {
@@ -198,9 +241,9 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
 
             // Stuff that updates the UI
             (activity as AppCompatActivity).runOnUiThread {
-                val albumAdapter =
+                /*val albumAdapter =
                     AlbumAdapter(activity as Context, audioList, this)
-                binding!!.rvAlbumAudio.adapter = albumAdapter
+                binding!!.rvAlbumAudio.adapter = albumAdapter*/
 
 
             }
@@ -215,9 +258,70 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
         albumData = gson.fromJson(albumDataString, type)
     }
 
-    override fun onAudioPlayed(audioModel: AllSongsModel, position: Int) {
+
+    private fun onClickAudio(allSongModel: AllSongsModel, position: Int) {
         storageUtil.saveIsShuffled(false)
+        val prevPlayingAudioIndex = storageUtil.loadAudioIndex()
+        val audioList = storageUtil.loadAudio()
+        val prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
+
+        // restricting to update if clicked audio is same
+        if (allSongModel.songId != prevPlayingAudioModel.songId) {
+            mViewModelClass.deleteQueue(lifecycleScope)
+
+
+            mViewModelClass.updateSong(
+                prevPlayingAudioModel.songId,
+                prevPlayingAudioModel.songName,
+                -1,
+                (context as AppCompatActivity).lifecycleScope
+            )
+
+            mViewModelClass.updateSong(
+                allSongModel.songId,
+                allSongModel.songName,
+                1,
+                (context as AppCompatActivity).lifecycleScope
+            )
+
+        }
+
         playAudio(position)
+
+        // restricting to update if clicked audio is same
+        if (allSongModel.songId != prevPlayingAudioModel.songId) {
+            // adding queue list to DB and show highlight of current audio
+            for (audio in this.audioList) {
+                val queueListModel = QueueListModel(
+                    audio.songId,
+                    audio.albumId,
+                    audio.songName,
+                    audio.artistsName,
+                    audio.albumName,
+                    audio.size,
+                    audio.duration,
+                    audio.data,
+                    audio.audioUri,
+                    audio.artUri,
+                    -1
+                )
+                mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+            }
+
+            mViewModelClass.updateQueueAudio(
+                prevPlayingAudioModel.songId,
+                prevPlayingAudioModel.songName,
+                -1,
+                (context as AppCompatActivity).lifecycleScope
+            )
+
+            mViewModelClass.updateQueueAudio(
+                allSongModel.songId,
+                allSongModel.songName,
+                1,
+                (context as AppCompatActivity).lifecycleScope
+            )
+        }
     }
 
     private fun playAudio(position: Int) {
@@ -232,8 +336,9 @@ class AlbumFragment : Fragment(), AlbumAdapter.OnAlbumSongClicked/*, ServiceConn
         (activity as Context).sendBroadcast(broadcastIntent)
         Log.d(
             "isAudioListSaved",
-            "onAudioPlayed:$isAudioListSaved ,serviceBound is active: $//musicService "
+            "onAudioPlayed:$isAudioListSaved ,serviceBound is active:  "
         )
 
     }
+
 }

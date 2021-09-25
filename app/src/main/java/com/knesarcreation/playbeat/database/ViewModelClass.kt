@@ -13,6 +13,18 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
         return repository.getSongList()
     }
 
+    /*fun getAudioAccordingAlbum(albumName: String): LiveData<List<AllSongsModel>> {
+        return repository.getAudioAccordingAlbum(albumName)
+    }*/
+
+    suspend fun getAudioAccordingAlbum(albumName: String): List<AllSongsModel> {
+        return repository.getAudioAccordingAlbum(albumName)
+    }
+
+    suspend fun getAudioAccordingArtist(artistName: String): List<AllSongsModel> {
+        return repository.getAudioAccordingArtist(artistName)
+    }
+
     fun deleteSongs(lifecycleScope: LifecycleCoroutineScope) {
         repository.deleteSongs(lifecycleScope)
     }

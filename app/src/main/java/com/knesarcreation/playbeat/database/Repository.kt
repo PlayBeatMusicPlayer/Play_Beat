@@ -5,6 +5,7 @@ import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class Repository(var application: Application) {
 
@@ -43,6 +44,22 @@ class Repository(var application: Application) {
 
     fun getSongList(): LiveData<List<AllSongsModel>> {
         return allSongsDao.getAllSongs()
+    }
+
+    /*fun getAudioAccordingAlbum(albumName: String): LiveData<List<AllSongsModel>> {
+        return allSongsDao.getAudioAccordingAlbum(albumName)
+    }*/
+
+    suspend fun getAudioAccordingAlbum(albumName: String): List<AllSongsModel> {
+        return withContext(Dispatchers.IO) {
+            return@withContext allSongsDao.getAudioAccordingAlbum(albumName)
+        }
+    }
+
+    suspend fun getAudioAccordingArtist(artistName: String): List<AllSongsModel> {
+        return withContext(Dispatchers.IO) {
+            return@withContext allSongsDao.getAudioAccordingArtists(artistName)
+        }
     }
 
     fun insertQueueAudio(

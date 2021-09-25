@@ -37,16 +37,15 @@ class AllSongsAdapter(
 ) : ListAdapter<AllSongsModel, AllSongsAdapter.AllSongsViewHolder>(AllSongItemCallback()) {
     // RecyclerView.Adapter<AllSongsAdapter.AllSongsViewHolder>() {
 
-//    private var isPlaying = false
 
     private var mViewModelClass: ViewModelClass =
         ViewModelProvider((context as AppCompatActivity))[ViewModelClass::class.java]
 
     private val storageUtil = StorageUtil(context)
 
-    interface OnClickSongItem {
-        fun onClick(allSongModel: AllSongsModel, position: Int)
-    }
+    // interface OnClickSongItem {
+    //   fun onClick(allSongModel: AllSongsModel, position: Int)
+    //}
 
     class AllSongsViewHolder(view: View) :
         RecyclerView.ViewHolder(view) {
@@ -146,10 +145,9 @@ class AllSongsAdapter(
         val allSongModel = getItem(position)
 
         holder.rlAudio.setOnClickListener {
-
             onClickListener.onClick(allSongModel, position)
-
         }
+
         holder.bind(allSongModel)
     }
 
