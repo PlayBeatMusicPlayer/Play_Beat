@@ -4,19 +4,21 @@ import android.content.ContentUris
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -25,8 +27,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.database.AllSongsModel
-import com.knesarcreation.playbeat.database.ViewModelClass
-import com.knesarcreation.playbeat.utils.StorageUtil
 import java.io.FileNotFoundException
 import java.io.IOException
 
@@ -37,37 +37,34 @@ class AllSongsAdapter(
 ) : ListAdapter<AllSongsModel, AllSongsAdapter.AllSongsViewHolder>(AllSongItemCallback()) {
     // RecyclerView.Adapter<AllSongsAdapter.AllSongsViewHolder>() {
 
-
-    private var mViewModelClass: ViewModelClass =
-        ViewModelProvider((context as AppCompatActivity))[ViewModelClass::class.java]
-
-    private val storageUtil = StorageUtil(context)
-
-    // interface OnClickSongItem {
-    //   fun onClick(allSongModel: AllSongsModel, position: Int)
-    //}
+    var isSearching = false
+    var queryText = ""
 
     class AllSongsViewHolder(view: View) :
         RecyclerView.ViewHolder(view) {
-        val songName: TextView = view.findViewById(R.id.songNameTV)
-        val artistName: TextView = view.findViewById(R.id.artistNameTV)
-        val albumName: TextView = view.findViewById(R.id.albumNameTv)
-        val albumArtIV: ImageView = view.findViewById(R.id.album_art_iv)
+        private val songName: TextView = view.findViewById(R.id.songNameTV)
+        private val artistName: TextView = view.findViewById(R.id.artistNameTV)
+        private val duration: TextView = view.findViewById(R.id.albumNameTv)
+        private val albumArtIV: ImageView = view.findViewById(R.id.album_art_iv)
         val rlAudio: RelativeLayout = view.findViewById(R.id.rlAudio)
-        val currentPlayingAudioLottie: LottieAnimationView =
+        private val currentPlayingAudioLottie: LottieAnimationView =
             view.findViewById(R.id.currentPlayingAudioLottie)
-        val rlCurrentPlayingLottie: RelativeLayout = view.findViewById(R.id.rlCurrentPlayingLottie)
-        val currentPlayingAudioIndicator: ImageView =
+        private val rlCurrentPlayingLottie: RelativeLayout =
+            view.findViewById(R.id.rlCurrentPlayingLottie)
+        private val currentPlayingAudioIndicator: ImageView =
             view.findViewById(R.id.currentPlayingAudioIndicator)
 
-        fun bind(allSongModel: AllSongsModel) {
+        fun bind(allSongModel: AllSongsModel, isSearching: Boolean, queryText: String) {
 
-            songName.text = allSongModel.songName
+            if (isSearching) {
+                highlightSearchedAudioText(queryText, allSongModel)
+            } else {
+                songName.text = allSongModel.songName
+            }
             artistName.text = allSongModel.artistsName
-            albumName.text = allSongModel.albumName
+            duration.text = millisToMinutesAndSeconds(allSongModel.duration)
 
             val artUri = allSongModel.artUri
-
 
             currentPlayingAudioLottie.setAnimation(R.raw.playing_audio_indicator)
             when (allSongModel.playingOrPause) {
@@ -87,7 +84,7 @@ class AllSongsAdapter(
                             R.color.teal_200
                         )
                     )
-                    albumName.setTextColor(
+                    duration.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
                             R.color.teal_200
@@ -110,7 +107,7 @@ class AllSongsAdapter(
                             R.color.teal_200
                         )
                     )
-                    albumName.setTextColor(
+                    duration.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
                             R.color.teal_200
@@ -122,16 +119,43 @@ class AllSongsAdapter(
                     rlCurrentPlayingLottie.visibility = View.GONE
                     songName.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
                     artistName.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
-                    albumName.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
+                    duration.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
                     //holder.currentPlayingAudioIndicator.visibility = View.GONE
                 }
             }
-
 
             Glide.with(albumArtIV).load(artUri)
                 .apply(RequestOptions.placeholderOf(R.drawable.audio_icon_placeholder).centerCrop())
                 .into(albumArtIV)
 
+        }
+
+        private fun highlightSearchedAudioText(queryText: String, allSongModel: AllSongsModel) {
+            if (queryText.isNotEmpty()) {
+                val startPos = allSongModel.songName.lowercase().indexOf(queryText)
+                val endPos = startPos + queryText.length
+
+                if (startPos != -1) {
+                    val spannable = SpannableStringBuilder(allSongModel.songName)
+                    spannable.setSpan(
+                        ForegroundColorSpan(Color.CYAN),
+                        startPos,
+                        endPos,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    songName.text = spannable
+                } else {
+                    songName.text = allSongModel.songName
+                }
+            } else {
+                songName.text = allSongModel.songName
+            }
+        }
+
+        private fun millisToMinutesAndSeconds(millis: Int): String {
+            val minutes = kotlin.math.floor((millis / 60000).toDouble())
+            val seconds = ((millis % 60000) / 1000)
+            return if (seconds == 60) "${(minutes.toInt() + 1)}:00" else "${minutes.toInt()}:${if (seconds < 10) "0" else ""}$seconds "
         }
     }
 
@@ -148,7 +172,7 @@ class AllSongsAdapter(
             onClickListener.onClick(allSongModel, position)
         }
 
-        holder.bind(allSongModel)
+        holder.bind(allSongModel, isSearching, queryText)
     }
 
     //override fun getItemCount() = allSongList.size
@@ -180,6 +204,7 @@ class AllSongsAdapter(
         }
         return bitmap!!
     }
+
 
     class AllSongItemCallback : DiffUtil.ItemCallback<AllSongsModel>() {
         override fun areItemsTheSame(oldItem: AllSongsModel, newItem: AllSongsModel) =

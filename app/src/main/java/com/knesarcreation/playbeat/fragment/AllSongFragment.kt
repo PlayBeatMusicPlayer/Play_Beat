@@ -41,7 +41,9 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
     private var tempAudioList = CopyOnWriteArrayList<AllSongsModel>()
     private lateinit var storage: StorageUtil
     private lateinit var mViewModelClass: ViewModelClass
-    private var serviceStarted = false
+    private var isAnimated = false
+    private var shuffledList = CopyOnWriteArrayList<AllSongsModel>()
+    private var count = 0
 
     companion object {
         const val Broadcast_PLAY_NEW_AUDIO = "com.knesarcreation.playbeat.utils.PlayNewAudio"
@@ -68,33 +70,192 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
             loadAudio()
         }
 
+        //set up recycler view
+        refreshLayout()
+
+        observeAudioData()
+        storage = StorageUtil(activity as AppCompatActivity)
+
+        sortAudios()
+
+        shuffleAudio()
+
+        return view!!
+
+    }
+
+    private fun observeAudioData() {
+        mViewModelClass.getAllSong().observe(viewLifecycleOwner, {
+            if (it != null) {
+                audioList.clear()
+                count++
+                when (storage.getAudioSortedValue()) {
+                    "Name" -> {
+                        val sortedList = it.sortedBy { allSongsModel -> allSongsModel.songName }
+                        audioList.addAll(sortedList)
+                        allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.songName })
+                        binding?.sortAudioTV?.text = "Name"
+                    }
+                    "Duration" -> {
+                        val sortedList = it.sortedBy { allSongsModel -> allSongsModel.duration }
+                        audioList.addAll(sortedList)
+                        allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.duration })
+                        binding?.sortAudioTV?.text = "Duration"
+                    }
+                    "DateAdded" -> {
+                        val sortedList =
+                            it.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
+                        audioList.addAll(sortedList)
+                        allSongsAdapter.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.dateAdded })
+                        binding?.sortAudioTV?.text = "Date Added"
+                    }
+                    "ArtistName" -> {
+                        val sortedList =
+                            it.sortedBy { allSongsModel -> allSongsModel.artistsName }
+                        audioList.addAll(sortedList)
+                        allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.artistsName })
+                        binding?.sortAudioTV?.text = "Artist Name"
+                    }
+                    else -> {
+                        storage.saveAudioSortingMethod("Name")
+                        val sortedList = it.sortedBy { allSongsModel -> allSongsModel.songName }
+                        audioList.addAll(sortedList)
+                        allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.songName })
+                        binding?.sortAudioTV?.text = "Name"
+
+                    }
+                }
+
+                if (count == 3) {
+                    if (it.isNotEmpty()) {
+                        animateRecyclerView()
+                    }
+                }
+                binding?.totalAudioTV?.text = "${audioList.size} Songs"
+            } else {
+                binding?.totalAudioTV?.text = "0 Song"
+            }
+        })
+
+    }
+
+    private fun shuffleAudio() {
+        binding?.shuffleAudio?.setOnClickListener {
+            // storage.saveIsShuffled(true)
+            shuffledList.clear()
+            shuffledList.addAll(audioList.shuffled())
+            audioList.clear()
+            audioList.addAll(shuffledList)
+            /* storage.storeAudio(audioList)
+             audioIndexPos = 0
+             storage.storeAudioIndex(audioIndexPos)*/
+
+            onClickAudio(audioList[0], 0, true)
+        }
+    }
+
+    private fun animateRecyclerView() {
+        binding?.rvAllSongs!!.animate()
+            .translationY(-10f)
+            //translationYBy(30f)
+            .alpha(1.0f)
+            .setListener(null)
+    }
+
+    private fun sortAudios() {
+        when (storage.getAudioSortedValue()) {
+            "Name" -> {
+                binding?.sortAudioTV?.text = "Name"
+            }
+            "Duration" -> {
+                binding?.sortAudioTV?.text = "Duration"
+            }
+            "DateAdded" -> {
+                binding?.sortAudioTV?.text = "Date Added"
+            }
+            "ArtistName" -> {
+                binding?.sortAudioTV?.text = "Artist Name"
+            }
+            else -> {
+                binding?.sortAudioTV?.text = "Name"
+            }
+        }
+        binding?.sortAudios?.setOnClickListener {
+            val bottomSheetSortByOptions = BottomSheetSortBy(activity as Context, "audio")
+            bottomSheetSortByOptions.show(
+                (context as AppCompatActivity).supportFragmentManager,
+                "bottomSheetSortByOptions"
+            )
+            bottomSheetSortByOptions.listener = object : BottomSheetSortBy.OnSortingAudio {
+                override fun byDate() {
+                    storage.saveAudioSortingMethod("DateAdded")
+                    val sortedByDateAdded =
+                        audioList.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
+
+                    refreshLayout()
+                    allSongsAdapter.submitList(sortedByDateAdded)
+                    audioList.clear()
+                    audioList.addAll(sortedByDateAdded)
+                    animateRecyclerView()
+                    bottomSheetSortByOptions.dismiss()
+                    binding?.sortAudioTV?.text = "Date Added"
+                }
+
+                override fun byName() {
+                    storage.saveAudioSortingMethod("Name")
+                    val sortedBySongName =
+                        audioList.sortedBy { allSongsModel -> allSongsModel.songName }
+
+                    refreshLayout()
+                    allSongsAdapter.submitList(sortedBySongName)
+                    audioList.clear()
+                    audioList.addAll(sortedBySongName)
+                    animateRecyclerView()
+                    bottomSheetSortByOptions.dismiss()
+                    binding?.sortAudioTV?.text = "Name"
+                }
+
+                override fun byDuration() {
+                    storage.saveAudioSortingMethod("Duration")
+                    val sortedByDuration =
+                        audioList.sortedBy { allSongsModel -> allSongsModel.duration }
+                    refreshLayout()
+                    allSongsAdapter.submitList(sortedByDuration)
+                    audioList.clear()
+                    audioList.addAll(sortedByDuration)
+                    animateRecyclerView()
+                    bottomSheetSortByOptions.dismiss()
+                    binding?.sortAudioTV?.text = "Duration"
+                }
+
+                override fun byArtistName() {
+                    storage.saveAudioSortingMethod("ArtistName")
+                    val sortedByArtistName =
+                        audioList.sortedBy { allSongsModel -> allSongsModel.artistsName }
+                    refreshLayout()
+                    allSongsAdapter.submitList(sortedByArtistName)
+                    audioList.clear()
+                    audioList.addAll(sortedByArtistName)
+                    animateRecyclerView()
+                    binding?.sortAudioTV?.text = "Artist Name"
+                    bottomSheetSortByOptions.dismiss()
+                }
+            }
+        }
+    }
+
+    private fun refreshLayout() {
         allSongsAdapter =
             AllSongsAdapter(
                 activity as Context,
                 AllSongsAdapter.OnClickListener { allSongModel, position ->
-                    onClickAudio(allSongModel, position)
+                    onClickAudio(allSongModel, position, false)
                 })
+        allSongsAdapter.isSearching = false
         binding!!.rvAllSongs.adapter = allSongsAdapter
         binding!!.rvAllSongs.itemAnimator = null
         binding!!.rvAllSongs.scrollToPosition(0)
-        mViewModelClass.getAllSong().observe(viewLifecycleOwner, {
-            if (it != null) {
-                audioList.clear()
-
-                val sortedList = it.sortedBy { allSongsModel -> allSongsModel.songName }
-                audioList.addAll(sortedList)
-
-                allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.songName })
-                // progressBar.dismiss()
-
-                //saving data here to keep update the list
-                //storage.storeAudio(audioList)
-            }
-        })
-        storage = StorageUtil(activity as AppCompatActivity)
-
-        return view!!
-
+        binding?.rvAllSongs?.alpha = 0.0f
     }
 
     @SuppressLint("Range")
@@ -111,6 +272,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM_ID,
             MediaStore.Audio.Media.DATA, // path
+            MediaStore.Audio.Media.DATE_ADDED
         )
 
         // Show only audios that are at least 1 minutes in duration.
@@ -139,6 +301,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
             val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
             val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
             val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+            val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
 
             mViewModelClass.deleteSongs(lifecycleScope)
 
@@ -152,6 +315,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                 val artist = cursor.getString(artistsColumn)
                 val albumId = cursor.getLong(albumIdColumn)
                 val data = cursor.getString(dataColumn)
+                val dateAdded = cursor.getString(dateAddedColumn)
 
                 //getting album art uri
                 //var bitmap: Bitmap? = null
@@ -177,7 +341,8 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                         duration,
                         data,
                         contentUri.toString(),
-                        artUri
+                        artUri,
+                        dateAdded
                     )
 
                 /*storage.loadAudioIndex()
@@ -280,15 +445,23 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
     }
 
 
-    private fun onClickAudio(allSongModel: AllSongsModel, position: Int) {
-        Toast.makeText(activity as Context, "${allSongModel.songName}", Toast.LENGTH_SHORT).show()
-        storage.saveIsShuffled(false)
+    private fun onClickAudio(allSongModel: AllSongsModel, position: Int, isShuffled: Boolean) {
+        //Toast.makeText(activity as Context, "${allSongModel.songName}", Toast.LENGTH_SHORT).show()
+
+        storage.saveIsShuffled(isShuffled)
+
         val prevPlayingAudioIndex = storage.loadAudioIndex()
         val audioList = storage.loadAudio()
         val prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
 
+        var restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
+
+        if (storage.getIsAudioPlayedFirstTime()) {
+            restrictToUpdateAudio = false
+        }
+
         // restricting to update if clicked audio is same
-        if (allSongModel.songId != prevPlayingAudioModel.songId) {
+        if (!restrictToUpdateAudio) {
             mViewModelClass.deleteQueue(lifecycleScope)
 
 
@@ -311,7 +484,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         playAudio(position)
 
         // restricting to update if clicked audio is same
-        if (allSongModel.songId != prevPlayingAudioModel.songId) {
+        if (!restrictToUpdateAudio) {
             // adding queue list to DB and show highlight of current audio
             for (audio in this.audioList) {
                 val queueListModel = QueueListModel(
@@ -325,7 +498,8 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                     audio.data,
                     audio.audioUri,
                     audio.artUri,
-                    -1
+                    -1,
+                    audio.dateAdded
                 )
                 mViewModelClass.insertQueue(queueListModel, lifecycleScope)
             }
@@ -345,34 +519,5 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
             )
         }
     }
-    /* override fun onRequestPermissionsResult(
-         requestCode: Int,
-         permissions: Array<out String>,
-         grantResults: IntArray
-     ) {
-         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-         when (requestCode) {
-             READ_STORAGE_PERMISSION -> {
-                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                     if (ContextCompat.checkSelfPermission(
-                             activity as Context,
-                             android.Manifest.permission.READ_EXTERNAL_STORAGE
-                         ) == PackageManager.PERMISSION_GRANTED
-                     ) {
-                         lifecycleScope.launch(Dispatchers.IO) {
-                             loadAudio()
-                         }
-                     }
-                 } else {
-                     Toast.makeText(
-                         activity as Context,
-                         "Permission is required to show music",
-                         Toast.LENGTH_SHORT
-                     )
-                         .show()
-                     (context as AppCompatActivity).finish()
-                 }
-             }
-         }
-     }*/
+
 }

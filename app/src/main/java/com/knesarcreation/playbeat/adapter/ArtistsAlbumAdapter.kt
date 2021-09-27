@@ -12,17 +12,23 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.database.AllSongsModel
+import com.knesarcreation.playbeat.database.QueueListModel
+import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.RecyclerGridAlbumItemsBinding
 import com.knesarcreation.playbeat.fragment.AllSongFragment
 import com.knesarcreation.playbeat.model.AlbumModel
-import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.utils.AudioPlayingFromCategory
 import com.knesarcreation.playbeat.utils.StorageUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.CopyOnWriteArrayList
 
 class ArtistsAlbumAdapter(
@@ -33,10 +39,8 @@ class ArtistsAlbumAdapter(
     RecyclerView.Adapter<ArtistsAlbumAdapter.ArtistsAlbumViewHolder>() {
 
     private var audioList = CopyOnWriteArrayList<AllSongsModel>()
-
-    /*interface OnArtistAlbumClicked {
-        fun onClicked(albumModel: AlbumModel)
-    }*/
+    private var mViewModelClass =
+        ViewModelProvider(context as AppCompatActivity)[ViewModelClass::class.java]
 
     class ArtistsAlbumViewHolder(binding: RecyclerGridAlbumItemsBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -82,7 +86,16 @@ class ArtistsAlbumAdapter(
 
         holder.playAlbumBtn.setOnClickListener {
             StorageUtil(context).saveIsShuffled(false)
-            loadAlbumAudio(albumModel)
+            (context as AppCompatActivity).lifecycleScope.launch(Dispatchers.IO) {
+                audioList.clear()
+                val listOfAudio: List<AllSongsModel> =
+                    mViewModelClass.getAudioAccordingAlbum(albumModel?.albumName!!)
+                val sortedList = listOfAudio.sortedBy { allSongsModel -> allSongsModel.songName }
+                audioList.addAll(sortedList)
+                updateAndPlayAudio(audioList[0])
+                Log.d("artistsAlbumAdapter", "onBindViewHolder: $audioList")
+            }
+            //loadAlbumAudio(albumModel)
         }
 
         holder.cvAlbumCard.setOnClickListener {
@@ -138,6 +151,7 @@ class ArtistsAlbumAdapter(
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM_ID,
             MediaStore.Audio.Media.DATA, // path
+            MediaStore.Audio.Media.DATE_ADDED
         )
 
         // Show only audios that are at least 1 minutes in duration.
@@ -172,7 +186,7 @@ class ArtistsAlbumAdapter(
             val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
             val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
             val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-
+            val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
 
             while (cursor.moveToNext()) {
                 //Get values of columns of a given audio
@@ -184,6 +198,7 @@ class ArtistsAlbumAdapter(
                 val artist = cursor.getString(artistsColumn)
                 val albumId = cursor.getLong(albumIdColumn)
                 val data = cursor.getString(dataColumn)
+                val dateAdded = cursor.getString(dateAddedColumn)
 
                 Log.d("SongDetails", "loadAlbumSongs: $name, $artist")
 
@@ -210,8 +225,9 @@ class ArtistsAlbumAdapter(
                         data,
                         contentUri.toString(),
                         albumArtUri,
-
+                        dateAdded
                     )
+
                 allSongsModel.playingOrPause = -1
                 audioList.add(allSongsModel)
 
@@ -225,6 +241,75 @@ class ArtistsAlbumAdapter(
         }
 
     }
+
+    private fun updateAndPlayAudio(allSongModel: AllSongsModel) {
+        val storageUtil = StorageUtil(context)
+        storageUtil.saveIsShuffled(false)
+        val prevPlayingAudioIndex = storageUtil.loadAudioIndex()
+        val prevQueueList = storageUtil.loadAudio()
+        val prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
+
+        val playedFirstTime = !storageUtil.getIsAudioPlayedFirstTime()
+        val playedSameAudio = allSongModel.songId != prevPlayingAudioModel.songId
+
+        mViewModelClass.deleteQueue((context as AppCompatActivity).lifecycleScope)
+
+        mViewModelClass.updateSong(
+            prevPlayingAudioModel.songId,
+            prevPlayingAudioModel.songName,
+            -1,
+            (context as AppCompatActivity).lifecycleScope
+        )
+
+        mViewModelClass.updateSong(
+            allSongModel.songId,
+            allSongModel.songName,
+            1,
+            (context as AppCompatActivity).lifecycleScope
+        )
+
+
+
+        playAudio()
+
+        // restricting to update if clicked audio is same
+        // adding queue list to DB and show highlight of current audio
+        for (audio in this.audioList) {
+            val queueListModel = QueueListModel(
+                audio.songId,
+                audio.albumId,
+                audio.songName,
+                audio.artistsName,
+                audio.albumName,
+                audio.size,
+                audio.duration,
+                audio.data,
+                audio.audioUri,
+                audio.artUri,
+                -1,
+                audio.dateAdded
+            )
+            mViewModelClass.insertQueue(
+                queueListModel,
+                (context as AppCompatActivity).lifecycleScope
+            )
+        }
+
+        mViewModelClass.updateQueueAudio(
+            prevPlayingAudioModel.songId,
+            prevPlayingAudioModel.songName,
+            -1,
+            (context as AppCompatActivity).lifecycleScope
+        )
+
+        mViewModelClass.updateQueueAudio(
+            allSongModel.songId,
+            allSongModel.songName,
+            1,
+            (context as AppCompatActivity).lifecycleScope
+        )
+    }
+
 
     private fun playAudio() {
         val storageUtil = StorageUtil(context)

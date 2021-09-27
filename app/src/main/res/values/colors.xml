@@ -12,7 +12,8 @@
     <color name="transparent">#00ffffff</color>
 
     <color name="indigo">#590995</color>
-    <color name="pink">#ff6363</color>
+    <color name="bright_pink">#ff69b4</color>
+    <color name="darkPink">#E8316F</color>
     <color name="orange">#ffbd69</color>
     <color name="light_blue">#3282b8</color>
     <color name="cyan">#03DCF8</color>
@@ -53,5 +54,8 @@
     <color name="_blue">#E0F2F8</color>
     <color name="bright_orange">#DC973F</color>
     <color name="rippleColor">#419A9A9A</color>
+    <color name="custom_ripple_color">#A1ABE6</color>
     <color name="light_grey">#69696C</color>
+    <color name="light_transparent">#69696C</color>
+    <color name="queue_now_playing_background">#474953</color>
 </resources>

@@ -1,77 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sheet_constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/curved_top_right_top_left_app_theme_color">
 
     <RelativeLayout
-        android:id="@+id/rlToolbar"
-        android:layout_width="match_parent"
-        android:layout_height="70dp">
-
-        <TextView
-            android:id="@+id/queueTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="20dp"
-            android:fontFamily="@font/segoe_ui"
-            android:text="Queue"
-            android:textColor="@color/white"
-            android:textSize="17sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/queueTV"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="2dp"
-            android:fontFamily="@font/segoe_ui"
-            android:text="Now Playing"
-            android:textColor="@color/white"
-            android:textSize="10sp"
-            android:textStyle="normal" />
+        android:id="@+id/rlUpNextAudioContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:foreground="?attr/selectableItemBackground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <RelativeLayout
-            android:id="@+id/rlRepeatQueue"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="15dp"
-            android:background="@drawable/curved_light_transparent_bg"
-            android:elevation="10dp">
+            android:id="@+id/rlToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="70dp">
 
-            <ImageView
-                android:id="@+id/repeatQueueIV"
+            <TextView
+                android:id="@+id/queueTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_marginTop="20dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_repeat_24" />
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="20dp"
+                android:fontFamily="@font/segoe_ui"
+                android:text="Queue"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/queueTV"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/segoe_ui"
+                android:text="Now Playing"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:textStyle="normal" />
+
+            <RelativeLayout
+                android:id="@+id/rlRepeatQueue"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="15dp"
+                android:background="@drawable/curved_light_transparent_bg"
+                android:elevation="10dp">
+
+                <ImageView
+                    android:id="@+id/repeatQueueIV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_marginTop="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_repeat_24" />
+            </RelativeLayout>
+
         </RelativeLayout>
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/rlToolbar"
-        android:foreground="?attr/selectableItemBackground"
-        android:paddingBottom="5dp">
 
         <RelativeLayout
             android:id="@+id/rlAudio"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="65dp"
+            android:layout_below="@id/rlToolbar"
             android:layout_marginStart="20dp"
-            android:background="@color/app_theme_color"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/queue_now_playing_audio_border"
             android:paddingTop="5dp"
             android:paddingEnd="20dp"
             tools:ignore="RtlSymmetry">
@@ -80,6 +85,7 @@
                 android:id="@+id/album_art_iv"
                 android:layout_width="55dp"
                 android:layout_height="55dp"
+                android:layout_marginStart="5dp"
                 android:background="@drawable/little_curved_all_edges"
                 android:scaleType="centerCrop"
                 android:src="@drawable/artist_icon_placeholder"
@@ -91,9 +97,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="5dp"
-                android:layout_marginEnd="5dp"
+                android:layout_marginEnd="20dp"
                 android:layout_marginBottom="5dp"
-                android:layout_toStartOf="@id/forwardIconIV"
+                android:layout_toStartOf="@id/currentPlayingAudioLottie"
                 android:layout_toEndOf="@id/album_art_iv"
                 android:ellipsize="end"
                 android:fontFamily="@font/segoe_ui"
@@ -108,7 +114,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/songNameTV"
                 android:layout_marginStart="15dp"
-                android:layout_toStartOf="@id/forwardIconIV"
+                android:layout_marginEnd="20dp"
+                android:layout_toStartOf="@id/currentPlayingAudioLottie"
                 android:layout_toEndOf="@id/album_art_iv"
                 android:orientation="horizontal">
 
@@ -147,17 +154,15 @@
                     android:textStyle="normal" />
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/forwardIconIV"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/currentPlayingAudioLottie"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="5dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_forward"
-                android:visibility="gone" />
-
+                android:layout_centerInParent="true"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/playing_audio_indicator" />
         </RelativeLayout>
 
         <View
@@ -184,27 +189,65 @@
             android:textSize="17sp"
             android:textStyle="bold" />
 
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/recyclerViewContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/cancelQueueSheetBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rlUpNextAudioContainer">
+
         <com.ernestoyaquello.dragdropswiperecyclerview.DragDropSwipeRecyclerView
             android:id="@+id/rvUpNext"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/upNextTV"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
             android:nestedScrollingEnabled="true"
             android:paddingTop="10dp"
             app:behind_swiped_item_bg_color="@color/bright_red"
             app:behind_swiped_item_icon="@drawable/ic_delete"
             app:behind_swiped_item_icon_margin="16dp"
-            app:item_layout="@layout/recycler_all_songs_item" />
+            app:item_layout="@layout/recycler_all_songs_item"
+            tools:ignore="SpeakableTextPresentCheck" />
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="20dp"
-            android:layout_below="@id/upNextTV"
-            android:layout_marginTop="10dp"
             android:background="@drawable/gradient_background_top_shadow"
-            android:contentDescription="@null" />
+            android:contentDescription="@null"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
     </RelativeLayout>
+    <!--recycler top shadow-->
+
+    <FrameLayout
+        android:id="@+id/cancelQueueSheetBtn"
+        android:layout_width="0dp"
+        android:layout_height="55dp"
+        android:layout_gravity="bottom"
+        android:background="@color/queue_now_playing_background"
+        app:layout_constraintEnd_toEndOf="@+id/recyclerViewContainer"
+        app:layout_constraintStart_toStartOf="@+id/recyclerViewContainer"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_marginTop="500dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/segoe_ui"
+            android:text="Cancel"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+    </FrameLayout>
+
+    <!--    </LinearLayout>-->
 
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

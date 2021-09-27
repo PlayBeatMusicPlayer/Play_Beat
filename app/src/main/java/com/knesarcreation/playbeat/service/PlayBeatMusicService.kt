@@ -435,7 +435,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         playbackSpeed: Float
     ) {
         var playPauseActionIcon = R.drawable.ic_noti_pause_circle //needs to be initialized
-        var favUnFavActionIcon = R.drawable.ic_unfav //needs to be initialized
+        var favUnFavActionIcon = R.drawable.ic_pink_outlined_heart //needs to be initialized
 
         var playPauseAction: PendingIntent? = null
         var favUnFavAction: PendingIntent? = null
@@ -456,7 +456,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
             favUnFavActionIcon = R.drawable.ic_fav
             favUnFavAction = playbackAction(4)
         } else if (favUnFavStatus == PlaybackStatus.UN_FAVOURITE) {
-            favUnFavActionIcon = R.drawable.ic_unfav
+            favUnFavActionIcon = R.drawable.ic_pink_outlined_heart
             favUnFavAction = playbackAction(5)
         }
 
@@ -926,7 +926,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         registerReceiver(becomingNoisyReceiver, intentFilter)
     }
 
-    private val openContent: BroadcastReceiver = object : BroadcastReceiver() {
+   /* private val openContent: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
 
         }
@@ -935,7 +935,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     private fun registerContentReceiver() {
         val intentFiler = IntentFilter(OPEN_CONTENT)
         registerReceiver(openContent, intentFiler)
-    }
+    }*/
 
     fun stopSleepTimer(sleepTimerTV: TextView, sleepTimeIV: ImageView) {
         if (sleepCountDownTimer != null) {

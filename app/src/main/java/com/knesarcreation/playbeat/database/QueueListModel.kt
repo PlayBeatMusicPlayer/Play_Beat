@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "queueList")
 data class QueueListModel(
-    var songId:Long,
+    var songId: Long,
     var albumId: Long,
     var songName: String,
     var artistsName: String,
@@ -15,13 +15,14 @@ data class QueueListModel(
     var data: String,
     var audioUri: String,
     var artUri: String,
-    var isPlayingOrPause: Int // 0 for pause , 1 for play and -1 for default
+    var isPlayingOrPause: Int, // 0 for pause , 1 for play and -1 for default
+    val dateAdded: String
 ) {
     @PrimaryKey(autoGenerate = true)
     var id = 0
     //var isPlayingOrPause = false
 
-    constructor() : this(0L,0L, "", "", "", 0, 0/*null*/, "", "", "", -1)
+    constructor() : this(0L, 0L, "", "", "", 0, 0/*null*/, "", "", "", -1, "")
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

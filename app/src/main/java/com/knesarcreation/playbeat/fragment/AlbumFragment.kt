@@ -17,6 +17,7 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DefaultItemAnimator
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.gson.Gson
@@ -40,7 +41,7 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
     private var _binding: FragmentAlbumSongBinding? = null
     private val binding get() = _binding
     private var albumData: AlbumModel? = null
-    private var audioList = CopyOnWriteArrayList<AllSongsModel>()
+    private var albumAudioList = CopyOnWriteArrayList<AllSongsModel>()
     private var isAudioListSaved = false
     private lateinit var storageUtil: StorageUtil
     private lateinit var mViewModelClass: ViewModelClass
@@ -106,8 +107,8 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
 
         })
 
-
         playAllAudioInAlbum()
+
         return view
     }
 
@@ -118,8 +119,9 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
                 AllSongsAdapter.OnClickListener { allSongModel, position ->
                     onClickAudio(allSongModel, position)
                 })
+        allSongsAdapter.isSearching = false
         binding!!.rvAlbumAudio.adapter = allSongsAdapter
-        binding!!.rvAlbumAudio.itemAnimator = null
+        binding!!.rvAlbumAudio.itemAnimator = DefaultItemAnimator()
         binding!!.rvAlbumAudio.scrollToPosition(0)
 
         mViewModelClass.getAllSong().observe(viewLifecycleOwner) {
@@ -129,9 +131,9 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
             launchAlumData = lifecycleScope.launch(Dispatchers.IO) {
                 val audioAlbum: List<AllSongsModel> =
                     mViewModelClass.getAudioAccordingAlbum(albumData?.albumName!!)
-                audioList.clear()
+                albumAudioList.clear()
                 val sortedList = audioAlbum.sortedBy { allSongsModel -> allSongsModel.songName }
-                audioList.addAll(sortedList)
+                albumAudioList.addAll(sortedList)
 
                 (activity as AppCompatActivity).runOnUiThread {
                     allSongsAdapter.submitList(audioAlbum.sortedBy { allSongsModel -> allSongsModel.songName })
@@ -141,16 +143,71 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
         }
     }
 
-
     private fun playAllAudioInAlbum() {
         binding?.playAlbum?.setOnClickListener {
-            storageUtil.saveIsShuffled(false)
-            playAudio(0)
+            // storageUtil.saveIsShuffled(false)
+            /* val prevPlayingAudioIndex = storageUtil.loadAudioIndex()
+             val queueAudioList = storageUtil.loadAudio()
+             val prevPlayingAudioModel = queueAudioList[prevPlayingAudioIndex]*/
+
+            onClickAudio(albumAudioList[0], 0)
+            /* mViewModelClass.deleteQueue(lifecycleScope)
+
+             mViewModelClass.updateSong(
+                 prevPlayingAudioModel.songId,
+                 prevPlayingAudioModel.songName,
+                 -1,
+                 (context as AppCompatActivity).lifecycleScope
+             )
+
+             mViewModelClass.updateSong(
+                 albumAudioList[0].songId,
+                 albumAudioList[0].songName,
+                 1,
+                 (context as AppCompatActivity).lifecycleScope
+             )
+
+             playAudio(0)
+
+             // restricting to update if clicked audio is same
+             if (albumAudioList[0].songId != prevPlayingAudioModel.songId) {
+                 // adding queue list to DB and show highlight of current audio
+                 for (audio in this.albumAudioList) {
+                     val queueListModel = QueueListModel(
+                         audio.songId,
+                         audio.albumId,
+                         audio.songName,
+                         audio.artistsName,
+                         audio.albumName,
+                         audio.size,
+                         audio.duration,
+                         audio.data,
+                         audio.audioUri,
+                         audio.artUri,
+                         -1
+                     )
+                     mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+                 }
+
+                 mViewModelClass.updateQueueAudio(
+                     prevPlayingAudioModel.songId,
+                     prevPlayingAudioModel.songName,
+                     -1,
+                     (context as AppCompatActivity).lifecycleScope
+                 )
+
+                 mViewModelClass.updateQueueAudio(
+                     albumAudioList[0].songId,
+                     albumAudioList[0].songName,
+                     1,
+                     (context as AppCompatActivity).lifecycleScope
+                 )
+             }*/
         }
     }
 
     private fun loadAlbumSongs() {
-        audioList.clear()
+        albumAudioList.clear()
         val collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 
         val projection = arrayOf(
@@ -162,6 +219,7 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM_ID,
             MediaStore.Audio.Media.DATA, // path
+            MediaStore.Audio.Media.DATE_ADDED
         )
 
         // Show only audios that are at least 1 minutes in duration.
@@ -195,6 +253,7 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
             val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
             val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
             val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+            val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
 
 
             while (cursor.moveToNext()) {
@@ -207,6 +266,7 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
                 val artist = cursor.getString(artistsColumn)
                 val albumId = cursor.getLong(albumIdColumn)
                 val data = cursor.getString(dataColumn)
+                val dateAdded = cursor.getString(dateAddedColumn)
 
                 Log.d("SongDetails", "loadAlbumSongs: $name, $artist")
 
@@ -232,10 +292,11 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
                         duration,
                         data,
                         contentUri.toString(),
-                        albumArtUri
+                        albumArtUri,
+                        dateAdded
                     )
                 allSongsModel.playingOrPause = -1
-                audioList.add(allSongsModel)
+                albumAudioList.add(allSongsModel)
 
             }
 
@@ -258,17 +319,21 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
         albumData = gson.fromJson(albumDataString, type)
     }
 
-
     private fun onClickAudio(allSongModel: AllSongsModel, position: Int) {
         storageUtil.saveIsShuffled(false)
         val prevPlayingAudioIndex = storageUtil.loadAudioIndex()
         val audioList = storageUtil.loadAudio()
         val prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
 
-        // restricting to update if clicked audio is same
-        if (allSongModel.songId != prevPlayingAudioModel.songId) {
-            mViewModelClass.deleteQueue(lifecycleScope)
+        var restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
 
+        if (storageUtil.getIsAudioPlayedFirstTime()) {
+            restrictToUpdateAudio = false
+        }
+
+        // restricting to update if clicked audio is same
+        if (!restrictToUpdateAudio) {
+            mViewModelClass.deleteQueue(lifecycleScope)
 
             mViewModelClass.updateSong(
                 prevPlayingAudioModel.songId,
@@ -289,9 +354,9 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
         playAudio(position)
 
         // restricting to update if clicked audio is same
-        if (allSongModel.songId != prevPlayingAudioModel.songId) {
+        if (!restrictToUpdateAudio) {
             // adding queue list to DB and show highlight of current audio
-            for (audio in this.audioList) {
+            for (audio in this.albumAudioList) {
                 val queueListModel = QueueListModel(
                     audio.songId,
                     audio.albumId,
@@ -303,7 +368,8 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
                     audio.data,
                     audio.audioUri,
                     audio.artUri,
-                    -1
+                    -1,
+                    audio.dateAdded
                 )
                 mViewModelClass.insertQueue(queueListModel, lifecycleScope)
             }
@@ -327,7 +393,7 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
     private fun playAudio(position: Int) {
         AudioPlayingFromCategory.audioPlayingFromAlbumORArtist = true
 
-        storageUtil.storeAudio(audioList)
+        storageUtil.storeAudio(albumAudioList)
         storageUtil.storeAudioIndex(position)
 
         //Send a broadcast to the service -> PLAY_NEW_AUDIO

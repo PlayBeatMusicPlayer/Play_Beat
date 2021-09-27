@@ -18,9 +18,12 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <!--        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>-->
+
         <item name="bottomSheetDialogTheme">@style/AppModalDialogTheme</item>
         <!--        <item name="android:windowTranslucentStatus">true</item>-->
         <item name="android:navigationBarColor">@color/app_theme_color</item>
+        <item name="android:colorControlHighlight">@color/custom_ripple_color</item>
+
         <!-- Customize your theme here. -->
     </style>
 

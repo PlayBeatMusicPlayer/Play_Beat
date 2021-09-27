@@ -109,13 +109,15 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
         })
 
         binding?.playAll?.setOnClickListener { /*starting from 0*/
-            storageUtil.saveIsShuffled(false)
-            playAudio(0)
+            /*storageUtil.saveIsShuffled(false)
+            playAudio(0)*/
+            onClickAudio(audioList[0], 0)
         }
 
         binding?.playAllToolbar?.setOnClickListener {
-            storageUtil.saveIsShuffled(false)
-            playAudio(0)
+            /*storageUtil.saveIsShuffled(false)
+            playAudio(0)*/
+            onClickAudio(audioList[0], 0)
         }
 
         return view
@@ -130,6 +132,8 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
             //MediaStore.Audio.Albums.ALBUM_ID,
             MediaStore.Audio.Albums.ALBUM,
             MediaStore.Audio.Albums.ARTIST,
+            MediaStore.Audio.Albums.LAST_YEAR,
+            MediaStore.Audio.Albums.NUMBER_OF_SONGS,
         )
 
         // Show only audios that are at least 1 minutes in duration.
@@ -154,7 +158,9 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
             //val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ID)
             val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM)
             val artistsColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ARTIST)
-
+            val lastYearColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.LAST_YEAR)
+            val noOfSongsColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.NUMBER_OF_SONGS)
 
             while (cursor.moveToNext()) {
                 //Get values of columns of a given audio
@@ -162,6 +168,8 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
                 //val albumId = cursor.getLong(albumIdColumn)
                 val album = cursor.getString(albumColumn)
                 val artist = cursor.getString(artistsColumn)
+                val lastYear = cursor.getInt(lastYearColumn)
+                val noOfSongs = cursor.getInt(noOfSongsColumn)
 
                 //getting album art uri
                 //var bitmap: Bitmap? = null
@@ -186,7 +194,9 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
                         album,
                         artist,
                         artUri,
-                        bitmap
+                        bitmap,
+                        lastYear,
+                        noOfSongs
                     )
                 if (!albumList.contains(albumModel)) {
                     albumList.add(albumModel)
@@ -220,6 +230,7 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
                 AllSongsAdapter.OnClickListener { allSongModel, position ->
                     onClickAudio(allSongModel, position)
                 })
+        allSongsAdapter.isSearching = false
         binding!!.rvTracks.adapter = allSongsAdapter
         binding!!.rvTracks.itemAnimator = null
         binding!!.rvTracks.scrollToPosition(0)
@@ -260,6 +271,7 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM_ID,
             MediaStore.Audio.Media.DATA, // path
+            MediaStore.Audio.Media.DATE_ADDED
         )
 
         // Show only audios that are at least 1 minutes in duration.
@@ -294,7 +306,7 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
             val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
             val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
             val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-
+            val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
 
             while (cursor.moveToNext()) {
                 //Get values of columns of a given audio
@@ -306,6 +318,7 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
                 val artist = cursor.getString(artistsColumn)
                 val albumId = cursor.getLong(albumIdColumn)
                 val data = cursor.getString(dataColumn)
+                val dateAdded = cursor.getString(dateAddedColumn)
 
 
                 Log.d("SongDetails", "loadAlbumSongs: $name, $artist")
@@ -332,7 +345,8 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
                         duration,
                         data,
                         contentUri.toString(),
-                        albumArtUri
+                        albumArtUri,
+                        dateAdded
                     )
                 allSongsModel.playingOrPause = -1
                 audioList.add(allSongsModel)
@@ -361,10 +375,15 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
         val audioList = storageUtil.loadAudio()
         val prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
 
-        // restricting to update if clicked audio is same
-        if (allSongModel.songId != prevPlayingAudioModel.songId) {
-            mViewModelClass.deleteQueue(lifecycleScope)
+        var restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
 
+        if (storageUtil.getIsAudioPlayedFirstTime()) {
+            restrictToUpdateAudio = false
+        }
+
+        // restricting to update if clicked audio is same
+        if (!restrictToUpdateAudio) {
+            mViewModelClass.deleteQueue(lifecycleScope)
 
             mViewModelClass.updateSong(
                 prevPlayingAudioModel.songId,
@@ -385,7 +404,7 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
         playAudio(position)
 
         // restricting to update if clicked audio is same
-        if (allSongModel.songId != prevPlayingAudioModel.songId) {
+        if (!restrictToUpdateAudio) {
             // adding queue list to DB and show highlight of current audio
             for (audio in this.audioList) {
                 val queueListModel = QueueListModel(
@@ -399,7 +418,8 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
                     audio.data,
                     audio.audioUri,
                     audio.artUri,
-                    -1
+                    -1,
+                    audio.dateAdded
                 )
                 mViewModelClass.insertQueue(queueListModel, lifecycleScope)
             }

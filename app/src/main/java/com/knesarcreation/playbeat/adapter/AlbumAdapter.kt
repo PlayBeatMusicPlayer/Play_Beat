@@ -27,7 +27,7 @@ class AlbumAdapter(
         private val artistName: TextView = view.findViewById(R.id.artistNameTV)
         private val albumName: TextView = view.findViewById(R.id.albumNameTv)
         private val albumArtIV: ImageView = view.findViewById(R.id.album_art_iv)
-        val rlAudio: RelativeLayout = view.findViewById(R.id.rlAudio)
+        val rlAudio: RelativeLayout = view.findViewById(R.id.rlCurrentPlayingAudio)
         private val currentPlayingAudioLottie: LottieAnimationView =
             view.findViewById(R.id.currentPlayingAudioLottie)
         private val rlCurrentPlayingLottie: RelativeLayout =

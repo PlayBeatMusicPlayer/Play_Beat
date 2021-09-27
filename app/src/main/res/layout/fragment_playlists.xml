@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_theme_color"
     tools:context=".fragment.PlaylistsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:textSize="20sp"
-        android:text="Favourite" />
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp">
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="150dp"
+            android:layout_height="55dp"
+            android:text="Favourite"
+            android:textAllCaps="false"
+            android:textColor="@color/bright_pink"
+            app:backgroundTint="#25F891B3"
+            app:icon="@drawable/ic_pink_outlined_heart"
+            app:iconPadding="10dp"
+            app:iconTint="@color/bright_pink"
+            app:strokeColor="@color/bright_pink" />
+
+    </RelativeLayout>
 
 </FrameLayout>

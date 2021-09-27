@@ -47,6 +47,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private val playlistsFragment = PlaylistsFragment()
     private val settingFragment = SettingFragment()
     private val albumSongFragment = AlbumFragment()
+    private val searchFragment = SearchFragment()
     private val artistsTracksAndAlbumFragment = ArtistsTracksAndAlbumFragment()
     private var audioIndexPos = -1
     private var isDestroyedActivity = false
@@ -100,6 +101,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             .add(R.id.fragmentContainer, settingFragment)
             .add(R.id.fragmentContainer, albumSongFragment)
             .add(R.id.fragmentContainer, artistsTracksAndAlbumFragment)
+            .add(R.id.fragmentContainer, searchFragment)
             .commit()
         setBottomBarFragmentState(FragmentState.HOME).commit()
 
@@ -131,12 +133,10 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         binding.bottomSheet.seekBar.setOnClickListener { }
 
         //set resume progress in audio progress bar and seek bar
-        // val storageUtil = StorageUtil(this)
         binding.bottomSheet.seekBar.max =
             (storage.getLastAudioMaxSeekProg().toDouble() / 1000).toInt()
         binding.bottomSheet.seekBar.progress =
             (storage.getAudioResumePos().toDouble() / 1000).toInt()
-        /* (storage.getAudioResumePos().toDouble() / 1000).toInt()*/
         Toast.makeText(
             this,
             "Start: ${(storage.getAudioResumePos().toDouble() / 1000).toInt()}",
@@ -218,11 +218,11 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         nowPlayingBottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
         if (!storage.getIsAudioPlayedFirstTime()) {
-            nowPlayingBottomSheetBehavior.peekHeight = 330
+            nowPlayingBottomSheetBehavior.peekHeight = 350
             binding.bottomSheet.rlMiniPlayerBottomsheet.visibility = View.VISIBLE
             val layoutParams =
                 binding.fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams
-            layoutParams.bottomMargin = 330
+            layoutParams.bottomMargin = 350
             binding.fragmentContainer.layoutParams = layoutParams
             nowPlayingBottomSheetBehavior.isDraggable = true
         } else {
@@ -487,16 +487,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
     }
 
-    /*override fun onSaveInstanceState(savedInstanceState: Bundle) {
-        savedInstanceState.putBoolean("ServiceState", AllSongFragment.serviceBound);
-        super.onSaveInstanceState(savedInstanceState)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        AllSongFragment.serviceBound = savedInstanceState!!.getBoolean("ServiceState")
-    }*/
-
     private fun handleAudioProgressBar() {
         if (runnableAudioProgress != null) {
             handler.removeCallbacks(runnableAudioProgress!!)
@@ -529,6 +519,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         transaction.hide(playlistsFragment)
                         transaction.hide(settingFragment)
                         transaction.hide(artistsTracksAndAlbumFragment)
+                        transaction.hide(searchFragment)
                         transaction.show(albumSongFragment)
                     }
                     isArtistsFragOpened || isAlbumOpenedFromArtisFrag -> {
@@ -537,6 +528,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         transaction.hide(settingFragment)
                         transaction.show(artistsTracksAndAlbumFragment)
                         transaction.hide(albumSongFragment)
+                        transaction.hide(searchFragment)
                     }
                     else -> {
                         transaction.show(homeFragment)
@@ -544,6 +536,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         transaction.hide(settingFragment)
                         transaction.hide(albumSongFragment)
                         transaction.hide(artistsTracksAndAlbumFragment)
+                        transaction.hide(searchFragment)
                     }
                 }
                 binding.bottomSheet.bottomBar.itemActiveIndex = 0
@@ -554,7 +547,17 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(settingFragment)
                 transaction.hide(albumSongFragment)
                 transaction.hide(artistsTracksAndAlbumFragment)
+                transaction.hide(searchFragment)
                 binding.bottomSheet.bottomBar.itemActiveIndex = 1
+            }
+            FragmentState.SEARCH -> {
+                transaction.hide(homeFragment)
+                transaction.hide(playlistsFragment)
+                transaction.hide(settingFragment)
+                transaction.hide(albumSongFragment)
+                transaction.hide(artistsTracksAndAlbumFragment)
+                transaction.show(searchFragment)
+                binding.bottomSheet.bottomBar.itemActiveIndex = 2
             }
             FragmentState.SETTING -> {
                 transaction.hide(homeFragment)
@@ -562,7 +565,8 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.show(settingFragment)
                 transaction.hide(albumSongFragment)
                 transaction.hide(artistsTracksAndAlbumFragment)
-                binding.bottomSheet.bottomBar.itemActiveIndex = 2
+                transaction.hide(searchFragment)
+                binding.bottomSheet.bottomBar.itemActiveIndex = 3
             }
             FragmentState.ALBUM_FRAGMENT -> {
                 transaction.hide(homeFragment)
@@ -570,14 +574,10 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(settingFragment)
                 transaction.show(albumSongFragment)
                 transaction.hide(artistsTracksAndAlbumFragment)
+                transaction.hide(searchFragment)
 
                 isAlbumFragOpened = !isAlbumOpenedFromArtisFrag
                 isArtistsFragOpened = false
-                /*  Toast.makeText(
-                      this,
-                      "$isAlbumOpenedFromArtisFrag , $isAlbumFragOpened",
-                      Toast.LENGTH_SHORT
-                  ).show()*/
             }
             FragmentState.ARTIST_TRACK_ALBUM_FRAGMENT -> {
                 transaction.hide(homeFragment)
@@ -585,6 +585,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(settingFragment)
                 transaction.hide(albumSongFragment)
                 transaction.show(artistsTracksAndAlbumFragment)
+                transaction.hide(searchFragment)
                 isArtistsFragOpened = true
                 isAlbumFragOpened = false
             }
@@ -604,6 +605,10 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     return true
                 }
                 2 -> {
+                    setBottomBarFragmentState(FragmentState.SEARCH).commit()
+                    return true
+                }
+                3 -> {
                     setBottomBarFragmentState(FragmentState.SETTING).commit()
                     return true
                 }
@@ -618,11 +623,11 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         SETTING,
         ALBUM_FRAGMENT,
         ARTIST_TRACK_ALBUM_FRAGMENT,
+        SEARCH
     }
 
     override fun onBackPressed() {
         if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-            //Toast.makeText(this, "Collapsed State", Toast.LENGTH_SHORT).show()
             if (supportFragmentManager.backStackEntryCount > 0 || !homeFragment.isHidden) {
                 super.onBackPressed()
             } else {
@@ -652,7 +657,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
             }
         } else if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-            //Toast.makeText(this, "State Expanded", Toast.LENGTH_SHORT).show()
             nowPlayingBottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
@@ -918,7 +922,8 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     audioList[audioIndexPos].duration,
                     audioList[audioIndexPos].data,
                     audioList[audioIndexPos].audioUri,
-                    audioList[audioIndexPos].artUri
+                    audioList[audioIndexPos].artUri,
+                    audioList[audioIndexPos].dateAdded
                 )
                 allSongsModel.playingOrPause = audioList[audioIndexPos].playingOrPause
                 shuffledList.add(
@@ -1048,56 +1053,57 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             }
 
             /*if (audioList[prevPlayingAudioIndex].songId != audioList[audioIndexPos].songId) {*/
-                if (bundle != null) {
-                    val previousRunningAudioIndex = bundle.getInt("index")
-                    // remove previous audio highlight
-                    mViewModelClass.updateSong(
-                        audioList[previousRunningAudioIndex].songId,
-                        audioList[previousRunningAudioIndex].songName,
-                        -1,//default
-                        lifecycleScope
-                    )
-                    mViewModelClass.updateQueueAudio(
-                        audioList[previousRunningAudioIndex].songId,
-                        audioList[previousRunningAudioIndex].songName,
-                        -1,//default
-                        lifecycleScope
-                    )
-                }
+            if (bundle != null) {
+                val previousRunningAudioIndex = bundle.getInt("index")
+                // remove previous audio highlight
+                mViewModelClass.updateSong(
+                    audioList[previousRunningAudioIndex].songId,
+                    audioList[previousRunningAudioIndex].songName,
+                    -1,//default
+                    lifecycleScope
+                )
+                mViewModelClass.updateQueueAudio(
+                    audioList[previousRunningAudioIndex].songId,
+                    audioList[previousRunningAudioIndex].songName,
+                    -1,//default
+                    lifecycleScope
+                )
+            }
 
-                //saving list with current playing audio
+            //saving list with current playing audio
             Log.d("ActivityminiPlayer", "onReceive: $audioList ")
-                val list = CopyOnWriteArrayList<AllSongsModel>()
-                for ((index, audio) in audioList.withIndex()) {
-                    val allSongsModel = AllSongsModel(
-                        audio.songId,
-                        audio.albumId,
-                        audio.songName,
-                        audio.artistsName,
-                        audio.albumName,
-                        audio.size,
-                        audio.duration,
-                        audio.data,
-                        audio.audioUri,
-                        audio.artUri
-                    )
-                    if (index == audioIndexPos) {
-                        if (AllSongFragment.musicService?.mediaPlayer != null) {
-                            if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
-                                allSongsModel.playingOrPause = 1 /*playing*/
-                            } else {
-                                allSongsModel.playingOrPause = 0 /*pause*/
-                            }
+            val list = CopyOnWriteArrayList<AllSongsModel>()
+            for ((index, audio) in audioList.withIndex()) {
+                val allSongsModel = AllSongsModel(
+                    audio.songId,
+                    audio.albumId,
+                    audio.songName,
+                    audio.artistsName,
+                    audio.albumName,
+                    audio.size,
+                    audio.duration,
+                    audio.data,
+                    audio.audioUri,
+                    audio.artUri,
+                    audio.dateAdded
+                )
+                if (index == audioIndexPos) {
+                    if (AllSongFragment.musicService?.mediaPlayer != null) {
+                        if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
+                            allSongsModel.playingOrPause = 1 /*playing*/
+                        } else {
+                            allSongsModel.playingOrPause = 0 /*pause*/
                         }
-
-                        list.add(allSongsModel)
-                    } else {
-                        list.add(allSongsModel)
                     }
-                }
 
-                storage.storeAudio(list)
-           /* }*/
+                    list.add(allSongsModel)
+                } else {
+                    list.add(allSongsModel)
+                }
+            }
+
+            storage.storeAudio(list)
+            /* }*/
         }
     }
 

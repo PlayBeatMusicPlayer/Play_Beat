@@ -132,14 +132,14 @@
         android:layout_toStartOf="@id/playAlbum"
         android:ellipsize="marquee"
         android:fontFamily="@font/segoe_ui"
-        android:visibility="gone"
         android:marqueeRepeatLimit="marquee_forever"
         android:maxLines="1"
         android:singleLine="true"
         android:text="Artist Name"
         android:textColor="@color/grey"
         android:textSize="13sp"
-        android:textStyle="normal" />
+        android:textStyle="normal"
+        android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvAlbumAudio"
@@ -147,6 +147,7 @@
         android:layout_height="match_parent"
         android:layout_below="@id/artistNameTV"
         android:layout_marginTop="18dp"
+        android:layoutAnimation="@anim/layout_down_to_up"
         android:nestedScrollingEnabled="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/recycler_album_items"

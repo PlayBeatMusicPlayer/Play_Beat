@@ -131,6 +131,30 @@ class StorageUtil(context: Context) {
         return preferences!!.getLong("systemTime", 0)
     }*/
 
+    fun saveAudioSortingMethod(value: String) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putString("sortedAudio", value)
+        editor.apply()
+    }
+
+    fun getAudioSortedValue(): String? {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getString("sortedAudio", "normal")
+    }
+
+    fun saveAlbumSortingMethod(value: String) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putString("sortedAlbum", value)
+        editor.apply()
+    }
+
+    fun getAlbumSortedValue(): String? {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getString("sortedAlbum", "normal")
+    }
+
     fun clearCachedAudioPlaylist() {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         val editor = preferences!!.edit()

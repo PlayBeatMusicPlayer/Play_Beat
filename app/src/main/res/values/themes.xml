@@ -20,6 +20,7 @@
         <!--        <item name="android:windowIsFloating">false</item>-->
         <!-- Customize your theme here. -->
         <item name="android:navigationBarColor">@color/app_theme_color</item>
+        <item name="android:colorControlHighlight">@color/custom_ripple_color</item>
 
     </style>
 
@@ -51,7 +52,10 @@
         <item name="colorPrimary">@color/teal_200</item>
         <item name="colorButtonNormal">@color/teal_200</item>
         <item name="strokeColor">@color/teal_200</item>
+
         <item name="strokeWidth">@dimen/mtrl_btn_stroke_size</item>
     </style>
+
+
 
 </resources>

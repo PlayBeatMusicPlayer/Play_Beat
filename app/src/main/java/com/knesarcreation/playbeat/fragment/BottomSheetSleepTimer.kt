@@ -58,7 +58,6 @@ class BottomSheetSleepTimer(
                 binding?.cancelOrStopTimerBtn?.text = "Cancel"
                 binding?.rlEndSleepTimer?.visibility = View.GONE
                 binding?.endOfAudioTimeBtn?.visibility = View.VISIBLE
-
             }
         }
 

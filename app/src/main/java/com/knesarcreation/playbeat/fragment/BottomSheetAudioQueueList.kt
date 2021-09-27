@@ -1,14 +1,19 @@
 package com.knesarcreation.playbeat.fragment
 
+import android.app.Activity
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +21,9 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.ernestoyaquello.dragdropswiperecyclerview.DragDropSwipeRecyclerView
 import com.ernestoyaquello.dragdropswiperecyclerview.listener.OnItemSwipeListener
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.QueueListAdapter
@@ -40,9 +48,88 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
     private lateinit var audioModel: AllSongsModel
     private lateinit var mViewModelClass: ViewModelClass
     private var isSwipedToDel = false
+    private var buttonLayoutParams: ConstraintLayout.LayoutParams? = null
+    private var expandedHeight = 0
+    private var collapsedMargin = 0
+    private var buttonHeight = 0
 
     interface OnRepeatAudioListener {
         fun onRepeatIconClicked()
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
+
+        dialog.setOnShowListener { dialogInterface -> setupRatio((dialogInterface as BottomSheetDialog)) }
+
+        (dialog as BottomSheetDialog).behavior.addBottomSheetCallback(object :
+            BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {}
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                if (slideOffset > 0) //Sliding happens from 0 (Collapsed) to 1 (Expanded) - if so, calculate margins
+                    buttonLayoutParams!!.topMargin =
+                        ((expandedHeight - buttonHeight - collapsedMargin) * slideOffset + collapsedMargin).toInt() else  //If not sliding above expanded, set initial margin
+                    buttonLayoutParams!!.topMargin = collapsedMargin
+                binding?.cancelQueueSheetBtn!!.layoutParams =
+                    buttonLayoutParams //Set layout params to button (margin from top)
+            }
+        })
+
+
+        return dialog
+
+    }
+
+    private fun setupRatio(bottomSheetDialog: BottomSheetDialog) {
+        val bottomSheet =
+            bottomSheetDialog.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+                ?: return
+
+        //Retrieve button parameters
+        buttonLayoutParams =
+            binding?.cancelQueueSheetBtn!!.layoutParams as ConstraintLayout.LayoutParams
+
+        //Retrieve bottom sheet parameters
+        BottomSheetBehavior.from(bottomSheet).state = BottomSheetBehavior.STATE_COLLAPSED
+        val bottomSheetLayoutParams = bottomSheet.layoutParams
+        bottomSheetLayoutParams.height = getBottomSheetDialogDefaultHeight()
+        expandedHeight = bottomSheetLayoutParams.height
+        val peekHeight =
+            (expandedHeight / 1.3).toInt() //Peek height to 70% of expanded height (Change based on your view)
+
+        //Setup bottom sheet
+        bottomSheet.layoutParams = bottomSheetLayoutParams
+        BottomSheetBehavior.from(bottomSheet).skipCollapsed = false
+        BottomSheetBehavior.from(bottomSheet).peekHeight = peekHeight
+        BottomSheetBehavior.from(bottomSheet).isHideable = true
+
+        //Calculate button margin from top
+        buttonHeight =
+            binding?.cancelQueueSheetBtn!!.height  //How tall is the button + experimental distance from bottom (Change based on your view)
+        collapsedMargin = peekHeight - buttonHeight //Button margin in bottom sheet collapsed state
+        buttonLayoutParams!!.topMargin = collapsedMargin
+        binding?.cancelQueueSheetBtn!!.layoutParams = buttonLayoutParams
+
+        //OPTIONAL - Setting up margins
+        /* val recyclerLayoutParams =
+             binding?.rvUpNext!!.layoutParams as ConstraintLayout.LayoutParams
+         val k: Float =
+             (buttonHeight) / buttonHeight.toFloat() //60 is amount that you want to be hidden behind button
+         recyclerLayoutParams.bottomMargin =
+             (k * buttonHeight).toInt() //Recyclerview bottom margin (from button)
+         binding?.rvUpNext!!.layoutParams = recyclerLayoutParams*/
+    }
+
+    //Calculates height of fullscreen
+    private fun getBottomSheetDialogDefaultHeight(): Int {
+        return getWindowHeight()
+    }
+
+    //Calculates window height for fullscreen use
+    private fun getWindowHeight(): Int {
+        val displayMetrics = DisplayMetrics()
+        (requireContext() as Activity).windowManager.defaultDisplay.getMetrics(displayMetrics)
+        return displayMetrics.heightPixels
     }
 
     override fun onCreateView(
@@ -56,28 +143,11 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
         mViewModelClass =
             ViewModelProvider((mContext as AppCompatActivity))[ViewModelClass::class.java]
 
+
         storageUtil = StorageUtil(mContext)
         val loadAudioList = storageUtil?.loadAudio()!!
         audioList.addAll(loadAudioList)
         currentPlayingAudioIndex = storageUtil?.loadAudioIndex()!!
-
-        /* mViewModelClass.deleteQueue(lifecycleScope)
-         for (audio in loadAudioList) {
-             val queueListModel = QueueListModel(
-                 audio.albumId,
-                 audio.songName,
-                 audio.artistsName,
-                 audio.albumName,
-                 audio.size,
-                 audio.duration,
-                 audio.data,
-                 audio.audioUri,
-                 audio.artUri,
-                 audio.isPlayingOrPause
-             )
-             queueList.add(queueListModel)
-             mViewModelClass.insertQueue(queueListModel, lifecycleScope)
-         }*/
 
         setupUpNextAdapter()
         updateCurrentPlayingAudio()
@@ -85,27 +155,14 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
 
         binding?.rvUpNext?.disableSwipeDirection(DragDropSwipeRecyclerView.ListOrientation.DirectionFlag.LEFT)
 
+        binding?.cancelQueueSheetBtn?.setOnClickListener {
+            dismiss()
+        }
 
-        /*mViewModel.getAllSong().observe(viewLifecycleOwner, {
-            if (it != null) {
-                Log.d("QueueListNowPlaying", "onCreateView:$it ")
-                val queueList = ArrayList<AllSongsModel>()
-                queueList.addAll(storageUtil?.loadAudio()!!)
+        binding?.rlAudio?.setOnClickListener {
+            binding?.rvUpNext?.scrollToPosition(currentPlayingAudioIndex)
+        }
 
-                for (viewModelList in it) {
-                    // checking if queue list have same audio or not
-                    for ((index, list) in storageUtil?.loadAudio()!!.withIndex()) {
-                        if (list.songName == viewModelList.songName) {
-                            queueList.removeAt(index)
-                            queueList.add(index, viewModelList)
-                        }
-                    }
-                }
-                queueLisAdapter.dataSet =
-                    queueList.sortedBy { allSongsModel -> allSongsModel.songName }
-
-            }
-        })*/
         return view
     }
 
@@ -204,7 +261,11 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                             if (deleteModel.songId != audioModel.songId) {
                                 currentPlayingAudioIndex = audioList.indexOf(audioModel)
                                 storageUtil?.storeAudioIndex(currentPlayingAudioIndex)
-                                Toast.makeText(mContext, "del: $isSwipedToDel $currentPlayingAudioIndex", Toast.LENGTH_SHORT)
+                                Toast.makeText(
+                                    mContext,
+                                    "del: $isSwipedToDel $currentPlayingAudioIndex",
+                                    Toast.LENGTH_SHORT
+                                )
                                     .show()
                             }
                         }
@@ -318,7 +379,8 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                 audio.duration,
                                 audio.data,
                                 audio.audioUri,
-                                audio.artUri
+                                audio.artUri,
+                                audio.dateAdded
                             )
                             queueListModel.playingOrPause = audio.isPlayingOrPause
                             list.add(queueListModel)
@@ -339,8 +401,18 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                     isSwipedToDel = false
                 }
 
-                // audioModel = audioList[audioIndex]
-                // binding?.rvUpNext?.scrollToPosition(currentPlayingAudioIndex)
+
+                if (AllSongFragment.musicService?.mediaPlayer != null) {
+                    if (AllSongFragment.musicService?.mediaPlayer?.isPlaying!!) {
+                        binding?.currentPlayingAudioLottie?.playAnimation()
+                    } else {
+                        binding?.currentPlayingAudioLottie?.pauseAnimation()
+                    }
+                } else {
+                    binding?.currentPlayingAudioLottie?.pauseAnimation()
+                }
+
+
             }
         })
 
@@ -437,7 +509,8 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                 audio.duration,
                 audio.data,
                 audio.audioUri,
-                audio.artUri
+                audio.artUri,
+                audio.dateAdded
             )
             if (index == this.currentPlayingAudioIndex) {
                 // if current playing audio index matched
@@ -472,4 +545,11 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
             e.printStackTrace()
         }
     }
+
+
+    /* private fun initString(): List<String> {
+         val list: MutableList<String> = ArrayList()
+         for (i in 0..34) list.add("Item $i")
+         return list
+     }*/
 }
