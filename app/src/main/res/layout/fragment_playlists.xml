@@ -15,7 +15,6 @@
         android:orientation="vertical"
         tools:context=".fragment.PlaylistsFragment">
 
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,6 +24,7 @@
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/favButton"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="150dp"
                 android:layout_height="55dp"
@@ -41,6 +41,7 @@
                 app:strokeColor="@color/bright_pink" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/historyBtn"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="150dp"
                 android:layout_height="55dp"
@@ -68,6 +69,7 @@
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/lastAddedBtn"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="150dp"
                 android:layout_height="55dp"
@@ -84,6 +86,7 @@
                 app:strokeColor="@color/light_green" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/mostPlayedBtn"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="150dp"
                 android:layout_height="55dp"
@@ -101,7 +104,6 @@
                 app:strokeColor="@color/yellow" />
 
         </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -137,6 +139,7 @@
                 android:textColor="@color/grey" />
 
         </LinearLayout>
+
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton

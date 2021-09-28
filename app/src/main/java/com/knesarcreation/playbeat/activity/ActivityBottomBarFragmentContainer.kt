@@ -41,13 +41,15 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnection*/,
     AllAlbumsFragment.OnAlbumItemClicked, AllArtistsFragment.OpenArtisFragment,
-    ArtistsTracksAndAlbumFragment.OnArtistAlbumItemClicked {
+    ArtistsTracksAndAlbumFragment.OnArtistAlbumItemClicked,
+    PlaylistsFragment.OnPlayListCategoryClicked {
     private lateinit var binding: ActivityBottomBarFragmentBinding
     private val homeFragment = HomeFragment()
     private val playlistsFragment = PlaylistsFragment()
     private val settingFragment = SettingFragment()
     private val albumSongFragment = AlbumFragment()
     private val searchFragment = SearchFragment()
+    private val playListAudiosFragment = PlayListAudiosFragment()
     private val artistsTracksAndAlbumFragment = ArtistsTracksAndAlbumFragment()
     private var audioIndexPos = -1
     private var isDestroyedActivity = false
@@ -56,6 +58,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private var audioList = CopyOnWriteArrayList<AllSongsModel>()
     private var isAlbumFragOpened = false
     private var isArtistsFragOpened = false
+    private var isPlaylstCategoryOpened = false
     private var isAlbumOpenedFromArtisFrag = false
     private var isNotiBuild = false
     private var runnableAudioProgress: Runnable? = null
@@ -102,6 +105,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             .add(R.id.fragmentContainer, albumSongFragment)
             .add(R.id.fragmentContainer, artistsTracksAndAlbumFragment)
             .add(R.id.fragmentContainer, searchFragment)
+            .add(R.id.fragmentContainer, playListAudiosFragment)
             .commit()
         setBottomBarFragmentState(FragmentState.HOME).commit()
 
@@ -506,7 +510,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         runOnUiThread(runnableAudioProgress)
     }
 
-
     private fun setBottomBarFragmentState(state: FragmentState): FragmentTransaction {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         val transaction = supportFragmentManager.beginTransaction()
@@ -520,6 +523,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         transaction.hide(settingFragment)
                         transaction.hide(artistsTracksAndAlbumFragment)
                         transaction.hide(searchFragment)
+                        transaction.hide(playListAudiosFragment)
                         transaction.show(albumSongFragment)
                     }
                     isArtistsFragOpened || isAlbumOpenedFromArtisFrag -> {
@@ -529,6 +533,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         transaction.show(artistsTracksAndAlbumFragment)
                         transaction.hide(albumSongFragment)
                         transaction.hide(searchFragment)
+                        transaction.hide(playListAudiosFragment)
                     }
                     else -> {
                         transaction.show(homeFragment)
@@ -537,17 +542,19 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         transaction.hide(albumSongFragment)
                         transaction.hide(artistsTracksAndAlbumFragment)
                         transaction.hide(searchFragment)
+                        transaction.hide(playListAudiosFragment)
                     }
                 }
                 binding.bottomSheet.bottomBar.itemActiveIndex = 0
             }
-            FragmentState.FAVOURITE -> {
+            FragmentState.PLAYLIST -> {
                 transaction.hide(homeFragment)
                 transaction.show(playlistsFragment)
                 transaction.hide(settingFragment)
                 transaction.hide(albumSongFragment)
                 transaction.hide(artistsTracksAndAlbumFragment)
                 transaction.hide(searchFragment)
+                transaction.hide(playListAudiosFragment)
                 binding.bottomSheet.bottomBar.itemActiveIndex = 1
             }
             FragmentState.SEARCH -> {
@@ -557,6 +564,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(albumSongFragment)
                 transaction.hide(artistsTracksAndAlbumFragment)
                 transaction.show(searchFragment)
+                transaction.hide(playListAudiosFragment)
                 binding.bottomSheet.bottomBar.itemActiveIndex = 2
             }
             FragmentState.SETTING -> {
@@ -566,6 +574,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(albumSongFragment)
                 transaction.hide(artistsTracksAndAlbumFragment)
                 transaction.hide(searchFragment)
+                transaction.hide(playListAudiosFragment)
                 binding.bottomSheet.bottomBar.itemActiveIndex = 3
             }
             FragmentState.ALBUM_FRAGMENT -> {
@@ -575,6 +584,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.show(albumSongFragment)
                 transaction.hide(artistsTracksAndAlbumFragment)
                 transaction.hide(searchFragment)
+                transaction.hide(playListAudiosFragment)
 
                 isAlbumFragOpened = !isAlbumOpenedFromArtisFrag
                 isArtistsFragOpened = false
@@ -586,8 +596,19 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(albumSongFragment)
                 transaction.show(artistsTracksAndAlbumFragment)
                 transaction.hide(searchFragment)
+                transaction.hide(playListAudiosFragment)
                 isArtistsFragOpened = true
                 isAlbumFragOpened = false
+            }
+            FragmentState.PLAYLIST_CATEGORY -> {
+                transaction.hide(homeFragment)
+                transaction.hide(playlistsFragment)
+                transaction.hide(settingFragment)
+                transaction.hide(albumSongFragment)
+                transaction.hide(artistsTracksAndAlbumFragment)
+                transaction.hide(searchFragment)
+                transaction.show(playListAudiosFragment)
+                isPlaylstCategoryOpened = true
             }
         }
         return transaction
@@ -601,7 +622,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     return true
                 }
                 1 -> {
-                    setBottomBarFragmentState(FragmentState.FAVOURITE).commit()
+                    setBottomBarFragmentState(FragmentState.PLAYLIST).commit()
                     return true
                 }
                 2 -> {
@@ -619,11 +640,12 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
     internal enum class FragmentState {
         HOME,
-        FAVOURITE,
+        PLAYLIST,
         SETTING,
         ALBUM_FRAGMENT,
         ARTIST_TRACK_ALBUM_FRAGMENT,
-        SEARCH
+        SEARCH,
+        PLAYLIST_CATEGORY
     }
 
     override fun onBackPressed() {
@@ -649,6 +671,16 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         setBottomBarFragmentState(FragmentState.HOME).commit()
                         binding.bottomSheet.bottomBar.itemActiveIndex = 0
                         isAlbumOpenedFromArtisFrag = false
+                    }
+                } else if (isPlaylstCategoryOpened){
+                    if (!playlistsFragment.isHidden /* if open*/ || !settingFragment.isHidden /*if open*/) {
+                        setBottomBarFragmentState(FragmentState.PLAYLIST_CATEGORY).commit()
+                        binding.bottomSheet.bottomBar.itemActiveIndex = 0
+                    } else {
+                        isPlaylstCategoryOpened = false
+                        setBottomBarFragmentState(FragmentState.PLAYLIST).commit()
+                        binding.bottomSheet.bottomBar.itemActiveIndex = 1
+                        //isAlbumOpenedFromArtisFrag = false
                     }
                 } else {
                     setBottomBarFragmentState(FragmentState.HOME).commit()
@@ -683,6 +715,12 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
         isAlbumOpenedFromArtisFrag = true
         setBottomBarFragmentState(FragmentState.ALBUM_FRAGMENT).commit()
+    }
+
+
+    override fun playlistCategory(category: String) {
+        viewModel.playlistCategory.value = category
+        setBottomBarFragmentState(FragmentState.PLAYLIST_CATEGORY).commit()
     }
 
     /** Managing Now playing bottom sheet........................................................*/
@@ -1147,7 +1185,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         //    mSessionManagerListener!!, CastSession::class.java
         // )
     }
-
 
     private fun setupCastListener() {
         mSessionManagerListener = object : SessionManagerListener<CastSession> {

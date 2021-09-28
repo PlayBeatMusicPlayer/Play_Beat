@@ -9,7 +9,7 @@
         <KeyFrameSet>
 
             <KeyAttribute
-                motion:motionTarget="@+id/rlAlbumText"
+                motion:motionTarget="@+id/rlContainer"
                 motion:framePosition="65"
                 android:alpha="0" />
             <KeyAttribute
@@ -98,7 +98,7 @@
             motion:layout_constraintStart_toStartOf="parent"
             motion:layout_constraintTop_toTopOf="parent" />
         <Constraint
-            android:id="@+id/rlAlbumText"
+            android:id="@+id/rlContainer"
             motion:layout_constraintBottom_toBottomOf="@+id/coverArtistImage"
             motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
@@ -162,7 +162,7 @@
             android:layout_height="45dp"
             android:layout_marginTop="175dp"
             android:layout_marginEnd="20dp"
-            android:visibility="invisible"
+            android:visibility="visible"
             motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintHorizontal_bias="0.927"
             motion:layout_constraintStart_toStartOf="parent"
@@ -199,7 +199,7 @@
             motion:layout_constraintHorizontal_bias="0.0"
             motion:layout_constraintStart_toStartOf="parent" />
         <Constraint
-            android:id="@+id/rlAlbumText"
+            android:id="@+id/rlContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="-100dp"
