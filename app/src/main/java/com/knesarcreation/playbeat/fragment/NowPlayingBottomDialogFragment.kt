@@ -140,7 +140,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
     }
 
     private fun handlePlayPauseNextPrev() {
-        binding?.playPauseIV!!.setOnClickListener {
+        binding?.playPauseExpandedPlayer!!.setOnClickListener {
             //handleStartTimeAndSeekBar()
             if (AllSongFragment.musicService != null) {
                 if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
@@ -151,12 +151,12 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
                         PlaybackStatus.UN_FAVOURITE,
                         0f
                     )
-                    binding!!.playPauseIV.isSelected = false
+                    binding!!.playPauseExpandedPlayer.isSelected = false
                 } else if (!AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
                     // resume through button
                     AllSongFragment.musicService?.resumeMedia()
                     AllSongFragment.musicService?.pausedByManually = false
-                    binding!!.playPauseIV.isSelected = true
+                    binding!!.playPauseExpandedPlayer.isSelected = true
                     AllSongFragment.musicService?.updateMetaData()
                     AllSongFragment.musicService?.buildNotification(
                         PlaybackStatus.PLAYING,
@@ -190,7 +190,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
             binding?.skipNextAudio?.setImageResource(R.drawable.avd_music_next)
             val animatedVectorDrawable = binding?.skipNextAudio?.drawable as AnimatedVectorDrawable
             animatedVectorDrawable.start()
-            binding?.playPauseIV?.isSelected = true
+            binding?.playPauseExpandedPlayer?.isSelected = true
         }
 
         binding?.skipPrevAudio!!.setOnClickListener {
@@ -205,7 +205,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
             binding?.skipPrevAudio?.setImageResource(R.drawable.avd_music_previous)
             val animatedVectorDrawable = binding?.skipPrevAudio?.drawable as AnimatedVectorDrawable
             animatedVectorDrawable.start()
-            binding?.playPauseIV?.isSelected = true
+            binding?.playPauseExpandedPlayer?.isSelected = true
         }
 
     }
@@ -243,7 +243,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
 
                 handleStartTimeAndSeekBar()
 
-                binding!!.playPauseIV.isSelected =
+                binding!!.playPauseExpandedPlayer.isSelected =
                     AllSongFragment.musicService?.mediaPlayer?.isPlaying!!
             }
         }

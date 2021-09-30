@@ -85,6 +85,24 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         const val OPEN_CONTENT = "com.knesarcreation.playbeat.service.OPEN_CONTENT"
     }
 
+    fun updateNotification(isPlaying: Boolean) {
+        val storageUtil = StorageUtil(applicationContext)
+        val loadAudio = storageUtil.loadAudio()
+        activeAudio = loadAudio[audioIndex]
+        if (activeAudio?.isFavourite!!) {
+            if (isPlaying)
+                buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.FAVOURITE, 1f)
+            else
+                buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.FAVOURITE, 0f)
+
+        } else {
+            if (isPlaying)
+                buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+            else
+                buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
         // Perform one-time setup procedures
@@ -133,7 +151,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 }
                 //update meta data of notification and build it
                 updateMetaData()
-                buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                updateNotification(true)
                 // Toast.makeText(applicationContext, "Next", Toast.LENGTH_SHORT).show()
             }
         }
@@ -174,7 +192,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 when (state) {
                     TelephonyManager.CALL_STATE_OFFHOOK, TelephonyManager.CALL_STATE_RINGING -> if (mediaPlayer != null) {
                         pauseMedia()
-                        buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+                        //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+                        updateNotification(false)
                         ongoingCall = true
                     }
                     TelephonyManager.CALL_STATE_IDLE ->
@@ -186,11 +205,12 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                                     // if user manually paused, so don't resume audio when call ends or went on idle mode
                                     // else call this resumeMedia() method
                                     resumeMedia()
-                                    buildNotification(
+                                    /*buildNotification(
                                         PlaybackStatus.PLAYING,
                                         PlaybackStatus.UN_FAVOURITE,
                                         1f
-                                    )
+                                    )*/
+                                    updateNotification(true)
                                 }
                             }
                         }
@@ -368,9 +388,11 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         resumePosition = position.toInt()
         mediaPlayer?.seekTo(resumePosition)
         if (mediaPlayer?.isPlaying!!) {
-            buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+            //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+            updateNotification(true)
         } else {
-            buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+            updateNotification(false)
+            //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
         }
     }
 
@@ -382,7 +404,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 if (!pausedByManually) {
                     if (mediaPlayer == null) initMediaPlayer() else if (!mediaPlayer!!.isPlaying) {
                         resumeMedia()
-                        buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                        //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                        updateNotification(true)
                     }
                     mediaPlayer!!.setVolume(1.0f, 1.0f)
                 }
@@ -392,7 +415,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 // Lost focus for an unbounded amount of time: stop playback and release media player
                 if (mediaPlayer!!.isPlaying) {
                     pauseMedia()
-                    buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+                    //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+                    updateNotification(false)
                 }
                 //mediaPlayer!!.release()
                 //mediaPlayer = null
@@ -405,7 +429,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 // is likely to resume
                 if (mediaPlayer!!.isPlaying) {
                     pauseMedia()
-                    buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+                    //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+                    updateNotification(false)
                 }
                 Log.d(
                     "MediaServiceAUDIOFOCUS_LOSS_TRANSIENT",
@@ -453,7 +478,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         }
 
         if (favUnFavStatus == PlaybackStatus.FAVOURITE) {
-            favUnFavActionIcon = R.drawable.ic_fav
+            favUnFavActionIcon = R.drawable.ic_noti_fav
             favUnFavAction = playbackAction(4)
         } else if (favUnFavStatus == PlaybackStatus.UN_FAVOURITE) {
             favUnFavActionIcon = R.drawable.ic_pink_outlined_heart
@@ -646,18 +671,20 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                         if (mediaPlayer != null) {
                             if (mediaPlayer?.isPlaying!!) {
                                 pauseMedia()
-                                buildNotification(
+                                /*buildNotification(
                                     PlaybackStatus.PAUSED,
                                     PlaybackStatus.UN_FAVOURITE,
                                     0f
-                                )
+                                )*/
+                                updateNotification(false)
                             } else {
                                 resumeMedia()
-                                buildNotification(
+                                /*buildNotification(
                                     PlaybackStatus.PLAYING,
                                     PlaybackStatus.UN_FAVOURITE,
                                     1f
-                                )
+                                )*/
+                                updateNotification(true)
                             }
                         }
                         return true
@@ -669,11 +696,12 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                         resumePosition = 0
                         skipToNext()
                         updateMetaData()
-                        buildNotification(
-                            PlaybackStatus.PLAYING,
-                            PlaybackStatus.UN_FAVOURITE,
-                            1f
-                        )
+                        /* buildNotification(
+                             PlaybackStatus.PLAYING,
+                             PlaybackStatus.UN_FAVOURITE,
+                             1f
+                         )*/
+                        updateNotification(true)
                         Log.d("skipToNextEarphone", "onMediaButtonEvent: run ")
                         return true
                     }
@@ -681,11 +709,12 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                         resumePosition = 0
                         skipToPrevious()
                         updateMetaData()
-                        buildNotification(
-                            PlaybackStatus.PLAYING,
-                            PlaybackStatus.UN_FAVOURITE,
-                            1f
-                        )
+                        /* buildNotification(
+                             PlaybackStatus.PLAYING,
+                             PlaybackStatus.UN_FAVOURITE,
+                             1f
+                         )*/
+                        updateNotification(true)
                         return true
                     }
                 }
@@ -702,7 +731,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 /** Update UI of [AllSongFragment] *//*
                 val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
                 sendBroadcast(updatePlayer)*/
-                buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                updateNotification(true)
             }
 
             override fun onPause() {
@@ -712,7 +742,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 /** Update UI of [AllSongFragment] *//*
                 val updatePlayer = Intent(AllSongFragment.Broadcast_BOTTOM_UPDATE_PLAYER_UI)
                 sendBroadcast(updatePlayer)*/
-                buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+                //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+                updateNotification(false)
                 if (isTaskRemoved)
                     stopServiceIfTaskRemoved()
             }
@@ -722,13 +753,15 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 pausedByManually = false
                 skipToNext()
 
-               /* *//** Update UI of [AllSongFragment] *//*
+                /* */
+                /** Update UI of [AllSongFragment] *//*
                 val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
                 sendBroadcast(updatePlayer)*/
 
                 //update meta data of notification and build it
                 updateMetaData()
-                buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                // buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                updateNotification(true)
 
             }
 
@@ -743,7 +776,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
                 //update meta data of notification and build it
                 updateMetaData()
-                buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                updateNotification(true)
             }
 
 
@@ -759,32 +793,41 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 resumePosition = position.toInt()
                 mediaPlayer?.seekTo(resumePosition)
                 if (mediaPlayer?.isPlaying!!) {
-                    buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                    //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                    updateNotification(true)
                 } else {
-                    buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+                    //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+                    updateNotification(false)
                 }
                 super.onSeekTo(position)
             }
 
             override fun onSetRating(rating: RatingCompat?) {
                 super.onSetRating(rating)
+                val bundle = Bundle()
+                bundle.putBoolean("hasSetFavFromNoti", true)
                 if (rating?.hasHeart()!!) {
                     if (mediaPlayer?.isPlaying!!) {
                         buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
                     } else {
                         buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
                     }
-                    Toast.makeText(applicationContext, "Added Favourite", Toast.LENGTH_SHORT)
+                    Toast.makeText(applicationContext, "Removed Favourite", Toast.LENGTH_SHORT)
                         .show()
+                    bundle.putBoolean("isFav", false)
                 } else {
+                    bundle.putBoolean("isFav", true)
                     if (mediaPlayer?.isPlaying!!) {
                         buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.FAVOURITE, 1f)
                     } else {
                         buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.FAVOURITE, 0f)
                     }
-                    Toast.makeText(applicationContext, "Removed Favourite", Toast.LENGTH_SHORT)
+                    Toast.makeText(applicationContext, "Added Favourite", Toast.LENGTH_SHORT)
                         .show()
                 }
+                val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
+                updatePlayer.putExtras(bundle)
+                sendBroadcast(updatePlayer)
             }
         })
     }
@@ -862,6 +905,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
             if (sleepCountDownTimer != null) {
                 sleepCountDownTimer?.cancel()
+                StorageUtil(applicationContext).saveSleepTime(0)
             }
 
             //clear cached playlist
@@ -901,8 +945,9 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
             initMediaPlayer()
             updateMetaData()
-            buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
-            buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+            //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+            //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+            updateNotification(true)
         }
     }
 
@@ -916,7 +961,8 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         override fun onReceive(context: Context?, intent: Intent?) {
             //pause audio on ACTION_AUDIO_BECOMING_NOISY
             pauseMedia()
-            buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+            //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+            updateNotification(false)
         }
     }
 
@@ -926,16 +972,16 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         registerReceiver(becomingNoisyReceiver, intentFilter)
     }
 
-   /* private val openContent: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
+    /* private val openContent: BroadcastReceiver = object : BroadcastReceiver() {
+         override fun onReceive(context: Context?, intent: Intent?) {
 
-        }
-    }
+         }
+     }
 
-    private fun registerContentReceiver() {
-        val intentFiler = IntentFilter(OPEN_CONTENT)
-        registerReceiver(openContent, intentFiler)
-    }*/
+     private fun registerContentReceiver() {
+         val intentFiler = IntentFilter(OPEN_CONTENT)
+         registerReceiver(openContent, intentFiler)
+     }*/
 
     fun stopSleepTimer(sleepTimerTV: TextView, sleepTimeIV: ImageView) {
         if (sleepCountDownTimer != null) {
@@ -979,11 +1025,12 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 if (mediaPlayer != null) {
                     pauseMedia()
                     pausedByManually = false
-                    buildNotification(
-                        PlaybackStatus.PAUSED,
-                        PlaybackStatus.UN_FAVOURITE,
-                        0f
-                    )
+                    /* buildNotification(
+                         PlaybackStatus.PAUSED,
+                         PlaybackStatus.UN_FAVOURITE,
+                         0f
+                     )*/
+                    updateNotification(false)
                     isSleepTimeRunning = false
                     StorageUtil(applicationContext).saveSleepTime(0)
                     rlEndTimeCountDown?.visibility = View.GONE
@@ -1024,11 +1071,12 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 if (mediaPlayer != null) {
                     pauseMedia()
                     pausedByManually = false
-                    buildNotification(
-                        PlaybackStatus.PAUSED,
-                        PlaybackStatus.UN_FAVOURITE,
-                        0f
-                    )
+                    /* buildNotification(
+                         PlaybackStatus.PAUSED,
+                         PlaybackStatus.UN_FAVOURITE,
+                         0f
+                     )*/
+                    updateNotification(false)
                     isSleepTimeRunning = false
                     StorageUtil(applicationContext).saveSleepTime(0)
                     //rlEndTimeCountDown?.visibility = View.GONE

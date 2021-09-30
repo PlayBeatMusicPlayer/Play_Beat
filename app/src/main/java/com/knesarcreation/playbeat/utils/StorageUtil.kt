@@ -143,6 +143,18 @@ class StorageUtil(context: Context) {
         return preferences!!.getString("sortedAudio", "normal")
     }
 
+    fun saveFavAudioSortingMethod(value: String) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putString("favSortedAudio", value)
+        editor.apply()
+    }
+
+    fun getFavAudioSortedValue(): String? {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getString("favSortedAudio", "normal")
+    }
+
     fun saveAlbumSortingMethod(value: String) {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         val editor = preferences!!.edit()

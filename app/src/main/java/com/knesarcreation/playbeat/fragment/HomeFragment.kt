@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.transition.MaterialSharedAxis
 import com.knesarcreation.playbeat.adapter.ViewPagerAdapter
 import com.knesarcreation.playbeat.databinding.HomeFragmentBinding
 
@@ -19,6 +20,15 @@ class HomeFragment : Fragment() {
     private lateinit var mTabLayout: TabLayout
     private var pagerAdapter: ViewPagerAdapter? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enterTransition = MaterialSharedAxis(MaterialSharedAxis.Y, true).apply {
+            duration = 200L
+        }
+        returnTransition = MaterialSharedAxis(MaterialSharedAxis.Y, false).apply {
+            duration = 200L
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,7 +49,6 @@ class HomeFragment : Fragment() {
 
         return view
     }
-
 
     override fun onDestroy() {
         super.onDestroy()

@@ -13,6 +13,18 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
         return repository.getSongList()
     }
 
+    fun getFavouriteAudios(): LiveData<List<AllSongsModel>> {
+        return repository.getFavouriteAudios()
+    }
+
+    suspend fun getOneFavAudio(songId: Long): List<AllSongsModel> {
+        return repository.getOneFavAudio(songId)
+    }
+
+    fun getQueueFavouriteAudios(): LiveData<List<QueueListModel>> {
+        return repository.getQueueFavouriteAudios()
+    }
+
     /*fun getAudioAccordingAlbum(albumName: String): LiveData<List<AllSongsModel>> {
         return repository.getAudioAccordingAlbum(albumName)
     }*/
@@ -36,6 +48,23 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
         lifecycleScope: LifecycleCoroutineScope
     ) {
         repository.updateSong(songId, songName, isPlayingOrPause, lifecycleScope)
+    }
+
+    fun updateFavouriteAudio(
+        isFav: Boolean,
+        songId: Long,
+        favAudioAddedTime: Long,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        repository.updateFavouriteAudio(isFav, songId, favAudioAddedTime, lifecycleScope)
+    }
+
+    fun updateQueueFavouriteAudio(
+        isFav: Boolean,
+        songId: Long,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        repository.updateQueueFavouriteAudio(isFav, songId, lifecycleScope)
     }
 
     fun insertAllSongs(allSongsModel: AllSongsModel, lifecycleScope: LifecycleCoroutineScope) {

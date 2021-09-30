@@ -225,7 +225,9 @@ class ArtistsAlbumAdapter(
                         data,
                         contentUri.toString(),
                         albumArtUri,
-                        dateAdded
+                        dateAdded,
+                        false,
+                        0L
                     )
 
                 allSongsModel.playingOrPause = -1
@@ -287,7 +289,9 @@ class ArtistsAlbumAdapter(
                 audio.audioUri,
                 audio.artUri,
                 -1,
-                audio.dateAdded
+                audio.dateAdded,
+                audio.isFavourite,
+                audio.favAudioAddedTime,
             )
             mViewModelClass.insertQueue(
                 queueListModel,

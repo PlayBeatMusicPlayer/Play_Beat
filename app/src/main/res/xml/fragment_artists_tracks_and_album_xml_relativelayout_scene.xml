@@ -5,6 +5,8 @@
     <Transition
         motion:constraintSetEnd="@+id/end"
         motion:constraintSetStart="@id/start"
+        motion:layoutDuringTransition="honorRequest"
+        motion:motionInterpolator="linear"
         motion:duration="1000">
         <KeyFrameSet>
 

@@ -95,6 +95,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                         audioList.addAll(sortedList)
                         allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.songName })
                         binding?.sortAudioTV?.text = "Name"
+                        Log.d("sortedListObserved", "observeAudioData:$sortedList ")
                     }
                     "Duration" -> {
                         val sortedList = it.sortedBy { allSongsModel -> allSongsModel.duration }
@@ -122,7 +123,6 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                         audioList.addAll(sortedList)
                         allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.songName })
                         binding?.sortAudioTV?.text = "Name"
-
                     }
                 }
 
@@ -131,12 +131,15 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                         animateRecyclerView()
                     }
                 }
-                binding?.totalAudioTV?.text = "${audioList.size} Songs"
+                if (it.size >= 2) {
+                    binding?.totalAudioTV?.text = "${audioList.size} Songs"
+                } else {
+                    binding?.totalAudioTV?.text = "${audioList.size} Song"
+                }
             } else {
                 binding?.totalAudioTV?.text = "0 Song"
             }
         })
-
     }
 
     private fun shuffleAudio() {
@@ -342,7 +345,9 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                         data,
                         contentUri.toString(),
                         artUri,
-                        dateAdded
+                        dateAdded,
+                        false,
+                        0L
                     )
 
                 /*storage.loadAudioIndex()
@@ -353,9 +358,32 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
 
             cursor.close()
 
+            var audio = CopyOnWriteArrayList<AllSongsModel>()
+            if (!storage.getIsAudioPlayedFirstTime()) {
+                audio = storage.loadAudio()
+            }
             // update audio to DB
+            var isFav = false
+            var favAudioAddedTime = 0L
             for (audioData in tempAudioList) {
+                if (!storage.getIsAudioPlayedFirstTime()) {
+                    for (savedAudioData in audio) {
+                        if (savedAudioData.songId == audioData.songId) {
+                            isFav = savedAudioData?.isFavourite!!
+                            favAudioAddedTime = savedAudioData.favAudioAddedTime
+                            break
+                        }
+                    }
+                }
+                if (isFav) {
+                    audioData.favAudioAddedTime = favAudioAddedTime
+                }
+                audioData.isFavourite = isFav
                 mViewModelClass.insertAllSongs(audioData, lifecycleScope)
+
+                // assigning isFav to false, for next iteration
+                isFav = false
+
             }
 
             startService()
@@ -382,6 +410,12 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                     0, /*pause*/
                     (context as AppCompatActivity).lifecycleScope
                 )
+
+                /*  for (audioData in audio) {
+                      if (audioData.isFavourite) {
+                          mViewModelClass.updateFavouriteAudio(true, audioData.songId, lifecycleScope)
+                      }
+                  }*/
             }
 
             Log.d(
@@ -499,7 +533,9 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                     audio.audioUri,
                     audio.artUri,
                     -1,
-                    audio.dateAdded
+                    audio.dateAdded,
+                    audio.isFavourite,
+                    audio.favAudioAddedTime,
                 )
                 mViewModelClass.insertQueue(queueListModel, lifecycleScope)
             }

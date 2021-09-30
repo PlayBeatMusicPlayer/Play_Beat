@@ -152,7 +152,9 @@ class SearchFragment : Fragment() {
                 audio.audioUri,
                 audio.artUri,
                 -1,
-                audio.dateAdded
+                audio.dateAdded,
+                audio.isFavourite,
+                audio.favAudioAddedTime,
             )
             mViewModelClass.insertQueue(queueListModel, lifecycleScope)
         }

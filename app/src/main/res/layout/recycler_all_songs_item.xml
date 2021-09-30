@@ -4,6 +4,7 @@
     android:id="@+id/rlAudio"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/app_theme_color"
     android:foreground="?attr/selectableItemBackground">
 
     <ImageView
@@ -25,13 +26,13 @@
 
         <RelativeLayout
             android:id="@+id/rlAlbumArtContainer"
-            android:layout_width="55dp"
-            android:layout_height="55dp">
+            android:layout_width="50dp"
+            android:layout_height="50dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/album_art_iv"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:background="@drawable/little_curved_all_edges"
                 android:scaleType="centerCrop"
                 android:src="@drawable/artist_icon_placeholder"
@@ -92,9 +93,10 @@
                 android:id="@+id/artistNameTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
+                android:ellipsize="end"
                 android:fontFamily="@font/segoe_ui"
                 android:maxLines="1"
+                android:maxLength="28"
                 android:text="Artist Name"
                 android:textColor="@color/grey"
                 android:textSize="13sp"

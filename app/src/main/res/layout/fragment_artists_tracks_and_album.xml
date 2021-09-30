@@ -8,11 +8,12 @@
     android:background="@drawable/app_theme_background_drawable"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
+    android:transitionGroup="true"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
 
     <androidx.constraintlayout.motion.widget.MotionLayout
-        android:id="@+id/relativeLayout"
+        android:id="@+id/motionLayoutPlayListAudios"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:nestedScrollingEnabled="true"

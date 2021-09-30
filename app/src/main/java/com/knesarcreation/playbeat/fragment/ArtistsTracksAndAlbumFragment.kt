@@ -15,6 +15,7 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.transition.MaterialSharedAxis
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.knesarcreation.playbeat.adapter.AllAlbumsAdapter
@@ -51,6 +52,16 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
         fun openArtistAlbum(album: String)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enterTransition = MaterialSharedAxis(MaterialSharedAxis.Y, false).apply {
+            duration = 200L
+        }
+        reenterTransition =
+            MaterialSharedAxis(MaterialSharedAxis.Y, false).apply {
+                duration = 200L
+            }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -346,7 +357,9 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
                         data,
                         contentUri.toString(),
                         albumArtUri,
-                        dateAdded
+                        dateAdded,
+                        false,
+                        0L
                     )
                 allSongsModel.playingOrPause = -1
                 audioList.add(allSongsModel)
@@ -419,7 +432,9 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
                     audio.audioUri,
                     audio.artUri,
                     -1,
-                    audio.dateAdded
+                    audio.dateAdded,
+                    audio.isFavourite,
+                    audio.favAudioAddedTime,
                 )
                 mViewModelClass.insertQueue(queueListModel, lifecycleScope)
             }

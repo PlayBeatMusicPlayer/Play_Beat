@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.google.android.material.transition.MaterialSharedAxis
 import com.knesarcreation.playbeat.databinding.FragmentPlaylistsBinding
 
 class PlaylistsFragment : Fragment() {
@@ -16,6 +17,16 @@ class PlaylistsFragment : Fragment() {
 
     interface OnPlayListCategoryClicked {
         fun playlistCategory(category: String)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enterTransition = MaterialSharedAxis(MaterialSharedAxis.Y, true).apply {
+            duration = 200L
+        }
+        returnTransition = MaterialSharedAxis(MaterialSharedAxis.Y, false).apply {
+            duration = 200L
+        }
     }
 
     override fun onCreateView(

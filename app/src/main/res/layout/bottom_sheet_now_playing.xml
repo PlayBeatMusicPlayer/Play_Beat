@@ -111,7 +111,7 @@
                     android:visibility="gone" />-->
 
                 <ImageView
-                    android:id="@+id/playPauseIV1"
+                    android:id="@+id/play_pause_mini_player"
                     android:layout_width="30dp"
                     android:layout_height="35dp"
                     android:layout_centerVertical="true"
@@ -128,7 +128,7 @@
                     android:layout_height="30dp"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:layout_toEndOf="@id/playPauseIV1"
+                    android:layout_toEndOf="@id/play_pause_mini_player"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/forwardiv"
                     android:padding="5dp"
@@ -141,7 +141,7 @@
                     android:layout_centerInParent="true"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="10dp"
-                    android:layout_toEndOf="@id/playPauseIV1"
+                    android:layout_toEndOf="@id/play_pause_mini_player"
                     android:mediaRouteTypes="user"
                     android:visibility="visible"
                     app:mediaRouteButtonTint="@color/white" />
@@ -452,7 +452,7 @@
                         app:cardCornerRadius="50dp">
 
                         <ImageView
-                            android:id="@+id/playPauseIV"
+                            android:id="@+id/play_pause_expanded_player"
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:layout_centerInParent="true"
@@ -515,14 +515,14 @@
                     android:id="@+id/rlSleepTimer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true">
+                    android:layout_centerInParent="true"
+                    android:background="?attr/selectableItemBackgroundBorderless">
 
                     <ImageView
                         android:id="@+id/sleepTimeIV"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_centerInParent="true"
-                        android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@null"
                         android:padding="8dp"
                         android:src="@drawable/ic_sleep_time"
@@ -531,8 +531,8 @@
                     <TextView
                         android:id="@+id/sleepTimerTV"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
+                        android:layout_height="40dp"
+                        android:gravity="center"
                         android:text="00 : 00"
                         android:textColor="@color/cyan"
                         android:textSize="12sp"

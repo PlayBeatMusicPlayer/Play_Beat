@@ -42,8 +42,43 @@ class Repository(var application: Application) {
         }
     }
 
+    fun updateFavouriteAudio(
+        isFav: Boolean,
+        songId: Long,
+        favAudioAddedTime:Long,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            allSongsDao.updateFavouriteAudio(isFav, songId,favAudioAddedTime)
+        }
+    }
+
+    fun updateQueueFavouriteAudio(
+        isFav: Boolean,
+        songId: Long,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            queueListDao.updateQueueFavouriteAudio(isFav, songId)
+        }
+    }
+
     fun getSongList(): LiveData<List<AllSongsModel>> {
         return allSongsDao.getAllSongs()
+    }
+
+    fun getFavouriteAudios(): LiveData<List<AllSongsModel>> {
+        return allSongsDao.getFavouritesAudio(isFav = true)
+    }
+
+    suspend fun getOneFavAudio(songId: Long): List<AllSongsModel> {
+        return withContext(Dispatchers.IO) {
+            return@withContext allSongsDao.getOneFavAudio(songId)
+        }
+    }
+
+    fun getQueueFavouriteAudios(): LiveData<List<QueueListModel>> {
+        return queueListDao.getQueueFavouritesAudio(isFav = true)
     }
 
     /*fun getAudioAccordingAlbum(albumName: String): LiveData<List<AllSongsModel>> {

@@ -25,4 +25,10 @@ interface QueueListDao {
 
     @Query("SELECT * FROM queueList")
     fun getQueueAudioList(): LiveData<List<QueueListModel>>
+
+    @Query("SELECT * FROM queueList where isFavourite = :isFav")
+    fun getQueueFavouritesAudio(isFav: Boolean): LiveData<List<QueueListModel>>
+
+    @Query("UPDATE queueList set isFavourite = :isFav where songId = :songId")
+    suspend fun updateQueueFavouriteAudio(isFav: Boolean, songId: Long)
 }

@@ -37,8 +37,9 @@
         app:selectionRequired="true"
         app:singleSelection="true">
 
+
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/dateAddedBtn"
+            android:id="@+id/defaultOrderBtn"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
@@ -46,6 +47,21 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="20dp"
+            android:padding="8dp"
+            android:text="Default Order"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:theme="@style/ThemeButtonColorToggle"
+            android:visibility="gone"
+            app:cornerRadius="10dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dateAddedBtn"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:padding="8dp"
             android:text="Date Added"
             android:textAllCaps="false"

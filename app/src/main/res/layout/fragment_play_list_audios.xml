@@ -8,13 +8,14 @@
     android:clipChildren="false"
     android:clipToPadding="false"
     android:focusable="true"
+    android:transitionGroup="true"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
 
     <androidx.constraintlayout.motion.widget.MotionLayout
-        android:id="@+id/relativeLayout"
+        android:id="@+id/motionLayoutPlayListAudios"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipChildren="false"
@@ -27,6 +28,10 @@
             android:id="@+id/rlContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:focusable="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -37,8 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="380dp"
                 android:contentDescription="@null"
-                android:scaleType="centerCrop"
-                android:src="@drawable/spydi" />
+                android:scaleType="centerCrop" />
 
             <!--top transparent view-->
             <ImageView
@@ -63,10 +67,10 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="280dp" />
 
-            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/playBtn"
                 android:layout_width="125dp"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:layout_below="@id/titleNameTV2"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
@@ -74,6 +78,7 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 app:backgroundTint="@color/teal_200"
+                app:cornerRadius="20dp"
                 app:icon="@drawable/ic_play_white_circle"
                 app:iconGravity="textStart"
                 app:iconSize="30dp" />
@@ -85,7 +90,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="20dp"
-                android:background="?selectableItemBackgroundBorderless"
+                android:background="@drawable/custom_ripple"
                 android:contentDescription="@null"
                 android:rotationY="180"
                 android:src="@drawable/ic_share" />
@@ -96,13 +101,14 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/playBtn"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="35dp"
+                android:layout_marginTop="25dp"
                 android:layout_marginEnd="20dp"
                 android:drawablePadding="5dp"
                 android:fontFamily="@font/segoe_ui"
-                android:text="100 songs"
                 android:textAlignment="center"
-                android:textColor="@color/grey" />
+                android:textColor="@color/grey"
+                android:textStyle="bold"
+                tools:text="100 songs" />
 
             <ImageView
                 android:id="@+id/sortIV"
@@ -110,7 +116,8 @@
                 android:layout_height="30dp"
                 android:layout_below="@id/playBtn"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/custom_ripple"
                 android:contentDescription="@null"
                 android:src="@drawable/ic_swap" />
 
@@ -120,13 +127,14 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/playBtn"
                 android:layout_marginStart="5dp"
-                android:layout_marginTop="35dp"
+                android:layout_marginTop="25dp"
                 android:layout_toEndOf="@id/sortIV"
                 android:drawablePadding="5dp"
                 android:fontFamily="@font/segoe_ui"
-                android:text="Date Added"
                 android:textAlignment="center"
-                android:textColor="@color/grey" />
+                android:textColor="@color/grey"
+                android:textStyle="bold"
+                tools:text="Date Added" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvTracks"
@@ -138,6 +146,17 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:itemCount="10"
                 tools:listitem="@layout/recycler_all_songs_item" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_below="@id/totalSongsTV"
+                android:layout_marginTop="15dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:contentDescription="@null"
+                android:focusable="true"
+                android:foreground="@drawable/gradient_background_top_shadow" />
         </RelativeLayout>
 
         <ImageView
@@ -169,14 +188,14 @@
             android:marqueeRepeatLimit="marquee_forever"
             android:maxLines="1"
             android:singleLine="true"
+            android:text="Favourite Songs"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="@id/playAllToolbar"
             app:layout_constraintHorizontal_bias="0.087"
             app:layout_constraintStart_toEndOf="@id/arrowBackIV"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="Favourite Songs" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/titleNameTV"

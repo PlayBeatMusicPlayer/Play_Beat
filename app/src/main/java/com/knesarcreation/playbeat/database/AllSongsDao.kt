@@ -29,4 +29,13 @@ interface AllSongsDao {
     @Query("SELECT * FROM allSongsModel where artistsName = :artistName")
     fun getAudioAccordingArtists(artistName: String): List<AllSongsModel>
 
+    @Query("SELECT * FROM allSongsModel where isFavourite = :isFav")
+    fun getFavouritesAudio(isFav: Boolean): LiveData<List<AllSongsModel>>
+
+    @Query("SELECT * FROM allSongsModel where songId = :songId")
+    fun getOneFavAudio(songId: Long): List<AllSongsModel>
+
+    @Query("UPDATE allSongsModel set isFavourite = :isFav, favAudioAddedTime =:favAudioAddedTime where songId = :songId")
+    suspend fun updateFavouriteAudio(isFav: Boolean, songId: Long, favAudioAddedTime: Long)
+
 }

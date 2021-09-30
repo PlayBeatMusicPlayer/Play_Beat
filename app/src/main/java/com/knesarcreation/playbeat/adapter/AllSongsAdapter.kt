@@ -61,7 +61,12 @@ class AllSongsAdapter(
             } else {
                 songName.text = allSongModel.songName
             }
-            artistName.text = allSongModel.artistsName
+            if (allSongModel.artistsName.length >= 28) {
+                val dropLastValue = allSongModel.artistsName.length - 25
+                artistName.text = "${allSongModel.artistsName.dropLast(dropLastValue)}..."
+            } else {
+                artistName.text = allSongModel.artistsName
+            }
             duration.text = millisToMinutesAndSeconds(allSongModel.duration)
 
             val artUri = allSongModel.artUri
@@ -118,8 +123,8 @@ class AllSongsAdapter(
                     currentPlayingAudioLottie.pauseAnimation()
                     rlCurrentPlayingLottie.visibility = View.GONE
                     songName.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
-                    artistName.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
-                    duration.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
+                    artistName.setTextColor(ContextCompat.getColor(itemView.context, R.color.grey))
+                    duration.setTextColor(ContextCompat.getColor(itemView.context, R.color.grey))
                     //holder.currentPlayingAudioIndicator.visibility = View.GONE
                 }
             }

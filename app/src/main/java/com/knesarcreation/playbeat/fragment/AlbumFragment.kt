@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.material.transition.MaterialSharedAxis
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.knesarcreation.playbeat.R
@@ -47,6 +48,16 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
     private lateinit var mViewModelClass: ViewModelClass
     private lateinit var allSongsAdapter: AllSongsAdapter
     private var launchAlumData: Job? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enterTransition = MaterialSharedAxis(MaterialSharedAxis.Y, false).apply {
+            duration = 200L
+        }
+        returnTransition = MaterialSharedAxis(MaterialSharedAxis.Y, false).apply {
+            duration = 200L
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -293,7 +304,9 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
                         data,
                         contentUri.toString(),
                         albumArtUri,
-                        dateAdded
+                        dateAdded,
+                        false,
+                        0L
                     )
                 allSongsModel.playingOrPause = -1
                 albumAudioList.add(allSongsModel)
@@ -369,7 +382,9 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
                     audio.audioUri,
                     audio.artUri,
                     -1,
-                    audio.dateAdded
+                    audio.dateAdded,
+                    audio.isFavourite,
+                    audio.favAudioAddedTime,
                 )
                 mViewModelClass.insertQueue(queueListModel, lifecycleScope)
             }

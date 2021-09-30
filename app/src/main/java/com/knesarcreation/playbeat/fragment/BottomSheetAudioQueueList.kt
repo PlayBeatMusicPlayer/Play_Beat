@@ -160,7 +160,7 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
         }
 
         binding?.rlAudio?.setOnClickListener {
-            binding?.rvUpNext?.scrollToPosition(currentPlayingAudioIndex)
+            binding?.rvUpNext?.smoothScrollToPosition(currentPlayingAudioIndex)
         }
 
         return view
@@ -380,7 +380,9 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                 audio.data,
                                 audio.audioUri,
                                 audio.artUri,
-                                audio.dateAdded
+                                audio.dateAdded,
+                                audio.isFavourite,
+                                audio.favAudioAddedTime,
                             )
                             queueListModel.playingOrPause = audio.isPlayingOrPause
                             list.add(queueListModel)
@@ -510,7 +512,9 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                 audio.data,
                 audio.audioUri,
                 audio.artUri,
-                audio.dateAdded
+                audio.dateAdded,
+                audio.isFavourite,
+                audio.favAudioAddedTime,
             )
             if (index == this.currentPlayingAudioIndex) {
                 // if current playing audio index matched
