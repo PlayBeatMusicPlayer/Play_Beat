@@ -382,8 +382,9 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                 audio.artUri,
                                 audio.dateAdded,
                                 audio.isFavourite,
-                                audio.favAudioAddedTime,
+                                audio.favAudioAddedTime
                             )
+                            queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
                             queueListModel.playingOrPause = audio.isPlayingOrPause
                             list.add(queueListModel)
                         }
@@ -514,8 +515,10 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                 audio.artUri,
                 audio.dateAdded,
                 audio.isFavourite,
-                audio.favAudioAddedTime,
+                audio.favAudioAddedTime
             )
+            allSongsModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
+
             if (index == this.currentPlayingAudioIndex) {
                 // if current playing audio index matched
                 if (AllSongFragment.musicService?.mediaPlayer != null) {

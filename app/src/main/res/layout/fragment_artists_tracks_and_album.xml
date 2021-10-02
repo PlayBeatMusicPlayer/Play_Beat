@@ -49,7 +49,7 @@
             android:layout_height="0dp"
             android:background="@drawable/app_theme_background_drawable"
             android:contentDescription="@null"
-            app:layout_constraintBottom_toBottomOf="@+id/rvTracks"
+            app:layout_constraintBottom_toBottomOf="@+id/rv_fav_songs"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/coverArtistImage" />

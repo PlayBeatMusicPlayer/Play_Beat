@@ -21,6 +21,14 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
         return repository.getOneFavAudio(songId)
     }
 
+    fun getLastAddedAudio(targetDate: String): LiveData<List<AllSongsModel>> {
+        return repository.getLastAddedAudio(targetDate)
+    }
+
+    fun getPrevPlayedAudios(): LiveData<List<AllSongsModel>> {
+        return repository.getPrevPlayedAudio()
+    }
+
     fun getQueueFavouriteAudios(): LiveData<List<QueueListModel>> {
         return repository.getQueueFavouriteAudios()
     }
@@ -48,6 +56,14 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
         lifecycleScope: LifecycleCoroutineScope
     ) {
         repository.updateSong(songId, songName, isPlayingOrPause, lifecycleScope)
+    }
+
+    fun updateCurrentPlayedTime(
+        songId: Long,
+        currentTime: Long,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        repository.updateCurrentPlayedTime(songId, currentTime, lifecycleScope)
     }
 
     fun updateFavouriteAudio(

@@ -251,8 +251,8 @@ class ArtistsAlbumAdapter(
         val prevQueueList = storageUtil.loadAudio()
         val prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
 
-        val playedFirstTime = !storageUtil.getIsAudioPlayedFirstTime()
-        val playedSameAudio = allSongModel.songId != prevPlayingAudioModel.songId
+        /*val playedFirstTime = !storageUtil.getIsAudioPlayedFirstTime()
+        val playedSameAudio = allSongModel.songId != prevPlayingAudioModel.songId*/
 
         mViewModelClass.deleteQueue((context as AppCompatActivity).lifecycleScope)
 
@@ -291,8 +291,9 @@ class ArtistsAlbumAdapter(
                 -1,
                 audio.dateAdded,
                 audio.isFavourite,
-                audio.favAudioAddedTime,
+                audio.favAudioAddedTime
             )
+            queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
             mViewModelClass.insertQueue(
                 queueListModel,
                 (context as AppCompatActivity).lifecycleScope

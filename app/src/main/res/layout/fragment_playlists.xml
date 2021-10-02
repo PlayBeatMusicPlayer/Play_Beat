@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -76,14 +74,14 @@
                 android:layout_weight="1"
                 android:text="Last Added"
                 android:textAllCaps="false"
-                android:textColor="@color/light_green"
-                app:backgroundTint="#25AFF3B2"
+                android:textColor="@color/yellow"
+                app:backgroundTint="#25FFD740"
                 app:cornerRadius="5dp"
                 app:icon="@drawable/ic_last_added"
                 app:iconPadding="-5dp"
-                app:iconTint="@color/light_green"
-                app:rippleColor="@color/light_green"
-                app:strokeColor="@color/light_green" />
+                app:iconTint="@color/yellow"
+                app:rippleColor="@color/yellow"
+                app:strokeColor="@color/yellow" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/mostPlayedBtn"
@@ -94,14 +92,14 @@
                 android:layout_weight="1"
                 android:text="Most Played"
                 android:textAllCaps="false"
-                android:textColor="@color/yellow"
-                app:backgroundTint="#25FFD740"
+                android:textColor="@color/light_green"
+                app:backgroundTint="#25AFF3B2"
                 app:cornerRadius="5dp"
                 app:icon="@drawable/ic_most_played"
                 app:iconPadding="10dp"
-                app:iconTint="@color/yellow"
-                app:rippleColor="@color/yellow"
-                app:strokeColor="@color/yellow" />
+                app:iconTint="@color/light_green"
+                app:rippleColor="@color/light_green"
+                app:strokeColor="@color/light_green" />
 
         </LinearLayout>
 

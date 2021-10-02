@@ -384,8 +384,10 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
                     -1,
                     audio.dateAdded,
                     audio.isFavourite,
-                    audio.favAudioAddedTime,
+                    audio.favAudioAddedTime
                 )
+                queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
+
                 mViewModelClass.insertQueue(queueListModel, lifecycleScope)
             }
 

@@ -18,19 +18,23 @@ import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.QueueListModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.FragmentPlayListAudiosBinding
+import com.knesarcreation.playbeat.utils.DataObservableClass
 import com.knesarcreation.playbeat.utils.StorageUtil
 import java.util.concurrent.CopyOnWriteArrayList
 
-class PlayListAudiosFragment : Fragment() {
+class FavouriteAudiosFragment : Fragment() {
 
     private var currentPlayingAudioIndex = 0
     private var _binding: FragmentPlayListAudiosBinding? = null
     private val binding get() = _binding
-    private var allSongsAdapter: AllSongsAdapter? = null
+    private var favSongsAdapter: AllSongsAdapter? = null
+    private var historyAdapter: AllSongsAdapter? = null
     private lateinit var mViewModelClass: ViewModelClass
-    private var favAudioList = ArrayList<AllSongsModel>()
+    private var favAudioList = CopyOnWriteArrayList<AllSongsModel>()
+    private var historyAudioList = CopyOnWriteArrayList<AllSongsModel>()
     private var isRvAnimated = false
     private lateinit var storage: StorageUtil
+    private lateinit var viewModel: DataObservableClass
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,8 +57,45 @@ class PlayListAudiosFragment : Fragment() {
         storage = StorageUtil(activity as Context)
         mViewModelClass = ViewModelProvider(this)[ViewModelClass::class.java]
 
-        setUpRecyclerView()
+        viewModel = activity?.run {
+            ViewModelProvider(this)[DataObservableClass::class.java]
+        } ?: throw Exception("Invalid Activity")
+
+        viewModel.playlistCategory.observe(viewLifecycleOwner, {
+            if (it != null) {
+                when (it) {
+                    "fav" -> {
+                        binding!!.rvFavSongs.visibility = View.VISIBLE
+                        binding!!.rvHistoryAdded.visibility = View.GONE
+                        binding!!.rvLastPlayedAudio.visibility = View.GONE
+                        binding!!.sortIV.visibility = View.VISIBLE
+                        binding!!.sortedTextTV.visibility = View.VISIBLE
+                        binding!!.titleNameTV.text = "Favourite Songs"
+                        binding!!.artisNameTVToolbar.text = "Favourite Songs"
+                    }
+
+                    /* "history" -> {
+                         binding!!.rvFavSongs.visibility = View.GONE
+                         binding!!.rvHistoryAdded.visibility = View.VISIBLE
+                         binding!!.rvLastPlayedAudio.visibility = View.GONE
+                         binding!!.sortIV.visibility = View.GONE
+                         binding!!.sortedTextTV.visibility = View.GONE
+                         binding!!.titleNameTV.text = "History"
+                         binding!!.artisNameTVToolbar.text = "History"
+                         setUpHistoryRecyclerAdapter()
+
+                     }*/
+
+
+                }
+            }
+        })
+
+
+        //setUpLastAddedRecyclerAdapter()
+        setUpFavRecyclerAdapter()
         observeFavouriteAudio()
+        //observeLastAddedAudio()
 
         binding?.arrowBackIV?.setOnClickListener {
             (activity as AppCompatActivity).onBackPressed()
@@ -70,6 +111,7 @@ class PlayListAudiosFragment : Fragment() {
 
         return view
     }
+
 
     private fun sortAudios() {
         when (storage.getFavAudioSortedValue()) {
@@ -98,9 +140,9 @@ class PlayListAudiosFragment : Fragment() {
                 val sortedBySongName =
                     favAudioList.sortedBy { allSongsModel -> allSongsModel.songName }
 
-                setUpRecyclerView()
-                binding?.rvTracks?.alpha = 0.0f
-                allSongsAdapter!!.submitList(sortedBySongName)
+                setUpFavRecyclerAdapter()
+                binding?.rvFavSongs?.alpha = 0.0f
+                favSongsAdapter!!.submitList(sortedBySongName)
                 favAudioList.clear()
                 favAudioList.addAll(sortedBySongName)
                 animateRecyclerView()
@@ -112,9 +154,9 @@ class PlayListAudiosFragment : Fragment() {
                 storage.saveFavAudioSortingMethod("ArtistName")
                 val sortedByArtistName =
                     favAudioList.sortedBy { allSongsModel -> allSongsModel.artistsName }
-                setUpRecyclerView()
-                binding?.rvTracks?.alpha = 0.0f
-                allSongsAdapter!!.submitList(sortedByArtistName)
+                setUpFavRecyclerAdapter()
+                binding?.rvFavSongs?.alpha = 0.0f
+                favSongsAdapter!!.submitList(sortedByArtistName)
                 favAudioList.clear()
                 favAudioList.addAll(sortedByArtistName)
                 animateRecyclerView()
@@ -127,9 +169,9 @@ class PlayListAudiosFragment : Fragment() {
                 val sortedByFavAddedDate =
                     favAudioList.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime }
 
-                setUpRecyclerView()
-                binding?.rvTracks?.alpha = 0.0f
-                allSongsAdapter!!.submitList(sortedByFavAddedDate)
+                setUpFavRecyclerAdapter()
+                binding?.rvFavSongs?.alpha = 0.0f
+                favSongsAdapter!!.submitList(sortedByFavAddedDate)
                 favAudioList.clear()
                 favAudioList.addAll(sortedByFavAddedDate)
                 animateRecyclerView()
@@ -142,9 +184,9 @@ class PlayListAudiosFragment : Fragment() {
                 val sortedByDateAdded =
                     favAudioList.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
 
-                setUpRecyclerView()
-                binding?.rvTracks?.alpha = 0.0f
-                allSongsAdapter!!.submitList(sortedByDateAdded)
+                setUpFavRecyclerAdapter()
+                binding?.rvFavSongs?.alpha = 0.0f
+                favSongsAdapter!!.submitList(sortedByDateAdded)
                 favAudioList.clear()
                 favAudioList.addAll(sortedByDateAdded)
                 animateRecyclerView()
@@ -154,27 +196,113 @@ class PlayListAudiosFragment : Fragment() {
         }
     }
 
-    private fun setUpRecyclerView() {
-        allSongsAdapter =
+    private fun setUpFavRecyclerAdapter() {
+        favSongsAdapter =
             AllSongsAdapter(
                 activity as Context,
                 AllSongsAdapter.OnClickListener { allSongModel, position ->
                     onClickAudio(allSongModel, position)
                 })
-        allSongsAdapter!!.isSearching = false
-        binding?.rvTracks?.adapter = allSongsAdapter
-        binding!!.rvTracks.itemAnimator = null
+        favSongsAdapter!!.isSearching = false
+        binding?.rvFavSongs?.adapter = favSongsAdapter
+        binding!!.rvFavSongs.itemAnimator = null
         //binding?.rvTracks?.alpha = 0.0f
     }
 
-    private fun onClickAudio(allSongModel: AllSongsModel, position: Int) {
+    private fun observeFavouriteAudio() {
+        mViewModelClass.getFavouriteAudios().observe(viewLifecycleOwner) {
+            if (it != null) {
+                if (favAudioList.isNotEmpty()) {
+                    if (it.size > favAudioList.size) {
+                        // if new audio added then scroll to pos 0
+                        binding?.rvFavSongs?.scrollToPosition(0)
+                    }
+                }
+                favAudioList.clear()
+
+                val tempFavList = ArrayList<AllSongsModel>()
+                tempFavList.addAll(it.sortedByDescending { allSongsModel ->
+                    allSongsModel.favAudioAddedTime
+                })
+
+                //allSongsAdapter?.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime })
+
+                val sortedList: List<AllSongsModel>
+                when (storage.getFavAudioSortedValue()) {
+                    "defaultOrder" -> {
+                        sortedList =
+                            it.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime }
+                        favAudioList.addAll(sortedList)
+                        favSongsAdapter!!.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime })
+                        binding?.sortedTextTV?.text = "Default"
+                        Log.d("sortedListObserved", "observeAudioData:$sortedList ")
+                    }
+                    "Name" -> {
+                        sortedList = it.sortedBy { allSongsModel -> allSongsModel.songName }
+                        favAudioList.addAll(sortedList)
+                        favSongsAdapter!!.submitList(it.sortedBy { allSongsModel -> allSongsModel.songName })
+                        binding?.sortedTextTV?.text = "Name"
+                    }
+                    "DateAdded" -> {
+                        sortedList =
+                            it.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
+                        favAudioList.addAll(sortedList)
+                        favSongsAdapter!!.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.dateAdded })
+                        binding?.sortedTextTV?.text = "Date Added"
+                    }
+                    "ArtistName" -> {
+                        sortedList =
+                            it.sortedBy { allSongsModel -> allSongsModel.artistsName }
+                        favAudioList.addAll(sortedList)
+                        favSongsAdapter!!.submitList(it.sortedBy { allSongsModel -> allSongsModel.artistsName })
+                        binding?.sortedTextTV?.text = "Artist Name"
+                    }
+                    else -> {
+                        sortedList =
+                            it.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime }
+                        favAudioList.addAll(sortedList)
+                        favSongsAdapter!!.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime })
+                        binding?.sortedTextTV?.text = "Default"
+                        Log.d("sortedListObserved", "observeAudioData:$sortedList ")
+                    }
+                }
+
+                if (it.size >= 2) {
+                    binding?.totalSongsTV?.text = "${it.size} Songs"
+                } else {
+                    binding?.totalSongsTV?.text = "${it.size} Song"
+                }
+
+                if (tempFavList.isNotEmpty()) {
+                    Glide.with(binding?.coverArtistImage!!).load(tempFavList[0].artUri)
+                        .into(binding?.coverArtistImage!!)
+                } else {
+                    // show No Fav layout todo
+                }
+
+                /* if (!storage.getIsAudioPlayedFirstTime()) {
+                     storage.storeAudio(favAudioList)
+                 }*/
+
+            } else {
+                binding?.totalSongsTV?.text = ""
+            }
+        }
+    }
+
+    private fun onClickAudio(
+        allSongModel: AllSongsModel,
+        position: Int,
+    ) {
         storage.saveIsShuffled(false)
         val prevPlayingAudioIndex = storage.loadAudioIndex()
         val prevQueueList = storage.loadAudio()
         val prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
 
-        // restricting to update if clicked audio is same
-
+        Log.d(
+            "PlayListAudios111s",
+            "onClickAudio: allSongModel $allSongModel ,  favAudioList $favAudioList "
+        )
         mViewModelClass.deleteQueue(lifecycleScope)
 
         mViewModelClass.updateSong(
@@ -191,7 +319,7 @@ class PlayListAudiosFragment : Fragment() {
             (context as AppCompatActivity).lifecycleScope
         )
 
-        playAudio(position)
+        playAudio(favAudioList.indexOf(allSongModel))
 
         // adding queue list to DB and show highlight of current audio
         for (audio in this.favAudioList) {
@@ -209,8 +337,9 @@ class PlayListAudiosFragment : Fragment() {
                 -1,
                 audio.dateAdded,
                 audio.isFavourite,
-                audio.favAudioAddedTime,
+                audio.favAudioAddedTime
             )
+            queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
             mViewModelClass.insertQueue(queueListModel, lifecycleScope)
         }
 
@@ -232,9 +361,8 @@ class PlayListAudiosFragment : Fragment() {
     private fun playAudio(audioIndex: Int) {
         this.currentPlayingAudioIndex = audioIndex
         //store audio to prefs
-        val searchList = CopyOnWriteArrayList<AllSongsModel>()
-        searchList.addAll(favAudioList)
-        storage.storeAudio(searchList)
+
+        storage.storeAudio(favAudioList)
         //Store the new audioIndex to SharedPreferences
         storage.storeAudioIndex(audioIndex)
 
@@ -246,79 +374,12 @@ class PlayListAudiosFragment : Fragment() {
         (activity as Context).sendBroadcast(updatePlayer)*/
     }
 
-    private fun observeFavouriteAudio() {
-        mViewModelClass.getFavouriteAudios().observe(viewLifecycleOwner) {
-            if (it != null) {
-                favAudioList.clear()
-
-                val tempFavList = ArrayList<AllSongsModel>()
-                tempFavList.addAll(it.sortedByDescending { allSongsModel ->
-                    allSongsModel.favAudioAddedTime
-                })
-
-                //allSongsAdapter?.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime })
-
-                when (storage.getFavAudioSortedValue()) {
-                    "defaultOrder" -> {
-                        val sortedList =
-                            it.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime }
-                        favAudioList.addAll(sortedList)
-                        allSongsAdapter!!.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime })
-                        binding?.sortedTextTV?.text = "Default"
-                        Log.d("sortedListObserved", "observeAudioData:$sortedList ")
-                    }
-                    "Name" -> {
-                        val sortedList = it.sortedBy { allSongsModel -> allSongsModel.songName }
-                        favAudioList.addAll(sortedList)
-                        allSongsAdapter!!.submitList(it.sortedBy { allSongsModel -> allSongsModel.songName })
-                        binding?.sortedTextTV?.text = "Name"
-                    }
-                    "DateAdded" -> {
-                        val sortedList =
-                            it.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
-                        favAudioList.addAll(sortedList)
-                        allSongsAdapter!!.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.dateAdded })
-                        binding?.sortedTextTV?.text = "Date Added"
-                    }
-                    "ArtistName" -> {
-                        val sortedList =
-                            it.sortedBy { allSongsModel -> allSongsModel.artistsName }
-                        favAudioList.addAll(sortedList)
-                        allSongsAdapter!!.submitList(it.sortedBy { allSongsModel -> allSongsModel.artistsName })
-                        binding?.sortedTextTV?.text = "Artist Name"
-                    }
-                    else -> {
-                        val sortedList =
-                            it.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime }
-                        favAudioList.addAll(sortedList)
-                        allSongsAdapter!!.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime })
-                        binding?.sortedTextTV?.text = "Default"
-                        Log.d("sortedListObserved", "observeAudioData:$sortedList ")
-                    }
-                }
-                if (it.size >= 2) {
-                    binding?.totalSongsTV?.text = "${it.size} Songs"
-                } else {
-                    binding?.totalSongsTV?.text = "${it.size} Song"
-                }
-
-                if (tempFavList.isNotEmpty()) {
-                    Glide.with(binding?.coverArtistImage!!).load(tempFavList[0].artUri)
-                        .into(binding?.coverArtistImage!!)
-                } else {
-                    // show No Fav layout todo
-                }
-            } else {
-                binding?.totalSongsTV?.text = "0 Song"
-            }
-        }
-    }
-
     private fun animateRecyclerView() {
-        binding?.rvTracks!!.animate()
+        binding?.rvFavSongs!!.animate()
             .translationY(-10f)
             //translationYBy(30f)
             .alpha(1.0f)
             .setListener(null)
     }
+
 }

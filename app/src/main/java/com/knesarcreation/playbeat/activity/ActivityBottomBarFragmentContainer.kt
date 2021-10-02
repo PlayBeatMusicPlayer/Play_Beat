@@ -35,7 +35,6 @@ import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.ActivityBottomBarFragmentBinding
 import com.knesarcreation.playbeat.fragment.*
 import com.knesarcreation.playbeat.utils.*
-import kotlinx.coroutines.Job
 import me.ibrahimsn.lib.OnItemSelectedListener
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -50,7 +49,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private val settingFragment = SettingFragment()
     private val albumSongFragment = AlbumFragment()
     private val searchFragment = SearchFragment()
-    private val playListAudiosFragment = PlayListAudiosFragment()
+    private val favouriteAudiosFragment = FavouriteAudiosFragment()
+    private val lastAddedAudioFragment = LastAddedAudioFragment()
+    private val historyAudiosFragment = HistoryAudiosFragment()
     private val artistsTracksAndAlbumFragment = ArtistsTracksAndAlbumFragment()
     private var audioIndexPos = -1
     private var isDestroyedActivity = false
@@ -74,8 +75,10 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private var mCastContext: CastContext? = null
     private lateinit var storage: StorageUtil
     private lateinit var mViewModelClass: ViewModelClass
-    private var isFavAudioObserved = false
-    private var launchFavAudioJob: Job? = null
+
+    //private var isFavAudioObserved = false
+    //private var launchFavAudioJob: Job? = null
+    private var _playlistCategory = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,7 +111,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             .add(R.id.fragmentContainer, albumSongFragment)
             .add(R.id.fragmentContainer, artistsTracksAndAlbumFragment)
             .add(R.id.fragmentContainer, searchFragment)
-            .add(R.id.fragmentContainer, playListAudiosFragment)
+            .add(R.id.fragmentContainer, favouriteAudiosFragment)
+            .add(R.id.fragmentContainer, lastAddedAudioFragment)
+            .add(R.id.fragmentContainer, historyAudiosFragment)
             .commit()
         setBottomBarFragmentState(FragmentState.HOME).commit()
 
@@ -151,9 +156,15 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         showSleepTimerIfEnable()
 
         binding.bottomSheet.likedAudioIV.setOnClickListener {
-            binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.liked_audio)
             val isFav = !storage.loadAudio()[audioIndexPos].isFavourite
-            binding.bottomSheet.likedAudioIV.isSelected = isFav
+            if (isFav) {
+                binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.avd_trimclip_heart_fill)
+                showLikedAudioAnim()
+            } else {
+                binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.avd_trimclip_heart_break)
+                showLikedAudioAnim()
+            }
+            //binding.bottomSheet.likedAudioIV.isSelected = isFav
 
             if (AllSongFragment.musicService?.mediaPlayer != null) {
                 if (isFav) {
@@ -217,6 +228,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     isFav,
                     favAudioAddedTime
                 )
+                allSongsModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
                 allSongsModel.playingOrPause = audio.playingOrPause
                 list.add(allSongsModel)
             } else {
@@ -233,8 +245,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     audio.artUri,
                     audio.dateAdded,
                     audio.isFavourite,
-                    audio.favAudioAddedTime
+                    audio.favAudioAddedTime,
                 )
+                allSongsModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
                 allSongsModel.playingOrPause = audio.playingOrPause
                 list.add(allSongsModel)
             }
@@ -598,7 +611,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         transaction.hide(settingFragment)
                         transaction.hide(artistsTracksAndAlbumFragment)
                         transaction.hide(searchFragment)
-                        transaction.hide(playListAudiosFragment)
+                        transaction.hide(favouriteAudiosFragment)
+                        transaction.hide(lastAddedAudioFragment)
+                        transaction.hide(historyAudiosFragment)
                         transaction.show(albumSongFragment)
                     }
                     isArtistsFragOpened || isAlbumOpenedFromArtisFrag -> {
@@ -608,7 +623,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         transaction.show(artistsTracksAndAlbumFragment)
                         transaction.hide(albumSongFragment)
                         transaction.hide(searchFragment)
-                        transaction.hide(playListAudiosFragment)
+                        transaction.hide(favouriteAudiosFragment)
+                        transaction.hide(lastAddedAudioFragment)
+                        transaction.hide(historyAudiosFragment)
                     }
                     else -> {
                         transaction.show(homeFragment)
@@ -617,7 +634,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         transaction.hide(albumSongFragment)
                         transaction.hide(artistsTracksAndAlbumFragment)
                         transaction.hide(searchFragment)
-                        transaction.hide(playListAudiosFragment)
+                        transaction.hide(favouriteAudiosFragment)
+                        transaction.hide(lastAddedAudioFragment)
+                        transaction.hide(historyAudiosFragment)
                     }
                 }
                 binding.bottomSheet.bottomBar.itemActiveIndex = 0
@@ -629,7 +648,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(albumSongFragment)
                 transaction.hide(artistsTracksAndAlbumFragment)
                 transaction.hide(searchFragment)
-                transaction.hide(playListAudiosFragment)
+                transaction.hide(favouriteAudiosFragment)
+                transaction.hide(lastAddedAudioFragment)
+                transaction.hide(historyAudiosFragment)
                 binding.bottomSheet.bottomBar.itemActiveIndex = 1
             }
             FragmentState.SEARCH -> {
@@ -639,7 +660,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(albumSongFragment)
                 transaction.hide(artistsTracksAndAlbumFragment)
                 transaction.show(searchFragment)
-                transaction.hide(playListAudiosFragment)
+                transaction.hide(favouriteAudiosFragment)
+                transaction.hide(lastAddedAudioFragment)
+                transaction.hide(historyAudiosFragment)
                 binding.bottomSheet.bottomBar.itemActiveIndex = 2
             }
             FragmentState.SETTING -> {
@@ -649,7 +672,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(albumSongFragment)
                 transaction.hide(artistsTracksAndAlbumFragment)
                 transaction.hide(searchFragment)
-                transaction.hide(playListAudiosFragment)
+                transaction.hide(favouriteAudiosFragment)
+                transaction.hide(lastAddedAudioFragment)
+                transaction.hide(historyAudiosFragment)
                 binding.bottomSheet.bottomBar.itemActiveIndex = 3
             }
             FragmentState.ALBUM_FRAGMENT -> {
@@ -659,7 +684,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.show(albumSongFragment)
                 transaction.hide(artistsTracksAndAlbumFragment)
                 transaction.hide(searchFragment)
-                transaction.hide(playListAudiosFragment)
+                transaction.hide(favouriteAudiosFragment)
+                transaction.hide(lastAddedAudioFragment)
+                transaction.hide(historyAudiosFragment)
 
                 isAlbumFragOpened = !isAlbumOpenedFromArtisFrag
                 isArtistsFragOpened = false
@@ -671,7 +698,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(albumSongFragment)
                 transaction.show(artistsTracksAndAlbumFragment)
                 transaction.hide(searchFragment)
-                transaction.hide(playListAudiosFragment)
+                transaction.hide(favouriteAudiosFragment)
+                transaction.hide(lastAddedAudioFragment)
+                transaction.hide(historyAudiosFragment)
                 isArtistsFragOpened = true
                 isAlbumFragOpened = false
             }
@@ -682,7 +711,23 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(albumSongFragment)
                 transaction.hide(artistsTracksAndAlbumFragment)
                 transaction.hide(searchFragment)
-                transaction.show(playListAudiosFragment)
+                when (_playlistCategory) {
+                    "fav" -> {
+                        transaction.hide(lastAddedAudioFragment)
+                        transaction.show(favouriteAudiosFragment)
+                        transaction.hide(historyAudiosFragment)
+                    }
+                    "lastAdded" -> {
+                        transaction.hide(favouriteAudiosFragment)
+                        transaction.show(lastAddedAudioFragment)
+                        transaction.hide(historyAudiosFragment)
+                    }
+                    "history" -> {
+                        transaction.hide(favouriteAudiosFragment)
+                        transaction.hide(lastAddedAudioFragment)
+                        transaction.show(historyAudiosFragment)
+                    }
+                }
                 isPlaylstCategoryOpened = true
             }
         }
@@ -794,6 +839,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
     override fun playlistCategory(category: String) {
         viewModel.playlistCategory.value = category
+        _playlistCategory = category
         setBottomBarFragmentState(FragmentState.PLAYLIST_CATEGORY).commit()
     }
 
@@ -1040,6 +1086,8 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     audioList[audioIndexPos].isFavourite,
                     audioList[audioIndexPos].favAudioAddedTime,
                 )
+                allSongsModel.currentPlayedAudioTime =
+                    audioList[audioIndexPos].currentPlayedAudioTime
                 allSongsModel.playingOrPause = audioList[audioIndexPos].playingOrPause
                 shuffledList.add(
                     0, allSongsModel
@@ -1156,6 +1204,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     }
                 }
 
+                val currentTime = System.currentTimeMillis()
+                updateCurrentPlayedTime(audioList, currentTime)
+
                 // update audio highlight while skipping prev and next audio
                 var hasSetFavFromNoti = false
                 if (bundle != null) {
@@ -1163,9 +1214,11 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     if (hasSetFavFromNoti) {
                         val isFav = bundle.getBoolean("isFav", false)
                         if (isFav) {
-                            binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.ic_filled_red_heart)
+                            binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.avd_trimclip_heart_fill)
+                            showLikedAudioAnim()
                         } else {
-                            binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.vd_trimclip_heart_empty)
+                            binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.avd_trimclip_heart_break)
+                            showLikedAudioAnim()
                         }
                         addAudioToFavourites(isFav)
                     } else {
@@ -1206,7 +1259,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                             audio.artUri,
                             audio.dateAdded,
                             audio.isFavourite,
-                            audio.favAudioAddedTime,
+                            audio.favAudioAddedTime
                         )
                         if (index == audioIndexPos) {
                             if (AllSongFragment.musicService?.mediaPlayer != null) {
@@ -1221,49 +1274,36 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                             if (updateHeartImage) {
                                 updateHeartImage = false
                                 if (audio.isFavourite) {
-                                    binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.liked_audio)
-                                    binding.bottomSheet.likedAudioIV.isSelected = true
+                                    binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.ic_filled_red_heart)
                                 } else {
                                     binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.vd_trimclip_heart_empty)
                                 }
                             }
 
+                            allSongsModel.currentPlayedAudioTime = currentTime
                             list.add(allSongsModel)
                         } else {
+                            allSongsModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
                             list.add(allSongsModel)
                         }
-                    }
 
+                        Log.d("SavedAudioMiniPlayerExpandedPlayer", "onReceive:  ${audio.songName} , ${audio.currentPlayedAudioTime}")
+                    }
                     storage.storeAudio(list)
                 }
-
-
             }
-            //restricting to create many observe instance
-
-            /*if (audioIndexPos != -1) {
-                if (launchFavAudioJob != null && launchFavAudioJob!!.isActive) {
-                    launchFavAudioJob!!.cancel()
-                }
-
-                launchFavAudioJob = lifecycleScope.launch(Dispatchers.IO) {
-                    val oneFavAudio =
-                        mViewModelClass.getOneFavAudio(audioList[audioIndexPos].songId)
-                    if (oneFavAudio.isNotEmpty()) {
-                        runOnUiThread {
-                            if (oneFavAudio[0].isFavourite) {
-                                binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.ic_filled_red_heart)
-                            } else {
-                                binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.vd_trimclip_heart_empty)
-                            }
-                        }
-                    }
-                    Log.d("isFavAudioObserved12", "onReceive: $oneFavAudio ")
-                }
-            }*/
-
         }
+    }
 
+    private fun updateCurrentPlayedTime(
+        audioList: CopyOnWriteArrayList<AllSongsModel>,
+        currentTime: Long
+    ) {
+        mViewModelClass.updateCurrentPlayedTime(
+            audioList[audioIndexPos].songId,
+            currentTime,
+            lifecycleScope
+        )
     }
 
     private fun registerUpdatePlayerUI() {
@@ -1415,4 +1455,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             .build()
     }*/
 
+    private fun showLikedAudioAnim() {
+        val animatedVectorDrawable =
+            binding.bottomSheet.likedAudioIV.drawable as AnimatedVectorDrawable
+        animatedVectorDrawable.start()
+    }
 }

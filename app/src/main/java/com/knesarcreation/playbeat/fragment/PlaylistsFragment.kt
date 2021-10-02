@@ -2,12 +2,15 @@ package com.knesarcreation.playbeat.fragment
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.android.material.transition.MaterialSharedAxis
 import com.knesarcreation.playbeat.databinding.FragmentPlaylistsBinding
+import java.util.*
 
 class PlaylistsFragment : Fragment() {
 
@@ -40,6 +43,15 @@ class PlaylistsFragment : Fragment() {
         binding?.favButton?.setOnClickListener {
             listener?.playlistCategory("fav")
         }
+
+        binding?.lastAddedBtn?.setOnClickListener {
+            listener?.playlistCategory("lastAdded")
+        }
+
+        binding?.historyBtn?.setOnClickListener {
+            listener?.playlistCategory("history")
+        }
+
 
         return view
     }

@@ -5,15 +5,15 @@
     android:viewportHeight="56">
 
     <path
-        android:fillColor="@color/bright_red"
+        android:fillColor="@color/red"
         android:pathData="@string/heart_stroke_left"
         android:strokeWidth="2"
-        android:strokeColor="@color/bright_red" />
+        android:strokeColor="@color/red" />
 
     <path
-        android:fillColor="@color/bright_red"
+        android:fillColor="@color/red"
         android:pathData="@string/heart_stroke_right"
         android:strokeWidth="2"
-        android:strokeColor="@color/bright_red" />
+        android:strokeColor="@color/red" />
 
 </vector>

@@ -100,14 +100,14 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                     "Duration" -> {
                         val sortedList = it.sortedBy { allSongsModel -> allSongsModel.duration }
                         audioList.addAll(sortedList)
-                        allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.duration })
+                        allSongsAdapter.submitList(sortedList/*it.sortedBy { allSongsModel -> allSongsModel.duration }*/)
                         binding?.sortAudioTV?.text = "Duration"
                     }
                     "DateAdded" -> {
                         val sortedList =
                             it.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
                         audioList.addAll(sortedList)
-                        allSongsAdapter.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.dateAdded })
+                        allSongsAdapter.submitList(sortedList/*it.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }*/)
                         binding?.sortAudioTV?.text = "Date Added"
                     }
                     "ArtistName" -> {
@@ -136,6 +136,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                 } else {
                     binding?.totalAudioTV?.text = "${audioList.size} Song"
                 }
+
             } else {
                 binding?.totalAudioTV?.text = "0 Song"
             }
@@ -202,6 +203,9 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                     animateRecyclerView()
                     bottomSheetSortByOptions.dismiss()
                     binding?.sortAudioTV?.text = "Date Added"
+                    for (name in audioList) {
+                        Log.d("sortedListAllSongFrag", "observeAudioData: ${name.songName} ")
+                    }
                 }
 
                 override fun byName() {
@@ -365,12 +369,14 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
             // update audio to DB
             var isFav = false
             var favAudioAddedTime = 0L
+            //var currentPlayedAudioTime = 0L
             for (audioData in tempAudioList) {
                 if (!storage.getIsAudioPlayedFirstTime()) {
                     for (savedAudioData in audio) {
                         if (savedAudioData.songId == audioData.songId) {
                             isFav = savedAudioData?.isFavourite!!
                             favAudioAddedTime = savedAudioData.favAudioAddedTime
+                            audioData.currentPlayedAudioTime = savedAudioData.currentPlayedAudioTime
                             break
                         }
                     }
@@ -379,13 +385,15 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                     audioData.favAudioAddedTime = favAudioAddedTime
                 }
                 audioData.isFavourite = isFav
+                //audioData.currentPlayedAudioTime = currentPlayedAudioTime
                 mViewModelClass.insertAllSongs(audioData, lifecycleScope)
 
-                // assigning isFav to false, for next iteration
+                // assigning isFav to false, favAudioAddedTime = 0 , for next iteration
                 isFav = false
+                favAudioAddedTime = 0L
+                //currentPlayedAudioTime = 0L
 
             }
-
             startService()
         }
     }
@@ -400,8 +408,19 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                 //audioList = storage.loadAudio()
                 audioIndexPos = storage.loadAudioIndex()
 
-                Log.d("audioIndexAllAudio", "startService: $audioIndexPos ")
+                // If any new songs added then, getting a new index of current playing audio
+                /*  if (!storage.getIsAudioPlayedFirstTime()) {
+                      try {
+                          val currentPlayingAudio = storage.loadAudio()[audioIndexPos]
+                          audioIndexPos = audioList.indexOf(currentPlayingAudio)
 
+                          storage.storeAudioIndex(audioIndexPos)
+                      } catch (e: ArrayIndexOutOfBoundsException) {
+                          e.printStackTrace()
+                      }
+                  }
+                  Log.d("audioIndexAllAudio", "startService: $audioIndexPos ")
+  */
                 //highlight the paused audio when app opens and service is closed
                 val audio = storage.loadAudio()
                 mViewModelClass.updateSong(
@@ -449,6 +468,11 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         //Store the new audioIndex to SharedPreferences
         storage.storeAudioIndex(audioIndex)
 
+        /* Toast.makeText(
+             activity as Context,
+             ".....${audioList[0]} , index: $audioIndex",
+             Toast.LENGTH_SHORT
+         ).show()*/
         //Service is active send broadcast
         val broadcastIntent = Intent(Broadcast_PLAY_NEW_AUDIO)
         (activity as AppCompatActivity).sendBroadcast(broadcastIntent)
@@ -480,8 +504,6 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
 
 
     private fun onClickAudio(allSongModel: AllSongsModel, position: Int, isShuffled: Boolean) {
-        //Toast.makeText(activity as Context, "${allSongModel.songName}", Toast.LENGTH_SHORT).show()
-
         storage.saveIsShuffled(isShuffled)
 
         val prevPlayingAudioIndex = storage.loadAudioIndex()
@@ -489,6 +511,9 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         val prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
 
         var restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
+
+        /*Toast.makeText(context, "$position , ${this.audioList.indexOf(allSongModel)}", Toast.LENGTH_SHORT)
+            .show()*/
 
         if (storage.getIsAudioPlayedFirstTime()) {
             restrictToUpdateAudio = false
@@ -515,7 +540,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
 
         }
 
-        playAudio(position)
+        playAudio(this.audioList.indexOf(allSongModel))
 
         // restricting to update if clicked audio is same
         if (!restrictToUpdateAudio) {
@@ -535,7 +560,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                     -1,
                     audio.dateAdded,
                     audio.isFavourite,
-                    audio.favAudioAddedTime,
+                    audio.favAudioAddedTime
                 )
                 mViewModelClass.insertQueue(queueListModel, lifecycleScope)
             }

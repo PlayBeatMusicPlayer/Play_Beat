@@ -14,6 +14,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.transition.MaterialSharedAxis
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.QueueListModel
@@ -32,6 +33,16 @@ class SearchFragment : Fragment() {
     private lateinit var storageUtil: StorageUtil
     private var currentPlayingAudioIndex = -1
     private lateinit var mViewModelClass: ViewModelClass
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enterTransition = MaterialSharedAxis(MaterialSharedAxis.Y, true).apply {
+            duration = 200L
+        }
+        returnTransition = MaterialSharedAxis(MaterialSharedAxis.Y, false).apply {
+            duration = 200L
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -154,8 +165,9 @@ class SearchFragment : Fragment() {
                 -1,
                 audio.dateAdded,
                 audio.isFavourite,
-                audio.favAudioAddedTime,
+                audio.favAudioAddedTime
             )
+            queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
             mViewModelClass.insertQueue(queueListModel, lifecycleScope)
         }
 
@@ -208,7 +220,7 @@ class SearchFragment : Fragment() {
             //binding?.searchView?.isFocusable = true
 //            binding?.searchView?.isIconified = false
             //binding?.searchView?.requestFocusFromTouch()
-           // binding?.searchView?.isFocusedByDefault = true
+            // binding?.searchView?.isFocusedByDefault = true
         }
     }
 
