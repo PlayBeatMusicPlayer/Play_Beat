@@ -13,6 +13,11 @@ import java.util.concurrent.CopyOnWriteArrayList
 class StorageUtil(context: Context) {
     companion object {
         const val STORAGE = "com.knesarcreation.playbeat.utils.STORAGE"
+        const val AUDIO_KEY = "com.knesarcreation.playbeat.utils_AUDIO_KEY"
+        const val ALBUM_AUDIO_KEY = "com.knesarcreation.playbeat.utils_ALBUM_AUDIO_KEY"
+        const val FAV_AUDIO_KEY = "com.knesarcreation.playbeat.utils_FAV_AUDIO_KEY"
+        const val PLAYLIST_KEY = "com.knesarcreation.playbeat.utils_PLAYLIST_KEY"
+        const val PLAYLIST_AUDIO_KEY = "com.knesarcreation.playbeat.utils_PLAYLIST_AUDIO_KEY"
     }
 
     private var preferences: SharedPreferences? = null
@@ -23,11 +28,28 @@ class StorageUtil(context: Context) {
         val editor = preferences!!.edit()
         val gson = Gson()
         val json: String = gson.toJson(arrayList)
-        editor.putString("audioArrayList", json)
+        editor.putString("audios", json)
         editor.apply()
     }
 
     fun loadAudio(): CopyOnWriteArrayList<AllSongsModel> {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val gson = Gson()
+        val json = preferences!!.getString("audios", null)
+        val type: Type = object : TypeToken<CopyOnWriteArrayList<AllSongsModel?>>() {}.type
+        return gson.fromJson(json, type)
+    }
+
+    fun storeQueueAudio(arrayList: CopyOnWriteArrayList<AllSongsModel>?) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        val gson = Gson()
+        val json: String = gson.toJson(arrayList)
+        editor.putString("audioArrayList", json)
+        editor.apply()
+    }
+
+    fun loadQueueAudio(): CopyOnWriteArrayList<AllSongsModel> {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         val gson = Gson()
         val json = preferences!!.getString("audioArrayList", null)
@@ -131,19 +153,19 @@ class StorageUtil(context: Context) {
         return preferences!!.getLong("systemTime", 0)
     }*/
 
-    fun saveAudioSortingMethod(value: String) {
+    fun saveAudioSortingMethod(key: String, value: String) {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         val editor = preferences!!.edit()
-        editor.putString("sortedAudio", value)
+        editor.putString(key, value)
         editor.apply()
     }
 
-    fun getAudioSortedValue(): String? {
+    fun getAudioSortedValue(key: String): String? {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
-        return preferences!!.getString("sortedAudio", "normal")
+        return preferences!!.getString(key, "normal")
     }
 
-    fun saveFavAudioSortingMethod(value: String) {
+    /*fun saveFavAudioSortingMethod(value: String) {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         val editor = preferences!!.edit()
         editor.putString("favSortedAudio", value)
@@ -165,6 +187,31 @@ class StorageUtil(context: Context) {
     fun getAlbumSortedValue(): String? {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         return preferences!!.getString("sortedAlbum", "normal")
+    }
+
+    fun savePlaylistSortingMethod(value: String) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putString("playlistSort", value)
+        editor.apply()
+    }
+
+    fun getPlayListSortedValue(): String? {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getString("playlistSort", "normal")
+    }*/
+
+
+    fun saveAudioCount(audioCount: Int) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putInt("audioCount", audioCount)
+        editor.apply()
+    }
+
+    fun getAudioCount(): Int {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getInt("audioCount", 0)
     }
 
     fun clearCachedAudioPlaylist() {

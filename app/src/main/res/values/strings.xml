@@ -11,6 +11,7 @@
     <string name="generic_error">Generic_Error</string>
     <string name="error_media_not_found">Error_Media_Not_Found</string>
     <string name="allowed_caller_log">Allowed_Caller</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="home">Home</string>
@@ -19,5 +20,11 @@
     <string name="app_id">73164B24</string>
     <string name="media_route_menu_title">Play on&#8230;</string>
     <string name="search">Search</string>
+    <string name="play_next">Play next</string>
+    <string name="add_to_playing_queue">Add to playing queue</string>
+    <string name="add_to_playlist">Add to playlist</string>
+    <string name="tag_editor">Tag editor</string>
+    <string name="details">Details</string>
+    <string name="delete">Delete</string>
 
 </resources>

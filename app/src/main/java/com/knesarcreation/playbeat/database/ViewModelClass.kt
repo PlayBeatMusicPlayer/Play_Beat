@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LiveData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication) {
 
@@ -21,12 +23,20 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
         return repository.getOneFavAudio(songId)
     }
 
+    suspend fun getRangeOfPlaylistAudio(songIds: ArrayList<Long>): List<AllSongsModel> {
+        return repository.getRangeOfPlaylistAudio(songIds)
+    }
+
     fun getLastAddedAudio(targetDate: String): LiveData<List<AllSongsModel>> {
         return repository.getLastAddedAudio(targetDate)
     }
 
     fun getPrevPlayedAudios(): LiveData<List<AllSongsModel>> {
         return repository.getPrevPlayedAudio()
+    }
+
+    fun getMostPlayedAudio(): LiveData<List<AllSongsModel>> {
+        return repository.getMostPlayedAudio()
     }
 
     fun getQueueFavouriteAudios(): LiveData<List<QueueListModel>> {
@@ -49,6 +59,10 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
         repository.deleteSongs(lifecycleScope)
     }
 
+    fun deleteOneSong(songId: Long, lifecycleScope: LifecycleCoroutineScope) {
+        repository.deleteOneSong(songId, lifecycleScope)
+    }
+
     fun updateSong(
         songId: Long,
         songName: String,
@@ -64,6 +78,14 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
         lifecycleScope: LifecycleCoroutineScope
     ) {
         repository.updateCurrentPlayedTime(songId, currentTime, lifecycleScope)
+    }
+
+    fun updateMostPlayedAudioCount(
+        songId: Long,
+        count: Int,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        repository.updateMostPlayedAudioCount(songId, count, lifecycleScope)
     }
 
     fun updateFavouriteAudio(
@@ -107,4 +129,32 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
     fun insertQueue(queueListModel: QueueListModel, lifecycleScope: LifecycleCoroutineScope) {
         repository.insertQueueAudio(queueListModel, lifecycleScope)
     }
+
+    fun insertPlaylist(playlistModel: PlaylistModel, lifecycleScope: LifecycleCoroutineScope) {
+        repository.insertPlaylist(playlistModel, lifecycleScope)
+    }
+
+    fun deletePlaylist(lifecycleScope: LifecycleCoroutineScope) {
+        repository.deletePlaylist(lifecycleScope)
+    }
+
+    fun updatePlaylist(audioList: String, id: Int, lifecycleScope: LifecycleCoroutineScope) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            repository.updatePlaylist(
+                audioList,
+                id,
+                lifecycleScope
+            )
+        }
+    }
+
+    fun getAllPlaylists(): LiveData<List<PlaylistModel>> {
+        return repository.getAllPlaylist()
+    }
+
+    suspend fun getPlaylistAudios(id: Int): List<PlaylistModel> {
+        return repository.getPlaylistAudios(id)
+    }
+
+
 }

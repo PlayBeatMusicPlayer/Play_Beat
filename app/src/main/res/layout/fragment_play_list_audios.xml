@@ -22,6 +22,7 @@
         android:clipToPadding="false"
         android:focusable="true"
         android:nestedScrollingEnabled="true"
+        android:visibility="visible"
         app:layoutDescription="@xml/fragment_play_list_audios_scene">
 
         <RelativeLayout
@@ -107,7 +108,7 @@
                 android:textStyle="bold"
                 tools:text="100 songs" />
 
-            <ImageView
+           <!-- <ImageView
                 android:id="@+id/sortIV"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
@@ -116,21 +117,23 @@
                 android:layout_marginTop="20dp"
                 android:background="@drawable/custom_ripple"
                 android:contentDescription="@null"
-                android:src="@drawable/ic_swap" />
+                android:src="@drawable/ic_sort"
+                android:visibility="gone" />-->
 
             <TextView
                 android:id="@+id/sortedTextTV"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="20dp"
                 android:layout_below="@id/playBtn"
-                android:layout_marginStart="5dp"
+                android:layout_marginStart="20dp"
                 android:layout_marginTop="25dp"
-                android:layout_toEndOf="@id/sortIV"
                 android:drawablePadding="5dp"
                 android:fontFamily="@font/segoe_ui"
                 android:textAlignment="center"
+                android:background="?selectableItemBackgroundBorderless"
                 android:textColor="@color/grey"
                 android:textStyle="bold"
+                app:drawableStartCompat="@drawable/ic_sort"
                 tools:text="Date Added" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -158,6 +161,30 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_history_added"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/totalSongsTV"
+                android:layout_marginTop="15dp"
+                android:nestedScrollingEnabled="true"
+                android:visibility="gone"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="10"
+                tools:listitem="@layout/recycler_all_songs_item" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_most_played"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/totalSongsTV"
+                android:layout_marginTop="15dp"
+                android:nestedScrollingEnabled="true"
+                android:visibility="gone"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="10"
+                tools:listitem="@layout/recycler_all_songs_item" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvCustomPlaylist"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_below="@id/totalSongsTV"
@@ -236,6 +263,62 @@
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
 
+    <RelativeLayout
+        android:id="@+id/rlNoSongsPresent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/app_theme_color"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/arrowBack"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/curved_all_edges"
+            android:contentDescription="@null"
+            android:paddingTop="5dp"
+            android:paddingEnd="2dp"
+            android:paddingBottom="5dp"
+            android:src="@drawable/ic_back_arrow_ios" />
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_above="@id/noSongTitle"
+            android:layout_centerInParent="true"
+            android:contentDescription="@null"
+            android:src="@drawable/music_note_icon" />
+
+        <TextView
+            android:id="@+id/noSongTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="60dp"
+            android:fontFamily="@font/segoe_ui"
+            android:text="No Songs Present"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="19sp" />
+
+        <TextView
+            android:id="@+id/noSongDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/noSongTitle"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="60dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/segoe_ui"
+            android:textAlignment="center"
+            android:textColor="@color/grey"
+            android:visibility="gone" />
+
+
+    </RelativeLayout>
 </RelativeLayout>
 
     <!--</RelativeLayout>-->

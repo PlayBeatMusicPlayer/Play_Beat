@@ -26,7 +26,7 @@
             android:layout_gravity="center"
             android:drawablePadding="5dp"
             android:textColor="@color/grey"
-            app:drawableEndCompat="@drawable/ic_arrow_upward"
+            app:drawableStartCompat="@drawable/ic_sort"
             tools:text="Name" />
 
     </FrameLayout>
@@ -42,8 +42,8 @@
             android:id="@+id/rvAllSongs"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:nestedScrollingEnabled="true"
             android:layout_marginTop="4dp"
+            android:nestedScrollingEnabled="true"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:itemCount="9"
             tools:listitem="@layout/recycler_all_songs_item" />

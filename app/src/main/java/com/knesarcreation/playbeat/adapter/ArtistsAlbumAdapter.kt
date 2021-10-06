@@ -22,7 +22,7 @@ import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.QueueListModel
 import com.knesarcreation.playbeat.database.ViewModelClass
-import com.knesarcreation.playbeat.databinding.RecyclerGridAlbumItemsBinding
+import com.knesarcreation.playbeat.databinding.RecyclerHorizontalAlbumItemsBinding
 import com.knesarcreation.playbeat.fragment.AllSongFragment
 import com.knesarcreation.playbeat.model.AlbumModel
 import com.knesarcreation.playbeat.utils.AudioPlayingFromCategory
@@ -42,7 +42,7 @@ class ArtistsAlbumAdapter(
     private var mViewModelClass =
         ViewModelProvider(context as AppCompatActivity)[ViewModelClass::class.java]
 
-    class ArtistsAlbumViewHolder(binding: RecyclerGridAlbumItemsBinding) :
+    class ArtistsAlbumViewHolder(binding: RecyclerHorizontalAlbumItemsBinding) :
         RecyclerView.ViewHolder(binding.root) {
         val albumNameTV = binding.albumNameTV
         val artisNameTV = binding.artisNameTV
@@ -55,7 +55,7 @@ class ArtistsAlbumAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtistsAlbumViewHolder {
         return ArtistsAlbumViewHolder(
-            RecyclerGridAlbumItemsBinding.inflate(
+            RecyclerHorizontalAlbumItemsBinding.inflate(
                 LayoutInflater.from(
                     parent.context
                 ), parent, false
@@ -248,7 +248,7 @@ class ArtistsAlbumAdapter(
         val storageUtil = StorageUtil(context)
         storageUtil.saveIsShuffled(false)
         val prevPlayingAudioIndex = storageUtil.loadAudioIndex()
-        val prevQueueList = storageUtil.loadAudio()
+        val prevQueueList = storageUtil.loadQueueAudio()
         val prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
 
         /*val playedFirstTime = !storageUtil.getIsAudioPlayedFirstTime()
@@ -291,7 +291,8 @@ class ArtistsAlbumAdapter(
                 -1,
                 audio.dateAdded,
                 audio.isFavourite,
-                audio.favAudioAddedTime
+                audio.favAudioAddedTime,
+                audio.mostPlayedCount
             )
             queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
             mViewModelClass.insertQueue(
@@ -320,7 +321,7 @@ class ArtistsAlbumAdapter(
         val storageUtil = StorageUtil(context)
         AudioPlayingFromCategory.audioPlayingFromAlbumORArtist = true
 
-        storageUtil.storeAudio(audioList)
+        storageUtil.storeQueueAudio(audioList)
         storageUtil.storeAudioIndex(0)
 
         //Send a broadcast to the service -> PLAY_NEW_AUDIO

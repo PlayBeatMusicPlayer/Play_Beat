@@ -10,7 +10,11 @@ import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.databinding.BottomSheetSortingOptionsBinding
 import com.knesarcreation.playbeat.utils.StorageUtil
 
-class BottomSheetSortBy(var mContext: Context, var sortFrom: String) : BottomSheetDialogFragment() {
+class BottomSheetSortBy(
+    var mContext: Context,
+    var sortFrom: String,
+    var playlistSortAudioKey: String
+) : BottomSheetDialogFragment() {
 
     private var _binding: BottomSheetSortingOptionsBinding? = null
     private val binding get() = _binding
@@ -39,7 +43,7 @@ class BottomSheetSortBy(var mContext: Context, var sortFrom: String) : BottomShe
 
         when (sortFrom) {
             "audio" -> {
-                when (storage.getAudioSortedValue()) {
+                when (storage.getAudioSortedValue(StorageUtil.AUDIO_KEY)) {
                     "Name" -> {
                         binding!!.sortByAudioToggleGroup.check(R.id.songNameBtn)
                     }
@@ -61,7 +65,7 @@ class BottomSheetSortBy(var mContext: Context, var sortFrom: String) : BottomShe
 
             "album" -> {
                 binding!!.sortByAudioToggleGroup.visibility = View.GONE
-                when (storage.getAlbumSortedValue()) {
+                when (storage.getAudioSortedValue(StorageUtil.ALBUM_AUDIO_KEY)) {
                     "year" -> {
                         binding!!.sortByAlbumToggleGroup.check(R.id.yearBtn)
                     }
@@ -86,7 +90,7 @@ class BottomSheetSortBy(var mContext: Context, var sortFrom: String) : BottomShe
                 binding!!.sortByAlbumToggleGroup.visibility = View.GONE
                 binding!!.durationBtn.visibility = View.GONE
 
-                when (storage.getFavAudioSortedValue()) {
+                when (storage.getAudioSortedValue(StorageUtil.FAV_AUDIO_KEY)) {
                     "Name" -> {
                         binding!!.sortByAudioToggleGroup.check(R.id.songNameBtn)
                     }
@@ -101,6 +105,51 @@ class BottomSheetSortBy(var mContext: Context, var sortFrom: String) : BottomShe
                     }
                     else -> {
                         binding!!.sortByAudioToggleGroup.check(R.id.defaultOrderBtn)
+                    }
+                }
+            }
+
+            "playlist" -> {
+                binding!!.defaultOrderBtn.visibility = View.GONE
+                binding!!.sortByAlbumToggleGroup.visibility = View.GONE
+                binding!!.durationBtn.visibility = View.GONE
+                binding!!.artistNameBtn.visibility = View.GONE
+
+                when (storage.getAudioSortedValue(StorageUtil.PLAYLIST_KEY)) {
+                    "Name" -> {
+                        binding!!.sortByAudioToggleGroup.check(R.id.songNameBtn)
+                    }
+
+                    "DateAdded" -> {
+                        binding!!.sortByAudioToggleGroup.check(R.id.dateAddedBtn)
+                    }
+
+                    else -> {
+                        binding!!.sortByAudioToggleGroup.check(R.id.songNameBtn)
+                    }
+                }
+            }
+
+            "playlistAudios" -> {
+                binding!!.defaultOrderBtn.visibility = View.GONE
+                binding!!.sortByAlbumToggleGroup.visibility = View.GONE
+                binding!!.durationBtn.visibility = View.GONE
+
+                when (storage.getAudioSortedValue(playlistSortAudioKey)) {
+                    "Name" -> {
+                        binding!!.sortByAudioToggleGroup.check(R.id.songNameBtn)
+                    }
+
+                    "DateAdded" -> {
+                        binding!!.sortByAudioToggleGroup.check(R.id.dateAddedBtn)
+                    }
+
+                    "ArtistName" -> {
+                        binding!!.sortByAudioToggleGroup.check(R.id.artistNameBtn)
+                    }
+
+                    else -> {
+                        binding!!.sortByAudioToggleGroup.check(R.id.songNameBtn)
                     }
                 }
             }

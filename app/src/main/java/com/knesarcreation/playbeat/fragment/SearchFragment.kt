@@ -126,7 +126,7 @@ class SearchFragment : Fragment() {
 
         storageUtil.saveIsShuffled(false)
         val prevPlayingAudioIndex = storageUtil.loadAudioIndex()
-        val prevQueueList = storageUtil.loadAudio()
+        val prevQueueList = storageUtil.loadQueueAudio()
         val prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
 
         // restricting to update if clicked audio is same
@@ -165,7 +165,8 @@ class SearchFragment : Fragment() {
                 -1,
                 audio.dateAdded,
                 audio.isFavourite,
-                audio.favAudioAddedTime
+                audio.favAudioAddedTime,
+                audio.mostPlayedCount
             )
             queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
             mViewModelClass.insertQueue(queueListModel, lifecycleScope)
@@ -191,7 +192,7 @@ class SearchFragment : Fragment() {
         //store audio to prefs
         val searchList = CopyOnWriteArrayList<AllSongsModel>()
         searchList.addAll(audioSearchList)
-        storageUtil.storeAudio(searchList)
+        storageUtil.storeQueueAudio(searchList)
         //Store the new audioIndex to SharedPreferences
         storageUtil.storeAudioIndex(audioIndex)
 

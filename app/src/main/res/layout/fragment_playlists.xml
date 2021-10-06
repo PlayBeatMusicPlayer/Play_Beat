@@ -103,12 +103,62 @@
 
         </LinearLayout>
 
+        <FrameLayout
+            android:id="@+id/sortPlaylist"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="?selectableItemBackgroundBorderless">
+
+            <TextView
+                android:id="@+id/sortPlaylistTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:drawablePadding="5dp"
+                android:textColor="@color/grey"
+                app:drawableEndCompat="@drawable/ic_arrow_upward"
+                tools:text="Name" />
+
+        </FrameLayout>
+
+        <RelativeLayout
+            android:id="@+id/rlPlaylistContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPlaylist"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="4dp"
+                android:nestedScrollingEnabled="true"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="9"
+                tools:listitem="@layout/recycler_playlist_items" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="12dp"
+                android:layout_alignTop="@id/rvPlaylist"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:contentDescription="@null"
+                android:focusable="true"
+                android:foreground="@drawable/gradient_background_top_shadow" />
+
+        </RelativeLayout>
+
         <LinearLayout
+            android:id="@+id/noPlayList"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="120dp"
             android:orientation="vertical"
+            android:visibility="gone"
             tools:ignore="UseCompoundDrawables">
 
             <ImageView
@@ -140,16 +190,17 @@
 
     </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/createFab"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabCreatePlaylist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="20dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_add"
         android:text="Create"
         android:textAllCaps="false"
         android:textSize="17sp"
-        app:backgroundTint="@color/light_transparent"
-        app:icon="@drawable/ic_add" />
+        app:backgroundTint="@color/light_transparent" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

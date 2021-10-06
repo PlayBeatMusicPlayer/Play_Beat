@@ -7,13 +7,14 @@ import androidx.room.RoomDatabase
 
 
 @Database(
-    entities = [AllSongsModel::class, QueueListModel::class],
+    entities = [AllSongsModel::class, QueueListModel::class, PlaylistModel::class],
     version = 1,
     exportSchema = false
 )
 abstract class DatabaseClient : RoomDatabase() {
     abstract fun allSongsDao(): AllSongsDao
     abstract fun queueListDao(): QueueListDao
+    abstract fun playlistDao(): PlaylistDao
 
     companion object {
         private var mInstance: DatabaseClient? = null

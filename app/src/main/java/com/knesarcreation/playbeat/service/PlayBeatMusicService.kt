@@ -72,7 +72,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     private var isTaskRemoved = false
     private var sleepCountDownTimer: CountDownTimer? = null
     var isSleepTimeRunning = false
-    private var tempIndex = 0
+    private var initAudioOnPressResumeBtn = false
 
     companion object {
         const val ACTION_PLAY = "com.knesarcreation.playbeat.service.ACTION_PLAY"
@@ -85,18 +85,18 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         const val OPEN_CONTENT = "com.knesarcreation.playbeat.service.OPEN_CONTENT"
     }
 
-    fun updateNotification(isPlaying: Boolean) {
+    fun updateNotification(isAudioPlaying: Boolean) {
         val storageUtil = StorageUtil(applicationContext)
-        val loadAudio = storageUtil.loadAudio()
+        val loadAudio = storageUtil.loadQueueAudio()
         activeAudio = loadAudio[audioIndex]
         if (activeAudio?.isFavourite!!) {
-            if (isPlaying)
+            if (isAudioPlaying)
                 buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.FAVOURITE, 1f)
             else
                 buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.FAVOURITE, 0f)
 
         } else {
-            if (isPlaying)
+            if (isAudioPlaying)
                 buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
             else
                 buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
@@ -121,6 +121,9 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         //registerMediaBtn()
 
         resumePosition = StorageUtil(applicationContext).getAudioResumePos()
+
+        // initialize audio when app reOpens and user click on playPause btn
+        initAudioOnPressResumeBtn = true
 
     }
 
@@ -229,7 +232,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         try {
             //Load data from SharedPreferences
             val storage = StorageUtil(applicationContext)
-            audioList = storage.loadAudio()
+            audioList = storage.loadQueueAudio()
             audioIndex = storage.loadAudioIndex()
 
             Log.d("audioIndexService", "onStartCommand:  $audioIndex")
@@ -292,11 +295,6 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 mediaPlayer?.pause()
                 resumePosition = mediaPlayer?.currentPosition!!
                 /** Update UI of [AllSongFragment] */
-                /* if (!isPausedThroughService) {
-
-                 } else {
-                     updateMiniPlayerWithBundle()
-                 }*/
                 val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
                 sendBroadcast(updatePlayer)
             }
@@ -306,17 +304,16 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     fun resumeMedia() {
         if (mediaPlayer == null) return
         if (!mediaPlayer?.isPlaying!!) {
-            initMediaPlayer()
+           /* if (initAudioOnPressResumeBtn) {
+                initAudioOnPressResumeBtn = false
+                initMediaPlayer()
+            }*/
+            Toast.makeText(applicationContext, "initAudio: $initAudioOnPressResumeBtn", Toast.LENGTH_SHORT).show()
             mediaPlayer?.seekTo(resumePosition)
             mediaPlayer?.start()
 
             requestAudioFocus()
 
-            /*  if (!isResumedThroughService) {
-
-              } else {
-                  updateMiniPlayerWithBundle()
-              }*/
             /** Update UI of [AllSongFragment] */
             val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
             sendBroadcast(updatePlayer)
@@ -327,7 +324,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     private fun skipToNext() {
         val storageUtil = StorageUtil(applicationContext)
         audioList!!.clear()
-        audioList = storageUtil.loadAudio()
+        audioList = storageUtil.loadQueueAudio()
         audioIndex = storageUtil.loadAudioIndex()
         val tempIndex: Int = audioIndex
         if (audioIndex == audioList!!.size - 1) {
@@ -489,7 +486,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
             UriToBitmapConverter.getBitmap(contentResolver, activeAudio?.artUri!!.toUri())
                 ?: BitmapFactory.decodeResource(
                     resources,
-                    R.drawable.play_beat_logo
+                    R.drawable.music_note_notification
                 )
 
         // Create a new Notification
@@ -835,7 +832,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     fun updateMetaData() {
         val albumArt =
             UriToBitmapConverter.getBitmap(contentResolver, activeAudio?.artUri!!.toUri())
-                ?: BitmapFactory.decodeResource(resources, R.drawable.music_note_1)
+                ?: BitmapFactory.decodeResource(resources, R.drawable.music_note_notification)
 
         // Update the current metadata
         mediaSession!!.setMetadata(
@@ -922,7 +919,9 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         override fun onReceive(context: Context, intent: Intent) {
             val storageUtil = StorageUtil(applicationContext)
 
-            audioList = storageUtil.loadAudio()
+            initAudioOnPressResumeBtn = false
+
+            audioList = storageUtil.loadQueueAudio()
             //Get the new media index form SharedPreferences
             audioIndex = storageUtil.loadAudioIndex()
             if (audioIndex != -1 && audioIndex < audioList!!.size) {

@@ -21,9 +21,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:drawablePadding="5dp"
-            tools:text="Name"
             android:textColor="@color/grey"
-            app:drawableEndCompat="@drawable/ic_arrow_upward" />
+            app:drawableStartCompat="@drawable/ic_sort"
+            tools:text="Name" />
 
     </FrameLayout>
 

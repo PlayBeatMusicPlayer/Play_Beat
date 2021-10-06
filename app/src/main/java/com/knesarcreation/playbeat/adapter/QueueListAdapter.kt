@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -131,17 +132,16 @@ class QueueListAdapter(
         // mViewModelClass.deleteQueue((context as AppCompatActivity).lifecycleScope)
         val storageUtil = StorageUtil(context)
         val currentPlayingAudioIndex = storageUtil.loadAudioIndex()
-        val loadAudio = storageUtil.loadAudio()
+        val loadAudio = storageUtil.loadQueueAudio()
         val currentPlayingAudio = loadAudio[currentPlayingAudioIndex]
 
         val list = CopyOnWriteArrayList<AllSongsModel>()
         list.addAll(dataSet)
-        dataSet =
-            list  //updating dataSet : for a rare case if adapter items is not notified that its rearranged
+        dataSet = list  //updating dataSet : for a rare case if adapter items is not notified that its rearranged
 
         val newCurrentPlayingAudioIndex = list.indexOf(currentPlayingAudio)
-
-        StorageUtil(context).storeAudio(list)
+        Toast.makeText(context, "new: $newCurrentPlayingAudioIndex, old: $currentPlayingAudioIndex", Toast.LENGTH_SHORT).show()
+        StorageUtil(context).storeQueueAudio(list)
         if (item.songName == currentPlayingAudio.songName) {
             //if dragged item is current playing audio then store the index of current playing audio
             storageUtil.storeAudioIndex(viewHolder.layoutPosition)
@@ -151,7 +151,7 @@ class QueueListAdapter(
 
           Log.d(
               "DragDropAdapter",
-              "onDragFinished:currentPlayingAudio:  $currentPlayingAudioIndex ,  "
+              "onDragFinished:currentPlayingAudio:  old pos: $currentPlayingAudioIndex , new pos: $newCurrentPlayingAudioIndex "
           )
     }
 }

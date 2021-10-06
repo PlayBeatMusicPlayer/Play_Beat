@@ -45,7 +45,7 @@
             motion:moveWhenScrollAtTop="true"
             motion:onTouchUp="stop"
             motion:touchAnchorId="@+id/rv_fav_songs"
-            motion:touchAnchorSide="top" />
+            motion:touchAnchorSide="bottom" />
     </Transition>
 
     <ConstraintSet android:id="@+id/start">

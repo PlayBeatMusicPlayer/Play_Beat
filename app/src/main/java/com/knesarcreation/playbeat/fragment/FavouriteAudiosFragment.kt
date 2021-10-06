@@ -12,7 +12,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
+import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.google.android.material.transition.MaterialSharedAxis
+import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.QueueListModel
@@ -68,25 +71,13 @@ class FavouriteAudiosFragment : Fragment() {
                         binding!!.rvFavSongs.visibility = View.VISIBLE
                         binding!!.rvHistoryAdded.visibility = View.GONE
                         binding!!.rvLastPlayedAudio.visibility = View.GONE
-                        binding!!.sortIV.visibility = View.VISIBLE
+                        binding!!.rvMostPlayed.visibility = View.GONE
+                        binding!!.rvCustomPlaylist.visibility = View.GONE
+                        //binding!!.sortIV.visibility = View.VISIBLE
                         binding!!.sortedTextTV.visibility = View.VISIBLE
                         binding!!.titleNameTV.text = "Favourite Songs"
                         binding!!.artisNameTVToolbar.text = "Favourite Songs"
                     }
-
-                    /* "history" -> {
-                         binding!!.rvFavSongs.visibility = View.GONE
-                         binding!!.rvHistoryAdded.visibility = View.VISIBLE
-                         binding!!.rvLastPlayedAudio.visibility = View.GONE
-                         binding!!.sortIV.visibility = View.GONE
-                         binding!!.sortedTextTV.visibility = View.GONE
-                         binding!!.titleNameTV.text = "History"
-                         binding!!.artisNameTVToolbar.text = "History"
-                         setUpHistoryRecyclerAdapter()
-
-                     }*/
-
-
                 }
             }
         })
@@ -101,11 +92,15 @@ class FavouriteAudiosFragment : Fragment() {
             (activity as AppCompatActivity).onBackPressed()
         }
 
+        binding?.arrowBack?.setOnClickListener {
+            (activity as AppCompatActivity).onBackPressed()
+        }
+
         binding?.playBtn?.setOnClickListener {
             onClickAudio(favAudioList[0], 0)
         }
 
-        binding?.sortIV?.setOnClickListener {
+        binding?.sortedTextTV?.setOnClickListener {
             sortAudios()
         }
 
@@ -114,29 +109,29 @@ class FavouriteAudiosFragment : Fragment() {
 
 
     private fun sortAudios() {
-        when (storage.getFavAudioSortedValue()) {
-            "defaultOrder" -> {
-                binding?.sortedTextTV?.text = "Default"
-            }
-            "Name" -> {
-                binding?.sortedTextTV?.text = "Name"
-            }
-            "DateAdded" -> {
-                binding?.sortedTextTV?.text = "Date Added"
-            }
-            "ArtistName" -> {
-                binding?.sortedTextTV?.text = "Artist Name"
-            }
-            else -> binding?.sortedTextTV?.text = "Default"
-        }
-        val bottomSheetSortByOptions = BottomSheetSortBy(activity as Context, "favourites")
+        /* when (storage.getFavAudioSortedValue()) {
+             "defaultOrder" -> {
+                 binding?.sortedTextTV?.text = "Default"
+             }
+             "Name" -> {
+                 binding?.sortedTextTV?.text = "Name"
+             }
+             "DateAdded" -> {
+                 binding?.sortedTextTV?.text = "Date Added"
+             }
+             "ArtistName" -> {
+                 binding?.sortedTextTV?.text = "Artist Name"
+             }
+             else -> binding?.sortedTextTV?.text = "Default"
+         }*/
+        val bottomSheetSortByOptions = BottomSheetSortBy(activity as Context, "favourites","")
         bottomSheetSortByOptions.show(
             (context as AppCompatActivity).supportFragmentManager,
             "bottomSheetSortByOptions"
         )
         bottomSheetSortByOptions.listener = object : BottomSheetSortBy.OnSortingAudio {
             override fun byName() {
-                storage.saveFavAudioSortingMethod("Name")
+                storage.saveAudioSortingMethod(StorageUtil.FAV_AUDIO_KEY, "Name")
                 val sortedBySongName =
                     favAudioList.sortedBy { allSongsModel -> allSongsModel.songName }
 
@@ -151,7 +146,7 @@ class FavouriteAudiosFragment : Fragment() {
             }
 
             override fun byArtistName() {
-                storage.saveFavAudioSortingMethod("ArtistName")
+                storage.saveAudioSortingMethod(StorageUtil.FAV_AUDIO_KEY, "ArtistName")
                 val sortedByArtistName =
                     favAudioList.sortedBy { allSongsModel -> allSongsModel.artistsName }
                 setUpFavRecyclerAdapter()
@@ -165,7 +160,7 @@ class FavouriteAudiosFragment : Fragment() {
             }
 
             override fun defaultOrder() {
-                storage.saveFavAudioSortingMethod("defaultOrder")
+                storage.saveAudioSortingMethod(StorageUtil.FAV_AUDIO_KEY, "defaultOrder")
                 val sortedByFavAddedDate =
                     favAudioList.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime }
 
@@ -180,7 +175,7 @@ class FavouriteAudiosFragment : Fragment() {
             }
 
             override fun byDate() {
-                storage.saveFavAudioSortingMethod("DateAdded")
+                storage.saveAudioSortingMethod(StorageUtil.FAV_AUDIO_KEY, "DateAdded")
                 val sortedByDateAdded =
                     favAudioList.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
 
@@ -228,7 +223,7 @@ class FavouriteAudiosFragment : Fragment() {
                 //allSongsAdapter?.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime })
 
                 val sortedList: List<AllSongsModel>
-                when (storage.getFavAudioSortedValue()) {
+                when (storage.getAudioSortedValue(StorageUtil.FAV_AUDIO_KEY)) {
                     "defaultOrder" -> {
                         sortedList =
                             it.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime }
@@ -274,15 +269,23 @@ class FavouriteAudiosFragment : Fragment() {
                 }
 
                 if (tempFavList.isNotEmpty()) {
-                    Glide.with(binding?.coverArtistImage!!).load(tempFavList[0].artUri)
-                        .into(binding?.coverArtistImage!!)
+                    val factory =
+                        DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
+                    binding?.rlNoSongsPresent?.visibility = View.GONE
+                    binding?.motionLayoutPlayListAudios?.visibility = View.VISIBLE
+                    binding?.noSongDescription?.visibility = View.GONE
+                    Glide.with(binding?.coverArtistImage!!).load(tempFavList[0].artUri).transition(
+                        withCrossFade(factory)
+                    ).into(binding?.coverArtistImage!!)
                 } else {
-                    // show No Fav layout todo
+                    // no audio present
+                    binding?.rlNoSongsPresent?.visibility = View.VISIBLE
+                    binding?.motionLayoutPlayListAudios?.visibility = View.GONE
+                    binding?.noSongDescription?.visibility = View.VISIBLE
+                    binding?.noSongDescription?.text =
+                        "You can add a song to favourite playlist by marking any song to favourite."
+                    binding?.image?.setImageResource(R.drawable.ic_heart_broken_white)
                 }
-
-                /* if (!storage.getIsAudioPlayedFirstTime()) {
-                     storage.storeAudio(favAudioList)
-                 }*/
 
             } else {
                 binding?.totalSongsTV?.text = ""
@@ -296,7 +299,7 @@ class FavouriteAudiosFragment : Fragment() {
     ) {
         storage.saveIsShuffled(false)
         val prevPlayingAudioIndex = storage.loadAudioIndex()
-        val prevQueueList = storage.loadAudio()
+        val prevQueueList = storage.loadQueueAudio()
         val prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
 
         Log.d(
@@ -337,7 +340,8 @@ class FavouriteAudiosFragment : Fragment() {
                 -1,
                 audio.dateAdded,
                 audio.isFavourite,
-                audio.favAudioAddedTime
+                audio.favAudioAddedTime,
+                audio.mostPlayedCount
             )
             queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
             mViewModelClass.insertQueue(queueListModel, lifecycleScope)
@@ -362,7 +366,7 @@ class FavouriteAudiosFragment : Fragment() {
         this.currentPlayingAudioIndex = audioIndex
         //store audio to prefs
 
-        storage.storeAudio(favAudioList)
+        storage.storeQueueAudio(favAudioList)
         //Store the new audioIndex to SharedPreferences
         storage.storeAudioIndex(audioIndex)
 

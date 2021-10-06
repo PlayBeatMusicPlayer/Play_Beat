@@ -11,11 +11,13 @@ class Repository(var application: Application) {
 
     private var allSongsDao: AllSongsDao
     private var queueListDao: QueueListDao
+    private var playlistDao: PlaylistDao
 
     init {
         val databaseClient = DatabaseClient.getInstance(application)
         allSongsDao = databaseClient?.allSongsDao()!!
         queueListDao = databaseClient.queueListDao()
+        playlistDao = databaseClient.playlistDao()
     }
 
     fun insertAllSongs(
@@ -29,6 +31,10 @@ class Repository(var application: Application) {
 
     fun deleteSongs(lifecycleScope: LifecycleCoroutineScope) {
         lifecycleScope.launch(Dispatchers.IO) { allSongsDao.deleteSongs() }
+    }
+
+    fun deleteOneSong(songId: Long, lifecycleScope: LifecycleCoroutineScope) {
+        lifecycleScope.launch(Dispatchers.IO) { allSongsDao.deleteOneSong(songId) }
     }
 
     fun updateSong(
@@ -49,6 +55,16 @@ class Repository(var application: Application) {
     ) {
         lifecycleScope.launch(Dispatchers.IO) {
             allSongsDao.updateCurrentPlayedTime(songId, currentTime)
+        }
+    }
+
+    fun updateMostPlayedAudioCount(
+        songId: Long,
+        count: Int,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            allSongsDao.updateMostPlayedAudioCount(songId, count)
         }
     }
 
@@ -81,9 +97,15 @@ class Repository(var application: Application) {
         return allSongsDao.getFavouritesAudio(isFav = true)
     }
 
+    suspend fun getRangeOfPlaylistAudio(songIds: ArrayList<Long>): List<AllSongsModel> {
+        return withContext(Dispatchers.IO) {
+            return@withContext allSongsDao.getRangeOfPlaylistAudio(songIds)
+        }
+    }
+
     suspend fun getOneFavAudio(songId: Long): List<AllSongsModel> {
         return withContext(Dispatchers.IO) {
-            return@withContext allSongsDao.getOneFavAudio(songId)
+            return@withContext allSongsDao.getOneAudio(songId)
         }
     }
 
@@ -93,6 +115,10 @@ class Repository(var application: Application) {
 
     fun getPrevPlayedAudio(): LiveData<List<AllSongsModel>> {
         return allSongsDao.getPrevPlayedAudio()
+    }
+
+    fun getMostPlayedAudio(): LiveData<List<AllSongsModel>> {
+        return allSongsDao.getMostPlayedAudio()
     }
 
     fun getQueueFavouriteAudios(): LiveData<List<QueueListModel>> {
@@ -141,6 +167,33 @@ class Repository(var application: Application) {
 
     fun getAllQueueAudio(): LiveData<List<QueueListModel>> {
         return queueListDao.getQueueAudioList()
+    }
+
+    fun insertPlaylist(
+        playlistModel: PlaylistModel,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            playlistDao.insertPlaylist(playlistModel)
+        }
+    }
+
+    fun deletePlaylist(lifecycleScope: LifecycleCoroutineScope) {
+        lifecycleScope.launch(Dispatchers.IO) { playlistDao.deletePlaylist() }
+    }
+
+    fun updatePlaylist(audioList: String, id: Int, lifecycleScope: LifecycleCoroutineScope) {
+        lifecycleScope.launch(Dispatchers.IO) { playlistDao.updatePlaylist(audioList, id) }
+    }
+
+    fun getAllPlaylist(): LiveData<List<PlaylistModel>> {
+        return playlistDao.getPlaylist()
+    }
+
+    suspend fun getPlaylistAudios(id: Int): List<PlaylistModel> {
+        return withContext(Dispatchers.IO) {
+            return@withContext playlistDao.getPlaylistAudios(id)
+        }
     }
 
 }

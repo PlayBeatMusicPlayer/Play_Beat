@@ -149,7 +149,6 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
                 (activity as AppCompatActivity).runOnUiThread {
                     allSongsAdapter.submitList(audioAlbum.sortedBy { allSongsModel -> allSongsModel.songName })
                 }
-
             }
         }
     }
@@ -335,7 +334,7 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
     private fun onClickAudio(allSongModel: AllSongsModel, position: Int) {
         storageUtil.saveIsShuffled(false)
         val prevPlayingAudioIndex = storageUtil.loadAudioIndex()
-        val audioList = storageUtil.loadAudio()
+        val audioList = storageUtil.loadQueueAudio()
         val prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
 
         var restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
@@ -384,7 +383,8 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
                     -1,
                     audio.dateAdded,
                     audio.isFavourite,
-                    audio.favAudioAddedTime
+                    audio.favAudioAddedTime,
+                    audio.mostPlayedCount
                 )
                 queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
 
@@ -410,7 +410,7 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
     private fun playAudio(position: Int) {
         AudioPlayingFromCategory.audioPlayingFromAlbumORArtist = true
 
-        storageUtil.storeAudio(albumAudioList)
+        storageUtil.storeQueueAudio(albumAudioList)
         storageUtil.storeAudioIndex(position)
 
         //Send a broadcast to the service -> PLAY_NEW_AUDIO

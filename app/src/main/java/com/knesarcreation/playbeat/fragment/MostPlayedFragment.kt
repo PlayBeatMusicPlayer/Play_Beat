@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.google.android.material.transition.MaterialSharedAxis
@@ -26,14 +26,14 @@ import com.knesarcreation.playbeat.utils.DataObservableClass
 import com.knesarcreation.playbeat.utils.StorageUtil
 import java.util.concurrent.CopyOnWriteArrayList
 
-class HistoryAudiosFragment : Fragment() {
+class MostPlayedFragment : Fragment() {
 
     private var currentPlayingAudioIndex = 0
     private var _binding: FragmentPlayListAudiosBinding? = null
     private val binding get() = _binding
-    private var historyAdapter: AllSongsAdapter? = null
+    private var mostPlayedAudioAdapter: AllSongsAdapter? = null
     private lateinit var mViewModelClass: ViewModelClass
-    private var historyAudioList = CopyOnWriteArrayList<AllSongsModel>()
+    private var mostPlayedAudioList = CopyOnWriteArrayList<AllSongsModel>()
     private lateinit var storage: StorageUtil
     private lateinit var viewModel: DataObservableClass
 
@@ -66,23 +66,23 @@ class HistoryAudiosFragment : Fragment() {
         viewModel.playlistCategory.observe(viewLifecycleOwner, {
             if (it != null) {
                 when (it) {
-                    "history" -> {
+                    "mostPlayed" -> {
                         binding!!.rvFavSongs.visibility = View.GONE
-                        binding!!.rvHistoryAdded.visibility = View.VISIBLE
+                        binding!!.rvHistoryAdded.visibility = View.GONE
                         binding!!.rvLastPlayedAudio.visibility = View.GONE
-                        binding!!.rvMostPlayed.visibility = View.GONE
+                        binding!!.rvMostPlayed.visibility = View.VISIBLE
                         //binding!!.sortIV.visibility = View.GONE
                         binding!!.sortedTextTV.visibility = View.GONE
                         binding!!.rvCustomPlaylist.visibility = View.GONE
-                        binding!!.titleNameTV.text = "History"
-                        binding!!.artisNameTVToolbar.text = "History"
+                        binding!!.titleNameTV.text = "Most played"
+                        binding!!.artisNameTVToolbar.text = "Most played"
                     }
                 }
             }
         })
 
-        setUpHistoryRecyclerAdapter()
-        observeHistoryAudio()
+        setUpMostPlayedAudioRecyclerAdapter()
+        observeMostPlayedAudio()
 
         binding?.arrowBackIV?.setOnClickListener {
             (activity as AppCompatActivity).onBackPressed()
@@ -93,41 +93,51 @@ class HistoryAudiosFragment : Fragment() {
         }
 
         binding?.playBtn?.setOnClickListener {
-            onClickAudio(historyAudioList[0], 0)
+            onClickAudio(mostPlayedAudioList[0], 0)
         }
+
         return view
     }
 
-    private fun observeHistoryAudio() {
-        mViewModelClass.getPrevPlayedAudios().observe(viewLifecycleOwner) {
-            if (it != null) {
-                historyAudioList.clear()
-                /*val tempList = CopyOnWriteArrayList<AllSongsModel>()
-                for (audioData in it) {
-                    if (audioData.currentPlayedAudioTime != 0L) {
-                        tempList.add(audioData)
-                    }
-                }*/
 
-                historyAudioList.addAll(it.sortedByDescending { allSongsModel -> allSongsModel.currentPlayedAudioTime })
-                historyAdapter!!.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.currentPlayedAudioTime })
-                binding?.rvHistoryAdded?.scrollToPosition(0)
+    private fun setUpMostPlayedAudioRecyclerAdapter() {
+        mostPlayedAudioAdapter =
+            AllSongsAdapter(
+                activity as Context,
+                AllSongsAdapter.OnClickListener { allSongModel, position ->
+                    onClickAudio(allSongModel, position)
+                })
+        mostPlayedAudioAdapter!!.isSearching = false
+        binding?.rvMostPlayed?.adapter = mostPlayedAudioAdapter
+    }
+
+    private fun observeMostPlayedAudio() {
+        mViewModelClass.getMostPlayedAudio().observe(viewLifecycleOwner) {
+            if (it != null) {
+                mostPlayedAudioList.clear()
+
+                mostPlayedAudioList.addAll(it.sortedByDescending { allSongsModel -> allSongsModel.mostPlayedCount })
+                mostPlayedAudioAdapter!!.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.mostPlayedCount })
+                binding?.rvMostPlayed?.scrollToPosition(0)
 
                 if (it.size >= 2) {
-                    binding?.totalSongsTV?.text = "${historyAudioList.size} Songs"
+                    binding?.totalSongsTV?.text = "${mostPlayedAudioList.size} Songs"
                 } else {
-                    binding?.totalSongsTV?.text = "${historyAudioList.size} Song"
+                    binding?.totalSongsTV?.text = "${mostPlayedAudioList.size} Song"
                 }
 
-                if (historyAudioList.isNotEmpty()) {
+                if (mostPlayedAudioList.isNotEmpty()) {
                     val factory =
                         DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
                     binding?.rlNoSongsPresent?.visibility = View.GONE
                     binding?.motionLayoutPlayListAudios?.visibility = View.VISIBLE
                     binding?.noSongDescription?.visibility = View.GONE
-                    Glide.with(binding?.coverArtistImage!!).load(historyAudioList[0].artUri).apply(
-                        RequestOptions.placeholderOf(R.drawable.audio_icon_placeholder).centerCrop()
-                    ).transition(DrawableTransitionOptions.withCrossFade(factory))
+                    Glide.with(binding?.coverArtistImage!!).load(mostPlayedAudioList[0].artUri)
+                        .transition(withCrossFade(factory))
+                        .apply(
+                            RequestOptions.placeholderOf(R.drawable.audio_icon_placeholder)
+                                .centerCrop()
+                        )
                         .into(binding?.coverArtistImage!!)
                 } else {
                     // no audio present
@@ -140,17 +150,6 @@ class HistoryAudiosFragment : Fragment() {
         }
     }
 
-    private fun setUpHistoryRecyclerAdapter() {
-        historyAdapter =
-            AllSongsAdapter(
-                activity as Context,
-                AllSongsAdapter.OnClickListener { allSongModel, position ->
-                    onClickAudio(allSongModel, position)
-                })
-        historyAdapter!!.isSearching = false
-        binding?.rvHistoryAdded?.adapter = historyAdapter
-        //binding!!.rvHistoryAdded.itemAnimator = null
-    }
 
     private fun onClickAudio(
         allSongModel: AllSongsModel,
@@ -163,7 +162,7 @@ class HistoryAudiosFragment : Fragment() {
 
         Log.d(
             "PlayListAudios111s",
-            "onClickAudio: allSongModel $allSongModel ,  historyAudioList $historyAudioList "
+            "onClickAudio: allSongModel $allSongModel ,  mostPlayedAudioList $mostPlayedAudioList "
         )
         mViewModelClass.deleteQueue(lifecycleScope)
 
@@ -181,10 +180,10 @@ class HistoryAudiosFragment : Fragment() {
             (context as AppCompatActivity).lifecycleScope
         )
 
-        playAudio(historyAudioList.indexOf(allSongModel))
+        playAudio(mostPlayedAudioList.indexOf(allSongModel))
 
         // adding queue list to DB and show highlight of current audio
-        for (audio in this.historyAudioList) {
+        for (audio in this.mostPlayedAudioList) {
             val queueListModel = QueueListModel(
                 audio.songId,
                 audio.albumId,
@@ -225,7 +224,7 @@ class HistoryAudiosFragment : Fragment() {
         this.currentPlayingAudioIndex = audioIndex
         //store audio to prefs
 
-        storage.storeQueueAudio(historyAudioList)
+        storage.storeQueueAudio(mostPlayedAudioList)
         //Store the new audioIndex to SharedPreferences
         storage.storeAudioIndex(audioIndex)
 
@@ -233,17 +232,35 @@ class HistoryAudiosFragment : Fragment() {
         val broadcastIntent = Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
         (activity as AppCompatActivity).sendBroadcast(broadcastIntent)
 
-        /*val updatePlayer = Intent(Broadcast_BOTTOM_UPDATE_PLAYER_UI)
-        (activity as Context).sendBroadcast(updatePlayer)*/
     }
 
     private fun animateRecyclerView() {
-        binding?.rvHistoryAdded!!.animate()
+        binding?.rvMostPlayed!!.animate()
             .translationY(-10f)
             //translationYBy(30f)
             .alpha(1.0f)
             .setListener(null)
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        /* if (!hidden) {
+             if (!storage.getIsAudioPlayedFirstTime()) {
+                 val audiosList = storage.loadQueueAudio()
+                 if (audiosList.isNotEmpty()) {
+                     for (audios in audiosList) {
+                         if (audios.mostPlayedCount != 0) {
+                             mViewModelClass.updateMostPlayedAudioCount(
+                                 audios.songId,
+                                 audios.mostPlayedCount,
+                                 lifecycleScope
+                             )
+                             Log.d("MostPlayedAudio1111", "onReceive:  ${audios.songName} , ${audios.mostPlayedCount} ")
+                         }
+                     }
+                 }
+             }
+         }*/
+    }
 
 }

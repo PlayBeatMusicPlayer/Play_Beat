@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/app_theme_color"
+    android:background="@drawable/curved_top_right_top_left_app_theme_color"
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
@@ -56,6 +56,23 @@
             android:visibility="gone"
             app:cornerRadius="10dp" />
 
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/songNameBtn"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:padding="8dp"
+            android:text="Name"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:theme="@style/ThemeButtonColorToggle"
+            app:cornerRadius="10dp"
+            app:strokeColor="@color/grey"
+            app:strokeWidth="0.8dp" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/dateAddedBtn"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -68,21 +85,10 @@
             android:textColor="@color/white"
             android:textSize="12sp"
             android:theme="@style/ThemeButtonColorToggle"
-            app:cornerRadius="10dp" />
+            app:cornerRadius="10dp"
+            app:strokeColor="@color/grey"
+            app:strokeWidth="0.8dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/songNameBtn"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:padding="8dp"
-            android:text="Song Name"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            android:theme="@style/ThemeButtonColorToggle"
-            app:cornerRadius="10dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/artistNameBtn"
@@ -96,7 +102,9 @@
             android:textColor="@color/white"
             android:textSize="12sp"
             android:theme="@style/ThemeButtonColorToggle"
-            app:cornerRadius="10dp" />
+            app:cornerRadius="10dp"
+            app:strokeColor="@color/grey"
+            app:strokeWidth="0.8dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/durationBtn"
@@ -110,7 +118,9 @@
             android:textColor="@color/white"
             android:textSize="12sp"
             android:theme="@style/ThemeButtonColorToggle"
-            app:cornerRadius="10dp" />
+            app:cornerRadius="10dp"
+            app:strokeColor="@color/grey"
+            app:strokeWidth="0.8dp" />
 
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -140,7 +150,9 @@
             android:textColor="@color/white"
             android:textSize="12sp"
             android:theme="@style/ThemeButtonColorToggle"
-            app:cornerRadius="10dp" />
+            app:cornerRadius="10dp"
+            app:strokeColor="@color/grey"
+            app:strokeWidth="0.8dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/albumArtistNameBtn"
@@ -154,7 +166,9 @@
             android:textColor="@color/white"
             android:textSize="12sp"
             android:theme="@style/ThemeButtonColorToggle"
-            app:cornerRadius="10dp" />
+            app:cornerRadius="10dp"
+            app:strokeColor="@color/grey"
+            app:strokeWidth="0.8dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/songCountBtn"
@@ -168,7 +182,9 @@
             android:textColor="@color/white"
             android:textSize="12sp"
             android:theme="@style/ThemeButtonColorToggle"
-            app:cornerRadius="10dp" />
+            app:cornerRadius="10dp"
+            app:strokeColor="@color/grey"
+            app:strokeWidth="0.8dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/yearBtn"
@@ -182,7 +198,9 @@
             android:textColor="@color/white"
             android:textSize="12sp"
             android:theme="@style/ThemeButtonColorToggle"
-            app:cornerRadius="10dp" />
+            app:cornerRadius="10dp"
+            app:strokeColor="@color/grey"
+            app:strokeWidth="0.8dp" />
 
     </com.google.android.material.button.MaterialButtonToggleGroup>
 

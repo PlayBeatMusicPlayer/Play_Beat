@@ -112,7 +112,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
                 audioList.addAll(shuffledList)
                 binding?.shuffleSongIV?.setImageResource(R.drawable.ic_shuffle_on_24)
                 Log.d("ShuffledaudioList", "onCreateView: ${shuffledList}")
-                storageUtil.storeAudio(shuffledList)
+                storageUtil.storeQueueAudio(shuffledList)
                 audioIndex = -1
 
             } else {
@@ -130,7 +130,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
                 shuffledList.clear()
                 audioList.clear()
                 audioList.addAll(sortedList)
-                storageUtil.storeAudio(audioList)
+                storageUtil.storeQueueAudio(audioList)
                 binding?.shuffleSongIV?.setImageResource(R.drawable.ic_shuffle)
             }
         }
@@ -407,7 +407,7 @@ class NowPlayingBottomDialogFragment(var mContext: Context) : BottomSheetDialogF
             binding?.shuffleSongIV?.setImageResource(R.drawable.ic_shuffle)
         }
         audioList.clear()
-        audioList = storageUtil.loadAudio()
+        audioList = storageUtil.loadQueueAudio()
         audioIndex = storageUtil.loadAudioIndex()
     }
 

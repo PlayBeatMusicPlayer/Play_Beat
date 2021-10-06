@@ -18,13 +18,14 @@ data class QueueListModel(
     var isPlayingOrPause: Int, // 0 for pause , 1 for play and -1 for default
     val dateAdded: String,
     val isFavourite: Boolean,
-    var favAudioAddedTime: Long
+    var favAudioAddedTime: Long,
+    var mostPlayed: Int
 ) {
     @PrimaryKey(autoGenerate = true)
     var id = 0
     var currentPlayedAudioTime: Long = 0L
 
-    constructor() : this(0L, 0L, "", "", "", 0, 0/*null*/, "", "", "", -1, "", false, 0L)
+    constructor() : this(0L, 0L, "", "", "", 0, 0/*null*/, "", "", "", -1, "", false, 0L, 0)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

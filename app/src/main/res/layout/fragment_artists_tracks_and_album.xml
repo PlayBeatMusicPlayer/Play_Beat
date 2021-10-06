@@ -190,7 +190,7 @@
             app:layout_constraintTop_toBottomOf="@id/albumTextTV"
             app:spanCount="1"
             tools:itemCount="5"
-            tools:listitem="@layout/recycler_grid_album_items" />
+            tools:listitem="@layout/recycler_horizontal_album_items" />
 
         <TextView
             android:id="@+id/trackTextTV"

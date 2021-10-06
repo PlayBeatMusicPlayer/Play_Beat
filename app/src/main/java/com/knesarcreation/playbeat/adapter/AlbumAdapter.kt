@@ -32,8 +32,6 @@ class AlbumAdapter(
             view.findViewById(R.id.currentPlayingAudioLottie)
         private val rlCurrentPlayingLottie: RelativeLayout =
             view.findViewById(R.id.rlCurrentPlayingLottie)
-        private val currentPlayingAudioIndicator: ImageView =
-            view.findViewById(R.id.currentPlayingAudioIndicator)
 
         fun bind(allSongModel: AllSongsModel) {
 

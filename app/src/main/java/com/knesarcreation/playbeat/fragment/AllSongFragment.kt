@@ -1,11 +1,11 @@
 package com.knesarcreation.playbeat.fragment
 
-import android.annotation.SuppressLint
-import android.content.*
-import android.net.Uri
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
-import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -23,10 +23,7 @@ import com.knesarcreation.playbeat.databinding.FragmentAllSongBinding
 import com.knesarcreation.playbeat.service.PlayBeatMusicService
 import com.knesarcreation.playbeat.utils.CustomProgressDialog
 import com.knesarcreation.playbeat.utils.StorageUtil
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.TimeUnit
 
 
 class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClickSongItem */ {
@@ -63,18 +60,17 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         val view = binding?.root
 
         //checkPermission(activity as Context)
-
+        storage = StorageUtil(activity as AppCompatActivity)
         mViewModelClass = ViewModelProvider(this)[ViewModelClass::class.java]
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            loadAudio()
-        }
+        //loadAudio()
+
+        startService()
 
         //set up recycler view
         refreshLayout()
 
         observeAudioData()
-        storage = StorageUtil(activity as AppCompatActivity)
 
         sortAudios()
 
@@ -88,8 +84,10 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         mViewModelClass.getAllSong().observe(viewLifecycleOwner, {
             if (it != null) {
                 audioList.clear()
+                tempAudioList.clear()
+                tempAudioList.addAll(it)
                 count++
-                when (storage.getAudioSortedValue()) {
+                when (storage.getAudioSortedValue(StorageUtil.AUDIO_KEY)) {
                     "Name" -> {
                         val sortedList = it.sortedBy { allSongsModel -> allSongsModel.songName }
                         audioList.addAll(sortedList)
@@ -118,7 +116,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                         binding?.sortAudioTV?.text = "Artist Name"
                     }
                     else -> {
-                        storage.saveAudioSortingMethod("Name")
+                        storage.saveAudioSortingMethod(StorageUtil.AUDIO_KEY, "Name")
                         val sortedList = it.sortedBy { allSongsModel -> allSongsModel.songName }
                         audioList.addAll(sortedList)
                         allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.songName })
@@ -126,9 +124,17 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                     }
                 }
 
-                if (count == 3) {
+                if (!isAnimated) {
+                    //animate once when app opens
                     if (it.isNotEmpty()) {
                         animateRecyclerView()
+                        isAnimated = true
+                    }
+                } else {
+                    //animate once when app opens first time
+                    if (storage.getIsAudioPlayedFirstTime()) {
+                        animateRecyclerView()
+                        isAnimated = true
                     }
                 }
                 if (it.size >= 2) {
@@ -167,7 +173,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
     }
 
     private fun sortAudios() {
-        when (storage.getAudioSortedValue()) {
+        when (storage.getAudioSortedValue(StorageUtil.AUDIO_KEY)) {
             "Name" -> {
                 binding?.sortAudioTV?.text = "Name"
             }
@@ -185,16 +191,17 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
             }
         }
         binding?.sortAudios?.setOnClickListener {
-            val bottomSheetSortByOptions = BottomSheetSortBy(activity as Context, "audio")
+            val bottomSheetSortByOptions = BottomSheetSortBy(activity as Context, "audio", "")
             bottomSheetSortByOptions.show(
                 (context as AppCompatActivity).supportFragmentManager,
                 "bottomSheetSortByOptions"
             )
+
             bottomSheetSortByOptions.listener = object : BottomSheetSortBy.OnSortingAudio {
                 override fun byDate() {
-                    storage.saveAudioSortingMethod("DateAdded")
+                    storage.saveAudioSortingMethod(StorageUtil.AUDIO_KEY, "DateAdded")
                     val sortedByDateAdded =
-                        audioList.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
+                        tempAudioList.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
 
                     refreshLayout()
                     allSongsAdapter.submitList(sortedByDateAdded)
@@ -209,9 +216,9 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                 }
 
                 override fun byName() {
-                    storage.saveAudioSortingMethod("Name")
+                    storage.saveAudioSortingMethod(StorageUtil.AUDIO_KEY, "Name")
                     val sortedBySongName =
-                        audioList.sortedBy { allSongsModel -> allSongsModel.songName }
+                        tempAudioList.sortedBy { allSongsModel -> allSongsModel.songName }
 
                     refreshLayout()
                     allSongsAdapter.submitList(sortedBySongName)
@@ -223,9 +230,9 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                 }
 
                 override fun byDuration() {
-                    storage.saveAudioSortingMethod("Duration")
+                    storage.saveAudioSortingMethod(StorageUtil.AUDIO_KEY, "Duration")
                     val sortedByDuration =
-                        audioList.sortedBy { allSongsModel -> allSongsModel.duration }
+                        tempAudioList.sortedBy { allSongsModel -> allSongsModel.duration }
                     refreshLayout()
                     allSongsAdapter.submitList(sortedByDuration)
                     audioList.clear()
@@ -236,9 +243,9 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                 }
 
                 override fun byArtistName() {
-                    storage.saveAudioSortingMethod("ArtistName")
+                    storage.saveAudioSortingMethod(StorageUtil.AUDIO_KEY, "ArtistName")
                     val sortedByArtistName =
-                        audioList.sortedBy { allSongsModel -> allSongsModel.artistsName }
+                        tempAudioList.sortedBy { allSongsModel -> allSongsModel.artistsName }
                     refreshLayout()
                     allSongsAdapter.submitList(sortedByArtistName)
                     audioList.clear()
@@ -265,176 +272,26 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         binding?.rvAllSongs?.alpha = 0.0f
     }
 
-    @SuppressLint("Range")
-    private fun loadAudio() {
-        tempAudioList.clear()
-        val collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-
-        val projection = arrayOf(
-            MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.SIZE,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.ALBUM_ID,
-            MediaStore.Audio.Media.DATA, // path
-            MediaStore.Audio.Media.DATE_ADDED
-        )
-
-        // Show only audios that are at least 1 minutes in duration.
-        val selection = "${MediaStore.Audio.Media.DURATION} >= ?"
-        val selectionArgs = arrayOf(TimeUnit.MILLISECONDS.convert(20, TimeUnit.SECONDS).toString())
-
-        // Display videos in alphabetical order based on their display name.
-        val sortOrder = "${MediaStore.Audio.Media.DISPLAY_NAME} ASC"
-
-        val query =
-            (activity as Context).contentResolver.query(
-                collection,
-                projection,
-                selection,
-                selectionArgs,
-                sortOrder
-            )
-
-        query?.use { cursor ->
-            // Cache column indices.
-            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-            val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
-            val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
-            val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
-            val artistsColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
-            val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
-            val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
-            val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-            val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
-
-            mViewModelClass.deleteSongs(lifecycleScope)
-
-            while (cursor.moveToNext()) {
-                //Get values of columns of a given audio
-                val id = cursor.getLong(idColumn)
-                val name = cursor.getString(nameColumn)
-                val duration = cursor.getInt(durationColumn)
-                val size = cursor.getInt(sizeColumn)
-                val album = cursor.getString(albumColumn)
-                val artist = cursor.getString(artistsColumn)
-                val albumId = cursor.getLong(albumIdColumn)
-                val data = cursor.getString(dataColumn)
-                val dateAdded = cursor.getString(dateAddedColumn)
-
-                //getting album art uri
-                //var bitmap: Bitmap? = null
-                val sArtworkUri = Uri
-                    .parse("content://media/external/audio/albumart")
-                //val albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId)
-                val artUri = Uri.withAppendedPath(sArtworkUri, albumId.toString()).toString()
-
-                // getting audio uri
-                val contentUri: Uri = ContentUris.withAppendedId(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    id
-                )
-
-                val allSongsModel =
-                    AllSongsModel(
-                        id,
-                        albumId,
-                        name,
-                        artist,
-                        album,
-                        size,
-                        duration,
-                        data,
-                        contentUri.toString(),
-                        artUri,
-                        dateAdded,
-                        false,
-                        0L
-                    )
-
-                /*storage.loadAudioIndex()
-                val playingAudio = storage.loadAudio()[]*/
-                allSongsModel.playingOrPause = -1
-                tempAudioList.add(allSongsModel)
-            }
-
-            cursor.close()
-
-            var audio = CopyOnWriteArrayList<AllSongsModel>()
-            if (!storage.getIsAudioPlayedFirstTime()) {
-                audio = storage.loadAudio()
-            }
-            // update audio to DB
-            var isFav = false
-            var favAudioAddedTime = 0L
-            //var currentPlayedAudioTime = 0L
-            for (audioData in tempAudioList) {
-                if (!storage.getIsAudioPlayedFirstTime()) {
-                    for (savedAudioData in audio) {
-                        if (savedAudioData.songId == audioData.songId) {
-                            isFav = savedAudioData?.isFavourite!!
-                            favAudioAddedTime = savedAudioData.favAudioAddedTime
-                            audioData.currentPlayedAudioTime = savedAudioData.currentPlayedAudioTime
-                            break
-                        }
-                    }
-                }
-                if (isFav) {
-                    audioData.favAudioAddedTime = favAudioAddedTime
-                }
-                audioData.isFavourite = isFav
-                //audioData.currentPlayedAudioTime = currentPlayedAudioTime
-                mViewModelClass.insertAllSongs(audioData, lifecycleScope)
-
-                // assigning isFav to false, favAudioAddedTime = 0 , for next iteration
-                isFav = false
-                favAudioAddedTime = 0L
-                //currentPlayedAudioTime = 0L
-
-            }
-            startService()
-        }
-    }
 
     private fun startService() {
         if (musicService == null) {
             if (storage.getIsAudioPlayedFirstTime()) {
                 // if app opened first time
-                storage.storeAudio(tempAudioList)
+                val audioList = storage.loadAudio()
+                storage.storeQueueAudio(audioList)
                 storage.storeAudioIndex(0) // since service is creating firstTime
             } else {
                 //audioList = storage.loadAudio()
                 audioIndexPos = storage.loadAudioIndex()
 
-                // If any new songs added then, getting a new index of current playing audio
-                /*  if (!storage.getIsAudioPlayedFirstTime()) {
-                      try {
-                          val currentPlayingAudio = storage.loadAudio()[audioIndexPos]
-                          audioIndexPos = audioList.indexOf(currentPlayingAudio)
-
-                          storage.storeAudioIndex(audioIndexPos)
-                      } catch (e: ArrayIndexOutOfBoundsException) {
-                          e.printStackTrace()
-                      }
-                  }
-                  Log.d("audioIndexAllAudio", "startService: $audioIndexPos ")
-  */
                 //highlight the paused audio when app opens and service is closed
-                val audio = storage.loadAudio()
+                val audio = storage.loadQueueAudio()
                 mViewModelClass.updateSong(
                     audio[audioIndexPos].songId,
                     audio[audioIndexPos].songName,
                     0, /*pause*/
                     (context as AppCompatActivity).lifecycleScope
                 )
-
-                /*  for (audioData in audio) {
-                      if (audioData.isFavourite) {
-                          mViewModelClass.updateFavouriteAudio(true, audioData.songId, lifecycleScope)
-                      }
-                  }*/
             }
 
             Log.d(
@@ -464,15 +321,10 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
     private fun playAudio(audioIndex: Int) {
         this.audioIndexPos = audioIndex
         //store audio to prefs
-        storage.storeAudio(audioList)
+        storage.storeQueueAudio(audioList)
         //Store the new audioIndex to SharedPreferences
         storage.storeAudioIndex(audioIndex)
 
-        /* Toast.makeText(
-             activity as Context,
-             ".....${audioList[0]} , index: $audioIndex",
-             Toast.LENGTH_SHORT
-         ).show()*/
         //Service is active send broadcast
         val broadcastIntent = Intent(Broadcast_PLAY_NEW_AUDIO)
         (activity as AppCompatActivity).sendBroadcast(broadcastIntent)
@@ -486,7 +338,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         val binder = service as PlayBeatMusicService.LocalBinder
         musicService = binder.getService()
         //serviceBound = true
-        Log.d("AllSongServicesBounded", "onServiceConnected: connected servic")
+        Log.d("AllSongServicesBounded", "onServiceConnected: connected service")
         //controlAudio()
         // Toast.makeText(this, "Service Bound", Toast.LENGTH_SHORT).show()
     }
@@ -507,7 +359,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         storage.saveIsShuffled(isShuffled)
 
         val prevPlayingAudioIndex = storage.loadAudioIndex()
-        val audioList = storage.loadAudio()
+        val audioList = storage.loadQueueAudio()
         val prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
 
         var restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
@@ -560,7 +412,8 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                     -1,
                     audio.dateAdded,
                     audio.isFavourite,
-                    audio.favAudioAddedTime
+                    audio.favAudioAddedTime,
+                    audio.mostPlayedCount
                 )
                 mViewModelClass.insertQueue(queueListModel, lifecycleScope)
             }
@@ -579,6 +432,62 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                 (context as AppCompatActivity).lifecycleScope
             )
         }
+
+        // incrementMostPlayedCount(this.audioList, this.audioList.indexOf(allSongModel))
     }
 
+    private fun incrementMostPlayedCount(
+        audioList: CopyOnWriteArrayList<AllSongsModel>,
+        currentPlayingAudioIndex: Int
+    ) {
+        val mostPlayedCount = audioList[currentPlayingAudioIndex].mostPlayedCount + 1
+        mViewModelClass.updateMostPlayedAudioCount(
+            audioList[currentPlayingAudioIndex].songId,
+            mostPlayedCount,
+            lifecycleScope
+        )
+
+        val list = CopyOnWriteArrayList<AllSongsModel>()
+        for ((index, audio) in audioList.withIndex()) {
+            val allSongsModel = AllSongsModel(
+                audio.songId,
+                audio.albumId,
+                audio.songName,
+                audio.artistsName,
+                audio.albumName,
+                audio.size,
+                audio.duration,
+                audio.data,
+                audio.audioUri,
+                audio.artUri,
+                audio.dateAdded,
+                audio.isFavourite,
+                audio.favAudioAddedTime
+            )
+
+            allSongsModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
+
+            if (index == currentPlayingAudioIndex) {
+                allSongsModel.mostPlayedCount = mostPlayedCount
+                if (musicService?.mediaPlayer != null) {
+                    if (musicService?.mediaPlayer!!.isPlaying) {
+                        allSongsModel.playingOrPause = 1 /*playing*/
+                    } else {
+                        allSongsModel.playingOrPause = 0 /*pause*/
+                    }
+                }
+                list.add(allSongsModel)
+            } else {
+                allSongsModel.mostPlayedCount = audio.mostPlayedCount
+                list.add(allSongsModel)
+            }
+
+            Log.d(
+                "MostPlayedAudio1111",
+                "onReceive:  ${allSongsModel.songName} , ${allSongsModel.mostPlayedCount} "
+            )
+
+        }
+        storage.storeQueueAudio(list)
+    }
 }

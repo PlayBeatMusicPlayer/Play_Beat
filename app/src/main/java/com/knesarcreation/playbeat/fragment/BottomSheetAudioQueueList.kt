@@ -145,7 +145,7 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
 
 
         storageUtil = StorageUtil(mContext)
-        val loadAudioList = storageUtil?.loadAudio()!!
+        val loadAudioList = storageUtil?.loadQueueAudio()!!
         audioList.addAll(loadAudioList)
         currentPlayingAudioIndex = storageUtil?.loadAudioIndex()!!
 
@@ -213,7 +213,7 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                         )
 
                         audioList.clear()
-                        audioList.addAll(storageUtil?.loadAudio()!!)
+                        audioList.addAll(storageUtil?.loadQueueAudio()!!)
                         currentPlayingAudioIndex =
                             audioList.indexOf(audioModel) // getting current playing audio index from a arranged list
                         Log.d(
@@ -362,7 +362,7 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
 
         mViewModelClass.getQueueAudio().observe(viewLifecycleOwner, {
             if (it != null) {
-                val loadAudio = storageUtil?.loadAudio()
+                val loadAudio = storageUtil?.loadQueueAudio()
                 val list = CopyOnWriteArrayList<AllSongsModel>()
                 Log.d("updateCurrentPlayingAudioList", "updateCurrentPlayingAudio: $loadAudio")
                 for (nowPlayingAudios in loadAudio!!) {
@@ -457,9 +457,11 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
         currentPlayingAudioIndex = position
 
         val currentPlayingAudioIndex = storageUtil!!.loadAudioIndex()
-        val loadAudioList = storageUtil!!.loadAudio()
+        val loadAudioList = storageUtil!!.loadQueueAudio()
         audioList.clear()
         audioList.addAll(loadAudioList)
+
+        Toast.makeText(activity as Context, "onClick: $currentPlayingAudioIndex", Toast.LENGTH_SHORT).show()
         val prevPlayingAudioIndex = audioList[currentPlayingAudioIndex]
 
         mViewModelClass.updateQueueAudio(
@@ -528,20 +530,17 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                     } else {
                         allSongsModel.playingOrPause = 0 /*pause*/
                         //Toast.makeText(mContext, "pause", Toast.LENGTH_SHORT).show()
-
                     }
                 }
-
                 list.add(allSongsModel)
             } else {
                 list.add(allSongsModel)
             }
-
         }
 
         audioList.clear()
         audioList.addAll(list)
-        storageUtil!!.storeAudio(list)
+        storageUtil!!.storeQueueAudio(list)
     }
 
     override fun onAttach(context: Context) {

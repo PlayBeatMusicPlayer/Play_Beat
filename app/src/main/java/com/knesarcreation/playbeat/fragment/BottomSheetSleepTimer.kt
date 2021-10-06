@@ -228,7 +228,7 @@ class BottomSheetSleepTimer(
         binding!!.endOfAudioTimeBtn.setOnClickListener {
             if (AllSongFragment.musicService != null) {
                 //if (AllSongFragment.musicService?.mediaPlayer != null) {
-                audioList = storageUtil?.loadAudio()!!
+                audioList = storageUtil?.loadQueueAudio()!!
                 audioIndex = storageUtil?.loadAudioIndex()!!
                     sleepTimeInMillis = audioList[audioIndex].duration.toLong()
                         /*AllSongFragment.musicService?.mediaPlayer?.duration?.toLong()!!*/

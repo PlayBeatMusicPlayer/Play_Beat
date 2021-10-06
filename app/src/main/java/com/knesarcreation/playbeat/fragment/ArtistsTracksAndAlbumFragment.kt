@@ -385,7 +385,7 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
         storageUtil.saveIsShuffled(false)
 
         val prevPlayingAudioIndex = storageUtil.loadAudioIndex()
-        val audioList = storageUtil.loadAudio()
+        val audioList = storageUtil.loadQueueAudio()
         val prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
 
         var restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
@@ -434,7 +434,8 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
                     -1,
                     audio.dateAdded,
                     audio.isFavourite,
-                    audio.favAudioAddedTime
+                    audio.favAudioAddedTime,
+                    audio.mostPlayedCount
                 )
                 queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
                 mViewModelClass.insertQueue(queueListModel, lifecycleScope)
@@ -470,7 +471,7 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
     private fun playAudio(position: Int) {
         AudioPlayingFromCategory.audioPlayingFromAlbumORArtist = true
 
-        storageUtil.storeAudio(audioList)
+        storageUtil.storeQueueAudio(audioList)
         storageUtil.storeAudioIndex(position)
 
         //Send a broadcast to the service -> PLAY_NEW_AUDIO

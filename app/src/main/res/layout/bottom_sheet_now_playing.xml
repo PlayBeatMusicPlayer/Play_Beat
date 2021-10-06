@@ -50,8 +50,8 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="20dp"
                 android:background="@color/semi_transparent"
-                android:src="@drawable/ic_audio_file_placeholder_svg"
-                app:shapeAppearanceOverlay="@style/circular_50" />
+                android:src="@drawable/music_note_icon"
+                app:shapeAppearanceOverlay="@style/circular_15" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -73,9 +73,9 @@
                     android:maxLines="1"
                     android:scrollHorizontally="true"
                     android:singleLine="true"
-                    android:text="Unknown"
                     android:textColor="@color/white"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    tools:text="Unknown" />
 
                 <TextView
                     android:id="@+id/artistOrAlbumNameTV"
@@ -83,9 +83,9 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="unknown"
-                    android:textColor="@color/white"
-                    android:textSize="12sp" />
+                    android:textColor="@color/grey"
+                    android:textSize="12sp"
+                    tools:text="unknown" />
 
             </LinearLayout>
 

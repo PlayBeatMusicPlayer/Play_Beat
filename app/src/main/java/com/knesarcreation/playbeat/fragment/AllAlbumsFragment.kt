@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.transition.MaterialSharedAxis
 import com.google.gson.Gson
 import com.knesarcreation.playbeat.adapter.AllAlbumsAdapter
 import com.knesarcreation.playbeat.databinding.FragmentAllAlbumsBinding
@@ -45,7 +44,7 @@ class AllAlbumsFragment : Fragment() {
     }
 
     private fun sortAudios() {
-        when (StorageUtil(activity as Context).getAlbumSortedValue()) {
+        when (StorageUtil(activity as Context).getAudioSortedValue(StorageUtil.ALBUM_AUDIO_KEY)) {
             "year" -> {
                 binding?.sortAudioTV?.text = "Year"
             }
@@ -65,14 +64,14 @@ class AllAlbumsFragment : Fragment() {
 
         val storageUtil = StorageUtil(activity as Context)
         binding?.sortAudios?.setOnClickListener {
-            val bottomSheetSortByOptions = BottomSheetSortBy(activity as Context, "album")
+            val bottomSheetSortByOptions = BottomSheetSortBy(activity as Context, "album","")
             bottomSheetSortByOptions.show(
                 (context as AppCompatActivity).supportFragmentManager,
                 "bottomSheetSortByOptions"
             )
             bottomSheetSortByOptions.listener = object : BottomSheetSortBy.OnSortingAudio {
                 override fun year() {
-                    storageUtil.saveAlbumSortingMethod("year")
+                    storageUtil.saveAudioSortingMethod(StorageUtil.ALBUM_AUDIO_KEY, "year")
                     val sortedByYear =
                         albumList.sortedByDescending { albumModel -> albumModel.lastYear }
 
@@ -85,7 +84,7 @@ class AllAlbumsFragment : Fragment() {
                 }
 
                 override fun byName() {
-                    storageUtil.saveAlbumSortingMethod("AlbumName")
+                    storageUtil.saveAudioSortingMethod(StorageUtil.ALBUM_AUDIO_KEY, "AlbumName")
                     val sortedByAlbumName =
                         albumList.sortedBy { albumModel -> albumModel.albumName }
                     albumList.clear()
@@ -97,7 +96,7 @@ class AllAlbumsFragment : Fragment() {
                 }
 
                 override fun count() {
-                    storageUtil.saveAlbumSortingMethod("SongCount")
+                    storageUtil.saveAudioSortingMethod(StorageUtil.ALBUM_AUDIO_KEY, "SongCount")
                     val sortedByCount =
                         albumList.sortedBy { albumModel -> albumModel.songCount }
 
@@ -110,7 +109,10 @@ class AllAlbumsFragment : Fragment() {
                 }
 
                 override fun byArtistName() {
-                    storageUtil.saveAlbumSortingMethod("AlbumArtistName")
+                    storageUtil.saveAudioSortingMethod(
+                        StorageUtil.ALBUM_AUDIO_KEY,
+                        "AlbumArtistName"
+                    )
                     val sortedByAlbumArtistName =
                         albumList.sortedBy { albumModel -> albumModel.artistName }
                     albumList.clear()

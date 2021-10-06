@@ -14,11 +14,17 @@ interface AllSongsDao {
     @Query("DELETE FROM allSongsModel")
     suspend fun deleteSongs()
 
+    @Query("Delete from allSongsModel where songId = :songId")
+    suspend fun deleteOneSong(songId: Long)
+
     @Query("UPDATE allSongsModel set playingOrPause = :isPlayingOrPause where songId = :songId and songName =:songName")
     suspend fun updateSongs(songId: Long, songName: String, isPlayingOrPause: Int)
 
     @Query("UPDATE allSongsModel set currentPlayedAudioTime = :currentTime where songId = :songId ")
     suspend fun updateCurrentPlayedTime(songId: Long, currentTime: Long)
+
+    @Query("UPDATE allSongsModel set mostPlayedCount = :count where songId = :songId ")
+    suspend fun updateMostPlayedAudioCount(songId: Long, count: Int)
 
     @Query("SELECT * FROM allSongsModel")
     fun getAllSongs(): LiveData<List<AllSongsModel>>
@@ -36,7 +42,10 @@ interface AllSongsDao {
     fun getFavouritesAudio(isFav: Boolean): LiveData<List<AllSongsModel>>
 
     @Query("SELECT * FROM allSongsModel where songId = :songId")
-    fun getOneFavAudio(songId: Long): List<AllSongsModel>
+    fun getOneAudio(songId: Long): List<AllSongsModel>
+
+    @Query("SELECT * FROM allSongsModel where songId IN (:songIds)")
+    fun getRangeOfPlaylistAudio(songIds: ArrayList<Long>): List<AllSongsModel>
 
     @Query("UPDATE allSongsModel set isFavourite = :isFav, favAudioAddedTime =:favAudioAddedTime where songId = :songId")
     suspend fun updateFavouriteAudio(isFav: Boolean, songId: Long, favAudioAddedTime: Long)
@@ -47,4 +56,6 @@ interface AllSongsDao {
     @Query("SELECT * FROM allSongsModel where currentPlayedAudioTime != 0")
     fun getPrevPlayedAudio(): LiveData<List<AllSongsModel>>
 
+    @Query("Select * from allSongsModel where mostPlayedCount != 0")
+    fun getMostPlayedAudio(): LiveData<List<AllSongsModel>>
 }

@@ -12,7 +12,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
+import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.google.android.material.transition.MaterialSharedAxis
+import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.QueueListModel
@@ -66,9 +69,11 @@ class LastAddedAudioFragment : Fragment() {
                     "lastAdded" -> {
                         binding!!.rvFavSongs.visibility = View.GONE
                         binding!!.rvHistoryAdded.visibility = View.GONE
+                        binding!!.rvMostPlayed.visibility = View.GONE
                         binding!!.rvLastPlayedAudio.visibility = View.VISIBLE
-                        binding!!.sortIV.visibility = View.GONE
+                        //binding!!.sortIV.visibility = View.GONE
                         binding!!.sortedTextTV.visibility = View.GONE
+                        binding!!.rvCustomPlaylist.visibility = View.GONE
                         binding!!.titleNameTV.text = "Last added"
                         binding!!.artisNameTVToolbar.text = "Last added"
                     }
@@ -80,6 +85,10 @@ class LastAddedAudioFragment : Fragment() {
         observeLastAddedAudio()
 
         binding?.arrowBackIV?.setOnClickListener {
+            (activity as AppCompatActivity).onBackPressed()
+        }
+
+        binding?.arrowBack?.setOnClickListener {
             (activity as AppCompatActivity).onBackPressed()
         }
 
@@ -103,7 +112,6 @@ class LastAddedAudioFragment : Fragment() {
         binding!!.rvLastPlayedAudio.itemAnimator = null
     }
 
-
     private fun observeLastAddedAudio() {
         val cal = Calendar.getInstance()
         cal.add(Calendar.MONTH, -2)
@@ -115,7 +123,7 @@ class LastAddedAudioFragment : Fragment() {
                     it.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
                 lastAddedAudioList.addAll(sortedByDescending)
                 lastAddedSongsAdapter!!.submitList(sortedByDescending)
-                binding?.rvFavSongs?.scrollToPosition(0)
+                binding?.rvLastPlayedAudio?.scrollToPosition(0)
 
                 if (it.size >= 2) {
                     binding?.totalSongsTV?.text = "${it.size} Songs"
@@ -124,10 +132,20 @@ class LastAddedAudioFragment : Fragment() {
                 }
 
                 if (lastAddedAudioList.isNotEmpty()) {
+                    val factory =
+                        DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
+                    binding?.rlNoSongsPresent?.visibility = View.GONE
+                    binding?.motionLayoutPlayListAudios?.visibility = View.VISIBLE
+                    binding?.noSongDescription?.visibility = View.GONE
                     Glide.with(binding?.coverArtistImage!!).load(lastAddedAudioList[0].artUri)
+                        .transition(withCrossFade(factory))
                         .into(binding?.coverArtistImage!!)
                 } else {
-                    // show No Fav layout todo
+                    // no audio present
+                    binding?.rlNoSongsPresent?.visibility = View.VISIBLE
+                    binding?.motionLayoutPlayListAudios?.visibility = View.GONE
+                    binding?.noSongDescription?.visibility = View.GONE
+                    binding?.image?.setImageResource(R.drawable.music_note_icon)
                 }
             }
 
@@ -142,7 +160,7 @@ class LastAddedAudioFragment : Fragment() {
     ) {
         storage.saveIsShuffled(false)
         val prevPlayingAudioIndex = storage.loadAudioIndex()
-        val prevQueueList = storage.loadAudio()
+        val prevQueueList = storage.loadQueueAudio()
         val prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
 
         Log.d(
@@ -183,7 +201,8 @@ class LastAddedAudioFragment : Fragment() {
                 -1,
                 audio.dateAdded,
                 audio.isFavourite,
-                audio.favAudioAddedTime
+                audio.favAudioAddedTime,
+                audio.mostPlayedCount
             )
             queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
             mViewModelClass.insertQueue(queueListModel, lifecycleScope)
@@ -208,7 +227,7 @@ class LastAddedAudioFragment : Fragment() {
         this.currentPlayingAudioIndex = audioIndex
         //store audio to prefs
 
-        storage.storeAudio(lastAddedAudioList)
+        storage.storeQueueAudio(lastAddedAudioList)
         //Store the new audioIndex to SharedPreferences
         storage.storeAudioIndex(audioIndex)
 

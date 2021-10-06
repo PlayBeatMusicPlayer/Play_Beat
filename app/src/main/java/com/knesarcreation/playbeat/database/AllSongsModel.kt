@@ -23,6 +23,7 @@ data class AllSongsModel(
     var id = 0
     var playingOrPause: Int = -1 // 0 for pause , 1 for play and -1 for default
     var currentPlayedAudioTime: Long = 0L
+    var mostPlayedCount: Int = 0
 
     constructor() : this(0L, 0L, "", "", "", 0, 0/*null*/, "", "", "", "", false, 0L)
 
@@ -32,15 +33,15 @@ data class AllSongsModel(
 
         other as AllSongsModel
 
+        if (songId != other.songId) return false
         if (songName != other.songName) return false
-        if (playingOrPause != other.playingOrPause) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = songName.hashCode()
-        result = 31 * result + playingOrPause.hashCode()
+        var result = songId.hashCode()
+        result = 31 * result + songName.hashCode()
         return result
     }
 

@@ -1,14 +1,7 @@
 package com.knesarcreation.playbeat.adapter
 
-import android.content.ContentUris
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.graphics.ImageDecoder
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
@@ -18,7 +11,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -28,8 +21,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.database.AllSongsModel
-import java.io.FileNotFoundException
-import java.io.IOException
+import com.knesarcreation.playbeat.fragment.BottomSheetMoreOptions
 
 class AllSongsAdapter(
     var context: Context,
@@ -47,15 +39,28 @@ class AllSongsAdapter(
         private val artistName: TextView = view.findViewById(R.id.artistNameTV)
         private val duration: TextView = view.findViewById(R.id.albumNameTv)
         private val albumArtIV: ImageView = view.findViewById(R.id.album_art_iv)
+        private val moreIconIV: ImageView = view.findViewById(R.id.moreIcon)
         val rlAudio: RelativeLayout = view.findViewById(R.id.rlAudio)
         private val currentPlayingAudioLottie: LottieAnimationView =
             view.findViewById(R.id.currentPlayingAudioLottie)
         private val rlCurrentPlayingLottie: RelativeLayout =
             view.findViewById(R.id.rlCurrentPlayingLottie)
-        private val currentPlayingAudioIndicator: ImageView =
-            view.findViewById(R.id.currentPlayingAudioIndicator)
 
-        fun bind(allSongModel: AllSongsModel, isSearching: Boolean, queryText: String) {
+        fun bind(
+            allSongModel: AllSongsModel,
+            isSearching: Boolean,
+            queryText: String,
+            context: Context
+        ) {
+            moreIconIV.visibility = View.VISIBLE
+
+            moreIconIV.setOnClickListener {
+                val bottomSheetMoreOptions = BottomSheetMoreOptions(context, allSongModel)
+                bottomSheetMoreOptions.show(
+                    (context as AppCompatActivity).supportFragmentManager,
+                    "bottomSheetMoreOptions"
+                )
+            }
 
             if (isSearching) {
                 highlightSearchedAudioText(queryText, allSongModel)
@@ -131,7 +136,7 @@ class AllSongsAdapter(
             }
 
             Glide.with(albumArtIV).load(artUri)
-                .apply(RequestOptions.placeholderOf(R.drawable.audio_icon_placeholder).centerCrop())
+                .apply(RequestOptions.placeholderOf(R.drawable.music_note_icon).centerCrop())
                 .into(albumArtIV)
 
         }
@@ -179,38 +184,38 @@ class AllSongsAdapter(
 
         }
 
-        holder.bind(allSongModel, isSearching, queryText)
+        holder.bind(allSongModel, isSearching, queryText, context)
     }
 
     //override fun getItemCount() = allSongList.size
 
-    private fun getAlbumUri(albumId: Long): Bitmap? {
-        //getting album art uri
-        var bitmap: Bitmap? = null
-        val sArtworkUri = Uri
-            .parse("content://media/external/audio/albumart")
-        val albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId)
+    /* private fun getAlbumUri(albumId: Long): Bitmap? {
+         //getting album art uri
+         var bitmap: Bitmap? = null
+         val sArtworkUri = Uri
+             .parse("content://media/external/audio/albumart")
+         val albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId)
 
-        try {
-            if (Build.VERSION.SDK_INT < 28) {
-                bitmap = MediaStore.Images.Media.getBitmap(
-                    context.contentResolver, albumArtUri
-                )
-                bitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true)
-            } else {
-                val source =
-                    ImageDecoder.createSource(context.contentResolver, albumArtUri)
-                bitmap = ImageDecoder.decodeBitmap(source)
-            }
+         try {
+             if (Build.VERSION.SDK_INT < 28) {
+                 bitmap = MediaStore.Images.Media.getBitmap(
+                     context.contentResolver, albumArtUri
+                 )
+                 bitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true)
+             } else {
+                 val source =
+                     ImageDecoder.createSource(context.contentResolver, albumArtUri)
+                 bitmap = ImageDecoder.decodeBitmap(source)
+             }
 
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-            bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.music_note_1)
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return bitmap!!
-    }
+         } catch (e: FileNotFoundException) {
+             e.printStackTrace()
+             bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.music_note_1)
+         } catch (e: IOException) {
+             e.printStackTrace()
+         }
+         return bitmap!!
+     }*/
 
 
     class AllSongItemCallback : DiffUtil.ItemCallback<AllSongsModel>() {
@@ -220,7 +225,7 @@ class AllSongsAdapter(
         override fun areContentsTheSame(
             oldItem: AllSongsModel,
             newItem: AllSongsModel
-        ) = oldItem == newItem
+        ) = oldItem.playingOrPause == newItem.playingOrPause
 
     }
 
