@@ -5,20 +5,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.viewpager.widget.ViewPager
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.transition.MaterialSharedAxis
 import com.knesarcreation.playbeat.adapter.ViewPagerAdapter
 import com.knesarcreation.playbeat.databinding.HomeFragmentBinding
+import com.knesarcreation.playbeat.utils.DataObservableClass
+import com.knesarcreation.playbeat.viewPager.CustomViewPager
 
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment()/*, AllSongFragment.OnContextMenuEnabled*/ {
 
     private var _binding: HomeFragmentBinding? = null
     private val binding get() = _binding
-    private lateinit var mViewPager: ViewPager
+    private lateinit var mViewPager: CustomViewPager
     private lateinit var mTabLayout: TabLayout
     private var pagerAdapter: ViewPagerAdapter? = null
+    private lateinit var viewModel: DataObservableClass
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +41,10 @@ class HomeFragment : Fragment() {
         _binding = HomeFragmentBinding.inflate(inflater, container, false)
         val view = binding!!.root
 
+        viewModel = activity?.run {
+            ViewModelProvider(this)[DataObservableClass::class.java]
+        } ?: throw Exception("Invalid Activity")
+
         mViewPager = _binding!!.mViewPager
         mTabLayout = _binding!!.tabLayout
 
@@ -47,12 +54,28 @@ class HomeFragment : Fragment() {
         mViewPager.offscreenPageLimit = 3
         mViewPager.adapter = pagerAdapter
 
+        viewModel.isContextMenuEnabled.observe(viewLifecycleOwner, {
+            if (it != null) {
+
+                mViewPager.disableScroll(it)
+                for (i in 0..2)
+                    (mTabLayout.getChildAt(0) as ViewGroup).getChildAt(i).isEnabled = !it
+
+            }
+        })
+
+
         return view
     }
 
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+        viewModel.isContextMenuEnabled.removeObservers(this)
     }
+
+    /*  override fun disabledViews(longClickSelectionEnable: Boolean) {
+
+      }*/
 
 }

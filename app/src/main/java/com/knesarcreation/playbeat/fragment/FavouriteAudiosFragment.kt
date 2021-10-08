@@ -197,6 +197,8 @@ class FavouriteAudiosFragment : Fragment() {
                 activity as Context,
                 AllSongsAdapter.OnClickListener { allSongModel, position ->
                     onClickAudio(allSongModel, position)
+                }, AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
+
                 })
         favSongsAdapter!!.isSearching = false
         binding?.rvFavSongs?.adapter = favSongsAdapter

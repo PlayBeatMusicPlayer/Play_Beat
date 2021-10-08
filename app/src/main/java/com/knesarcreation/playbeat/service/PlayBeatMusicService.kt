@@ -304,10 +304,10 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     fun resumeMedia() {
         if (mediaPlayer == null) return
         if (!mediaPlayer?.isPlaying!!) {
-           /* if (initAudioOnPressResumeBtn) {
+            if (initAudioOnPressResumeBtn) {
                 initAudioOnPressResumeBtn = false
                 initMediaPlayer()
-            }*/
+            }
             Toast.makeText(applicationContext, "initAudio: $initAudioOnPressResumeBtn", Toast.LENGTH_SHORT).show()
             mediaPlayer?.seekTo(resumePosition)
             mediaPlayer?.start()

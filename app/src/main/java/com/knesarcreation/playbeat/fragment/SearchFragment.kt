@@ -67,7 +67,7 @@ class SearchFragment : Fragment() {
                 audioSearchList.clear()
                 if (newText != null) {
                     binding?.rvSearchList?.visibility = View.VISIBLE
-                    binding?.searchLottie?.visibility = View.GONE
+                    //binding?.searchLottie?.visibility = View.GONE
                     val userInput = newText.lowercase()
                     audioSearchList.clear()
                     for (audio in audioList) {
@@ -80,6 +80,9 @@ class SearchFragment : Fragment() {
                     allSongsAdapter = AllSongsAdapter(activity as Context,
                         AllSongsAdapter.OnClickListener { allSongModel, position ->
                             onClickAudio(allSongModel, position)
+                        },
+                        AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
+
                         })
                     allSongsAdapter?.isSearching = true
                     allSongsAdapter?.queryText = userInput
@@ -90,7 +93,7 @@ class SearchFragment : Fragment() {
                     audioSearchList.clear()
                     allSongsAdapter?.submitList(audioSearchList.sortedBy { allSongsModel -> allSongsModel.songName })
                     binding?.rvSearchList?.visibility = View.GONE
-                    binding?.searchLottie?.visibility = View.VISIBLE
+                   // binding?.searchLottie?.visibility = View.VISIBLE
                 }
                 return true
             }
@@ -211,7 +214,7 @@ class SearchFragment : Fragment() {
             audioSearchList.clear()
             allSongsAdapter?.submitList(audioSearchList.sortedBy { allSongsModel -> allSongsModel.songName })
             binding?.rvSearchList?.visibility = View.GONE
-            binding?.searchLottie?.visibility = View.VISIBLE
+            //binding?.searchLottie?.visibility = View.VISIBLE
             //binding?.searchView?.setIconifiedByDefault(false);
 //            binding?.searchView?.isFocusable = false
 //            binding?.searchView?.isIconified = false

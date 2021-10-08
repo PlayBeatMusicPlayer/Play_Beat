@@ -106,6 +106,8 @@ class LastAddedAudioFragment : Fragment() {
                 activity as Context,
                 AllSongsAdapter.OnClickListener { allSongModel, position ->
                     onClickAudio(allSongModel, position)
+                }, AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
+
                 })
         lastAddedSongsAdapter!!.isSearching = false
         binding?.rvLastPlayedAudio?.adapter = lastAddedSongsAdapter

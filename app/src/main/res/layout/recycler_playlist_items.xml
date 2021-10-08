@@ -2,16 +2,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rlPlaylistContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/app_theme_color"
-    android:foreground="?attr/selectableItemBackground">
+    android:clickable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:focusable="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="20dp"
+        android:id="@+id/rlPlaylistItemContainer"
         android:paddingTop="5dp"
         android:paddingEnd="10dp"
         android:paddingBottom="5dp">

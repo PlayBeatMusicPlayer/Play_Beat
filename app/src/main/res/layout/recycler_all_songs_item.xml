@@ -16,6 +16,15 @@
          android:contentDescription="@null"
          android:visibility="gone" />-->
 
+    <FrameLayout
+        android:id="@+id/selectedAudioFL"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/selected_audio_bg"
+        android:visibility="gone" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -40,16 +49,17 @@
 
             <RelativeLayout
                 android:id="@+id/rlCurrentPlayingLottie"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:visibility="gone">
 
-                <ImageView
-                    android:layout_width="55dp"
-                    android:layout_height="55dp"
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:alpha="0.7"
                     android:contentDescription="@null"
-                    android:src="@color/app_theme_color" />
+                    android:src="@color/app_theme_color"
+                    app:shapeAppearanceOverlay="@style/circular_15" />
 
                 <com.airbnb.lottie.LottieAnimationView
                     android:id="@+id/currentPlayingAudioLottie"

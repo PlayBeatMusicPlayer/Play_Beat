@@ -77,6 +77,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private var mCastContext: CastContext? = null
     private lateinit var storage: StorageUtil
     private lateinit var mViewModelClass: ViewModelClass
+    private var isContextMenuEnabled = false
 
     //private var isFavAudioObserved = false
     //private var launchFavAudioJob: Job? = null
@@ -105,6 +106,13 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         viewModel = this.run {
             ViewModelProvider(this)[DataObservableClass::class.java]
         }
+
+        viewModel.isContextMenuEnabled.observe(this, {
+            if (it != null) {
+                isContextMenuEnabled = it
+                nowPlayingBottomSheetBehavior.isDraggable = !it
+            }
+        })
 
         supportFragmentManager.beginTransaction()
             .add(R.id.fragmentContainer, homeFragment)
@@ -346,7 +354,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             //binding.bottomSheet.rlSmallbottomBarPlayingSong.visibility = View.VISIBLE
         }
         binding.bottomSheet.rlMiniPlayerBottomsheet.setOnClickListener {
-            nowPlayingBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            if (!isContextMenuEnabled) {
+                nowPlayingBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
             //binding.bottomSheet.bottomBar.visibility = View.GONE
             //binding.bottomSheet.rlSmallbottomBarPlayingSong.visibility = View.GONE
         }
@@ -778,20 +788,37 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         override fun onItemSelect(pos: Int): Boolean {
             when (pos) {
                 0 -> {
-                    setBottomBarFragmentState(FragmentState.HOME).commit()
-                    return true
+                    if (!isContextMenuEnabled) {
+                        setBottomBarFragmentState(FragmentState.HOME).commit()
+                        return true
+                    } else {
+                        binding.bottomSheet.bottomBar.itemActiveIndex = 0
+                    }
                 }
                 1 -> {
-                    setBottomBarFragmentState(FragmentState.PLAYLIST).commit()
-                    return true
+                    if (!isContextMenuEnabled) {
+                        setBottomBarFragmentState(FragmentState.PLAYLIST).commit()
+                        return true
+                    } else {
+                        binding.bottomSheet.bottomBar.itemActiveIndex = 0
+                    }
                 }
                 2 -> {
-                    setBottomBarFragmentState(FragmentState.SEARCH).commit()
-                    return true
+                    if (!isContextMenuEnabled) {
+                        setBottomBarFragmentState(FragmentState.SEARCH).commit()
+                        return true
+                    } else {
+                        binding.bottomSheet.bottomBar.itemActiveIndex = 0
+                    }
                 }
                 3 -> {
-                    setBottomBarFragmentState(FragmentState.SETTING).commit()
-                    return true
+                    if (!isContextMenuEnabled) {
+
+                        setBottomBarFragmentState(FragmentState.SETTING).commit()
+                        return true
+                    } else {
+                        binding.bottomSheet.bottomBar.itemActiveIndex = 0
+                    }
                 }
             }
             return false
@@ -811,7 +838,11 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     override fun onBackPressed() {
         if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
             if (supportFragmentManager.backStackEntryCount > 0 || !homeFragment.isHidden) {
-                super.onBackPressed()
+                if (isContextMenuEnabled) {
+                    viewModel.onBackPressed.value = true
+                } else {
+                    super.onBackPressed()
+                }
             } else {
                 if (isAlbumFragOpened) {
                     if (!playlistsFragment.isHidden || !settingFragment.isHidden) {
@@ -1192,7 +1223,8 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         binding.fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams
                     layoutParams.bottomMargin = 350
                     binding.fragmentContainer.layoutParams = layoutParams
-                    nowPlayingBottomSheetBehavior.isDraggable = true
+
+                    nowPlayingBottomSheetBehavior.isDraggable = !isContextMenuEnabled
                 }
 
                 if (isShuffled) {

@@ -11,30 +11,139 @@
     android:orientation="vertical"
     tools:context=".fragment.AllSongFragment">
 
-    <FrameLayout
-        android:id="@+id/sortAudios"
-        android:layout_width="wrap_content"
-        android:layout_height="35dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="?selectableItemBackgroundBorderless">
+    <RelativeLayout
+        android:id="@+id/rlToolbarContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/sortAudioTV"
+        <RelativeLayout
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible">
+
+            <FrameLayout
+                android:id="@+id/sortAudios"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:background="?selectableItemBackgroundBorderless">
+
+                <TextView
+                    android:id="@+id/sortAudioTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:drawablePadding="5dp"
+                    android:textColor="@color/grey"
+                    app:drawableStartCompat="@drawable/ic_sort"
+                    tools:text="Name" />
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/shuffleAudio"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:orientation="horizontal"
+                tools:ignore="RelativeOverlap">
+
+                <TextView
+                    android:id="@+id/totalAudioTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="10dp"
+                    android:textColor="@color/grey"
+                    tools:text="200 songs" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_shuffle" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rlContextMenu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:drawablePadding="5dp"
-            android:textColor="@color/grey"
-            app:drawableStartCompat="@drawable/ic_sort"
-            tools:text="Name" />
+            android:visibility="gone">
 
-    </FrameLayout>
+            <ImageView
+                android:id="@+id/closeContextMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="10dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_close" />
+
+            <TextSwitcher
+                android:id="@+id/selectedAudiosTS"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="20dp"
+                android:layout_toEndOf="@id/closeContextMenu"
+                android:animateFirstView="true"
+                tools:ignore="RelativeOverlap" />
+
+            <ImageView
+                android:id="@+id/deleteIV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="20dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_delete" />
+
+            <CheckBox
+                android:id="@+id/selectAllAudios"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="15dp"
+                android:layout_toStartOf="@id/addToPlaylistIV"
+                android:background="?selectableItemBackgroundBorderless"
+                android:text="Select all"
+                android:textColor="@color/white" />
+
+            <ImageView
+                android:id="@+id/addToPlaylistIV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="15dp"
+                android:layout_toStartOf="@id/deleteIV"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_play_list" />
+
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/sortAudios"
+        android:layout_below="@id/rlToolbarContainer"
         android:layout_marginTop="5dp"
         android:background="@android:color/transparent">
 
@@ -59,34 +168,6 @@
             android:foreground="@drawable/gradient_background_top_shadow" />
     </RelativeLayout>
 
-    <LinearLayout
-        android:id="@+id/shuffleAudio"
-        android:layout_width="wrap_content"
-        android:layout_height="35dp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="?selectableItemBackgroundBorderless"
-        android:orientation="horizontal"
-        tools:ignore="RelativeOverlap">
-
-        <TextView
-            android:id="@+id/totalAudioTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginEnd="10dp"
-            android:textColor="@color/grey"
-            tools:text="200 songs" />
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_shuffle" />
-
-    </LinearLayout>
     <!-- <RelativeLayout
          android:id="@+id/rlSortAndShuffle"
          android:layout_width="match_parent"

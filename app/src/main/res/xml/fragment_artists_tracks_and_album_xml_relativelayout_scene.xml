@@ -43,9 +43,9 @@
             motion:dragDirection="dragUp"
             motion:dragScale="1"
             motion:moveWhenScrollAtTop="true"
-            motion:onTouchUp="stop"
-            motion:touchAnchorId="@+id/rv_fav_songs"
-            motion:touchAnchorSide="bottom" />
+            motion:onTouchUp="decelerate"
+            motion:touchAnchorId="@+id/rvTracks"
+            motion:touchAnchorSide="top" />
     </Transition>
 
     <ConstraintSet android:id="@+id/start">
@@ -220,6 +220,16 @@
             motion:layout_goneMarginTop="200dp"
             android:layout_marginTop="265dp"
             android:id="@+id/rv_fav_songs" />
+        <Constraint
+            motion:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            motion:layout_constraintTop_toBottomOf="@id/trackTextTV"
+            motion:layout_constraintHorizontal_bias="0.0"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_goneMarginTop="200dp"
+            android:layout_marginTop="265dp"
+            android:id="@+id/rvTracks" />
 
 
     </ConstraintSet>

@@ -32,7 +32,7 @@ class BottomSheetMoreOptions(var mContext: Context, var allSongsModel: AllSongsM
         setUpViews()
 
         binding?.llAddToPlaylist?.setOnClickListener {
-            val bottomSheetChooseToPlaylist = BottomSheetChoosePlaylist(allSongsModel)
+            val bottomSheetChooseToPlaylist = BottomSheetChoosePlaylist(allSongsModel, true, null)
             bottomSheetChooseToPlaylist.show(
                 (mContext as AppCompatActivity).supportFragmentManager,
                 "bottomSheetChooseToPlaylist"

@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
@@ -129,6 +130,9 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
                 activity as Context,
                 AllSongsAdapter.OnClickListener { allSongModel, position ->
                     onClickAudio(allSongModel, position)
+
+                }, AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
+
                 })
         allSongsAdapter.isSearching = false
         binding!!.rvAlbumAudio.adapter = allSongsAdapter

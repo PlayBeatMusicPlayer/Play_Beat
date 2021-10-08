@@ -8,6 +8,8 @@ open class DataObservableClass : ViewModel() {
     val artistsData = MutableLiveData<String>()
     val playlistCategory = MutableLiveData<String>()
     val customPlaylistData = MutableLiveData<String>()
+    val isContextMenuEnabled = MutableLiveData<Boolean>()
+    val onBackPressed = MutableLiveData<Boolean>()
 
     fun data(item: String) {
         albumData.value = item

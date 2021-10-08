@@ -106,6 +106,8 @@ class MostPlayedFragment : Fragment() {
                 activity as Context,
                 AllSongsAdapter.OnClickListener { allSongModel, position ->
                     onClickAudio(allSongModel, position)
+                }, AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
+
                 })
         mostPlayedAudioAdapter!!.isSearching = false
         binding?.rvMostPlayed?.adapter = mostPlayedAudioAdapter

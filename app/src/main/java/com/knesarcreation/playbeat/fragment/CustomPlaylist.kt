@@ -199,6 +199,8 @@ class CustomPlaylist : Fragment() {
                 activity as Context,
                 AllSongsAdapter.OnClickListener { allSongModel, position ->
                     onClickAudio(allSongModel, position)
+                }, AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
+
                 })
         customPlaylistAdapter!!.isSearching = false
         binding?.rvCustomPlaylist?.adapter = customPlaylistAdapter
@@ -258,9 +260,9 @@ class CustomPlaylist : Fragment() {
                                 }
                                 else -> {
                                     sortedList =
-                                        audio.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime }
+                                        audio.sortedByDescending { allSongsModel -> allSongsModel.songName }
                                     customPlaylist.addAll(sortedList)
-                                    customPlaylistAdapter!!.submitList(audio.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime })
+                                    customPlaylistAdapter!!.submitList(audio.sortedByDescending { allSongsModel -> allSongsModel.songName })
                                     binding?.sortedTextTV?.text = "Name"
                                     Log.d(
                                         "sortedListObserved",
@@ -327,7 +329,7 @@ class CustomPlaylist : Fragment() {
                 Log.d("audioListaaaaa", "getAudioArt: false ")
             }
 
-            (activity as AppCompatActivity).runOnUiThread{
+            (activity as AppCompatActivity).runOnUiThread {
                 Toast.makeText(
                     activity as Context,
                     "${newAudioAddedModel.songName}",

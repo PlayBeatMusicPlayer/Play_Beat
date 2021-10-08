@@ -21,6 +21,7 @@
             android:background="@color/app_theme_color"
             app:tabGravity="fill"
             app:tabIndicator="@drawable/curved_light_transparent_bg"
+            app:tabIndicatorAnimationMode="elastic"
             app:tabIndicatorColor="#69696C"
             app:tabIndicatorHeight="40dp"
             app:tabMode="fixed"
@@ -29,12 +30,12 @@
             app:tabSelectedTextColor="@color/white"
             app:tabTextColor="@color/white" />
 
-        <androidx.viewpager.widget.ViewPager
+        <com.knesarcreation.playbeat.viewPager.CustomViewPager
             android:id="@+id/mViewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="10dp"
-            android:layout_below="@id/tabLayout" />
+            android:layout_below="@id/tabLayout"
+            android:layout_marginTop="10dp" />
 
     </RelativeLayout>
 

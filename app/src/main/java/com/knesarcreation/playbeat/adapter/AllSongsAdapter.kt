@@ -8,6 +8,7 @@ import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -26,12 +27,17 @@ import com.knesarcreation.playbeat.fragment.BottomSheetMoreOptions
 class AllSongsAdapter(
     var context: Context,
     //var allSongList: CopyOnWriteArrayList<AllSongsModel>,
-    private var onClickListener: OnClickListener
+    private var onClickListener: OnClickListener,
+    private var onLongClickListener: OnLongClickListener,
 ) : ListAdapter<AllSongsModel, AllSongsAdapter.AllSongsViewHolder>(AllSongItemCallback()) {
     // RecyclerView.Adapter<AllSongsAdapter.AllSongsViewHolder>() {
 
     var isSearching = false
     var queryText = ""
+
+    companion object {
+        var isContextMenuEnabled = false
+    }
 
     class AllSongsViewHolder(view: View) :
         RecyclerView.ViewHolder(view) {
@@ -41,6 +47,7 @@ class AllSongsAdapter(
         private val albumArtIV: ImageView = view.findViewById(R.id.album_art_iv)
         private val moreIconIV: ImageView = view.findViewById(R.id.moreIcon)
         val rlAudio: RelativeLayout = view.findViewById(R.id.rlAudio)
+        val selectedAudioFL: FrameLayout = view.findViewById(R.id.selectedAudioFL)
         private val currentPlayingAudioLottie: LottieAnimationView =
             view.findViewById(R.id.currentPlayingAudioLottie)
         private val rlCurrentPlayingLottie: RelativeLayout =
@@ -55,11 +62,13 @@ class AllSongsAdapter(
             moreIconIV.visibility = View.VISIBLE
 
             moreIconIV.setOnClickListener {
-                val bottomSheetMoreOptions = BottomSheetMoreOptions(context, allSongModel)
-                bottomSheetMoreOptions.show(
-                    (context as AppCompatActivity).supportFragmentManager,
-                    "bottomSheetMoreOptions"
-                )
+                if (!isContextMenuEnabled) {
+                    val bottomSheetMoreOptions = BottomSheetMoreOptions(context, allSongModel)
+                    bottomSheetMoreOptions.show(
+                        (context as AppCompatActivity).supportFragmentManager,
+                        "bottomSheetMoreOptions"
+                    )
+                }
             }
 
             if (isSearching) {
@@ -180,10 +189,28 @@ class AllSongsAdapter(
         val allSongModel = getItem(position)
 
         holder.rlAudio.setOnClickListener {
-            onClickListener.onClick(allSongModel, position)
-
+            if (isContextMenuEnabled) {
+                allSongModel.isChecked = !allSongModel.isChecked
+                onLongClickListener.onLongClick(allSongModel, position)
+                notifyItemHasChanged(position, allSongModel)
+            } else {
+                onClickListener.onClick(allSongModel, position)
+            }
         }
 
+        if (allSongModel.isChecked) {
+            holder.selectedAudioFL.visibility = View.VISIBLE
+        } else {
+            holder.selectedAudioFL.visibility = View.GONE
+        }
+
+        holder.rlAudio.setOnLongClickListener {
+            isContextMenuEnabled = true
+            allSongModel.isChecked = !allSongModel.isChecked
+            onLongClickListener.onLongClick(allSongModel, position)
+            notifyItemHasChanged(position, allSongModel)
+            return@setOnLongClickListener true
+        }
         holder.bind(allSongModel, isSearching, queryText, context)
     }
 
@@ -232,5 +259,42 @@ class AllSongsAdapter(
     class OnClickListener(val clickListener: (allSongModel: AllSongsModel, position: Int) -> Unit) {
         fun onClick(allSongModel: AllSongsModel, position: Int) =
             clickListener(allSongModel, position)
+    }
+
+    class OnLongClickListener(
+        val longClickListener: (allSongModel: AllSongsModel, position: Int) -> Unit
+    ) {
+        fun onLongClick(allSongModel: AllSongsModel, position: Int) =
+            longClickListener(allSongModel, position)
+    }
+
+    private fun notifyItemHasChanged(position: Int, audioModel: AllSongsModel) {
+        val allSongsModel = currentList[position]
+        allSongsModel.isChecked = audioModel.isChecked
+        notifyItemChanged(position)
+    }
+
+    fun updateChanges(selectedAudioPos: ArrayList<Int>) {
+        if (selectedAudioPos.isNotEmpty()) {
+            for (pos in selectedAudioPos) {
+                val item = getItem(pos)
+                item.isChecked = false
+                notifyItemChanged(pos)
+            }
+        }
+    }
+
+    fun selectAllAudios() {
+        for ((index, audio) in currentList.withIndex()) {
+            audio.isChecked = true
+        }
+        notifyItemRangeChanged(0, currentList.size)
+    }
+
+    fun unSelectAllAudios() {
+        for ((index, audio) in currentList.withIndex()) {
+            audio.isChecked = false
+            notifyItemChanged(index)
+        }
     }
 }

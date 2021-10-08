@@ -24,6 +24,7 @@ data class AllSongsModel(
     var playingOrPause: Int = -1 // 0 for pause , 1 for play and -1 for default
     var currentPlayedAudioTime: Long = 0L
     var mostPlayedCount: Int = 0
+    var isChecked: Boolean = false
 
     constructor() : this(0L, 0L, "", "", "", 0, 0/*null*/, "", "", "", "", false, 0L)
 

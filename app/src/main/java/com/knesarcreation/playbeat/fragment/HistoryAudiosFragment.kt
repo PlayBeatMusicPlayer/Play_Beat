@@ -146,6 +146,8 @@ class HistoryAudiosFragment : Fragment() {
                 activity as Context,
                 AllSongsAdapter.OnClickListener { allSongModel, position ->
                     onClickAudio(allSongModel, position)
+                }, AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
+
                 })
         historyAdapter!!.isSearching = false
         binding?.rvHistoryAdded?.adapter = historyAdapter

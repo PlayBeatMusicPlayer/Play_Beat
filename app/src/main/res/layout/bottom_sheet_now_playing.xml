@@ -195,6 +195,7 @@
             app:backgroundColor="@color/app_theme_color"
             app:layout_anchorGravity="bottom"
             app:layout_dodgeInsetEdges="top"
+            android:contextClickable="false"
             app:menu="@menu/bottom_bar_menu" />
 
         <RelativeLayout

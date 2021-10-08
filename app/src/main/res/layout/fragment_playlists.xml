@@ -129,21 +129,21 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <androidx.recyclerview.widget.RecyclerView
+            <com.ernestoyaquello.dragdropswiperecyclerview.DragDropSwipeRecyclerView
                 android:id="@+id/rvPlaylist"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="4dp"
+                app:item_layout="@layout/recycler_playlist_items"
                 android:nestedScrollingEnabled="true"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:itemCount="9"
-                tools:listitem="@layout/recycler_playlist_items" />
+                tools:itemCount="9" />
 
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="12dp"
                 android:layout_alignTop="@id/rvPlaylist"
                 android:clipChildren="false"
+                android:layout_marginTop="-5dp"
                 android:clipToPadding="false"
                 android:contentDescription="@null"
                 android:focusable="true"

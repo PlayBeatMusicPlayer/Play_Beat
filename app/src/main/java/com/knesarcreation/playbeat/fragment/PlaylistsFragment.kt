@@ -6,9 +6,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.ernestoyaquello.dragdropswiperecyclerview.DragDropSwipeRecyclerView
 import com.google.android.material.transition.MaterialSharedAxis
 import com.google.gson.Gson
 import com.knesarcreation.playbeat.adapter.PlaylistAdapter
@@ -73,10 +76,21 @@ class PlaylistsFragment : Fragment() {
             bottomSheetCreatePlaylist.show(childFragmentManager, "bottomSheetCreatePlaylist")
         }
 
+
         setUpPlaylistRecyclerView()
         observerPlayList()
         sortPlayList()
 
+        /* binding?.rvPlaylist?.disableDragDirection(DragDropSwipeRecyclerView.ListOrientation.DirectionFlag.LEFT)
+         binding?.rvPlaylist?.disableDragDirection(DragDropSwipeRecyclerView.ListOrientation.DirectionFlag.DOWN)
+         binding?.rvPlaylist?.disableDragDirection(DragDropSwipeRecyclerView.ListOrientation.DirectionFlag.RIGHT)
+         binding?.rvPlaylist?.disableDragDirection(DragDropSwipeRecyclerView.ListOrientation.DirectionFlag.UP)*/
+
+
+        binding?.rvPlaylist?.disableSwipeDirection(DragDropSwipeRecyclerView.ListOrientation.DirectionFlag.LEFT)
+        binding?.rvPlaylist?.disableSwipeDirection(DragDropSwipeRecyclerView.ListOrientation.DirectionFlag.RIGHT)
+        binding?.rvPlaylist?.disableSwipeDirection(DragDropSwipeRecyclerView.ListOrientation.DirectionFlag.DOWN)
+        binding?.rvPlaylist?.disableSwipeDirection(DragDropSwipeRecyclerView.ListOrientation.DirectionFlag.UP)
 
         return view
     }
@@ -94,7 +108,7 @@ class PlaylistsFragment : Fragment() {
         }*/
 
         binding?.sortPlaylist?.setOnClickListener {
-            val bottomSheetSortByOptions = BottomSheetSortBy(activity as Context, "playlist","")
+            val bottomSheetSortByOptions = BottomSheetSortBy(activity as Context, "playlist", "")
             bottomSheetSortByOptions.show(
                 (context as AppCompatActivity).supportFragmentManager,
                 "bottomSheetSortByOptions"
@@ -107,7 +121,8 @@ class PlaylistsFragment : Fragment() {
 
                     setUpPlaylistRecyclerView()
                     binding?.rvPlaylist?.alpha = 0.0f
-                    playListAdapter!!.submitList(sortedBySongName)
+                    playListAdapter!!.dataSet = sortedBySongName
+                    // playListAdapter!!.submitList(sortedBySongName)
                     playList.clear()
                     playList.addAll(sortedBySongName)
                     animateRecyclerView()
@@ -123,7 +138,8 @@ class PlaylistsFragment : Fragment() {
 
                     setUpPlaylistRecyclerView()
                     binding?.rvPlaylist?.alpha = 0.0f
-                    playListAdapter!!.submitList(sortedByDateAdded)
+                    //playListAdapter!!.submitList(sortedByDateAdded )
+                    playListAdapter!!.dataSet = sortedByDateAdded
                     playList.clear()
                     playList.addAll(sortedByDateAdded)
                     animateRecyclerView()
@@ -144,26 +160,33 @@ class PlaylistsFragment : Fragment() {
 
                     "Name" -> {
                         sortedList = it.sortedBy { playlistModel -> playlistModel.playlistName }
-                        playList.addAll(sortedList)
-                        playListAdapter!!.submitList(it.sortedBy { playlistModel -> playlistModel.playlistName })
+                        //playListAdapter!!.submitList()
+                        playListAdapter!!.dataSet =
+                            it.sortedBy { playlistModel -> playlistModel.playlistName }
                         binding?.sortPlaylistTV?.text = "Name"
                     }
                     "DateAdded" -> {
                         sortedList =
                             it.sortedByDescending { playlistModel -> playlistModel.dateAdded }
-                        playList.addAll(sortedList)
-                        playListAdapter!!.submitList(it.sortedByDescending { playlistModel -> playlistModel.dateAdded })
+                        //playList.addAll(sortedList)
+                        //playListAdapter!!.submitList()
+                        playListAdapter!!.dataSet =
+                            it.sortedByDescending { playlistModel -> playlistModel.dateAdded }
                         binding?.sortPlaylistTV?.text = "Date Added"
                     }
 
                     else -> {
                         sortedList = it.sortedBy { playlistModel -> playlistModel.playlistName }
-                        playList.addAll(sortedList)
-                        playListAdapter!!.submitList(it.sortedBy { playlistModel -> playlistModel.playlistName })
+                       // playList.addAll(sortedList)
+                        //playListAdapter!!.submitList()
+                        playListAdapter!!.dataSet =
+                            it.sortedBy { playlistModel -> playlistModel.playlistName }
                         binding?.sortPlaylistTV?.text = "Name"
                         Log.d("sortedListObserved", "observeAudioData:$sortedList ")
                     }
                 }
+
+                playList.addAll(sortedList)
 
                 if (playList.isNotEmpty()) {
                     binding?.noPlayList?.visibility = View.GONE
@@ -179,12 +202,20 @@ class PlaylistsFragment : Fragment() {
     }
 
     private fun setUpPlaylistRecyclerView() {
-        playListAdapter = PlaylistAdapter(object : PlaylistAdapter.OnPlaylistClicked {
-            override fun onClicked(playlistModel: PlaylistModel) {
-                val gson = Gson()
-                listener?.playlistCategory(gson.toJson(playlistModel), 1)
-            }
-        })
+        playListAdapter =
+            PlaylistAdapter(activity as Context, object : PlaylistAdapter.OnPlaylistClicked {
+                override fun onClicked(playlistModel: PlaylistModel) {
+                    val gson = Gson()
+                    listener?.playlistCategory(gson.toJson(playlistModel), 1)
+                    Toast.makeText(
+                        activity as Context,
+                        "${playlistModel.playlistName}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }, playList)
+        binding?.rvPlaylist?.layoutManager = LinearLayoutManager(activity as Context)
+
         binding?.rvPlaylist?.adapter = playListAdapter
     }
 
