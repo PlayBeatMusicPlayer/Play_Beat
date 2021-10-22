@@ -6,14 +6,14 @@
     android:layout_height="wrap_content"
     android:background="@color/app_theme_color"
     android:clickable="true"
-    android:foreground="?attr/selectableItemBackground"
     android:focusable="true">
 
     <RelativeLayout
+        android:id="@+id/rlPlaylistItemContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:foreground="?attr/selectableItemBackground"
         android:paddingStart="20dp"
-        android:id="@+id/rlPlaylistItemContainer"
         android:paddingTop="5dp"
         android:paddingEnd="10dp"
         android:paddingBottom="5dp">
@@ -28,6 +28,7 @@
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 android:background="@drawable/little_curved_all_edges"
+                android:foreground="?selectableItemBackgroundBorderless"
                 android:scaleType="centerCrop"
                 android:src="@drawable/music_note_icon"
                 app:shapeAppearanceOverlay="@style/circular_15" />
@@ -120,12 +121,13 @@
             android:layout_centerVertical="true">
 
             <ImageView
-                android:id="@+id/forwardIconIV"
+                android:id="@+id/moreOptionIV"
                 android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_height="match_parent"
                 android:layout_centerInParent="true"
+                android:background="?selectableItemBackgroundBorderless"
                 android:contentDescription="@null"
-                android:src="@drawable/ic_forward"
+                android:src="@drawable/ic_more_white"
                 android:visibility="visible" />
 
             <!--<ImageView

@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -17,6 +16,7 @@ import com.ernestoyaquello.dragdropswiperecyclerview.DragDropSwipeAdapter
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.ViewModelClass
+import com.knesarcreation.playbeat.fragment.AllSongFragment
 import com.knesarcreation.playbeat.utils.StorageUtil
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -72,17 +72,54 @@ class QueueListAdapter(
         viewHolder.currentPlayingAudioLottie.setAnimation(R.raw.playing_audio_indicator)
         when (item.playingOrPause) {
             1 /* 1 for play */ -> {
-                viewHolder.rlCurrentPlayingLottie.visibility = View.VISIBLE
-                //holder.currentPlayingAudioIndicator.visibility = View.VISIBLE
-                viewHolder.currentPlayingAudioLottie.playAnimation()
-                viewHolder.songName.setTextColor(ContextCompat.getColor(context, R.color.teal_200))
-                viewHolder.artistName.setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        R.color.teal_200
-                    )
-                )
-                viewHolder.albumName.setTextColor(ContextCompat.getColor(context, R.color.teal_200))
+                if (AllSongFragment.musicService?.mediaPlayer != null) {
+                    if (AllSongFragment.musicService?.mediaPlayer?.isPlaying!!) {
+                        viewHolder.rlCurrentPlayingLottie.visibility = View.VISIBLE
+                        //holder.currentPlayingAudioIndicator.visibility = View.VISIBLE
+                        viewHolder.currentPlayingAudioLottie.playAnimation()
+                        viewHolder.songName.setTextColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.teal_200
+                            )
+                        )
+                        viewHolder.artistName.setTextColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.teal_200
+                            )
+                        )
+                        viewHolder.albumName.setTextColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.teal_200
+                            )
+                        )
+                    } else {
+                        viewHolder.rlCurrentPlayingLottie.visibility = View.VISIBLE
+                        //holder.currentPlayingAudioIndicator.visibility = View.VISIBLE
+                        viewHolder.currentPlayingAudioLottie.pauseAnimation()
+                        viewHolder.songName.setTextColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.teal_200
+                            )
+                        )
+                        viewHolder.artistName.setTextColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.teal_200
+                            )
+                        )
+                        viewHolder.albumName.setTextColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.teal_200
+                            )
+                        )
+                    }
+                }
+
             }
             0 /* 0 for pause*/ -> {
                 viewHolder.rlCurrentPlayingLottie.visibility = View.VISIBLE
@@ -114,7 +151,7 @@ class QueueListAdapter(
         }
 
         Glide.with(context).load(artUri)
-            .apply(RequestOptions.placeholderOf(R.drawable.audio_icon_placeholder).centerCrop())
+            .apply(RequestOptions.placeholderOf(R.drawable.music_note_icon).centerCrop())
             .into(viewHolder.albumArtIV)
 
     }
@@ -137,10 +174,11 @@ class QueueListAdapter(
 
         val list = CopyOnWriteArrayList<AllSongsModel>()
         list.addAll(dataSet)
-        dataSet = list  //updating dataSet : for a rare case if adapter items is not notified that its rearranged
+        dataSet =
+            list  //updating dataSet : for a rare case if adapter items is not notified that its rearranged
 
         val newCurrentPlayingAudioIndex = list.indexOf(currentPlayingAudio)
-        Toast.makeText(context, "new: $newCurrentPlayingAudioIndex, old: $currentPlayingAudioIndex", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(context, "new: $newCurrentPlayingAudioIndex, old: $currentPlayingAudioIndex", Toast.LENGTH_SHORT).show()
         StorageUtil(context).storeQueueAudio(list)
         if (item.songName == currentPlayingAudio.songName) {
             //if dragged item is current playing audio then store the index of current playing audio
@@ -149,9 +187,9 @@ class QueueListAdapter(
             storageUtil.storeAudioIndex(newCurrentPlayingAudioIndex)
         }
 
-          Log.d(
-              "DragDropAdapter",
-              "onDragFinished:currentPlayingAudio:  old pos: $currentPlayingAudioIndex , new pos: $newCurrentPlayingAudioIndex "
-          )
+        Log.d(
+            "DragDropAdapter",
+            "onDragFinished:currentPlayingAudio:  old pos: $currentPlayingAudioIndex , new pos: $newCurrentPlayingAudioIndex "
+        )
     }
 }

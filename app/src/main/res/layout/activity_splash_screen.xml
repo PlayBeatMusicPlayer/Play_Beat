@@ -1,44 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/splash_screen_gradient_background"
     tools:context=".activity.SplashScreenActivity">
 
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:layout_marginTop="200dp">
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="200dp"
+        android:layout_marginEnd="5dp">
 
         <ImageView
             android:id="@+id/logo"
-            android:layout_width="130dp"
-            android:layout_height="130dp"
-            android:layout_centerVertical="true"
+            android:layout_width="100dp"
+            android:layout_height="110dp"
+            android:layout_centerHorizontal="true"
             android:layout_marginStart="10dp"
             android:contentDescription="@string/splash_screen_img"
-            android:scaleType="centerCrop"
-            android:src="@drawable/play_beat_logo" />
+            android:src="@drawable/ic_play_beat_logo_v2" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@id/logo"
-            android:layout_marginStart="-20dp"
-            android:gravity="center_horizontal|center"
-            android:orientation="vertical">
+            android:layout_below="@id/logo"
+            android:layout_centerHorizontal="true"
+            android:orientation="vertical"
+            android:visibility="visible">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:fontFamily="@font/ubuntu_bold"
-                android:text="Play Beat"
-                android:textColor="@color/white"
-                android:textSize="40sp" />
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:fontFamily="@font/ubuntu_bold"
+                    android:text="Play"
+                    android:textColor="@color/red"
+                    android:textSize="40sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:fontFamily="@font/ubuntu_bold"
+                    android:text=" Beat"
+                    android:textColor="@color/white"
+                    android:textSize="40sp" />
+
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -55,14 +73,14 @@
     </RelativeLayout>
 
 
-    <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/lottieSplash"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="500dp"
-        app:lottie_autoPlay="true"
-        app:lottie_loop="true"
-        app:lottie_rawRes="@raw/splash_music_anim" />
+    <!--  <com.airbnb.lottie.LottieAnimationView
+          android:id="@+id/lottieSplash"
+          android:layout_width="150dp"
+          android:layout_height="150dp"
+          android:layout_gravity="center_horizontal"
+          android:layout_marginTop="500dp"
+          app:lottie_autoPlay="true"
+          app:lottie_loop="true"
+          app:lottie_rawRes="@raw/splash_music_anim" />-->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

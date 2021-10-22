@@ -88,7 +88,7 @@
                 android:layout_marginStart="5dp"
                 android:background="@drawable/little_curved_all_edges"
                 android:scaleType="centerCrop"
-                android:src="@drawable/artist_icon_placeholder"
+                android:src="@drawable/music_note_icon"
                 app:shapeAppearanceOverlay="@style/circular_15" />
 
             <TextView

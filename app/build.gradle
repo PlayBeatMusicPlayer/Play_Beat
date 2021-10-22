@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.knesarcreation.playbeat"
-        minSdk 23
+        minSdk 24
         targetSdk 31
         versionCode 1
         versionName "1.0"
@@ -106,11 +106,13 @@ dependencies {
     kapt "androidx.room:room-compiler:2.3.0"
     implementation "androidx.room:room-ktx:2.3.0"
 
+    //implementation 'com.github.Adonai:jaudiotagger:2.3.14'
+    implementation 'net.jthink:jaudiotagger:3.0.0'
 //    implementation "androidx.legacy:legacy-support-v4:1.0.0"
     //Blurry
 //    implementation 'jp.wasabeef:blurry:4.0.0'
 //    implementation 'com.github.jgabrielfreitas:BlurImageView:1.0.1'
-//    implementation 'com.jackandphantom.android:blurimage:1.2.0'
+//    imple mentation 'com.jackandphantom.android:blurimage:1.2.0'
 //    implementation 'com.eightbitlab:blurview:1.6.1'
 
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'

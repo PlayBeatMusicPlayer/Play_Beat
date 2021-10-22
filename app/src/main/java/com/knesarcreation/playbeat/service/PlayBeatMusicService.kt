@@ -7,6 +7,8 @@ import android.app.Service
 import android.content.*
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.*
@@ -15,8 +17,6 @@ import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.telephony.PhoneStateListener
-import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
@@ -28,6 +28,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import com.google.android.material.button.MaterialButton
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.activity.ActivityBottomBarFragmentContainer
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.fragment.AllSongFragment
 import com.knesarcreation.playbeat.utils.ApplicationChannel.Companion.CHANNEL_ID
@@ -37,26 +38,28 @@ import com.knesarcreation.playbeat.utils.UriToBitmapConverter
 import java.util.concurrent.CopyOnWriteArrayList
 
 
-class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener {
+class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListener*/ {
 
     // Binder given to clients
     private val iBinder = LocalBinder()
     private var audioManager: AudioManager? = null
     var mediaPlayer: MediaPlayer? = null
 
+    private var audioFocusChangeListener: AudioManager.OnAudioFocusChangeListener? = null
+
     //path to the audio file
-    private var mediaFile: String? = null
+    //private var mediaFile: String? = null
 
     //Used to pause/resume MediaPlayer
     private var resumePosition = -1
 
     //Handle incoming phone calls
-    private var ongoingCall = false
-    private var phoneStateListener: PhoneStateListener? = null
-    private var telephonyManager: TelephonyManager? = null
+    //private var ongoingCall = false
+    //private var phoneStateListener: PhoneStateListener? = null
+    //private var telephonyManager: TelephonyManager? = null
 
     //List of available Audio files
-    private var audioList: CopyOnWriteArrayList<AllSongsModel>? = null
+    private var audioList = CopyOnWriteArrayList<AllSongsModel>()
     private var audioIndex = -1
     private var activeAudio //an object of the currently playing audio
             : AllSongsModel? = null
@@ -110,12 +113,13 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         // Manage incoming phone calls during playback.
         // Pause MediaPlayer on incoming call,
         // Resume on hangup.
-        callStateListener()
+        //callStateListener()
         //ACTION_AUDIO_BECOMING_NOISY -- change in audio outputs -- BroadcastReceiver
         registerBecomingNoisyReceiver()
         //Listen for new Audio to play -- BroadcastReceiver
         registerPlayNewAudio()
 
+        onAudioFocusChange()
         //register on click notification receiver
         // registerContentReceiver()
         //registerMediaBtn()
@@ -139,7 +143,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         //Reset so that the MediaPlayer is not pointing to another data source
         mediaPlayer?.reset()
 
-        mediaPlayer = MediaPlayer.create(applicationContext, activeAudio?.audioUri!!.toUri())
+        mediaPlayer = MediaPlayer.create(applicationContext, activeAudio?.contentUri!!.toUri())
 
         mediaPlayer?.setOnCompletionListener {
             if (!it?.isPlaying!!) {
@@ -188,44 +192,44 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     //Handle incoming phone calls
     private fun callStateListener() {
         // Get the telephony manager
-        telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
+        // telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
         //Starting listening for PhoneState changes
-        phoneStateListener = object : PhoneStateListener() {
-            override fun onCallStateChanged(state: Int, incomingNumber: String) {
-                when (state) {
-                    TelephonyManager.CALL_STATE_OFFHOOK, TelephonyManager.CALL_STATE_RINGING -> if (mediaPlayer != null) {
-                        pauseMedia()
-                        //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
-                        updateNotification(false)
-                        ongoingCall = true
-                    }
-                    TelephonyManager.CALL_STATE_IDLE ->
-                        // Phone idle. Start playing.
-                        if (mediaPlayer != null) {
-                            if (ongoingCall) {
-                                ongoingCall = false
-                                if (!pausedByManually) {
-                                    // if user manually paused, so don't resume audio when call ends or went on idle mode
-                                    // else call this resumeMedia() method
-                                    resumeMedia()
-                                    /*buildNotification(
+        // phoneStateListener = object : PhoneStateListener() {
+        //   override fun onCallStateChanged(state: Int, incomingNumber: String) {
+        /* when (state) {
+             TelephonyManager.CALL_STATE_OFFHOOK, TelephonyManager.CALL_STATE_RINGING -> if (mediaPlayer != null) {
+                 pauseMedia()
+                 //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+                 updateNotification(false)
+                 ongoingCall = true
+             }
+             TelephonyManager.CALL_STATE_IDLE ->
+                 // Phone idle. Start playing.
+                 if (mediaPlayer != null) {
+                     if (ongoingCall) {
+                         ongoingCall = false
+                         if (!pausedByManually) {
+                             // if user manually paused, so don't resume audio when call ends or went on idle mode
+                             // else call this resumeMedia() method
+                             resumeMedia()
+                             *//*buildNotification(
                                         PlaybackStatus.PLAYING,
                                         PlaybackStatus.UN_FAVOURITE,
                                         1f
-                                    )*/
+                                    )*//*
                                     updateNotification(true)
                                 }
                             }
                         }
-                }
-            }
-        }
+                }*/
+        //}
+        // }
         // Register the listener with the telephony manager
         // Listen for changes to the device call state.
-        telephonyManager?.listen(
+        /*telephonyManager?.listen(
             phoneStateListener,
             PhoneStateListener.LISTEN_CALL_STATE
-        )
+        )*/
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -237,15 +241,28 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
             Log.d("audioIndexService", "onStartCommand:  $audioIndex")
 
+            // Toast.makeText(applicationContext, "onStartCommand:$audioIndex  $audioList", Toast.LENGTH_LONG)
+            // .show()
+
             if (audioIndex != -1 && audioIndex < audioList!!.size) {
                 //index is in a valid range
                 activeAudio = audioList!![audioIndex]
             } else {
                 stopSelf()
+                Toast.makeText(
+                    applicationContext,
+                    "onStartCommand: Self stop: Service stopped 1",
+                    Toast.LENGTH_LONG
+                ).show()
             }
 
         } catch (e: Exception) {
             stopSelf()
+            Toast.makeText(
+                applicationContext,
+                "onStartCommand: Self stop: Service stopped 2",
+                Toast.LENGTH_LONG
+            ).show()
         }
 
         //Request audio focus
@@ -256,12 +273,19 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
         if (mediaSessionManager == null) {
             try {
+
                 mediaPlayer = MediaPlayer()
                 initMediaSession()
+
                 //initMediaPlayer()
             } catch (e: RemoteException) {
                 e.printStackTrace()
                 stopSelf()
+                Toast.makeText(
+                    applicationContext,
+                    "onStartCommand: Self stop: Service stopped 3",
+                    Toast.LENGTH_LONG
+                ).show()
             }
             //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
             //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
@@ -273,12 +297,17 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     }
 
     private fun playMedia() {
-        if (mediaPlayer == null) return
+        if (mediaPlayer == null) {
+            //Toast.makeText(applicationContext, "media player is null", Toast.LENGTH_SHORT).show()
+            return
+        }
         if (!mediaPlayer?.isPlaying!!) {
             mediaPlayer?.start()
             /** Update UI of [AllSongFragment] */
             val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
             sendBroadcast(updatePlayer)
+        } else {
+            // Toast.makeText(applicationContext, "media player is null", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -304,19 +333,37 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     fun resumeMedia() {
         if (mediaPlayer == null) return
         if (!mediaPlayer?.isPlaying!!) {
-            if (initAudioOnPressResumeBtn) {
-                initAudioOnPressResumeBtn = false
-                initMediaPlayer()
+            if (requestAudioFocus()) {
+                if (initAudioOnPressResumeBtn) {
+                    initAudioOnPressResumeBtn = false
+                    initMediaPlayer()
+                }
+                /* Toast.makeText(
+                     applicationContext,
+                     "initAudio: $initAudioOnPressResumeBtn",
+                     Toast.LENGTH_SHORT
+                 ).show()*/
+                mediaPlayer?.seekTo(resumePosition)
+                mediaPlayer?.start()
+
+                //requestAudioFocus()
+
+                /** Update UI of [AllSongFragment] */
+                val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
+                sendBroadcast(updatePlayer)
+
+                // Toast.makeText(
+                //     applicationContext,
+                //     "resumed audio, ${activeAudio!!.songName}",
+                //   Toast.LENGTH_LONG
+                // ).show()
+            } else {
+                Toast.makeText(
+                    applicationContext,
+                    "Failed to get audio focus, Please restart app and clear recent",
+                    Toast.LENGTH_LONG
+                ).show()
             }
-            Toast.makeText(applicationContext, "initAudio: $initAudioOnPressResumeBtn", Toast.LENGTH_SHORT).show()
-            mediaPlayer?.seekTo(resumePosition)
-            mediaPlayer?.start()
-
-            requestAudioFocus()
-
-            /** Update UI of [AllSongFragment] */
-            val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
-            sendBroadcast(updatePlayer)
 
         }
     }
@@ -393,62 +440,64 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         }
     }
 
-    override fun onAudioFocusChange(focusState: Int) {
+    private fun onAudioFocusChange() {
         //Invoked when the audio focus of the system is updated.
-        when (focusState) {
-            AudioManager.AUDIOFOCUS_GAIN -> {
-                // resume playback
-                if (!pausedByManually) {
-                    if (mediaPlayer == null) initMediaPlayer() else if (!mediaPlayer!!.isPlaying) {
-                        resumeMedia()
-                        //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
-                        updateNotification(true)
+        audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener {
+            when (it) {
+                AudioManager.AUDIOFOCUS_GAIN -> {
+                    // resume playback
+                    if (!pausedByManually) {
+                        if (mediaPlayer == null) initMediaPlayer() else if (!mediaPlayer!!.isPlaying) {
+                            resumeMedia()
+                            //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                            updateNotification(true)
+                        }
+                        mediaPlayer!!.setVolume(1.0f, 1.0f)
                     }
-                    mediaPlayer!!.setVolume(1.0f, 1.0f)
+                    Log.d("MediaServiceAUDIOFOCUS_GAIN", "onAudioFocusChange: AUDIOFOCUS_GAIN ")
                 }
-                Log.d("MediaServiceAUDIOFOCUS_GAIN", "onAudioFocusChange: AUDIOFOCUS_GAIN ")
-            }
-            AudioManager.AUDIOFOCUS_LOSS -> {
-                // Lost focus for an unbounded amount of time: stop playback and release media player
-                if (mediaPlayer!!.isPlaying) {
-                    pauseMedia()
-                    //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
-                    updateNotification(false)
+                AudioManager.AUDIOFOCUS_LOSS -> {
+                    // Lost focus for an unbounded amount of time: stop playback and release media player
+                    if (mediaPlayer!!.isPlaying) {
+                        pauseMedia()
+                        //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+                        updateNotification(false)
+                    }
+                    //mediaPlayer!!.release()
+                    //mediaPlayer = null
+                    Log.d("MediaServiceAUDIOFOCUS_LOSS", "onAudioFocusChange: AUDIOFOCUS_LOSS ")
+
                 }
-                //mediaPlayer!!.release()
-                //mediaPlayer = null
-                Log.d("MediaServiceAUDIOFOCUS_LOSS", "onAudioFocusChange: AUDIOFOCUS_LOSS ")
+                AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                    // Lost focus for a short time, but we have to stop
+                    // playback. We don't release the media player because playback
+                    // is likely to resume
+                    if (mediaPlayer!!.isPlaying) {
+                        pauseMedia()
+                        //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+                        updateNotification(false)
+                    }
+                    Log.d(
+                        "MediaServiceAUDIOFOCUS_LOSS_TRANSIENT",
+                        "onAudioFocusChange: AUDIOFOCUS_LOSS_TRANSIENT "
+                    )
 
-            }
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
-                // Lost focus for a short time, but we have to stop
-                // playback. We don't release the media player because playback
-                // is likely to resume
-                if (mediaPlayer!!.isPlaying) {
-                    pauseMedia()
-                    //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
-                    updateNotification(false)
                 }
-                Log.d(
-                    "MediaServiceAUDIOFOCUS_LOSS_TRANSIENT",
-                    "onAudioFocusChange: AUDIOFOCUS_LOSS_TRANSIENT "
-                )
 
+
+                AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                    // Lost focus for a short time, but it's ok to keep playing
+                    // at an attenuated level
+                    if (mediaPlayer!!.isPlaying) mediaPlayer!!.setVolume(0.1f, 0.1f)
+                    Log.d(
+                        "MediaServiceAUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK",
+                        "onAudioFocusChange: AUDIOFOCUS_LOSS_TRANSIENT "
+                    )
+
+                }
             }
-
-
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
-                // Lost focus for a short time, but it's ok to keep playing
-                // at an attenuated level
-                if (mediaPlayer!!.isPlaying) mediaPlayer!!.setVolume(0.1f, 0.1f)
-                Log.d(
-                    "MediaServiceAUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK",
-                    "onAudioFocusChange: AUDIOFOCUS_LOSS_TRANSIENT "
-                )
-
-            }
-
         }
+
     }
 
     fun buildNotification(
@@ -456,6 +505,17 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         favUnFavStatus: PlaybackStatus,
         playbackSpeed: Float
     ) {
+
+        val contentIntent = Intent(this, ActivityBottomBarFragmentContainer::class.java)
+        //contentIntent.putExtra("is_open_from_noti", true)
+        contentIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val contentPendingIntent =
+            PendingIntent.getActivity(
+                applicationContext,
+                786,
+                contentIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
         var playPauseActionIcon = R.drawable.ic_noti_pause_circle //needs to be initialized
         var favUnFavActionIcon = R.drawable.ic_pink_outlined_heart //needs to be initialized
 
@@ -486,7 +546,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
             UriToBitmapConverter.getBitmap(contentResolver, activeAudio?.artUri!!.toUri())
                 ?: BitmapFactory.decodeResource(
                     resources,
-                    R.drawable.music_note_notification
+                    R.drawable.noti_large_default_icon
                 )
 
         // Create a new Notification
@@ -497,44 +557,101 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 androidx.media.app.NotificationCompat.MediaStyle() // Attach our MediaSession token
                     .setMediaSession(mediaSession!!.sessionToken) // Show our playback controls in the compact notification view.
                     .setShowActionsInCompactView(1, 2)
+                    .setShowCancelButton(true)
             )
             .setLargeIcon(largeIcon)
-            .setSmallIcon(R.drawable.play_beat_logo) // Set Notification content information
+            .setSmallIcon(R.drawable.ic_play_beat_logo_noti) // Set Notification content information
             .setContentText(activeAudio!!.artistsName)
             .setContentTitle(activeAudio!!.albumName)
             .setContentInfo(activeAudio!!.songName) // Add playback actions
+            .setContentIntent(contentPendingIntent)
             .addAction(R.drawable.ic_noti_skip_prev, "previous", playbackAction(3))
             .addAction(playPauseActionIcon, "pause", playPauseAction)
             .addAction(
                 R.drawable.ic_noti_skip_next,
                 "next",
                 playbackAction(2)
-            ).setOnlyAlertOnce(true).setAutoCancel(false)
-            .addAction(favUnFavActionIcon, "favourite", favUnFavAction)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setOngoing(true)
+            ).addAction(favUnFavActionIcon, "favourite", favUnFavAction)
+
+            .setOnlyAlertOnce(true)
+            .setAutoCancel(false)
+            //.setAutoCancel(false)
+            //.setOngoing(true)
+            .setSilent(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
         //.setProgress(mediaPlayer?.duration!!, mediaPlayer?.currentPosition!!, false)
 
-        startForeground(NOTIFICATION_ID, notificationBuilder.build())
 
-        if (mediaPlayer != null) {
-            mediaSession?.setPlaybackState(
-                PlaybackStateCompat.Builder()
-                    .setState(
-                        PlaybackStateCompat.STATE_PLAYING,
-                        mediaPlayer?.currentPosition!!.toLong(),
-                        playbackSpeed
+        setNotificationPlaybackState(playbackStatus, playbackSpeed, notificationBuilder)
+
+        /*(getSystemService(NOTIFICATION_SERVICE) as NotificationManager).notify(
+            NOTIFICATION_ID,
+            notificationBuilder.build()
+        )*/
+    }
+
+    private fun setNotificationPlaybackState(
+        playbackStatus: PlaybackStatus,
+        playbackSpeed: Float,
+        notificationBuilder: NotificationCompat.Builder
+    ) {
+        when (playbackStatus) {
+            PlaybackStatus.PLAYING -> {
+                if (mediaPlayer != null) {
+                    mediaSession?.setPlaybackState(
+                        PlaybackStateCompat.Builder()
+                            .setState(
+                                PlaybackStateCompat.STATE_PLAYING,
+                                mediaPlayer?.currentPosition!!.toLong(),
+                                playbackSpeed,
+                                SystemClock.elapsedRealtime()
+                            )
+                            .setActions(PlaybackStateCompat.ACTION_SEEK_TO)
+                            .build()
                     )
-                    .setActions(PlaybackStateCompat.ACTION_SEEK_TO)
-                    .build()
-            )
+                    startForeground(NOTIFICATION_ID, notificationBuilder.build())
+                }
+            }
+            PlaybackStatus.PAUSED -> {
+                if (mediaPlayer != null) {
+                    mediaSession?.setPlaybackState(
+                        PlaybackStateCompat.Builder()
+                            .setState(
+                                PlaybackStateCompat.STATE_PAUSED,
+                                mediaPlayer?.currentPosition!!.toLong(),
+                                playbackSpeed
+                            )
+                            .setActions(PlaybackStateCompat.ACTION_SEEK_TO)
+                            .build()
+                    )
+                    stopForeground(true)
+                    (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).notify(
+                        NOTIFICATION_ID,
+                        notificationBuilder.build()
+                    )
+                }
+            }
+            else -> {
+                if (mediaPlayer != null) {
+                    mediaSession?.setPlaybackState(
+                        PlaybackStateCompat.Builder()
+                            .setState(
+                                PlaybackStateCompat.STATE_STOPPED,
+                                mediaPlayer?.currentPosition!!.toLong(),
+                                playbackSpeed
+                            )
+                            .setActions(PlaybackStateCompat.ACTION_SEEK_TO)
+                            .build()
+                    )
+                    stopForeground(true)
+                    (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).notify(
+                        NOTIFICATION_ID,
+                        notificationBuilder.build()
+                    )
+                }
+            }
         }
 
-        /*   (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).notify(
-               NOTIFICATION_ID,
-               notificationBuilder.build()
-           )*/
     }
 
     private fun removeNotification() {
@@ -612,18 +729,38 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         }
     }
 
+
     private fun requestAudioFocus(): Boolean {
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        val result = audioManager?.requestAudioFocus(
-            this,
-            AudioManager.STREAM_MUSIC,
-            AudioManager.AUDIOFOCUS_GAIN
-        )
+        // initiate the audio playback attributes
+        val playbackAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+            .build()
+
+        // set the playback attributes for the focus requester
+
+        val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                .setAudioAttributes(playbackAttributes)
+                .setAcceptsDelayedFocusGain(true)
+                .setOnAudioFocusChangeListener(audioFocusChangeListener!!)
+                .build()
+
+            audioManager?.requestAudioFocus(focusRequest)
+        } else {
+            audioManager?.requestAudioFocus(
+                audioFocusChangeListener,
+                AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN
+            )
+        }
+
         return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }
 
     private fun removeAudioFocus(): Boolean {
-        val audioFocus = audioManager?.abandonAudioFocus(this) ?: false
+        val audioFocus = audioManager?.abandonAudioFocus(audioFocusChangeListener) ?: false
         return AudioManager.AUDIOFOCUS_REQUEST_GRANTED == audioFocus
     }
 
@@ -649,9 +786,11 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         // through its MediaSessionCompat.Callback.
         mediaSession?.setFlags(MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
         mediaSession?.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS)
+        //mediaSession?.setPlaybackState(PlaybackStateCompat.fromPlaybackState(""))
 
         //Set mediaSession's MetaData
-        updateMetaData()
+        if (audioList.isNotEmpty())
+            updateMetaData()
 
         // Attach Callback to receive MediaSession updates
         mediaSession?.setCallback(object : MediaSessionCompat.Callback() {
@@ -685,9 +824,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                             }
                         }
                         return true
-
                     }
-
 
                     if (keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
                         resumePosition = 0
@@ -702,6 +839,7 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                         Log.d("skipToNextEarphone", "onMediaButtonEvent: run ")
                         return true
                     }
+
                     if (keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS) {
                         resumePosition = 0
                         skipToPrevious()
@@ -776,7 +914,6 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
                 //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
                 updateNotification(true)
             }
-
 
             override fun onStop() {
                 super.onStop()
@@ -865,52 +1002,58 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
     }
 
     private fun stopServiceIfTaskRemoved() {
-        if (!mediaPlayer?.isPlaying!!) {
-            //store audio resume pos
+        if (mediaPlayer != null) {
+            try {
+                if (!mediaPlayer!!.isPlaying) {
+                    //store audio resume pos
 
-            if (mediaPlayer?.currentPosition == 0) {
-                // if user didn't resume audio then medial player current pos will we zero
-                // at that time save the RESUME POSITION which we will get from PREFS
-                StorageUtil(applicationContext).storeAudioResumePos(resumePosition)
-                Toast.makeText(this, "$resumePosition", Toast.LENGTH_SHORT).show()
-            } else {
-                StorageUtil(applicationContext).storeAudioResumePos(mediaPlayer?.currentPosition!!)
+                    if (mediaPlayer?.currentPosition == 0) {
+                        // if user didn't resume audio then medial player current pos will we zero
+                        // at that time save the RESUME POSITION which we will get from PREFS
+                        StorageUtil(applicationContext).storeAudioResumePos(resumePosition)
+                        // Toast.makeText(this, "$resumePosition", Toast.LENGTH_SHORT).show()
+                    } else {
+                        StorageUtil(applicationContext).storeAudioResumePos(mediaPlayer?.currentPosition!!)
+                    }
+
+                    StorageUtil(applicationContext).storeLastAudioMaxSeekProg(mediaPlayer?.duration!!)
+
+                    // Toast.makeText(applicationContext, "Destroyed", Toast.LENGTH_SHORT).show()
+                    Log.d("PlayBeatServiceDestroyed", "onDestroy: Destroyed")
+                    if (mediaPlayer != null) {
+                        stopMedia()
+                        mediaPlayer!!.release()
+                    }
+                    removeAudioFocus()
+
+                    //Disable the PhoneStateListener
+                    /*if (phoneStateListener != null) {
+                        telephonyManager?.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE)
+                    }*/
+
+                    removeNotification()
+                    stopForeground(true)
+
+                    //unregister BroadcastReceivers
+                    unregisterReceiver(becomingNoisyReceiver)
+                    unregisterReceiver(playNewAudio)
+                    //unregisterReceiver(openContent)
+
+                    if (sleepCountDownTimer != null) {
+                        sleepCountDownTimer?.cancel()
+                        StorageUtil(applicationContext).saveSleepTime(0)
+                    }
+
+                    //clear cached playlist
+                    //StorageUtil(applicationContext).clearCachedAudioPlaylist()
+                    // mediaPlayer = null
+                    stopSelf()
+                    AllSongFragment.musicService = null
+                    //stopService(Intent(this, PlayBeatMusicService::class.java))
+                }
+            } catch (e: IllegalStateException) {
+                e.printStackTrace()
             }
-
-            StorageUtil(applicationContext).storeLastAudioMaxSeekProg(mediaPlayer?.duration!!)
-
-            Toast.makeText(applicationContext, "Destroyed", Toast.LENGTH_SHORT).show()
-            Log.d("PlayBeatServiceDestroyed", "onDestroy: Destroyed")
-            if (mediaPlayer != null) {
-                stopMedia()
-                mediaPlayer!!.release()
-            }
-            removeAudioFocus()
-
-            //Disable the PhoneStateListener
-            if (phoneStateListener != null) {
-                telephonyManager?.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE)
-            }
-
-            removeNotification()
-            stopForeground(true)
-
-            //unregister BroadcastReceivers
-            unregisterReceiver(becomingNoisyReceiver)
-            unregisterReceiver(playNewAudio)
-            //unregisterReceiver(openContent)
-
-            if (sleepCountDownTimer != null) {
-                sleepCountDownTimer?.cancel()
-                StorageUtil(applicationContext).saveSleepTime(0)
-            }
-
-            //clear cached playlist
-            //StorageUtil(applicationContext).clearCachedAudioPlaylist()
-            // mediaPlayer = null
-            stopSelf()
-            AllSongFragment.musicService = null
-            //stopService(Intent(this, PlayBeatMusicService::class.java))
         }
     }
 
@@ -921,32 +1064,78 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
 
             initAudioOnPressResumeBtn = false
 
-            audioList = storageUtil.loadQueueAudio()
+            try {
+                audioList = storageUtil.loadQueueAudio()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
             //Get the new media index form SharedPreferences
             audioIndex = storageUtil.loadAudioIndex()
-            if (audioIndex != -1 && audioIndex < audioList!!.size) {
-                //index is in a valid range
-                activeAudio = audioList!![audioIndex]
+            if (audioIndex == -1) {
+                val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
+                sendBroadcast(updatePlayer)
+                stopForeground(true)
+                stopMedia()
+                // initMediaSession()
             } else {
-                stopSelf()
+                if (audioIndex != -1 && audioIndex < audioList!!.size) {
+                    //index is in a valid range
+                    activeAudio = audioList!![audioIndex]
+                } else {
+                    stopSelf()
+                }
+
+                pausedByManually = false
+                if (requestAudioFocus()) {
+                    // requestAudioFocus()
+
+                    //A PLAY_NEW_AUDIO action received
+                    //reset mediaPlayer to play the new Audio
+
+                    try {
+                        if (mediaPlayer != null && mediaPlayer?.isPlaying!!) {
+                            stopMedia()
+                            //mediaPlayer!!.reset()
+                        }
+
+                    } catch (e: java.lang.IllegalStateException) {
+                        e.printStackTrace()
+                    }
+
+                    initMediaPlayer()
+                    updateMetaData()
+                    //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                    //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                    updateNotification(true)
+                    // Toast.makeText(
+                    //   applicationContext,
+                    // "Played new audio, ${activeAudio!!.songName}",
+                    // Toast.LENGTH_LONG
+                    //).show()
+                } else {
+                    Toast.makeText(
+                        applicationContext,
+                        "Failed to get audio focus, Please restart app and clear recent",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
 
-            pausedByManually = false
-            requestAudioFocus()
+            // requestAudioFocus()
 
             //A PLAY_NEW_AUDIO action received
             //reset mediaPlayer to play the new Audio
 
-            if (mediaPlayer != null && mediaPlayer?.isPlaying!!) {
-                stopMedia()
-                //mediaPlayer!!.reset()
-            }
+            //if (mediaPlayer != null && mediaPlayer?.isPlaying!!) {
+            //   stopMedia()
+            //mediaPlayer!!.reset()
+            //}
 
-            initMediaPlayer()
-            updateMetaData()
+            //initMediaPlayer()
+            //updateMetaData()
             //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
             //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
-            updateNotification(true)
+            //    updateNotification(true)
         }
     }
 
@@ -971,16 +1160,16 @@ class PlayBeatMusicService : Service(), AudioManager.OnAudioFocusChangeListener 
         registerReceiver(becomingNoisyReceiver, intentFilter)
     }
 
-    /* private val openContent: BroadcastReceiver = object : BroadcastReceiver() {
-         override fun onReceive(context: Context?, intent: Intent?) {
+/* private val openContent: BroadcastReceiver = object : BroadcastReceiver() {
+     override fun onReceive(context: Context?, intent: Intent?) {
 
-         }
      }
+ }
 
-     private fun registerContentReceiver() {
-         val intentFiler = IntentFilter(OPEN_CONTENT)
-         registerReceiver(openContent, intentFiler)
-     }*/
+ private fun registerContentReceiver() {
+     val intentFiler = IntentFilter(OPEN_CONTENT)
+     registerReceiver(openContent, intentFiler)
+ }*/
 
     fun stopSleepTimer(sleepTimerTV: TextView, sleepTimeIV: ImageView) {
         if (sleepCountDownTimer != null) {

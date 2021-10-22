@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.knesarcreation.playbeat.database.AllSongsModel
+import com.knesarcreation.playbeat.model.AudioArtBitmapModel
 import java.lang.reflect.Type
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -214,10 +215,52 @@ class StorageUtil(context: Context) {
         return preferences!!.getInt("audioCount", 0)
     }
 
+     fun storeAudioArtBitmapImage(arrayList: ArrayList<AudioArtBitmapModel>?) {
+        preferences =
+            mContext.getSharedPreferences(
+                STORAGE,
+                AppCompatActivity.MODE_PRIVATE
+            )
+        val editor = preferences!!.edit()
+        val gson = Gson()
+        val json: String = gson.toJson(arrayList)
+        editor.putString("audioArtBitmap", json)
+        editor.apply()
+    }
+
+     fun loadAudioArtBitmapImage(): ArrayList<AudioArtBitmapModel> {
+        preferences =
+            mContext.getSharedPreferences(
+                STORAGE,
+                AppCompatActivity.MODE_PRIVATE
+            )
+        val gson = Gson()
+        val json = preferences!!.getString("audioArtBitmap", null)
+        val type: Type = object : TypeToken<ArrayList<AudioArtBitmapModel?>>() {}.type
+        return gson.fromJson(json, type)
+    }
+    /* fun storeBitmapImage(arrayModel: ArrayList<Bitmap>) {
+         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+         val editor = preferences!!.edit()
+         val gson = Gson()
+         val json: String = gson.toJson(arrayModel)
+         editor.putString("audiosBitmap", json)
+         editor.apply()
+     }
+
+     fun loadBitmapImage(): ArrayList<Bitmap> {
+         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+         val gson = Gson()
+         val json = preferences!!.getString("audiosBitmap", null)
+         val type: Type = object : TypeToken<ArrayList<Bitmap>>() {}.type
+         return gson.fromJson(json, type)
+     }*/
+
     fun clearCachedAudioPlaylist() {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         val editor = preferences!!.edit()
         editor.clear()
         editor.apply()
     }
+
 }

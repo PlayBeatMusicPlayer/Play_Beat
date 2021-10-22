@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_theme_color"
+    android:orientation="vertical"
+    tools:context=".activity.TagEditorActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <!--back arrow-->
+            <ImageView
+                android:id="@+id/arrowBackIV"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="45dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/curved_all_edges"
+                android:contentDescription="@null"
+                android:paddingTop="5dp"
+                android:paddingEnd="2dp"
+                android:paddingBottom="5dp"
+                android:src="@drawable/ic_back_arrow_ios"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="48dp"
+                android:text="Tag editor"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/albumArtIV"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:background="@drawable/little_curved_all_edges"
+                android:scaleType="centerCrop"
+                android:src="@drawable/music_note_icon"
+                app:shapeAppearanceOverlay="@style/circular_5" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:layout_width="130dp"
+                android:layout_height="70dp"
+                android:layout_alignBottom="@id/editAudioAlbumArt"
+                android:src="@drawable/gradient_background_bottom_shadow"
+                app:shapeAppearanceOverlay="@style/circular_5" />
+
+            <ImageView
+                android:id="@+id/editAudioAlbumArt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignEnd="@id/albumArtIV"
+                android:layout_alignBottom="@id/albumArtIV"
+                android:layout_marginEnd="5dp"
+                android:background="@drawable/curved_all_edges_white"
+                android:contentDescription="@null"
+                android:padding="5dp"
+                android:src="@drawable/ic_editor_black" />
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="20dp"
+                android:layout_toEndOf="@id/albumArtIV"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/audioTitleTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto"
+                    android:text="Audio Name"
+                    android:textColor="@color/white"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/artisNameTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto"
+                    android:text="Artist name"
+                    android:textColor="@color/grey" />
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:hint="Title"
+            android:textColorHighlight="@color/teal_200"
+            android:textColorHint="@color/grey"
+            app:boxBackgroundColor="#DC3A3C46"
+            app:boxBackgroundMode="filled"
+            app:boxCollapsedPaddingTop="5dp"
+            app:boxCornerRadiusBottomEnd="0dp"
+            app:boxCornerRadiusBottomStart="0dp"
+            app:boxCornerRadiusTopEnd="5dp"
+            app:boxCornerRadiusTopStart="5dp"
+            app:boxStrokeColor="@color/teal_200"
+            app:boxStrokeErrorColor="@color/red"
+            app:boxStrokeWidth="2dp"
+            app:boxStrokeWidthFocused="2dp"
+            app:hintAnimationEnabled="true"
+            app:hintEnabled="true"
+            app:hintTextColor="@color/teal_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:maxLines="1"
+                android:textCursorDrawable="@drawable/cursor"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:hint="Album"
+            android:textColorHighlight="@color/teal_200"
+            android:textColorHint="@color/grey"
+            app:boxBackgroundColor="#DC3A3C46"
+            app:boxBackgroundMode="filled"
+            app:boxCollapsedPaddingTop="5dp"
+            app:boxCornerRadiusBottomEnd="0dp"
+            app:boxCornerRadiusBottomStart="0dp"
+            app:boxCornerRadiusTopEnd="5dp"
+            app:boxCornerRadiusTopStart="5dp"
+            app:boxStrokeColor="@color/teal_200"
+            app:boxStrokeErrorColor="@color/red"
+            app:boxStrokeWidth="2dp"
+            app:boxStrokeWidthFocused="2dp"
+            app:hintAnimationEnabled="true"
+            app:hintEnabled="true"
+            app:hintTextColor="@color/teal_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etAlbum"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:maxLines="1"
+                android:textCursorDrawable="@drawable/cursor"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:hint="Artist"
+            android:textColorHighlight="@color/teal_200"
+            android:textColorHint="@color/grey"
+            app:boxBackgroundColor="#DC3A3C46"
+            app:boxBackgroundMode="filled"
+            app:boxCollapsedPaddingTop="5dp"
+            app:boxCornerRadiusBottomEnd="0dp"
+            app:boxCornerRadiusBottomStart="0dp"
+            app:boxCornerRadiusTopEnd="5dp"
+            app:boxCornerRadiusTopStart="5dp"
+            app:boxStrokeColor="@color/teal_200"
+            app:boxStrokeErrorColor="@color/red"
+            app:boxStrokeWidth="2dp"
+            app:boxStrokeWidthFocused="2dp"
+            app:hintAnimationEnabled="true"
+            app:hintEnabled="true"
+            app:hintTextColor="@color/teal_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etArtist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:maxLines="1"
+                android:textCursorDrawable="@drawable/cursor"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:hint="Album artist"
+            android:textColorHighlight="@color/teal_200"
+            android:textColorHint="@color/grey"
+            app:boxBackgroundColor="#DC3A3C46"
+            app:boxBackgroundMode="filled"
+            app:boxCollapsedPaddingTop="5dp"
+            app:boxCornerRadiusBottomEnd="0dp"
+            app:boxCornerRadiusBottomStart="0dp"
+            app:boxCornerRadiusTopEnd="5dp"
+            app:boxCornerRadiusTopStart="5dp"
+            app:boxStrokeColor="@color/teal_200"
+            app:boxStrokeErrorColor="@color/red"
+            app:boxStrokeWidth="2dp"
+            app:boxStrokeWidthFocused="2dp"
+            app:hintAnimationEnabled="true"
+            app:hintEnabled="true"
+            app:hintTextColor="@color/teal_200">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etAlbumArtist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:maxLines="1"
+                android:textCursorDrawable="@drawable/cursor"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/saveTag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="20dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_save"
+        app:backgroundTint="@color/light_transparent"
+        app:layout_anchorGravity="end" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

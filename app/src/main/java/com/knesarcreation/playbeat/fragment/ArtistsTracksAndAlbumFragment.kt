@@ -1,18 +1,13 @@
 package com.knesarcreation.playbeat.fragment
 
-import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -22,13 +17,12 @@ import com.google.gson.reflect.TypeToken
 import com.knesarcreation.playbeat.adapter.AllAlbumsAdapter
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.adapter.ArtistsAlbumAdapter
-import com.knesarcreation.playbeat.database.AllSongsModel
-import com.knesarcreation.playbeat.database.QueueListModel
-import com.knesarcreation.playbeat.database.ViewModelClass
+import com.knesarcreation.playbeat.database.*
 import com.knesarcreation.playbeat.databinding.FragmentArtistsTracksAndAlbumBinding
-import com.knesarcreation.playbeat.model.AlbumModel
-import com.knesarcreation.playbeat.model.ArtistsModel
-import com.knesarcreation.playbeat.utils.*
+import com.knesarcreation.playbeat.utils.AudioPlayingFromCategory
+import com.knesarcreation.playbeat.utils.CustomProgressDialog
+import com.knesarcreation.playbeat.utils.DataObservableClass
+import com.knesarcreation.playbeat.utils.StorageUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -47,10 +41,13 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
     private lateinit var storageUtil: StorageUtil
     private lateinit var mViewModelClass: ViewModelClass
     private lateinit var allSongsAdapter: AllSongsAdapter
+    private lateinit var artistsAlbumAdapter: ArtistsAlbumAdapter
+    private lateinit var allSongsAdapterMoreTracks: AllSongsAdapter
     private var launchAlumData: Job? = null
+    private var isBackPressed = false
 
     interface OnArtistAlbumItemClicked {
-        fun openArtistAlbum(album: String)
+        fun openAlbumFromArtistFrag(album: String)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,6 +79,10 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
             (activity as AppCompatActivity).onBackPressed()
         }
 
+        binding?.arrowBack?.setOnClickListener {
+            (activity as AppCompatActivity).onBackPressed()
+        }
+
         storageUtil = StorageUtil(activity as Context)
 
         viewmodel = activity?.run {
@@ -96,159 +97,87 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
         viewmodel.artistsData.observe(viewLifecycleOwner, {
             convertGsonToAlbumModel(it)
 
-            binding?.rvAlbums?.setHasFixedSize(true)
-            binding?.rvAlbums?.setItemViewCacheSize(20)
-            //binding?.rvTracks?.setHasFixedSize(true)
-            binding?.rvTracks?.setItemViewCacheSize(20)
+            //binding?.rvAlbums?.setHasFixedSize(true)
+            //binding?.rvAlbums?.setItemViewCacheSize(20)
+            //binding?.rvTracks?.setItemViewCacheSize(20)
 
             binding?.artisNameTV?.text = artistsModel?.artistName
             binding?.artisNameTVToolbar?.text = artistsModel?.artistName
-            if (artistsModel?.noOfTracks == 1 && artistsModel?.noOfAlbums == 1) {
-                binding?.TracksAndAlbum?.text =
-                    "${artistsModel?.noOfTracks} Track  |  ${artistsModel?.noOfAlbums} Album"
-            } else {
-                binding?.TracksAndAlbum?.text =
-                    "${artistsModel?.noOfTracks} Tracks  |  ${artistsModel?.noOfAlbums} Albums"
-            }
+            binding?.artisNameTVToolbar2?.text = artistsModel?.artistName
 
-            progressBar!!.show()
-            lifecycleScope.launch(Dispatchers.IO) {
-                loadAlbumFromMedia()
-            }
-            //loadArtistFromMedia()
-            getAudioAccordingAlbum()
+            isBackPressed = false
+
+            binding?.motionLayoutArtistAndAlbum?.visibility = View.VISIBLE
+            binding?.rlMoreAudios?.visibility = View.GONE
+            setUpAlbumAdapter()
+
+            allSongsAdapter =
+                AllSongsAdapter(
+                    activity as Context,
+                    AllSongsAdapter.OnClickListener { allSongModel, position ->
+                        onClickAudio(allSongModel, position)
+                    },
+                    AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
+
+                    },
+                    false
+                )
+            allSongsAdapter.isSearching = false
+            binding!!.rvTracks.adapter = allSongsAdapter
+            binding!!.rvTracks.itemAnimator = null
+            binding!!.rvTracks.scrollToPosition(0)
+
+            getAudioAccordingAlbum(false)
 
         })
 
-        binding?.playAll?.setOnClickListener { /*starting from 0*/
-            /*storageUtil.saveIsShuffled(false)
-            playAudio(0)*/
+        binding?.playAll?.setOnClickListener {
             onClickAudio(audioList[0], 0)
         }
 
-        binding?.playAllToolbar?.setOnClickListener {
-            /*storageUtil.saveIsShuffled(false)
-            playAudio(0)*/
-            onClickAudio(audioList[0], 0)
+        binding?.seeAllTV?.setOnClickListener {
+            binding?.motionLayoutArtistAndAlbum?.visibility = View.GONE
+            binding?.rlMoreAudios?.visibility = View.VISIBLE
+            setUpMoreTracksRV()
         }
 
         return view
     }
 
-    private fun loadAlbumFromMedia() {
-        albumList.clear()
-        val collection = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
+    private fun setUpMoreTracksRV() {
+        allSongsAdapterMoreTracks = AllSongsAdapter(
+            activity as Context,
+            AllSongsAdapter.OnClickListener { allSongModel, position ->
+                onClickAudio(allSongModel, position)
+            }, AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
 
-        val projection = arrayOf(
-            MediaStore.Audio.Albums._ID,
-            //MediaStore.Audio.Albums.ALBUM_ID,
-            MediaStore.Audio.Albums.ALBUM,
-            MediaStore.Audio.Albums.ARTIST,
-            MediaStore.Audio.Albums.LAST_YEAR,
-            MediaStore.Audio.Albums.NUMBER_OF_SONGS,
+            }, false
         )
+        allSongsAdapterMoreTracks.isSearching = false
+        binding!!.rvMoreTracks.adapter = allSongsAdapterMoreTracks
+        binding!!.rvMoreTracks.itemAnimator = null
+        binding!!.rvMoreTracks.scrollToPosition(0)
 
-        // Show only audios that are at least 1 minutes in duration.
-        val selection = "${MediaStore.Audio.Artists.ARTIST} = ?"
-        val selectionArgs = arrayOf(artistsModel?.artistName)
-
-        // Display audios in alphabetical order based on their display name.
-        val sortOrder = "${MediaStore.Audio.Albums.ALBUM} ASC"
-
-        val query =
-            (activity as Context).contentResolver.query(
-                collection,
-                projection,
-                selection,
-                selectionArgs,
-                sortOrder
-            )
-
-        query?.use { cursor ->
-            // Cache column indices.
-            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums._ID)
-            //val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ID)
-            val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM)
-            val artistsColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ARTIST)
-            val lastYearColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.LAST_YEAR)
-            val noOfSongsColumn =
-                cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.NUMBER_OF_SONGS)
-
-            while (cursor.moveToNext()) {
-                //Get values of columns of a given audio
-                val id = cursor.getLong(idColumn)
-                //val albumId = cursor.getLong(albumIdColumn)
-                val album = cursor.getString(albumColumn)
-                val artist = cursor.getString(artistsColumn)
-                val lastYear = cursor.getInt(lastYearColumn)
-                val noOfSongs = cursor.getInt(noOfSongsColumn)
-
-                //getting album art uri
-                //var bitmap: Bitmap? = null
-                val sArtworkUri = Uri
-                    .parse("content://media/external/audio/albumart")
-                //val albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId)
-                val artUri = Uri.withAppendedPath(sArtworkUri, id.toString()).toString()
-
-
-                val bitmap =
-                    UriToBitmapConverter.getBitmap(context?.contentResolver!!, artUri.toUri())
-
-                //val albumBitmap = if (bitmap != null) {
-                //    UriToBitmapConverter.getBitmap(context?.contentResolver!!, artUri.toUri())
-                //} else {
-                //   BitmapFactory.decodeResource(resources, R.drawable.album_png)
-                //}
-
-                val albumModel =
-                    AlbumModel(
-                        id,
-                        album,
-                        artist,
-                        artUri,
-                        bitmap,
-                        lastYear,
-                        noOfSongs
-                    )
-                if (!albumList.contains(albumModel)) {
-                    albumList.add(albumModel)
-                }
-            }
-
-            // Stuff that updates the UI
-            (activity as AppCompatActivity).runOnUiThread {
-                binding?.rvAlbums?.adapter =
-                    ArtistsAlbumAdapter(
-                        activity as Context,
-                        albumList,
-                        object : AllAlbumsAdapter.OnAlbumClicked {
-                            override fun onClicked(albumModel: AlbumModel) {
-                                val gson = Gson()
-                                val album = gson.toJson(albumModel)
-                                listener?.openArtistAlbum(album)
-                            }
-                        }
-                    )
-                progressBar!!.dismiss()
-                cursor.close()
-            }
-        }
+        getAudioAccordingAlbum(true)
     }
 
-    private fun getAudioAccordingAlbum() {
-        allSongsAdapter =
-            AllSongsAdapter(
-                activity as Context,
-                AllSongsAdapter.OnClickListener { allSongModel, position ->
-                    onClickAudio(allSongModel, position)
-                }, AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
+    private fun setUpAlbumAdapter() {
+        artistsAlbumAdapter = ArtistsAlbumAdapter(
+            activity as Context,
+            //albumList,
+            object : AllAlbumsAdapter.OnAlbumClicked {
+                override fun onClicked(albumModel: AlbumModel) {
+                    val gson = Gson()
+                    val album = gson.toJson(albumModel)
+                    listener?.openAlbumFromArtistFrag(album)
+                }
+            }
+        )
+        binding?.rvAlbums?.adapter = artistsAlbumAdapter
 
-                })
-        allSongsAdapter.isSearching = false
-        binding!!.rvTracks.adapter = allSongsAdapter
-        binding!!.rvTracks.itemAnimator = null
-        binding!!.rvTracks.scrollToPosition(0)
+    }
 
+    private fun getAudioAccordingAlbum(moreTrackRV: Boolean) {
         mViewModelClass.getAllSong().observe(viewLifecycleOwner) {
             if (launchAlumData != null && launchAlumData?.isActive!!) {
                 launchAlumData?.cancel()
@@ -256,133 +185,67 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
             launchAlumData = lifecycleScope.launch(Dispatchers.IO) {
                 val audioArtist: List<AllSongsModel> =
                     mViewModelClass.getAudioAccordingArtist(artistsModel?.artistName!!)
+                getAlbumsAccordingToArtist(audioArtist)
                 audioList.clear()
                 val sortedList = audioArtist.sortedBy { allSongsModel -> allSongsModel.songName }
                 audioList.addAll(sortedList)
 
                 (activity as AppCompatActivity).runOnUiThread {
-                    allSongsAdapter.submitList(audioArtist.sortedBy { allSongsModel -> allSongsModel.songName })
-                    // allSongsAdapter.notifyDataSetChanged()
+                    if (audioList.size >= 4) {
+                        binding?.sepratorView1?.visibility = View.VISIBLE
+                        binding?.seeAllTV?.visibility = View.VISIBLE
+                    } else {
+                        binding?.sepratorView1?.visibility = View.GONE
+                        binding?.seeAllTV?.visibility = View.GONE
+                    }
+
+
+                    if (audioArtist.isEmpty()) {
+                        if (!isBackPressed) {
+                            isBackPressed = true
+                            (activity as AppCompatActivity).onBackPressed()
+                        }
+                    }
+                    if (moreTrackRV) {
+                        allSongsAdapterMoreTracks.submitList(audioArtist.sortedBy { allSongsModel -> allSongsModel.songName })
+                    } else {
+                        allSongsAdapter.submitList(audioArtist.sortedBy { allSongsModel -> allSongsModel.songName })
+                    }
                     Log.d(
                         "ArtistsAlbumFrag",
                         "getAudioAccordingAlbum: ${artistsModel?.artistName!!}  , audioAlbum : $audioList"
                     )
+                    if (audioArtist.size == 1 && audioArtist.size == 1) {
+                        binding?.totalSongsTV?.text =
+                            "${audioArtist.size} Song"
+                    } else {
+                        binding?.totalSongsTV?.text =
+                            "${audioArtist.size} Songs"
+                    }
                 }
             }
         }
     }
 
-    private fun loadArtistFromMedia() {
-        audioList.clear()
-        val collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-
-        val projection = arrayOf(
-            MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.SIZE,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.ALBUM_ID,
-            MediaStore.Audio.Media.DATA, // path
-            MediaStore.Audio.Media.DATE_ADDED
-        )
-
-        // Show only audios that are at least 1 minutes in duration.
-        // val selection =
-        //   "${MediaStore.Audio.Media.DURATION} >= ? AND ${MediaStore.Audio.Artists.ARTIST} =?"
-        val selection =
-            "${MediaStore.Audio.Artists.ARTIST} =?"
-        val selectionArgs = arrayOf(
-            //TimeUnit.MILLISECONDS.convert(20, TimeUnit.SECONDS).toString(),
-            artistsModel?.artistName
-        )
-
-        // Display videos in alphabetical order based on their display name.
-        val sortOrder = "${MediaStore.Audio.Media.DISPLAY_NAME} ASC"
-
-        val query =
-            (activity as Context).contentResolver.query(
-                collection,
-                projection,
-                selection,
-                selectionArgs,
-                sortOrder
+    private fun getAlbumsAccordingToArtist(audioArtist: List<AllSongsModel>) {
+        albumList.clear()
+        for (audio in audioArtist) {
+            val albumModel = AlbumModel(
+                audio.albumId,
+                audio.albumName,
+                audio.artistsName,
+                audio.artUri,
+                0,
+                0
             )
-
-        query?.use { cursor ->
-            // Cache column indices.
-            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-            val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
-            val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
-            val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
-            val artistsColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
-            val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
-            val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
-            val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-            val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
-
-            while (cursor.moveToNext()) {
-                //Get values of columns of a given audio
-                val id = cursor.getLong(idColumn)
-                val name = cursor.getString(nameColumn)
-                val duration = cursor.getInt(durationColumn)
-                val size = cursor.getInt(sizeColumn)
-                val album = cursor.getString(albumColumn)
-                val artist = cursor.getString(artistsColumn)
-                val albumId = cursor.getLong(albumIdColumn)
-                val data = cursor.getString(dataColumn)
-                val dateAdded = cursor.getString(dateAddedColumn)
-
-
-                Log.d("SongDetails", "loadAlbumSongs: $name, $artist")
-
-                val sArtworkUri = Uri
-                    .parse("content://media/external/audio/albumart")
-                val albumArtUri =
-                    Uri.withAppendedPath(sArtworkUri, albumId.toString()).toString()
-
-                //getting audio uri
-                val contentUri: Uri = ContentUris.withAppendedId(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    id
-                )
-
-                val allSongsModel =
-                    AllSongsModel(
-                        id,
-                        albumId,
-                        name,
-                        artist,
-                        album,
-                        size,
-                        duration,
-                        data,
-                        contentUri.toString(),
-                        albumArtUri,
-                        dateAdded,
-                        false,
-                        0L
-                    )
-                allSongsModel.playingOrPause = -1
-                audioList.add(allSongsModel)
-
+            if (!albumList.contains(albumModel)) {
+                albumList.add(albumModel)
             }
-
-            // Stuff that updates the UI
-            (activity as AppCompatActivity).runOnUiThread {
-                val albumAdapter =
-                    AllSongsAdapter(
-                        activity as Context,
-                        AllSongsAdapter.OnClickListener { allSongModel, position ->
-                            onClickAudio(allSongModel, position)
-                        }, AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
-
-                        })
-                binding!!.rvTracks.adapter = albumAdapter
-                albumAdapter.submitList(audioList)
-            }
-            cursor.close()
+        }
+        (activity as AppCompatActivity).runOnUiThread {
+            artistsAlbumAdapter.submitList(albumList)
+            // binding?.rvTracks?.visibility = View.VISIBLE
+            //binding?.trackTextTV?.visibility = View.VISIBLE
         }
     }
 
@@ -391,32 +254,35 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
 
         val prevPlayingAudioIndex = storageUtil.loadAudioIndex()
         val audioList = storageUtil.loadQueueAudio()
-        val prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
+        var prevPlayingAudioModel: AllSongsModel? = null
+        var restrictToUpdateAudio = false
 
-        var restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
+        if (audioList.isNotEmpty()) {
+            prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
+            restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
 
-        if (storageUtil.getIsAudioPlayedFirstTime()) {
-            restrictToUpdateAudio = false
-        }
+            if (storageUtil.getIsAudioPlayedFirstTime()) {
+                restrictToUpdateAudio = false
+            }
 
-        // restricting to update if clicked audio is same
-        if (!restrictToUpdateAudio) {
-            mViewModelClass.deleteQueue(lifecycleScope)
+            // restricting to update if clicked audio is same
+            if (!restrictToUpdateAudio) {
+                mViewModelClass.deleteQueue(lifecycleScope)
 
-            mViewModelClass.updateSong(
-                prevPlayingAudioModel.songId,
-                prevPlayingAudioModel.songName,
-                -1,
-                (context as AppCompatActivity).lifecycleScope
-            )
+                mViewModelClass.updateSong(
+                    prevPlayingAudioModel.songId,
+                    prevPlayingAudioModel.songName,
+                    -1,
+                    (context as AppCompatActivity).lifecycleScope
+                )
 
-            mViewModelClass.updateSong(
-                allSongModel.songId,
-                allSongModel.songName,
-                1,
-                (context as AppCompatActivity).lifecycleScope
-            )
-
+                mViewModelClass.updateSong(
+                    allSongModel.songId,
+                    allSongModel.songName,
+                    1,
+                    (context as AppCompatActivity).lifecycleScope
+                )
+            }
         }
 
         playAudio(position)
@@ -434,24 +300,27 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
                     audio.size,
                     audio.duration,
                     audio.data,
-                    audio.audioUri,
+                    audio.contentUri,
                     audio.artUri,
                     -1,
                     audio.dateAdded,
                     audio.isFavourite,
                     audio.favAudioAddedTime,
-                    audio.mostPlayedCount
+                    audio.mostPlayedCount,
+                    audio.artistId
                 )
                 queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
                 mViewModelClass.insertQueue(queueListModel, lifecycleScope)
             }
 
-            mViewModelClass.updateQueueAudio(
-                prevPlayingAudioModel.songId,
-                prevPlayingAudioModel.songName,
-                -1,
-                (context as AppCompatActivity).lifecycleScope
-            )
+            if (audioList.isNotEmpty()) {
+                mViewModelClass.updateQueueAudio(
+                    prevPlayingAudioModel!!.songId,
+                    prevPlayingAudioModel.songName,
+                    -1,
+                    (context as AppCompatActivity).lifecycleScope
+                )
+            }
 
             mViewModelClass.updateQueueAudio(
                 allSongModel.songId,
@@ -485,7 +354,7 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
         (activity as Context).sendBroadcast(broadcastIntent)
         Log.d(
             "isAudioListSaved",
-            "onAudioPlayed: serviceBound is active: $//musicService "
+            "onAudioPlayed: serviceBound is active:  "
         )
     }
 

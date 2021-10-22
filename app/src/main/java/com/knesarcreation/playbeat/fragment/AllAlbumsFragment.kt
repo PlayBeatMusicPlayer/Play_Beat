@@ -10,14 +10,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import com.google.gson.Gson
 import com.knesarcreation.playbeat.adapter.AllAlbumsAdapter
+import com.knesarcreation.playbeat.database.AlbumModel
+import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.FragmentAllAlbumsBinding
-import com.knesarcreation.playbeat.model.AlbumModel
 import com.knesarcreation.playbeat.utils.StorageUtil
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class AllAlbumsFragment : Fragment() {
 
@@ -25,6 +24,10 @@ class AllAlbumsFragment : Fragment() {
     private val binding get() = _binding
     private val albumList = ArrayList<AlbumModel>()
     var listener: OnAlbumItemClicked? = null
+    private lateinit var allAlbumsAdapter: AllAlbumsAdapter
+    private var hasDataLoaded = false
+    private lateinit var storageUtil: StorageUtil
+    private lateinit var mViewModelClass: ViewModelClass
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,17 +37,23 @@ class AllAlbumsFragment : Fragment() {
         _binding = FragmentAllAlbumsBinding.inflate(inflater, container, false)
         val view = binding!!.root
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            loadAlbum()
-        }
+        storageUtil = StorageUtil(activity as Context)
+        mViewModelClass =
+            ViewModelProvider(this)[ViewModelClass::class.java]
 
+        //lifecycleScope.launch(Dispatchers.IO) {
+        //    loadAlbum()
+        // }
+
+        setUpRecyclerView()
+        observerAlbumsData()
         sortAudios()
 
         return view
     }
 
     private fun sortAudios() {
-        when (StorageUtil(activity as Context).getAudioSortedValue(StorageUtil.ALBUM_AUDIO_KEY)) {
+        when (storageUtil.getAudioSortedValue(StorageUtil.ALBUM_AUDIO_KEY)) {
             "year" -> {
                 binding?.sortAudioTV?.text = "Year"
             }
@@ -62,9 +71,9 @@ class AllAlbumsFragment : Fragment() {
             }
         }
 
-        val storageUtil = StorageUtil(activity as Context)
+        //val storageUtil = StorageUtil(activity as Context)
         binding?.sortAudios?.setOnClickListener {
-            val bottomSheetSortByOptions = BottomSheetSortBy(activity as Context, "album","")
+            val bottomSheetSortByOptions = BottomSheetSortBy(activity as Context, "album", "")
             bottomSheetSortByOptions.show(
                 (context as AppCompatActivity).supportFragmentManager,
                 "bottomSheetSortByOptions"
@@ -76,8 +85,9 @@ class AllAlbumsFragment : Fragment() {
                         albumList.sortedByDescending { albumModel -> albumModel.lastYear }
 
                     albumList.clear()
-                    albumList.addAll(sortedByYear)
                     setUpRecyclerView()
+                    albumList.addAll(sortedByYear)
+                    allAlbumsAdapter.submitList(sortedByYear)
 
                     bottomSheetSortByOptions.dismiss()
                     binding?.sortAudioTV?.text = "Year"
@@ -88,8 +98,9 @@ class AllAlbumsFragment : Fragment() {
                     val sortedByAlbumName =
                         albumList.sortedBy { albumModel -> albumModel.albumName }
                     albumList.clear()
-                    albumList.addAll(sortedByAlbumName)
                     setUpRecyclerView()
+                    albumList.addAll(sortedByAlbumName)
+                    allAlbumsAdapter.submitList(sortedByAlbumName)
 
                     bottomSheetSortByOptions.dismiss()
                     binding?.sortAudioTV?.text = "Album Name"
@@ -98,11 +109,12 @@ class AllAlbumsFragment : Fragment() {
                 override fun count() {
                     storageUtil.saveAudioSortingMethod(StorageUtil.ALBUM_AUDIO_KEY, "SongCount")
                     val sortedByCount =
-                        albumList.sortedBy { albumModel -> albumModel.songCount }
+                        albumList.sortedByDescending { albumModel -> albumModel.songCount }
 
                     albumList.clear()
-                    albumList.addAll(sortedByCount)
                     setUpRecyclerView()
+                    albumList.addAll(sortedByCount)
+                    allAlbumsAdapter.submitList(sortedByCount)
 
                     bottomSheetSortByOptions.dismiss()
                     binding?.sortAudioTV?.text = "Song Count"
@@ -116,8 +128,9 @@ class AllAlbumsFragment : Fragment() {
                     val sortedByAlbumArtistName =
                         albumList.sortedBy { albumModel -> albumModel.artistName }
                     albumList.clear()
-                    albumList.addAll(sortedByAlbumArtistName)
                     setUpRecyclerView()
+                    albumList.addAll(sortedByAlbumArtistName)
+                    allAlbumsAdapter.submitList(sortedByAlbumArtistName)
                     binding?.sortAudioTV?.text = "Album Artist Name"
                     bottomSheetSortByOptions.dismiss()
                 }
@@ -135,7 +148,7 @@ class AllAlbumsFragment : Fragment() {
             MediaStore.Audio.Albums.ALBUM,
             MediaStore.Audio.Albums.ARTIST,
             MediaStore.Audio.Albums.LAST_YEAR,
-            MediaStore.Audio.Albums.NUMBER_OF_SONGS_FOR_ARTIST,
+            MediaStore.Audio.Albums.NUMBER_OF_SONGS,
         )
 
         // Show only audios that are at least 1 minutes in duration.
@@ -162,7 +175,7 @@ class AllAlbumsFragment : Fragment() {
             val artistsColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ARTIST)
             val lastYearColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.LAST_YEAR)
             val noOfSongsColumn =
-                cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.NUMBER_OF_SONGS_FOR_ARTIST)
+                cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.NUMBER_OF_SONGS)
 
 
             while (cursor.moveToNext()) {
@@ -187,7 +200,6 @@ class AllAlbumsFragment : Fragment() {
                         album,
                         artist,
                         artUri,
-                        null,
                         lastYear,
                         noOfSongs
                     )
@@ -206,18 +218,88 @@ class AllAlbumsFragment : Fragment() {
 
     }
 
-    private fun setUpRecyclerView() {
-        binding?.rvAlbums?.adapter =
-            AllAlbumsAdapter(
-                activity as Context,
-                albumList,
-                object : AllAlbumsAdapter.OnAlbumClicked {
-                    override fun onClicked(albumModel: AlbumModel) {
-                        val gson = Gson()
-                        val album = gson.toJson(albumModel)
-                        listener?.openAlbum(album)
+    private fun observerAlbumsData() {
+        mViewModelClass.getAlbums().observe(viewLifecycleOwner, {
+            if (it != null) {
+                albumList.clear()
+
+                if (it.isEmpty()) {
+                    binding?.rlAllAlbumContainer!!.visibility = View.GONE
+                    binding?.rlNoAlbumPresent!!.visibility = View.VISIBLE
+                } else {
+                    //val sortedList: List<AlbumModel>
+                    binding?.rlAllAlbumContainer!!.visibility = View.VISIBLE
+                    binding?.rlNoAlbumPresent!!.visibility = View.GONE
+                    when (storageUtil.getAudioSortedValue(StorageUtil.ALBUM_AUDIO_KEY)) {
+                        "year" -> {
+                            //storageUtil.saveAudioSortingMethod(StorageUtil.ALBUM_AUDIO_KEY, "year")
+                            val sortedByYear =
+                                it.sortedByDescending { albumModel -> albumModel.lastYear }
+
+                            albumList.addAll(sortedByYear)
+                            allAlbumsAdapter.submitList(it.sortedByDescending { albumModel -> albumModel.lastYear })
+                            binding?.sortAudioTV?.text = "Year"
+                        }
+                        "AlbumName" -> {
+                            //storageUtil.saveAudioSortingMethod(StorageUtil.ALBUM_AUDIO_KEY, "AlbumName")
+                            val sortedByAlbumName =
+                                it.sortedBy { albumModel -> albumModel.albumName }
+
+                            albumList.addAll(sortedByAlbumName)
+                            allAlbumsAdapter.submitList(it.sortedBy { albumModel -> albumModel.albumName })
+                            binding?.sortAudioTV?.text = "Album Name"
+                        }
+                        "SongCount" -> {
+                            //storageUtil.saveAudioSortingMethod(StorageUtil.ALBUM_AUDIO_KEY, "SongCount")
+                            val sortedByCount =
+                                it.sortedByDescending { albumModel -> albumModel.songCount }
+
+                            albumList.addAll(sortedByCount)
+                            allAlbumsAdapter.submitList(it.sortedByDescending { albumModel -> albumModel.songCount })
+                            binding?.sortAudioTV?.text = "Song Count"
+                        }
+                        "AlbumArtistName" -> {
+                            val sortedByAlbumArtistName =
+                                it.sortedBy { albumModel -> albumModel.artistName }
+
+                            albumList.addAll(sortedByAlbumArtistName)
+                            allAlbumsAdapter.submitList(it.sortedBy { albumModel -> albumModel.artistName })
+                            binding?.sortAudioTV?.text = "Album Artist Name"
+                        }
+                        else -> {
+                            storageUtil.saveAudioSortingMethod(
+                                StorageUtil.ALBUM_AUDIO_KEY,
+                                "AlbumName"
+                            )
+                            val sortedByAlbumName =
+                                it.sortedBy { albumModel -> albumModel.albumName }
+
+                            albumList.addAll(sortedByAlbumName)
+                            allAlbumsAdapter.submitList(it.sortedBy { albumModel -> albumModel.albumName })
+                            binding?.sortAudioTV?.text = "Album Name"
+                        }
                     }
-                })
+                }
+            } else {
+                binding?.rlAllAlbumContainer!!.visibility = View.GONE
+                binding?.rlNoAlbumPresent!!.visibility = View.VISIBLE
+            }
+        })
+    }
+
+    private fun setUpRecyclerView() {
+        allAlbumsAdapter = AllAlbumsAdapter(
+            activity as Context,
+            /* albumList,*/
+            object : AllAlbumsAdapter.OnAlbumClicked {
+                override fun onClicked(albumModel: AlbumModel) {
+                    val gson = Gson()
+                    val album = gson.toJson(albumModel)
+                    listener?.openAlbum(album)
+                }
+            })
+        binding?.rvAlbums?.adapter = allAlbumsAdapter
+
         Log.d("albumListQuery", "loadAlbum: $albumList")
 
     }

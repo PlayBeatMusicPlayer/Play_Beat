@@ -108,17 +108,17 @@
                 android:textStyle="bold"
                 tools:text="100 songs" />
 
-           <!-- <ImageView
-                android:id="@+id/sortIV"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_below="@id/playBtn"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/custom_ripple"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_sort"
-                android:visibility="gone" />-->
+            <!-- <ImageView
+                 android:id="@+id/sortIV"
+                 android:layout_width="30dp"
+                 android:layout_height="30dp"
+                 android:layout_below="@id/playBtn"
+                 android:layout_marginStart="20dp"
+                 android:layout_marginTop="20dp"
+                 android:background="@drawable/custom_ripple"
+                 android:contentDescription="@null"
+                 android:src="@drawable/ic_sort"
+                 android:visibility="gone" />-->
 
             <TextView
                 android:id="@+id/sortedTextTV"
@@ -127,14 +127,66 @@
                 android:layout_below="@id/playBtn"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="25dp"
+                android:background="?selectableItemBackgroundBorderless"
                 android:drawablePadding="5dp"
                 android:fontFamily="@font/segoe_ui"
                 android:textAlignment="center"
-                android:background="?selectableItemBackgroundBorderless"
                 android:textColor="@color/grey"
                 android:textStyle="bold"
                 app:drawableStartCompat="@drawable/ic_sort"
                 tools:text="Date Added" />
+
+            <RelativeLayout
+                android:id="@+id/rlContextMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/playBtn"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="25dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/closeContextMenu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="10dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_close" />
+
+                <TextSwitcher
+                    android:id="@+id/selectedAudiosTS"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_toEndOf="@id/closeContextMenu"
+                    android:animateFirstView="true"
+                    tools:ignore="RelativeOverlap" />
+
+                <ImageView
+                    android:id="@+id/moreOptionIV"
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_more_horizontal" />
+
+                <CheckBox
+                    android:id="@+id/selectAllAudios"
+                    android:layout_width="26dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_toStartOf="@id/moreOptionIV"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:textColor="@color/white" />
+
+
+            </RelativeLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_fav_songs"

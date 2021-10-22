@@ -77,13 +77,16 @@ class SearchFragment : Fragment() {
                             }
                         }
                     }
-                    allSongsAdapter = AllSongsAdapter(activity as Context,
+                    allSongsAdapter = AllSongsAdapter(
+                        activity as Context,
                         AllSongsAdapter.OnClickListener { allSongModel, position ->
                             onClickAudio(allSongModel, position)
                         },
                         AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
 
-                        })
+                        },
+                        false
+                    )
                     allSongsAdapter?.isSearching = true
                     allSongsAdapter?.queryText = userInput
                     binding?.rvSearchList?.adapter = allSongsAdapter
@@ -93,7 +96,7 @@ class SearchFragment : Fragment() {
                     audioSearchList.clear()
                     allSongsAdapter?.submitList(audioSearchList.sortedBy { allSongsModel -> allSongsModel.songName })
                     binding?.rvSearchList?.visibility = View.GONE
-                   // binding?.searchLottie?.visibility = View.VISIBLE
+                    // binding?.searchLottie?.visibility = View.VISIBLE
                 }
                 return true
             }
@@ -163,13 +166,14 @@ class SearchFragment : Fragment() {
                 audio.size,
                 audio.duration,
                 audio.data,
-                audio.audioUri,
+                audio.contentUri,
                 audio.artUri,
                 -1,
                 audio.dateAdded,
                 audio.isFavourite,
                 audio.favAudioAddedTime,
-                audio.mostPlayedCount
+                audio.mostPlayedCount,
+                audio.artistId
             )
             queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
             mViewModelClass.insertQueue(queueListModel, lifecycleScope)

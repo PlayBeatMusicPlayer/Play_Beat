@@ -2,11 +2,16 @@ package com.knesarcreation.playbeat.fragment
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -43,10 +48,15 @@ class CustomPlaylist : Fragment() {
     private lateinit var storage: StorageUtil
     private lateinit var viewModel: DataObservableClass
     private var launchJob: Job? = null
-    private var playListModel: PlaylistModel? = null
+    private var playlistModel: PlaylistModel? = null
     private var newAudioArtIndex = 0
     private lateinit var newAudioAddedModel: AllSongsModel
-    private val tempAudioList = ArrayList<AllSongsModel>()
+    private val tempAudioList = CopyOnWriteArrayList<AllSongsModel>()
+    private var selectedAudioIdList = ArrayList<Long>()
+    private var selectedPositionList = ArrayList<Int>()
+    private lateinit var textCountTV: TextView
+    private var isFragHidden = false
+    private var selectedAudioList = ArrayList<AllSongsModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,9 +95,9 @@ class CustomPlaylist : Fragment() {
                 binding!!.sortedTextTV.visibility = View.VISIBLE
                 binding!!.rvCustomPlaylist.visibility = View.VISIBLE
 
-                playListModel = convertStringTpPlaylistModel(it)
-                binding!!.titleNameTV.text = "${playListModel!!.playlistName}"
-                binding!!.artisNameTVToolbar.text = "${playListModel!!.playlistName}"
+                playlistModel = convertStringTpPlaylistModel(it)
+                binding!!.titleNameTV.text = "${playlistModel!!.playlistName}"
+                binding!!.artisNameTVToolbar.text = "${playlistModel!!.playlistName}"
 
                 setUpCustomPlaylistRecyclerAdapter()
                 observerCustomPlaylistAudio()
@@ -98,10 +108,15 @@ class CustomPlaylist : Fragment() {
         })
 
         binding?.arrowBackIV?.setOnClickListener {
-            (activity as AppCompatActivity).onBackPressed()
+            if (AllSongsAdapter.isContextMenuEnabled) {
+                disableContextMenu()
+            } else {
+                (activity as AppCompatActivity).onBackPressed()
+            }
         }
 
         binding?.arrowBack?.setOnClickListener {
+            //if no audio present then this back btn will work
             (activity as AppCompatActivity).onBackPressed()
         }
 
@@ -113,12 +128,310 @@ class CustomPlaylist : Fragment() {
             sortAudios()
         }
 
+
+        moreOptionMenu()
+
+        binding?.closeContextMenu?.setOnClickListener {
+            disableContextMenu()
+        }
+
+        binding?.selectAllAudios?.setOnCheckedChangeListener { compoundButton, isChecked ->
+            if (isChecked) {
+                customPlaylistAdapter!!.selectAllAudios()
+                for ((position, audio) in customPlaylist.withIndex()) {
+                    if (!selectedAudioIdList.contains(audio.songId)) {
+                        selectedAudioIdList.add(audio.songId)
+                        selectedAudioList.add(audio)
+                    }
+                    if (!selectedPositionList.contains(position)) {
+                        selectedPositionList.add(position)
+                    }
+                    textSwitcherIncrementTextAnim()
+                }
+                Log.d("selectAllAudiosSize", "onCreateView:${selectedAudioIdList.size} ")
+            } else {
+                customPlaylistAdapter!!.unSelectAllAudios()
+                for ((position, audio) in customPlaylist.withIndex()) {
+                    selectedAudioIdList.remove(audio.songId)
+                    selectedPositionList.remove(position)
+                    selectedAudioList.remove(audio)
+                }
+                binding?.sortedTextTV?.visibility = View.VISIBLE
+                binding?.totalSongsTV?.visibility = View.VISIBLE
+                binding?.rlContextMenu?.visibility = View.INVISIBLE
+                AllSongsAdapter.isContextMenuEnabled = false
+                binding?.selectedAudiosTS!!.setText("0")
+                viewModel.isContextMenuEnabled.value = AllSongsAdapter.isContextMenuEnabled
+            }
+        }
+
+        setTextSwitcherFactory()
+
+        viewModel.onBackPressed.observe(viewLifecycleOwner, {
+            if (it != null) {
+                if (!isFragHidden)
+                    disableContextMenu()
+            }
+        })
+
         return view
+    }
+
+    private fun moreOptionMenu() {
+        binding?.moreOptionIV?.setOnClickListener {
+            val bottomSheetMultiSelectMoreOptions = BottomSheetMultiSelectMoreOptions(true)
+            bottomSheetMultiSelectMoreOptions.show(
+                (activity as AppCompatActivity).supportFragmentManager,
+                "bottomSheetMultiSelectMoreOptions"
+            )
+
+            bottomSheetMultiSelectMoreOptions.listener =
+                object : BottomSheetMultiSelectMoreOptions.MultiSelectAudioMenuOption {
+                    override fun playNext() {
+                        addToPlayNextAudiosToQueue()
+                        bottomSheetMultiSelectMoreOptions.dismiss()
+                        disableContextMenu()
+                    }
+
+                    override fun addToPlaylist() {
+                        addMultipleAudiosToPlaylist()
+                        bottomSheetMultiSelectMoreOptions.dismiss()
+                    }
+
+                    override fun addToPlayingQueue() {
+                        addAudiosToPlayingQueue()
+                        bottomSheetMultiSelectMoreOptions.dismiss()
+                        disableContextMenu()
+                    }
+
+                    override fun deleteFromDevice() {
+                        // here this method will act as "deleteFromPlaylist"
+                        deleteAudioFromPlaylist()
+                        disableContextMenu()
+                        bottomSheetMultiSelectMoreOptions.dismiss()
+                    }
+                }
+        }
+    }
+
+    private fun disableContextMenu() {
+        binding?.sortedTextTV?.visibility = View.VISIBLE
+        binding?.totalSongsTV?.visibility = View.VISIBLE
+        binding?.rlContextMenu?.visibility = View.INVISIBLE
+        AllSongsAdapter.isContextMenuEnabled = false
+        binding?.selectAllAudios?.isChecked = false
+        customPlaylistAdapter!!.updateChanges(selectedPositionList)
+        selectedPositionList.clear()
+        selectedAudioIdList.clear()
+        selectedAudioList.clear()
+        binding?.selectedAudiosTS!!.setText("0")
+        viewModel.isContextMenuEnabled.value = false
+    }
+
+    private fun addAudiosToPlayingQueue() {
+        if (selectedAudioList.isNotEmpty()) {
+            var playingQueueAudioList = CopyOnWriteArrayList<AllSongsModel>()
+            try {
+                playingQueueAudioList = storage.loadQueueAudio()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            mViewModelClass.deleteQueue(lifecycleScope)
+            //val newAudiosForQueue = CopyOnWriteArrayList<AllSongsModel>()
+            for (audio in selectedAudioList) {
+                if (audio.playingOrPause != 1) {
+                    // selected audio is not playing then only add to play next
+                    if (playingQueueAudioList.contains(audio)) {
+                        playingQueueAudioList.remove(audio)
+                        /* mViewModelClass.deleteOneQueueAudio(
+                             audio.songId,
+                             lifecycleScope
+                         )*/
+                    }
+
+                    // adding to last index
+                    playingQueueAudioList.add(audio)
+                    // this list is for adding audio into database
+                    //newAudiosForQueue.add(audio)
+                }
+            }
+
+            if (playingQueueAudioList.isNotEmpty()) {
+                for (audio in playingQueueAudioList) {
+                    val queueListModel = QueueListModel(
+                        audio.songId,
+                        audio.albumId,
+                        audio.songName,
+                        audio.artistsName,
+                        audio.albumName,
+                        audio.size,
+                        audio.duration,
+                        audio.data,
+                        audio.contentUri,
+                        audio.artUri,
+                        audio.playingOrPause,
+                        audio.dateAdded,
+                        audio.isFavourite,
+                        audio.favAudioAddedTime,
+                        audio.mostPlayedCount,
+                        audio.artistId
+                    )
+                    queueListModel.currentPlayedAudioTime =
+                        audio.currentPlayedAudioTime
+                    mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+                }
+                val playingAudio =
+                    playingQueueAudioList.find { allSongsModel -> allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0 }
+                val playingAudioIndex =
+                    playingQueueAudioList.indexOf(playingAudio)
+                if (playingAudioIndex != -1) {
+                    Log.d(
+                        "playingQueueAudioListaaaa",
+                        "playNext:$playingAudioIndex "
+                    )
+                    storage.storeAudioIndex(playingAudioIndex)
+                } else {
+                    // -1 index
+                    Log.d(
+                        "playingQueueAudioListaaaa",
+                        "playNext:$playingAudioIndex "
+                    )
+                }
+                storage.storeQueueAudio(playingQueueAudioList)
+            }
+
+            Toast.makeText(
+                activity as Context,
+                "Added ${selectedAudioList.size} songs to playing queue",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun addToPlayNextAudiosToQueue() {
+        if (selectedAudioList.isNotEmpty()) {
+            var playingQueueAudioList = CopyOnWriteArrayList<AllSongsModel>()
+            var audioIndex: Int
+            try {
+                playingQueueAudioList = storage.loadQueueAudio()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            audioIndex = storage.loadAudioIndex()
+
+            // if queue list is empty then index will be -1 and so audio will be added from 0th pos
+            if (playingQueueAudioList.isEmpty()) {
+                audioIndex = -1
+            }
+
+            mViewModelClass.deleteQueue(lifecycleScope)
+            // val newAudiosForQueue = CopyOnWriteArrayList<AllSongsModel>()
+            for (audio in selectedAudioList) {
+                if (audio.playingOrPause != 1 && audio.playingOrPause != 0) {
+                    // selected audio is not playing then only add to play next
+                    audioIndex++
+                    if (playingQueueAudioList.contains(audio)) {
+                        if (playingQueueAudioList.indexOf(audio) < audioIndex) {
+                            audioIndex--
+                        }
+                        playingQueueAudioList.remove(audio)
+                        /*mViewModelClass.deleteOneQueueAudio(
+                            audio.songId,
+                            lifecycleScope
+                        )*/
+                    }
+                    // adding next to playing index
+                    playingQueueAudioList.add(audioIndex, audio)
+                    // this list is for adding audio into database
+                    //newAudiosForQueue.add(audio)
+                    Log.d(
+                        "PlalistAudioTesting",
+                        "playNext: Index: $audioIndex , $audio , playingOrPause: ${audio.playingOrPause} "
+                    )
+                }
+            }
+
+            if (playingQueueAudioList.isNotEmpty()) {
+                //insert into database
+                for (audio in playingQueueAudioList) {
+                    val queueListModel = QueueListModel(
+                        audio.songId,
+                        audio.albumId,
+                        audio.songName,
+                        audio.artistsName,
+                        audio.albumName,
+                        audio.size,
+                        audio.duration,
+                        audio.data,
+                        audio.contentUri,
+                        audio.artUri,
+                        audio.playingOrPause,
+                        audio.dateAdded,
+                        audio.isFavourite,
+                        audio.favAudioAddedTime,
+                        audio.mostPlayedCount,
+                        audio.artistId
+                    )
+                    queueListModel.currentPlayedAudioTime =
+                        audio.currentPlayedAudioTime
+                    mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+                }
+                val playingAudio =
+                    playingQueueAudioList.find { allSongsModel -> allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0 }
+                val playingAudioIndex =
+                    playingQueueAudioList.indexOf(playingAudio)
+                if (playingAudioIndex != -1) {
+                    Log.d(
+                        "playingQueueAudioListaaaa",
+                        "playNext:$playingAudioIndex "
+                    )
+                    storage.storeAudioIndex(playingAudioIndex)
+                } else {
+                    // -1 index
+                    Log.d(
+                        "playingQueueAudioListaaaa",
+                        "playNext:$playingAudioIndex "
+                    )
+                }
+                storage.storeQueueAudio(playingQueueAudioList)
+            }
+            Toast.makeText(
+                activity as Context,
+                "Added ${selectedAudioList.size} songs to playing queue",
+                Toast.LENGTH_SHORT
+            )
+                .show()
+        }
+    }
+
+    private fun addMultipleAudiosToPlaylist() {
+        val bottomSheetChooseToPlaylist =
+            BottomSheetChoosePlaylist(null, false, selectedAudioIdList)
+        bottomSheetChooseToPlaylist.show(
+            (activity as AppCompatActivity).supportFragmentManager,
+            "bottomSheetChooseToPlaylist"
+        )
+        bottomSheetChooseToPlaylist.listener =
+            object : BottomSheetChoosePlaylist.PlaylistSelected {
+                override fun onSelected() {
+                    binding?.sortedTextTV?.visibility = View.VISIBLE
+                    binding?.totalSongsTV?.visibility = View.VISIBLE
+                    binding?.rlContextMenu?.visibility = View.INVISIBLE
+                    AllSongsAdapter.isContextMenuEnabled = false
+                    binding?.selectAllAudios?.isChecked = false
+                    customPlaylistAdapter!!.updateChanges(selectedPositionList)
+                    selectedPositionList.clear()
+                    selectedAudioIdList.clear()
+                    binding?.selectedAudiosTS!!.setText("0")
+                    viewModel.isContextMenuEnabled.value = AllSongsAdapter.isContextMenuEnabled
+                }
+            }
     }
 
     private fun sortAudios() {
         val bottomSheetSortByOptions =
-            BottomSheetSortBy(activity as Context, "playlistAudios", playListModel?.playlistName!!)
+            BottomSheetSortBy(activity as Context, "playlistAudios", playlistModel?.playlistName!!)
         bottomSheetSortByOptions.show(
             (context as AppCompatActivity).supportFragmentManager,
             "bottomSheetSortByOptions"
@@ -126,9 +439,9 @@ class CustomPlaylist : Fragment() {
 
         bottomSheetSortByOptions.listener = object : BottomSheetSortBy.OnSortingAudio {
             override fun byName() {
-                storage.saveAudioSortingMethod(playListModel?.playlistName!!, "Name")
+                storage.saveAudioSortingMethod(playlistModel?.playlistName!!, "Name")
                 val sortedBySongName =
-                    customPlaylist.sortedBy { allSongsModel -> allSongsModel.songName }
+                    tempAudioList.sortedBy { allSongsModel -> allSongsModel.songName }
 
                 setUpCustomPlaylistRecyclerAdapter()
                 binding?.rvCustomPlaylist?.alpha = 0.0f
@@ -141,9 +454,9 @@ class CustomPlaylist : Fragment() {
             }
 
             override fun byArtistName() {
-                storage.saveAudioSortingMethod(playListModel?.playlistName!!, "ArtistName")
+                storage.saveAudioSortingMethod(playlistModel?.playlistName!!, "ArtistName")
                 val sortedByArtistName =
-                    customPlaylist.sortedBy { allSongsModel -> allSongsModel.artistsName }
+                    tempAudioList.sortedBy { allSongsModel -> allSongsModel.artistsName }
                 setUpCustomPlaylistRecyclerAdapter()
                 binding?.rvCustomPlaylist?.alpha = 0.0f
                 customPlaylistAdapter!!.submitList(sortedByArtistName)
@@ -154,25 +467,10 @@ class CustomPlaylist : Fragment() {
                 bottomSheetSortByOptions.dismiss()
             }
 
-            /*override fun defaultOrder() {
-                storage.saveFavAudioSortingMethod("defaultOrder")
-                val sortedByFavAddedDate =
-                    customPlaylist.sortedByDescending { allSongsModel -> allSongsModel.favAudioAddedTime }
-
-                setUpFavRecyclerAdapter()
-                binding?.rvFavSongs?.alpha = 0.0f
-                customPlaylistAdapter!!.submitList(sortedByFavAddedDate)
-                customPlaylist.clear()
-                customPlaylist.addAll(sortedByFavAddedDate)
-                animateRecyclerView()
-                bottomSheetSortByOptions.dismiss()
-                binding?.sortedTextTV?.text = "Default"
-            }*/
-
             override fun byDate() {
-                storage.saveAudioSortingMethod(playListModel?.playlistName!!, "DateAdded")
+                storage.saveAudioSortingMethod(playlistModel?.playlistName!!, "DateAdded")
                 val sortedByDateAdded =
-                    customPlaylist.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
+                    tempAudioList.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
 
                 setUpCustomPlaylistRecyclerAdapter()
                 binding?.rvCustomPlaylist?.alpha = 0.0f
@@ -199,9 +497,35 @@ class CustomPlaylist : Fragment() {
                 activity as Context,
                 AllSongsAdapter.OnClickListener { allSongModel, position ->
                     onClickAudio(allSongModel, position)
-                }, AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
+                }, AllSongsAdapter.OnLongClickListener { allSongModel, position ->
+                    if (allSongModel.isChecked) {
+                        binding?.sortedTextTV?.visibility = View.INVISIBLE
+                        binding?.totalSongsTV?.visibility = View.INVISIBLE
+                        binding?.rlContextMenu?.visibility = View.VISIBLE
+                        selectedAudioIdList.add(allSongModel.songId)
+                        selectedPositionList.add(position)
+                        selectedAudioList.add(allSongModel)
 
-                })
+                        textSwitcherIncrementTextAnim()
+
+                    } else {
+                        selectedAudioIdList.remove(allSongModel.songId)
+                        //textToShowSelectedCount.remove("${selectedPositionList.size} Selected")
+                        selectedPositionList.remove(position)
+                        selectedAudioList.remove(allSongModel)
+
+                        textSwitcherDecrementTextAnim()
+
+                        if (selectedAudioIdList.isEmpty()) {
+                            binding?.sortedTextTV?.visibility = View.VISIBLE
+                            binding?.totalSongsTV?.visibility = View.VISIBLE
+                            binding?.rlContextMenu?.visibility = View.INVISIBLE
+                            AllSongsAdapter.isContextMenuEnabled = false
+                        }
+                    }
+                    viewModel.isContextMenuEnabled.value = AllSongsAdapter.isContextMenuEnabled
+                }, true
+            )
         customPlaylistAdapter!!.isSearching = false
         binding?.rvCustomPlaylist?.adapter = customPlaylistAdapter
         // binding!!.rvCustomPlaylist.itemAnimator = null
@@ -215,140 +539,102 @@ class CustomPlaylist : Fragment() {
             }
 
             launchJob = lifecycleScope.launch(Dispatchers.IO) {
-                val playlistAudios = mViewModelClass.getPlaylistAudios(playListModel?.id!!)
-                val songIdsListString: String = playlistAudios[0].songIds
-                if (songIdsListString != "") {
+                val playlistAudios: List<PlaylistModel> =
+                    mViewModelClass.getPlaylistAudios(playlistModel?.id!!)
+                if (playlistAudios.isNotEmpty()) {
+                    playlistModel = playlistAudios[0]
+                    val songIdsListString: String = playlistModel!!.songIds
+                    if (songIdsListString != "") {
 
-                    val songIdsList = convertStringToList(songIdsListString)
+                        val songIdsList = convertStringToList(songIdsListString)
 
-                    val audio = mViewModelClass.getRangeOfPlaylistAudio(songIdsList)
+                        val audio = mViewModelClass.getRangeOfPlaylistAudio(songIdsList)
 
-                    if (audio.isNotEmpty()) {
-                        customPlaylist.clear()
-                        //customPlaylist.addAll(it)
-                        //customPlaylistAdapter?.submitList(it)
-                        //tempAudioList.clear()
-                        tempAudioList.addAll(audio.sortedByDescending { allSongsModel ->
-                            allSongsModel.songName
-                        })
+                        if (audio.isNotEmpty()) {
+                            customPlaylist.clear()
+                            tempAudioList.clear()
+                            tempAudioList.addAll(audio.sortedBy { allSongsModel ->
+                                allSongsModel.songName
+                            })
 
+                            (activity as AppCompatActivity).runOnUiThread {
+                                //Toast.makeText(activity as Context, "$audio", Toast.LENGTH_SHORT).show()
+                                val sortedList: List<AllSongsModel>
+                                when (storage.getAudioSortedValue(playlistModel?.playlistName!!)) {
+                                    "Name" -> {
+                                        sortedList =
+                                            audio.sortedBy { allSongsModel -> allSongsModel.songName }
+                                        customPlaylist.addAll(sortedList)
+                                        customPlaylistAdapter!!.submitList(audio.sortedBy { allSongsModel -> allSongsModel.songName }
+                                            .toMutableList())
+                                        binding?.sortedTextTV?.text = "Name"
+                                    }
+                                    "DateAdded" -> {
+                                        sortedList =
+                                            audio.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
+                                        customPlaylist.addAll(sortedList)
+                                        customPlaylistAdapter!!.submitList(audio.sortedByDescending { allSongsModel -> allSongsModel.dateAdded })
+                                        binding?.sortedTextTV?.text = "Date Added"
+                                    }
 
-                        (activity as AppCompatActivity).runOnUiThread {
-
-                            val sortedList: List<AllSongsModel>
-                            when (storage.getAudioSortedValue(playListModel?.playlistName!!)) {
-                                "Name" -> {
-                                    sortedList =
-                                        audio.sortedBy { allSongsModel -> allSongsModel.songName }
-                                    customPlaylist.addAll(sortedList)
-                                    customPlaylistAdapter!!.submitList(audio.sortedBy { allSongsModel -> allSongsModel.songName })
-                                    binding?.sortedTextTV?.text = "Name"
+                                    "ArtistName" -> {
+                                        sortedList =
+                                            audio.sortedBy { allSongsModel -> allSongsModel.artistsName }
+                                        customPlaylist.addAll(sortedList)
+                                        customPlaylistAdapter!!.submitList(audio.sortedBy { allSongsModel -> allSongsModel.artistsName })
+                                        binding?.sortedTextTV?.text = "Artist Name"
+                                    }
+                                    else -> {
+                                        sortedList =
+                                            audio.sortedBy { allSongsModel -> allSongsModel.songName }
+                                        customPlaylist.addAll(sortedList)
+                                        customPlaylistAdapter!!.submitList(audio.sortedBy { allSongsModel -> allSongsModel.songName })
+                                        binding?.sortedTextTV?.text = "Name"
+                                        Log.d(
+                                            "sortedListObserved",
+                                            "observeAudioData:$sortedList "
+                                        )
+                                    }
                                 }
-                                "DateAdded" -> {
-                                    sortedList =
-                                        audio.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
-                                    customPlaylist.addAll(sortedList)
-                                    customPlaylistAdapter!!.submitList(audio.sortedByDescending { allSongsModel -> allSongsModel.dateAdded })
-                                    binding?.sortedTextTV?.text = "Date Added"
-                                }
-                                "ArtistName" -> {
-                                    sortedList =
-                                        audio.sortedBy { allSongsModel -> allSongsModel.artistsName }
-                                    customPlaylist.addAll(sortedList)
-                                    customPlaylistAdapter!!.submitList(audio.sortedBy { allSongsModel -> allSongsModel.artistsName })
-                                    binding?.sortedTextTV?.text = "Artist Name"
-                                }
-                                else -> {
-                                    sortedList =
-                                        audio.sortedByDescending { allSongsModel -> allSongsModel.songName }
-                                    customPlaylist.addAll(sortedList)
-                                    customPlaylistAdapter!!.submitList(audio.sortedByDescending { allSongsModel -> allSongsModel.songName })
-                                    binding?.sortedTextTV?.text = "Name"
-                                    Log.d(
-                                        "sortedListObserved",
-                                        "observeAudioData:$sortedList "
-                                    )
-                                }
-                            }
 
-                            if (audio.size >= 2) {
-                                binding?.totalSongsTV?.text = "${audio.size} Songs"
-                            } else {
-                                binding?.totalSongsTV?.text = "${audio.size} Song"
-                            }
+                                if (audio.size >= 2) {
+                                    binding?.totalSongsTV?.text = "${audio.size} Songs"
+                                } else {
+                                    binding?.totalSongsTV?.text = "${audio.size} Song"
+                                }
 
-                            if (tempAudioList.isNotEmpty()) {
-                                binding?.rlNoSongsPresent?.visibility = View.GONE
-                                binding?.motionLayoutPlayListAudios?.visibility =
-                                    View.VISIBLE
-                                binding?.noSongDescription?.visibility = View.GONE
-                                val factory =
-                                    DrawableCrossFadeFactory.Builder()
-                                        .setCrossFadeEnabled(true)
-                                        .build()
-                                Glide.with(binding?.coverArtistImage!!)
-                                    .load(customPlaylist[0].artUri)
-                                    .transition(DrawableTransitionOptions.withCrossFade(factory))
-                                    .apply(RequestOptions.placeholderOf(R.drawable.audio_icon_placeholder))
-                                    .into(binding?.coverArtistImage!!)
+                                if (customPlaylist.isNotEmpty()) {
+                                    binding?.rlNoSongsPresent?.visibility = View.GONE
+                                    binding?.motionLayoutPlayListAudios?.visibility =
+                                        View.VISIBLE
+                                    binding?.noSongDescription?.visibility = View.GONE
+                                    val factory =
+                                        DrawableCrossFadeFactory.Builder()
+                                            .setCrossFadeEnabled(true)
+                                            .build()
+                                    Glide.with(binding?.coverArtistImage!!)
+                                        .load(sortedList[0].artUri)
+                                        .transition(DrawableTransitionOptions.withCrossFade(factory))
+                                        .centerCrop()
+                                        .apply(RequestOptions.placeholderOf(R.drawable.music_note_icon))
+                                        .into(binding?.coverArtistImage!!)
+                                }
                             }
                         }
-                    }
 
 
-                } else {
-                    (activity as AppCompatActivity).runOnUiThread {
-                        // no audio present
-                        binding?.rlNoSongsPresent?.visibility = View.VISIBLE
-                        binding?.motionLayoutPlayListAudios?.visibility = View.GONE
-                        binding?.noSongDescription?.visibility = View.GONE
-                        binding?.image?.setImageResource(R.drawable.music_note_icon)
+                    } else {
+                        (activity as AppCompatActivity).runOnUiThread {
+                            // no audio present
+                            binding?.rlNoSongsPresent?.visibility = View.VISIBLE
+                            binding?.motionLayoutPlayListAudios?.visibility = View.GONE
+                            binding?.noSongDescription?.visibility = View.GONE
+                            binding?.image?.setImageResource(R.drawable.music_note_icon)
+                        }
                     }
                 }
             }
         }
-    }
-
-    private fun getAudioArt(
-        tempAudioList: ArrayList<AllSongsModel>
-    ) {
-
-        if (tempAudioList.isNotEmpty()) {
-            for ((index, audio) in customPlaylist.withIndex()) {
-                for (prevAudio in tempAudioList) {
-                    if (audio.songId != prevAudio.songId) {
-                        newAudioArtIndex = index
-                        newAudioAddedModel = audio
-                        break
-                    }
-                }
-            }
-            if (customPlaylist.containsAll(tempAudioList)) {
-                Log.d("audioListaaaaa", "getAudioArt: true ")
-            } else {
-                Log.d("audioListaaaaa", "getAudioArt: false ")
-            }
-
-            (activity as AppCompatActivity).runOnUiThread {
-                Toast.makeText(
-                    activity as Context,
-                    "${newAudioAddedModel.songName}",
-                    Toast.LENGTH_SHORT
-                ).show()
-                val indexOf = customPlaylist.indexOf(newAudioAddedModel)
-                val factory =
-                    DrawableCrossFadeFactory.Builder()
-                        .setCrossFadeEnabled(true)
-                        .build()
-                Glide.with(binding?.coverArtistImage!!)
-                    .load(customPlaylist[indexOf].artUri)
-                    .transition(DrawableTransitionOptions.withCrossFade(factory))
-                    .apply(RequestOptions.placeholderOf(R.drawable.audio_icon_placeholder))
-                    .into(binding?.coverArtistImage!!)
-            }
-
-        }
-
     }
 
     private fun convertStringToList(songIdList: String): ArrayList<Long> {
@@ -364,73 +650,98 @@ class CustomPlaylist : Fragment() {
         storage.saveIsShuffled(false)
         val prevPlayingAudioIndex = storage.loadAudioIndex()
         val prevQueueList = storage.loadQueueAudio()
-        val prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
+        var prevPlayingAudioModel: AllSongsModel? = null
+
+        if (prevQueueList.isNotEmpty()) {
+            prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
+            var restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
+
+            if (storage.getIsAudioPlayedFirstTime()) {
+                restrictToUpdateAudio = false
+            }
+
+            //update prev audio to not playing
+            mViewModelClass.updateSong(
+                prevPlayingAudioModel!!.songId,
+                prevPlayingAudioModel.songName,
+                -1, //not playing
+                lifecycleScope
+            )
+        }
 
         Log.d(
-            "PlayListAudios111s",
-            "onClickAudio: allSongModel $allSongModel ,  favAudioList $customPlaylist "
+            "customPlaylist111111",
+            "onClickAudio: allSongModel  ,  favAudioList $customPlaylist "
         )
+        // restricting to update if clicked audio is same
+        /*  if (!restrictToUpdateAudio) {*/
         mViewModelClass.deleteQueue(lifecycleScope)
 
         mViewModelClass.updateSong(
-            prevPlayingAudioModel.songId,
-            prevPlayingAudioModel.songName,
-            -1,
-            (context as AppCompatActivity).lifecycleScope
-        )
-
-        mViewModelClass.updateSong(
             allSongModel.songId,
             allSongModel.songName,
             1,
-            (context as AppCompatActivity).lifecycleScope
+            lifecycleScope
         )
+        // }
 
-        playAudio(customPlaylist.indexOf(allSongModel))
+        Toast.makeText(activity as Context, "$position", Toast.LENGTH_SHORT).show()
+        playAudio(position)
 
+
+        // restricting to update if clicked audio is same
+        // if (!restrictToUpdateAudio) {
         // adding queue list to DB and show highlight of current audio
-        for (audio in this.customPlaylist) {
-            val queueListModel = QueueListModel(
-                audio.songId,
-                audio.albumId,
-                audio.songName,
-                audio.artistsName,
-                audio.albumName,
-                audio.size,
-                audio.duration,
-                audio.data,
-                audio.audioUri,
-                audio.artUri,
+        if (customPlaylist.isNotEmpty()) {
+            for (audio in this.customPlaylist) {
+                val queueListModel = QueueListModel(
+                    audio.songId,
+                    audio.albumId,
+                    audio.songName,
+                    audio.artistsName,
+                    audio.albumName,
+                    audio.size,
+                    audio.duration,
+                    audio.data,
+                    audio.contentUri,
+                    audio.artUri,
+                    -1,
+                    audio.dateAdded,
+                    audio.isFavourite,
+                    audio.favAudioAddedTime,
+                    audio.mostPlayedCount,
+                    audio.artistId
+                )
+                queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
+                mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+            }
+        }
+
+        if (prevQueueList.isNotEmpty()) {
+            mViewModelClass.updateQueueAudio(
+                prevPlayingAudioModel!!.songId,
+                prevPlayingAudioModel.songName,
                 -1,
-                audio.dateAdded,
-                audio.isFavourite,
-                audio.favAudioAddedTime,
-                audio.mostPlayedCount
+                lifecycleScope
             )
-            queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
-            mViewModelClass.insertQueue(queueListModel, lifecycleScope)
         }
 
         mViewModelClass.updateQueueAudio(
-            prevPlayingAudioModel.songId,
-            prevPlayingAudioModel.songName,
-            -1,
-            (context as AppCompatActivity).lifecycleScope
-        )
-
-        mViewModelClass.updateQueueAudio(
             allSongModel.songId,
             allSongModel.songName,
             1,
-            (context as AppCompatActivity).lifecycleScope
+            lifecycleScope
         )
+        //}
     }
 
     private fun playAudio(audioIndex: Int) {
         this.currentPlayingAudioIndex = audioIndex
         //store audio to prefs
 
-        storage.storeQueueAudio(customPlaylist)
+        if (customPlaylist.isNotEmpty()) {
+            storage.storeQueueAudio(customPlaylist)
+        }
         //Store the new audioIndex to SharedPreferences
         storage.storeAudioIndex(audioIndex)
 
@@ -448,5 +759,92 @@ class CustomPlaylist : Fragment() {
             //translationYBy(30f)
             .alpha(1.0f)
             .setListener(null)
+    }
+
+    private fun textSwitcherDecrementTextAnim() {
+        binding?.selectedAudiosTS!!.setInAnimation(
+            activity as Context,
+            R.anim.slide_up
+        )
+        binding?.selectedAudiosTS!!.setOutAnimation(
+            activity as Context,
+            R.anim.slide_down
+        )
+        if (selectedAudioIdList.isNotEmpty()) {
+            binding?.selectedAudiosTS!!.setText("${selectedPositionList.size}")
+        }
+    }
+
+    private fun textSwitcherIncrementTextAnim() {
+        // show selected audio count
+        binding?.selectedAudiosTS!!.setOutAnimation(
+            activity as Context,
+            R.anim.slide_up
+        )
+        binding?.selectedAudiosTS!!.setInAnimation(
+            activity as Context,
+            R.anim.slide_down
+        )
+
+        binding?.selectedAudiosTS!!.setText("${selectedPositionList.size}")
+    }
+
+    private fun setTextSwitcherFactory() {
+        binding?.selectedAudiosTS!!.setFactory {
+            textCountTV = TextView(activity as Context)
+            textCountTV.setTextColor(Color.WHITE)
+            textCountTV.textSize = 20f
+            textCountTV.gravity = Gravity.CENTER_HORIZONTAL
+            return@setFactory textCountTV
+        }
+    }
+
+    private fun deleteAudioFromPlaylist() {
+        if (playlistModel != null) {
+            // Toast.makeText(context, "$position", Toast.LENGTH_SHORT).show()
+            val songIdsListString = playlistModel!!.songIds
+            val convertStringToList = convertStringToList(songIdsListString)
+            val songIdsList = CopyOnWriteArrayList<Long>()
+            songIdsList.addAll(convertStringToList)
+
+            val newSongIdsList = ArrayList<Long>()
+            newSongIdsList.addAll(songIdsList)
+            for (songId in songIdsList) {
+                for (selectedId in selectedAudioIdList) {
+                    if (songId == selectedId) {
+                        newSongIdsList.remove(songId)
+                    }
+                }
+            }
+
+            if (newSongIdsList.isNotEmpty()) {
+                //val convertListToString = convertListToString(songIdsList)
+                val gson = Gson()
+                val convertListToString = gson.toJson(newSongIdsList)
+                mViewModelClass.updatePlaylist(
+                    convertListToString,
+                    playlistModel!!.id,
+                    (context as AppCompatActivity).lifecycleScope
+                )
+
+                Handler(Looper.getMainLooper()).postDelayed({
+                    observerCustomPlaylistAudio()
+                }, 500)
+
+            } else {
+                mViewModelClass.updatePlaylist(
+                    "", playlistModel!!.id, (context as AppCompatActivity).lifecycleScope
+                )
+                Handler(Looper.getMainLooper()).postDelayed({
+                    observerCustomPlaylistAudio()
+                }, 500)
+            }
+
+        }
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        this.isFragHidden = hidden
     }
 }

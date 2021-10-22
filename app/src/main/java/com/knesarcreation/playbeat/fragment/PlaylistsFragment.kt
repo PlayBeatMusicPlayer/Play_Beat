@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -56,6 +55,7 @@ class PlaylistsFragment : Fragment() {
         mViewModelClass = ViewModelProvider(this)[ViewModelClass::class.java]
 
         binding?.favButton?.setOnClickListener {
+            binding?.fabCreatePlaylist!!.animate().alpha(0.0f).duration = 300
             listener?.playlistCategory("fav", 0)
         }
 
@@ -72,7 +72,12 @@ class PlaylistsFragment : Fragment() {
         }
 
         binding?.fabCreatePlaylist?.setOnClickListener {
-            val bottomSheetCreatePlaylist = BottomSheetCreatePlaylist(activity as Context, "")
+            val bottomSheetCreatePlaylist = BottomSheetCreateOrRenamePlaylist(
+                activity as Context,
+                "",
+                true,
+                null
+            )
             bottomSheetCreatePlaylist.show(childFragmentManager, "bottomSheetCreatePlaylist")
         }
 
@@ -177,7 +182,7 @@ class PlaylistsFragment : Fragment() {
 
                     else -> {
                         sortedList = it.sortedBy { playlistModel -> playlistModel.playlistName }
-                       // playList.addAll(sortedList)
+                        // playList.addAll(sortedList)
                         //playListAdapter!!.submitList()
                         playListAdapter!!.dataSet =
                             it.sortedBy { playlistModel -> playlistModel.playlistName }
@@ -207,11 +212,6 @@ class PlaylistsFragment : Fragment() {
                 override fun onClicked(playlistModel: PlaylistModel) {
                     val gson = Gson()
                     listener?.playlistCategory(gson.toJson(playlistModel), 1)
-                    Toast.makeText(
-                        activity as Context,
-                        "${playlistModel.playlistName}",
-                        Toast.LENGTH_SHORT
-                    ).show()
                 }
             }, playList)
         binding?.rvPlaylist?.layoutManager = LinearLayoutManager(activity as Context)
@@ -236,4 +236,13 @@ class PlaylistsFragment : Fragment() {
         }
     }
 
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (hidden) {
+            binding?.fabCreatePlaylist!!.animate().alpha(0.0f).duration = 300
+        } else {
+            binding?.fabCreatePlaylist!!.animate().alpha(1f).duration = 300
+        }
+    }
 }

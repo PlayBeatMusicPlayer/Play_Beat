@@ -5,8 +5,15 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
+
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
 
@@ -15,11 +22,16 @@
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PlayBeat"
         tools:replace="android:allowBackup">
-        <!-- <activity
+        <activity
+            android:name=".activity.TagEditorActivity"
+            android:exported="true" />
+        <!--
+         <activity
              android:name=".activity.AlbumSongsActivity"
              android:exported="true" />
          <activity
@@ -31,7 +43,8 @@
              android:name=".activity.AllSongsActivity"
              android:exported="true"
              android:screenOrientation="portrait"
-             tools:ignore="LockedOrientationActivity" />-->
+             tools:ignore="LockedOrientationActivity" />
+        -->
         <activity
             android:name=".activity.SplashScreenActivity"
             android:exported="true"
@@ -43,14 +56,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- <activity
+        <!--
+ <activity
              android:name=".activity.HomePage"
              android:exported="true"
              android:screenOrientation="portrait"
-             tools:ignore="LockedOrientationActivity" />-->
+             tools:ignore="LockedOrientationActivity" />
+        -->
         <activity
             android:name=".activity.ActivityBottomBarFragmentContainer"
             android:exported="true"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
             tools:ignore="LockedOrientationActivity" />
@@ -58,12 +74,12 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
-        <!-- <service
+        <!--
+ <service
              android:name=".service.MusicPlayerService"
              android:enabled="true"
-             android:exported="false" />-->
-
+             android:exported="false" />
+        -->
         <service
             android:name=".service.PlayBeatMusicService"
             android:enabled="true" />
@@ -71,7 +87,6 @@
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
             android:value="com.knesarcreation.playbeat.utils.CastOptionProvider" />
-
     </application>
 
 </manifest>

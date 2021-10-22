@@ -5,39 +5,39 @@
     <Transition
         motion:constraintSetEnd="@+id/end"
         motion:constraintSetStart="@id/start"
+        motion:duration="1000"
         motion:layoutDuringTransition="honorRequest"
-        motion:motionInterpolator="linear"
-        motion:duration="1000">
+        motion:motionInterpolator="linear">
         <KeyFrameSet>
 
             <KeyAttribute
-                motion:motionTarget="@+id/rlContainer"
+                android:alpha="0"
                 motion:framePosition="65"
-                android:alpha="0" />
+                motion:motionTarget="@+id/rlContainer" />
             <KeyAttribute
-                motion:motionTarget="@+id/artisNameTVToolbar"
+                android:alpha="0"
                 motion:framePosition="0"
-                android:alpha="0" />
+                motion:motionTarget="@+id/artisNameTVToolbar" />
             <KeyAttribute
-                motion:motionTarget="@+id/artisNameTVToolbar"
+                android:alpha="0"
                 motion:framePosition="40"
-                android:alpha="0" />
+                motion:motionTarget="@+id/artisNameTVToolbar" />
             <KeyAttribute
-                motion:motionTarget="@+id/artisNameTVToolbar"
+                android:alpha="0"
                 motion:framePosition="20"
-                android:alpha="0" />
+                motion:motionTarget="@+id/artisNameTVToolbar" />
             <KeyAttribute
-                motion:motionTarget="@+id/playAllToolbar"
+                android:alpha="0"
                 motion:framePosition="0"
-                android:alpha="0" />
+                motion:motionTarget="@+id/playAllToolbar" />
             <KeyAttribute
-                motion:motionTarget="@+id/playAllToolbar"
+                android:alpha="0"
                 motion:framePosition="20"
-                android:alpha="0" />
+                motion:motionTarget="@+id/playAllToolbar" />
             <KeyAttribute
-                motion:motionTarget="@+id/playAllToolbar"
+                android:alpha="0"
                 motion:framePosition="40"
-                android:alpha="0" />
+                motion:motionTarget="@+id/playAllToolbar" />
         </KeyFrameSet>
         <OnSwipe
             motion:dragDirection="dragUp"
@@ -61,18 +61,18 @@
             android:id="@+id/albumTextTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
             android:layout_marginTop="170dp"
             motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintHorizontal_bias="0.043"
             motion:layout_constraintStart_toStartOf="parent"
-            motion:layout_constraintTop_toBottomOf="@+id/arrowBackIV"
-            android:layout_marginStart="5dp" />
+            motion:layout_constraintTop_toBottomOf="@+id/arrowBackIV" />
         <Constraint
             android:id="@+id/trackTextTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="20dp"
             motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintHorizontal_bias="0.043"
             motion:layout_constraintStart_toStartOf="parent"
@@ -106,16 +106,26 @@
             motion:layout_constraintStart_toStartOf="parent"
             motion:layout_constraintTop_toTopOf="parent" />
         <Constraint
-            motion:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/rv_fav_songs"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            motion:layout_constraintTop_toBottomOf="@id/trackTextTV"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="415dp"
+            motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintHorizontal_bias="0.0"
             motion:layout_constraintStart_toStartOf="parent"
-            motion:layout_goneMarginTop="200dp"
-            android:layout_marginTop="415dp"
-            android:id="@+id/rv_fav_songs"
-            android:layout_marginStart="0dp" />
+            motion:layout_constraintTop_toBottomOf="@id/trackTextTV"
+            motion:layout_goneMarginTop="200dp" />
+        <Constraint
+            android:id="@+id/rvTracks"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="468dp"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintHorizontal_bias="0.0"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toBottomOf="@id/trackTextTV"
+            motion:layout_goneMarginTop="200dp" />
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
@@ -173,18 +183,18 @@
             android:id="@+id/albumTextTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
             android:layout_marginTop="20dp"
             motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintHorizontal_bias="0.043"
             motion:layout_constraintStart_toStartOf="parent"
-            motion:layout_constraintTop_toBottomOf="@+id/arrowBackIV"
-            android:layout_marginStart="5dp" />
+            motion:layout_constraintTop_toBottomOf="@+id/arrowBackIV" />
         <Constraint
             android:id="@+id/trackTextTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="20dp"
             motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintHorizontal_bias="0.043"
             motion:layout_constraintStart_toStartOf="parent"
@@ -205,31 +215,31 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="-100dp"
+            android:visibility="invisible"
             motion:layout_constraintBottom_toBottomOf="@+id/coverArtistImage"
             motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
-            motion:layout_constraintTop_toTopOf="parent"
-            android:visibility="invisible" />
+            motion:layout_constraintTop_toTopOf="parent" />
         <Constraint
-            motion:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/rv_fav_songs"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            motion:layout_constraintTop_toBottomOf="@id/trackTextTV"
+            android:layout_marginTop="265dp"
+            motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintHorizontal_bias="0.0"
             motion:layout_constraintStart_toStartOf="parent"
-            motion:layout_goneMarginTop="200dp"
-            android:layout_marginTop="265dp"
-            android:id="@+id/rv_fav_songs" />
+            motion:layout_constraintTop_toBottomOf="@id/trackTextTV"
+            motion:layout_goneMarginTop="200dp" />
         <Constraint
-            motion:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/rvTracks"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            motion:layout_constraintTop_toBottomOf="@id/trackTextTV"
+            android:layout_marginTop="318dp"
+            motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintHorizontal_bias="0.0"
             motion:layout_constraintStart_toStartOf="parent"
-            motion:layout_goneMarginTop="200dp"
-            android:layout_marginTop="265dp"
-            android:id="@+id/rvTracks" />
+            motion:layout_constraintTop_toBottomOf="@id/trackTextTV"
+            motion:layout_goneMarginTop="200dp" />
 
 
     </ConstraintSet>

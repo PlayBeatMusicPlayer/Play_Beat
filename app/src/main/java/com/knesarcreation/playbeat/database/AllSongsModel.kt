@@ -13,12 +13,17 @@ data class AllSongsModel(
     var size: Int,
     var duration: Int,
     var data: String,
-    var audioUri: String,
+    var contentUri: String,
     var artUri: String,
     var dateAdded: String,
     var isFavourite: Boolean,
-    var favAudioAddedTime: Long
-) {
+    var favAudioAddedTime: Long,
+    var artistId: Long,
+    var displayName: String,
+    var contentType: String,
+    var year: Int,
+
+    ) {
     @PrimaryKey(autoGenerate = true)
     var id = 0
     var playingOrPause: Int = -1 // 0 for pause , 1 for play and -1 for default
@@ -26,7 +31,7 @@ data class AllSongsModel(
     var mostPlayedCount: Int = 0
     var isChecked: Boolean = false
 
-    constructor() : this(0L, 0L, "", "", "", 0, 0/*null*/, "", "", "", "", false, 0L)
+    constructor() : this(0L, 0L, "", "", "", 0, 0/*null*/, "", "", "", "", false, 0L, 0L, "", "", 0)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

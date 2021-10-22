@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="deploymentTargetDropDown">
-    <targetsSelectedWithDialog>
+    <runningDeviceTargetsSelectedWithDialog>
       <Target>
-        <type value="QUICK_BOOT_TARGET" />
+        <type value="RUNNING_DEVICE_TARGET" />
         <deviceKey>
           <Key>
-            <type value="VIRTUAL_DEVICE_PATH" />
-            <value value="C:\Users\k.nesar\.android\avd\Nexus_6_API_26_560dpi_5.96_inches.avd" />
+            <type value="SERIAL_NUMBER" />
+            <value value="dd2fb3fb" />
           </Key>
         </deviceKey>
       </Target>
-    </targetsSelectedWithDialog>
+      <Target>
+        <type value="RUNNING_DEVICE_TARGET" />
+        <deviceKey>
+          <Key>
+            <type value="SERIAL_NUMBER" />
+            <value value="SOAMSKR4W8AUQCW4" />
+          </Key>
+        </deviceKey>
+      </Target>
+    </runningDeviceTargetsSelectedWithDialog>
   </component>
 </project>

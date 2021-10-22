@@ -42,7 +42,7 @@ interface AllSongsDao {
     fun getFavouritesAudio(isFav: Boolean): LiveData<List<AllSongsModel>>
 
     @Query("SELECT * FROM allSongsModel where songId = :songId")
-    fun getOneAudio(songId: Long): List<AllSongsModel>
+    fun getFavOneAudio(songId: Long): List<AllSongsModel>
 
     @Query("SELECT * FROM allSongsModel where songId IN (:songIds)")
     fun getRangeOfPlaylistAudio(songIds: ArrayList<Long>): List<AllSongsModel>
@@ -58,4 +58,13 @@ interface AllSongsDao {
 
     @Query("Select * from allSongsModel where mostPlayedCount != 0")
     fun getMostPlayedAudio(): LiveData<List<AllSongsModel>>
+
+    @Query("update allSongsModel set songName = :songName , albumName = :albumName , artistsName = :artistName , artUri = :artUri where songId = :songId")
+    fun updateAudioTags(
+        songId: Long,
+        songName: String,
+        albumName: String,
+        artistName: String,
+        artUri: String
+    )
 }

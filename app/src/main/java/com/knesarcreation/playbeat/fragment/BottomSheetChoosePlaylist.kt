@@ -31,7 +31,7 @@ class BottomSheetChoosePlaylist(
     private lateinit var mViewModelClass: ViewModelClass
     private lateinit var playlistNamesAdapter: PlaylistNamesAdapter
     private var audioIdsList = ArrayList<Long>()
-    lateinit var listener: PlaylistSelected
+    var listener: PlaylistSelected? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,16 +59,26 @@ class BottomSheetChoosePlaylist(
                     for (songId in songIdsList!!) {
                         audioList.add(songId)
                     }
+                    if (listener != null)
+                        listener!!.onSelected()
                 }
-                listener.onSelected()
             }
-            val audioJson = convertListToString(audioList)
-            val bottomSheetCreatePlaylist =
-                BottomSheetCreatePlaylist(activity as Context, audioJson)
-            bottomSheetCreatePlaylist.show(
-                (activity as AppCompatActivity).supportFragmentManager,
-                "bottomSheetCreatePlaylist"
-            )
+            if (audioList.isNotEmpty()) {
+                val audioJson = convertListToString(audioList)
+
+                val bottomSheetCreatePlaylist =
+                    BottomSheetCreateOrRenamePlaylist(activity as Context, audioJson, true, null)
+                bottomSheetCreatePlaylist.show(
+                    (activity as AppCompatActivity).supportFragmentManager,
+                    "bottomSheetCreatePlaylist"
+                )
+            } else {
+                Toast.makeText(
+                    activity as Context,
+                    "No audio found in this playlist",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
             dismiss()
         }
 
@@ -110,7 +120,8 @@ class BottomSheetChoosePlaylist(
                         ).show()
                         dismiss()
                     }
-                    listener.onSelected()
+                    if (listener != null)
+                        listener!!.onSelected()
                 }
             }
         }
@@ -191,7 +202,10 @@ class BottomSheetChoosePlaylist(
                 "Song added to ${playlistModel.playlistName}.",
                 Toast.LENGTH_SHORT
             ).show()
-            listener.onSelected()
+
+            if (listener != null)
+                listener!!.onSelected()
+
             dismiss()
         }
     }

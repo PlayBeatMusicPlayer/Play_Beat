@@ -4,17 +4,19 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.database.ArtistsModel
 import com.knesarcreation.playbeat.databinding.RecyclerAllSongsItemBinding
-import com.knesarcreation.playbeat.model.ArtistsModel
 
 class AllArtistsAdapter(
     var context: Context,
-    var artistsList: List<ArtistsModel>,
+    //var artistsList: List<ArtistsModel>,
     var listener: OnArtistClicked
-) :
-    RecyclerView.Adapter<AllArtistsAdapter.ArtistsViewHolder>() {
+) : ListAdapter<ArtistsModel, AllArtistsAdapter.ArtistsViewHolder>(DiffUtilArtistCallback())
+/*RecyclerView.Adapter<AllArtistsAdapter.ArtistsViewHolder>() */ {
 
     class ArtistsViewHolder(binding: RecyclerAllSongsItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -24,7 +26,8 @@ class AllArtistsAdapter(
         val forwardIconIV = binding.forwardIconIV
         val artistAvatar = binding.albumArtIv
         val rlParentView = binding.rlAudio
-        //val sepratorView = binding.sepratorView
+        val sepratorView = binding.sepratorView
+        val llArtistNameOrAlbumName = binding.llArtistNameOrAlbumName
     }
 
     interface OnArtistClicked {
@@ -42,12 +45,15 @@ class AllArtistsAdapter(
     }
 
     override fun onBindViewHolder(holder: ArtistsViewHolder, position: Int) {
-        val artistsModel = artistsList[position]
+        val artistsModel = getItem(position)
         holder.artistName.text = artistsModel.artistName
-        holder.noOfTracks.text = "${artistsModel.noOfTracks} Tracks"
-        holder.noOfAlbums.text = "${artistsModel.noOfAlbums} Albums"
+        //holder.noOfTracks.text = "${artistsModel.noOfTracks} Tracks"
+        // holder.noOfAlbums.text = "${artistsModel.noOfAlbums} Albums"
+        holder.llArtistNameOrAlbumName.visibility = View.GONE
+        holder.noOfAlbums.visibility = View.GONE
+        holder.sepratorView.visibility = View.GONE
 
-        holder.artistAvatar.setImageResource(R.drawable.artist_icon_placeholder)
+        holder.artistAvatar.setImageResource(R.drawable.ic_artist)
         holder.forwardIconIV.visibility = View.VISIBLE
         holder.rlParentView.setOnClickListener {
             listener.getArtistData(artistsModel)
@@ -55,5 +61,13 @@ class AllArtistsAdapter(
 
     }
 
-    override fun getItemCount() = artistsList.size
+    class DiffUtilArtistCallback : DiffUtil.ItemCallback<ArtistsModel>() {
+        override fun areItemsTheSame(oldItem: ArtistsModel, newItem: ArtistsModel) =
+            oldItem.id == newItem.id
+
+        override fun areContentsTheSame(oldItem: ArtistsModel, newItem: ArtistsModel) =
+            oldItem == newItem
+    }
+
+    //override fun getItemCount() = artistsList.size
 }

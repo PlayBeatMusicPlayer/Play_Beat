@@ -88,6 +88,49 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
         repository.updateMostPlayedAudioCount(songId, count, lifecycleScope)
     }
 
+    fun updateAudioTagsInAllSongsModel(
+        songId: Long,
+        songName: String,
+        albumName: String,
+        artistName: String,
+        artUri: String,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        repository.updateAudioTags(songId, songName, albumName, artistName, artUri, lifecycleScope)
+    }
+
+    fun updateAlbumData(
+        albumId: Long,
+        albumName: String,
+        artistName: String,
+        artUri: String,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        repository.updateAlbumData(albumId, albumName, artistName, artUri, lifecycleScope)
+    }
+
+    fun updateAlbum(
+        albumModel: AlbumModel,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        repository.updateAlbum(albumModel, lifecycleScope)
+    }
+
+    fun updateArtist(
+        artistsModel: ArtistsModel,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        return repository.updateArtist(artistsModel, lifecycleScope)
+    }
+
+    fun updateSongCount(
+        songCount: Int,
+        albumId: Long,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        repository.updateSongCount(songCount, albumId, lifecycleScope)
+    }
+
     fun updateFavouriteAudio(
         isFav: Boolean,
         songId: Long,
@@ -117,6 +160,10 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
         repository.deleteQueue(lifecycleScope)
     }
 
+    fun deleteOneQueueAudio(songId: Long, lifecycleScope: LifecycleCoroutineScope) {
+        repository.deleteOneQueueAudio(songId, lifecycleScope)
+    }
+
     fun updateQueueAudio(
         songId: Long,
         songName: String,
@@ -134,14 +181,24 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
         repository.insertPlaylist(playlistModel, lifecycleScope)
     }
 
-    fun deletePlaylist(lifecycleScope: LifecycleCoroutineScope) {
-        repository.deletePlaylist(lifecycleScope)
+    fun deletePlaylist(id: Int, lifecycleScope: LifecycleCoroutineScope) {
+        repository.deletePlaylist(id, lifecycleScope)
     }
 
     fun updatePlaylist(audioList: String, id: Int, lifecycleScope: LifecycleCoroutineScope) {
         lifecycleScope.launch(Dispatchers.IO) {
             repository.updatePlaylist(
                 audioList,
+                id,
+                lifecycleScope
+            )
+        }
+    }
+
+    fun renamePlaylist(playlistName: String, id: Int, lifecycleScope: LifecycleCoroutineScope) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            repository.renamePlaylist(
+                playlistName,
                 id,
                 lifecycleScope
             )
@@ -156,5 +213,47 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
         return repository.getPlaylistAudios(id)
     }
 
+
+    fun insertAlbum(
+        albumModel: AlbumModel,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        repository.insertAlbum(albumModel, lifecycleScope)
+    }
+
+    fun insertArtist(
+        artistsModel: ArtistsModel,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        repository.insertArtist(artistsModel, lifecycleScope)
+    }
+
+    fun deleteAlbum(id: Long, lifecycleScope: LifecycleCoroutineScope) {
+        repository.deleteAlbum(id, lifecycleScope)
+    }
+
+    fun deleteArtist(id: Long, lifecycleScope: LifecycleCoroutineScope) {
+        repository.deleteArtist(id, lifecycleScope)
+    }
+
+    fun deleteAllAlbum(lifecycleScope: LifecycleCoroutineScope) {
+        repository.deleteAllAlbum(lifecycleScope)
+    }
+
+    fun getAlbums(): LiveData<List<AlbumModel>> {
+        return repository.getAlbums()
+    }
+
+    fun getAllArtists(): LiveData<List<ArtistsModel>> {
+        return repository.getAllArtists()
+    }
+
+    fun getAlbumAccordingToArtist(artistName: String): LiveData<List<AlbumModel>> {
+        return repository.getAlbumAccordingToArtist(artistName)
+    }
+
+    suspend fun getOnAlbum(albumName: String): List<AlbumModel> {
+        return repository.getOnAlbum(albumName)
+    }
 
 }

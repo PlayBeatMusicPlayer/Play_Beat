@@ -12,12 +12,16 @@ class Repository(var application: Application) {
     private var allSongsDao: AllSongsDao
     private var queueListDao: QueueListDao
     private var playlistDao: PlaylistDao
+    private var albumDao: AlbumDao
+    private var artistDao: ArtistDao
 
     init {
         val databaseClient = DatabaseClient.getInstance(application)
         allSongsDao = databaseClient?.allSongsDao()!!
         queueListDao = databaseClient.queueListDao()
         playlistDao = databaseClient.playlistDao()
+        albumDao = databaseClient.albumDao()
+        artistDao = databaseClient.artistDao()
     }
 
     fun insertAllSongs(
@@ -26,6 +30,60 @@ class Repository(var application: Application) {
     ) {
         lifecycleScope.launch(Dispatchers.IO) {
             allSongsDao.insertSongs(allSongsModel)
+        }
+    }
+
+    fun insertAlbum(
+        albumModel: AlbumModel,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            albumDao.insertAlbum(albumModel)
+        }
+    }
+
+    fun insertArtist(
+        artistsModel: ArtistsModel,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            artistDao.insertArtist(artistsModel)
+        }
+    }
+
+    fun deleteAlbum(id: Long, lifecycleScope: LifecycleCoroutineScope) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            albumDao.deleteAlbum(id)
+        }
+    }
+
+    fun deleteArtist(id: Long, lifecycleScope: LifecycleCoroutineScope) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            artistDao.deleteArtist(id)
+        }
+    }
+
+    fun deleteAllAlbum(lifecycleScope: LifecycleCoroutineScope) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            albumDao.deleteAllAlbum()
+        }
+    }
+
+    fun getAlbums(): LiveData<List<AlbumModel>> {
+        return albumDao.getAlbums()
+    }
+
+    fun getAllArtists(): LiveData<List<ArtistsModel>> {
+        return artistDao.getAllArtists()
+    }
+
+    fun getAlbumAccordingToArtist(artistName: String): LiveData<List<AlbumModel>> {
+        return albumDao.getAlbumAccordingToArtist(artistName)
+    }
+
+    suspend fun getOnAlbum(albumName: String): List<AlbumModel> {
+        return withContext(Dispatchers.IO) {
+            return@withContext albumDao.getOnAlbum(albumName)
         }
     }
 
@@ -68,6 +126,55 @@ class Repository(var application: Application) {
         }
     }
 
+    fun updateAudioTags(
+        songId: Long,
+        songName: String,
+        albumName: String,
+        artistName: String,
+        artUri: String,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            allSongsDao.updateAudioTags(songId, songName, albumName, artistName, artUri)
+        }
+    }
+
+    fun updateAlbumData(
+        albumId: Long,
+        albumName: String,
+        artistName: String,
+        artUri: String,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            albumDao.updateAlbumData(albumId, albumName, artistName, artUri)
+        }
+    }
+
+    fun updateAlbum(
+        albumModel: AlbumModel,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            albumDao.updateAlbum(albumModel)
+        }
+    }
+
+    fun updateArtist(
+        artistsModel: ArtistsModel,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            artistDao.updateArtist(artistsModel)
+        }
+    }
+
+    fun updateSongCount(songCount: Int, albumId: Long, lifecycleScope: LifecycleCoroutineScope) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            albumDao.updateSongCount(songCount, albumId)
+        }
+    }
+
     fun updateFavouriteAudio(
         isFav: Boolean,
         songId: Long,
@@ -105,7 +212,7 @@ class Repository(var application: Application) {
 
     suspend fun getOneFavAudio(songId: Long): List<AllSongsModel> {
         return withContext(Dispatchers.IO) {
-            return@withContext allSongsDao.getOneAudio(songId)
+            return@withContext allSongsDao.getFavOneAudio(songId)
         }
     }
 
@@ -154,6 +261,10 @@ class Repository(var application: Application) {
         lifecycleScope.launch(Dispatchers.IO) { queueListDao.deleteQueue() }
     }
 
+    fun deleteOneQueueAudio(songId: Long, lifecycleScope: LifecycleCoroutineScope) {
+        lifecycleScope.launch(Dispatchers.IO) { queueListDao.deleteOneQueueAudio(songId) }
+    }
+
     fun updateQueueAudio(
         songId: Long,
         songName: String,
@@ -178,12 +289,16 @@ class Repository(var application: Application) {
         }
     }
 
-    fun deletePlaylist(lifecycleScope: LifecycleCoroutineScope) {
-        lifecycleScope.launch(Dispatchers.IO) { playlistDao.deletePlaylist() }
+    fun deletePlaylist(id: Int, lifecycleScope: LifecycleCoroutineScope) {
+        lifecycleScope.launch(Dispatchers.IO) { playlistDao.deletePlaylist(id) }
     }
 
     fun updatePlaylist(audioList: String, id: Int, lifecycleScope: LifecycleCoroutineScope) {
         lifecycleScope.launch(Dispatchers.IO) { playlistDao.updatePlaylist(audioList, id) }
+    }
+
+    fun renamePlaylist(playlistName: String, id: Int, lifecycleScope: LifecycleCoroutineScope) {
+        lifecycleScope.launch(Dispatchers.IO) { playlistDao.renamePlaylist(playlistName, id) }
     }
 
     fun getAllPlaylist(): LiveData<List<PlaylistModel>> {

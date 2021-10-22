@@ -12,172 +12,213 @@
     tools:context=".fragment.AllSongFragment">
 
     <RelativeLayout
-        android:id="@+id/rlToolbarContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <RelativeLayout
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="visible">
-
-            <FrameLayout
-                android:id="@+id/sortAudios"
-                android:layout_width="wrap_content"
-                android:layout_height="35dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:background="?selectableItemBackgroundBorderless">
-
-                <TextView
-                    android:id="@+id/sortAudioTV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:drawablePadding="5dp"
-                    android:textColor="@color/grey"
-                    app:drawableStartCompat="@drawable/ic_sort"
-                    tools:text="Name" />
-
-            </FrameLayout>
-
-            <LinearLayout
-                android:id="@+id/shuffleAudio"
-                android:layout_width="wrap_content"
-                android:layout_height="35dp"
-                android:layout_alignParentEnd="true"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:background="?selectableItemBackgroundBorderless"
-                android:orientation="horizontal"
-                tools:ignore="RelativeOverlap">
-
-                <TextView
-                    android:id="@+id/totalAudioTV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="10dp"
-                    android:textColor="@color/grey"
-                    tools:text="200 songs" />
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_gravity="center"
-                    android:contentDescription="@null"
-                    android:src="@drawable/ic_shuffle" />
-
-            </LinearLayout>
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/rlContextMenu"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
-
-            <ImageView
-                android:id="@+id/closeContextMenu"
-                android:layout_width="wrap_content"
-                android:layout_height="35dp"
-                android:layout_gravity="center"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="10dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_close" />
-
-            <TextSwitcher
-                android:id="@+id/selectedAudiosTS"
-                android:layout_width="wrap_content"
-                android:layout_height="24dp"
-                android:layout_gravity="center"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="20dp"
-                android:layout_toEndOf="@id/closeContextMenu"
-                android:animateFirstView="true"
-                tools:ignore="RelativeOverlap" />
-
-            <ImageView
-                android:id="@+id/deleteIV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_marginStart="15dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="20dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_delete" />
-
-            <CheckBox
-                android:id="@+id/selectAllAudios"
-                android:layout_width="wrap_content"
-                android:layout_height="24dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="15dp"
-                android:layout_toStartOf="@id/addToPlaylistIV"
-                android:background="?selectableItemBackgroundBorderless"
-                android:text="Select all"
-                android:textColor="@color/white" />
-
-            <ImageView
-                android:id="@+id/addToPlaylistIV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="15dp"
-                android:layout_toStartOf="@id/deleteIV"
-                android:background="?selectableItemBackgroundBorderless"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_play_list" />
-
-
-        </RelativeLayout>
-
-    </RelativeLayout>
-
-
-    <RelativeLayout
+        android:id="@+id/rlAllSongContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/rlToolbarContainer"
-        android:layout_marginTop="5dp"
-        android:background="@android:color/transparent">
+        android:visibility="visible">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvAllSongs"
+        <RelativeLayout
+            android:id="@+id/rlToolbarContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="visible">
+
+                <FrameLayout
+                    android:id="@+id/sortAudios"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:background="?selectableItemBackgroundBorderless">
+
+                    <TextView
+                        android:id="@+id/sortAudioTV"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:drawablePadding="5dp"
+                        android:textColor="@color/grey"
+                        app:drawableStartCompat="@drawable/ic_sort"
+                        tools:text="Name" />
+
+                </FrameLayout>
+
+                <LinearLayout
+                    android:id="@+id/shuffleAudio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:orientation="horizontal"
+                    tools:ignore="RelativeOverlap">
+
+                    <TextView
+                        android:id="@+id/totalAudioTV"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="10dp"
+                        android:textColor="@color/grey"
+                        tools:text="200 songs" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_shuffle_grey" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rlContextMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/closeContextMenu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_close" />
+
+                <TextSwitcher
+                    android:id="@+id/selectedAudiosTS"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_toEndOf="@id/closeContextMenu"
+                    android:animateFirstView="true"
+                    tools:ignore="RelativeOverlap" />
+
+                <ImageView
+                    android:id="@+id/moreOptionIV"
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="20dp"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_more_horizontal" />
+
+                <CheckBox
+                    android:id="@+id/selectAllAudios"
+                    android:layout_width="26dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_toStartOf="@id/moreOptionIV"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:textColor="@color/white" />
+
+                <!-- <ImageView
+                     android:id="@+id/addToPlaylistIV"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_marginTop="8dp"
+                     android:layout_marginStart="15dp"
+                     android:layout_toStartOf="@id/deleteIV"
+                     android:background="?selectableItemBackgroundBorderless"
+                     android:contentDescription="@null"
+                     android:src="@drawable/ic_play_list" />-->
+
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="4dp"
-            android:nestedScrollingEnabled="true"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:itemCount="9"
-            tools:listitem="@layout/recycler_all_songs_item" />
+            android:layout_below="@id/rlToolbarContainer"
+            android:layout_marginTop="5dp"
+            android:background="@android:color/transparent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvAllSongs"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="4dp"
+                android:nestedScrollingEnabled="true"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="9"
+                tools:listitem="@layout/recycler_all_songs_item" />
 
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:contentDescription="@null"
-            android:focusable="true"
-            android:foreground="@drawable/gradient_background_top_shadow" />
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:contentDescription="@null"
+                android:focusable="true"
+                android:foreground="@drawable/gradient_background_top_shadow" />
+        </RelativeLayout>
+
     </RelativeLayout>
 
-    <!-- <RelativeLayout
-         android:id="@+id/rlSortAndShuffle"
-         android:layout_width="match_parent"
-         android:layout_height="wrap_content"
-         android:layout_marginStart="20dp"
-         android:layout_marginTop="5dp"
-         android:layout_marginEnd="20dp"
-         android:background="@android:color/transparent"
-         android:orientation="horizontal">
+    <RelativeLayout
+        android:id="@+id/rlNoSongsPresent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/app_theme_color"
+        android:visibility="gone">
 
-     </RelativeLayout>-->
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_above="@id/noSongTitle"
+            android:layout_centerInParent="true"
+            android:contentDescription="@null"
+            android:src="@drawable/music_note_icon" />
+
+        <TextView
+            android:id="@+id/noSongTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="60dp"
+            android:fontFamily="@font/segoe_ui"
+            android:text="No Songs Present"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="19sp" />
+
+        <TextView
+            android:id="@+id/noSongDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/noSongTitle"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="60dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/segoe_ui"
+            android:textAlignment="center"
+            android:textColor="@color/grey"
+            android:visibility="gone" />
+
+
+    </RelativeLayout>
+
 
 </RelativeLayout>

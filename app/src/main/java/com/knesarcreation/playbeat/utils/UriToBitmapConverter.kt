@@ -12,10 +12,10 @@ import java.io.InputStream
 object UriToBitmapConverter {
 
     @Throws(FileNotFoundException::class, IOException::class)
-    fun getBitmap(cr: ContentResolver, url: Uri?): Bitmap? {
+    fun getBitmap(cr: ContentResolver, uri: Uri?): Bitmap? {
         var bitmap: Bitmap? = null
         try {
-            val input: InputStream? = cr.openInputStream(url!!)
+            val input: InputStream? = cr.openInputStream(uri!!)
             bitmap = BitmapFactory.decodeStream(input)
             input!!.close()
         } catch (e: FileNotFoundException) {

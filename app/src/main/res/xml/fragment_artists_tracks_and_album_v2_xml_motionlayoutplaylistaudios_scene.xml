@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        motion:constraintSetEnd="@id/end"
+        motion:constraintSetStart="@+id/start"
+        motion:layoutDuringTransition="honorRequest"
+        motion:motionInterpolator="linear">
+        <KeyFrameSet>
+            <KeyAttribute
+                android:alpha="0"
+                motion:framePosition="0"
+                motion:motionTarget="@+id/artisNameTVToolbar" />
+            <KeyAttribute
+                android:alpha="0"
+                motion:framePosition="20"
+                motion:motionTarget="@+id/artisNameTVToolbar" />
+            <KeyAttribute
+                android:alpha="0"
+                motion:framePosition="40"
+                motion:motionTarget="@+id/artisNameTVToolbar" />
+            <KeyAttribute
+                android:alpha="0"
+                motion:framePosition="60"
+                motion:motionTarget="@+id/artisNameTVToolbar" />
+        </KeyFrameSet>
+
+        <OnSwipe
+            motion:dragDirection="dragUp"
+            motion:dragScale="1"
+            motion:moveWhenScrollAtTop="true"
+            motion:onTouchUp="decelerate"
+            motion:touchAnchorId="@+id/rlContainer"
+            motion:touchAnchorSide="top" />
+
+    </Transition>
+
+    <ConstraintSet android:id="@+id/start">
+        <Constraint
+            android:id="@+id/rlContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@+id/artisNameTVToolbar"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="45dp"
+            android:visibility="invisible"
+            motion:layout_constraintEnd_toEndOf="@id/playAllToolbar"
+            motion:layout_constraintHorizontal_bias="0.087"
+            motion:layout_constraintStart_toEndOf="@id/arrowBackIV"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@+id/artisNameTV"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="265dp"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintHorizontal_bias="0.0"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="20dp" />
+
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+
+        <Constraint
+            android:id="@+id/rlContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="-250dp"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@+id/artisNameTV"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="40dp"
+            android:visibility="invisible"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintHorizontal_bias="0.0"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@+id/totalSongsTV"
+            motion:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            motion:layout_constraintTop_toBottomOf="@id/artisNameTV"
+            android:layout_marginStart="20dp"
+            motion:layout_constraintHorizontal_bias="0.0"
+            motion:layout_constraintStart_toStartOf="parent"
+            android:visibility="invisible" />
+    </ConstraintSet>
+</MotionScene>

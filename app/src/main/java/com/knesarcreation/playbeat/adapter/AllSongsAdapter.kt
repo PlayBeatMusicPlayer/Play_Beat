@@ -8,68 +8,70 @@ import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.database.AllSongsModel
-import com.knesarcreation.playbeat.fragment.BottomSheetMoreOptions
+import com.knesarcreation.playbeat.database.ViewModelClass
+import com.knesarcreation.playbeat.fragment.BottomSheetAudioMoreOptions
+import com.knesarcreation.playbeat.model.AudioArtBitmapModel
+import com.knesarcreation.playbeat.utils.StorageUtil
+import kotlinx.coroutines.Job
+import java.util.concurrent.CopyOnWriteArrayList
+
 
 class AllSongsAdapter(
-    var context: Context,
+    private var context: Context,
     //var allSongList: CopyOnWriteArrayList<AllSongsModel>,
     private var onClickListener: OnClickListener,
     private var onLongClickListener: OnLongClickListener,
+    private var isAdapterUsingFromCustomPlaylist: Boolean,
 ) : ListAdapter<AllSongsModel, AllSongsAdapter.AllSongsViewHolder>(AllSongItemCallback()) {
     // RecyclerView.Adapter<AllSongsAdapter.AllSongsViewHolder>() {
 
     var isSearching = false
     var queryText = ""
+    private val mViewModelClass =
+        ViewModelProvider(context as AppCompatActivity)[ViewModelClass::class.java]
 
     companion object {
         var isContextMenuEnabled = false
     }
 
-    class AllSongsViewHolder(view: View) :
+    class AllSongsViewHolder(view: View, var context: Context) :
         RecyclerView.ViewHolder(view) {
         private val songName: TextView = view.findViewById(R.id.songNameTV)
         private val artistName: TextView = view.findViewById(R.id.artistNameTV)
         private val duration: TextView = view.findViewById(R.id.albumNameTv)
         private val albumArtIV: ImageView = view.findViewById(R.id.album_art_iv)
-        private val moreIconIV: ImageView = view.findViewById(R.id.moreIcon)
+        val moreIconIV: ImageView = view.findViewById(R.id.moreIcon)
         val rlAudio: RelativeLayout = view.findViewById(R.id.rlAudio)
         val selectedAudioFL: FrameLayout = view.findViewById(R.id.selectedAudioFL)
         private val currentPlayingAudioLottie: LottieAnimationView =
             view.findViewById(R.id.currentPlayingAudioLottie)
         private val rlCurrentPlayingLottie: RelativeLayout =
             view.findViewById(R.id.rlCurrentPlayingLottie)
+        private var loadingArtJob: Job? = null
+        private var storageUtil = StorageUtil(context)
+        private val loadAudioArtBitmapImage = storageUtil.loadAudioArtBitmapImage()
 
         fun bind(
             allSongModel: AllSongsModel,
             isSearching: Boolean,
-            queryText: String,
-            context: Context
+            queryText: String
         ) {
             moreIconIV.visibility = View.VISIBLE
-
-            moreIconIV.setOnClickListener {
-                if (!isContextMenuEnabled) {
-                    val bottomSheetMoreOptions = BottomSheetMoreOptions(context, allSongModel)
-                    bottomSheetMoreOptions.show(
-                        (context as AppCompatActivity).supportFragmentManager,
-                        "bottomSheetMoreOptions"
-                    )
-                }
-            }
 
             if (isSearching) {
                 highlightSearchedAudioText(queryText, allSongModel)
@@ -84,7 +86,7 @@ class AllSongsAdapter(
             }
             duration.text = millisToMinutesAndSeconds(allSongModel.duration)
 
-            val artUri = allSongModel.artUri
+            //val artUri = allSongModel.artUri
 
             currentPlayingAudioLottie.setAnimation(R.raw.playing_audio_indicator)
             when (allSongModel.playingOrPause) {
@@ -144,9 +146,34 @@ class AllSongsAdapter(
                 }
             }
 
-            Glide.with(albumArtIV).load(artUri)
-                .apply(RequestOptions.placeholderOf(R.drawable.music_note_icon).centerCrop())
+            var audioArtBitmapModel: AudioArtBitmapModel? = null
+            val factory = DrawableCrossFadeFactory.Builder(200)
+            // try {
+            //     audioArtBitmapModel =
+            //        loadAudioArtBitmapImage.find { audioArtBitmapModel1 -> audioArtBitmapModel1.audioId == allSongModel.songId }
+            //} catch (e: Exception) {
+
+            //}
+            //Log.d("audioArtBitmapModel", "bind:$audioArtBitmapModel ")
+            //if (audioArtBitmapModel != null) {
+
+            //  Glide.with(context).load(audioArtBitmapModel.bitMapImg)
+            //     .placeholder(R.drawable.music_note_icon)
+            //.transition(DrawableTransitionOptions.withCrossFade(factory))
+            //   .error(R.drawable.music_note_icon)
+            //.thumbnail(0.1f)
+            //.apply { RequestOptions().downsample(DownsampleStrategy.DEFAULT) }
+            // .into(albumArtIV)
+
+            //} else {
+            Glide.with(context).load(allSongModel.artUri)
+                .placeholder(R.drawable.music_note_icon)
+                .transition(DrawableTransitionOptions.withCrossFade(factory))
+                .error(R.drawable.music_note_icon)
+                //.thumbnail(0.1f)
+                //.apply { RequestOptions().downsample(DownsampleStrategy.DEFAULT) }
                 .into(albumArtIV)
+            //}
 
         }
 
@@ -181,20 +208,24 @@ class AllSongsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AllSongsViewHolder {
         return AllSongsViewHolder(
-            LayoutInflater.from(context).inflate(R.layout.recycler_all_songs_item, parent, false)
+            LayoutInflater.from(context).inflate(R.layout.recycler_all_songs_item, parent, false),
+            context
         )
     }
+
 
     override fun onBindViewHolder(holder: AllSongsViewHolder, position: Int) {
         val allSongModel = getItem(position)
 
         holder.rlAudio.setOnClickListener {
             if (isContextMenuEnabled) {
-                allSongModel.isChecked = !allSongModel.isChecked
-                onLongClickListener.onLongClick(allSongModel, position)
-                notifyItemHasChanged(position, allSongModel)
+                if (!isSearching) {
+                    allSongModel.isChecked = !allSongModel.isChecked
+                    onLongClickListener.onLongClick(allSongModel, holder.bindingAdapterPosition)
+                    notifyItemHasChanged(holder.bindingAdapterPosition, allSongModel)
+                }
             } else {
-                onClickListener.onClick(allSongModel, position)
+                onClickListener.onClick(allSongModel, holder.bindingAdapterPosition)
             }
         }
 
@@ -205,13 +236,34 @@ class AllSongsAdapter(
         }
 
         holder.rlAudio.setOnLongClickListener {
-            isContextMenuEnabled = true
-            allSongModel.isChecked = !allSongModel.isChecked
-            onLongClickListener.onLongClick(allSongModel, position)
-            notifyItemHasChanged(position, allSongModel)
+            if (!isSearching) {
+                isContextMenuEnabled = true
+                allSongModel.isChecked = !allSongModel.isChecked
+                onLongClickListener.onLongClick(allSongModel, holder.bindingAdapterPosition)
+                notifyItemHasChanged(holder.bindingAdapterPosition, allSongModel)
+            }
             return@setOnLongClickListener true
         }
-        holder.bind(allSongModel, isSearching, queryText, context)
+
+        holder.bind(
+            allSongModel,
+            isSearching,
+            queryText
+        )
+
+        holder.moreIconIV.setOnClickListener {
+            if (!isContextMenuEnabled) {
+                val bottomSheetMoreOptions = BottomSheetAudioMoreOptions(
+                    context,
+                    allSongModel,
+                    false
+                )
+                bottomSheetMoreOptions.show(
+                    (context as AppCompatActivity).supportFragmentManager,
+                    "bottomSheetMoreOptions"
+                )
+            }
+        }
     }
 
     //override fun getItemCount() = allSongList.size
@@ -285,11 +337,21 @@ class AllSongsAdapter(
     }
 
     fun selectAllAudios() {
-        for ((index, audio) in currentList.withIndex()) {
+        for (audio in currentList) {
             audio.isChecked = true
         }
         notifyItemRangeChanged(0, currentList.size)
     }
+
+    /*fun updateAudioDeleted(selectedAudioPos: ArrayList<Int>) {
+        if (selectedAudioPos.isNotEmpty()) {
+            for (pos in selectedAudioPos) {
+                val item = getItem(pos)
+                item.isChecked = false
+                notifyItemRemoved(pos)
+            }
+        }
+    }*/
 
     fun unSelectAllAudios() {
         for ((index, audio) in currentList.withIndex()) {
@@ -297,4 +359,11 @@ class AllSongsAdapter(
             notifyItemChanged(index)
         }
     }
+
+    private fun convertStringToList(songIdsListString: String): CopyOnWriteArrayList<Long> {
+        val gson = Gson()
+        val type = object : TypeToken<CopyOnWriteArrayList<Long>>() {}.type
+        return gson.fromJson(songIdsListString, type)
+    }
+
 }

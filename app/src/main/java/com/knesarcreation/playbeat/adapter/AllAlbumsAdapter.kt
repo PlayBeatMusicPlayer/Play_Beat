@@ -5,19 +5,21 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.database.AlbumModel
 import com.knesarcreation.playbeat.databinding.RecyclerAllSongsItemBinding
-import com.knesarcreation.playbeat.model.AlbumModel
 
 class AllAlbumsAdapter(
     var context: Context,
-    var albumList: List<AlbumModel>,
+    //var albumList: List<AlbumModel>,
     var listener: OnAlbumClicked
-) :
-    RecyclerView.Adapter<AllAlbumsAdapter.AlbumViewHolder>() {
+) : ListAdapter<AlbumModel, AllAlbumsAdapter.AlbumViewHolder>(DiffUtilAlbumDataCallback())
+/*RecyclerView.Adapter<AllAlbumsAdapter.AlbumViewHolder>()*/ {
 
     class AlbumViewHolder(binding: RecyclerAllSongsItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -45,7 +47,7 @@ class AllAlbumsAdapter(
     }
 
     override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
-        val albumModel = albumList[position]
+        val albumModel = getItem(position)
         holder.albumName.text = albumModel.albumName
         holder.artistName.text = albumModel.artistName
 
@@ -65,5 +67,14 @@ class AllAlbumsAdapter(
         }
     }
 
-    override fun getItemCount() = albumList.size
+    //override fun getItemCount() = albumList.size
+
+    class DiffUtilAlbumDataCallback : DiffUtil.ItemCallback<AlbumModel>() {
+        override fun areItemsTheSame(oldItem: AlbumModel, newItem: AlbumModel) =
+            oldItem.id == newItem.id
+
+
+        override fun areContentsTheSame(oldItem: AlbumModel, newItem: AlbumModel) =
+            oldItem == newItem
+    }
 }

@@ -1,30 +1,24 @@
 package com.knesarcreation.playbeat.adapter
 
-import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.drawable.GradientDrawable
-import android.net.Uri
-import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.palette.graphics.Palette
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.database.AlbumModel
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.QueueListModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.RecyclerHorizontalAlbumItemsBinding
 import com.knesarcreation.playbeat.fragment.AllSongFragment
-import com.knesarcreation.playbeat.model.AlbumModel
 import com.knesarcreation.playbeat.utils.AudioPlayingFromCategory
 import com.knesarcreation.playbeat.utils.StorageUtil
 import kotlinx.coroutines.Dispatchers
@@ -33,10 +27,10 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 class ArtistsAlbumAdapter(
     var context: Context,
-    var albumList: CopyOnWriteArrayList<AlbumModel>,
+    //var albumList: CopyOnWriteArrayList<AlbumModel>,
     var listener: AllAlbumsAdapter.OnAlbumClicked
-) :
-    RecyclerView.Adapter<ArtistsAlbumAdapter.ArtistsAlbumViewHolder>() {
+) : ListAdapter<AlbumModel, ArtistsAlbumAdapter.ArtistsAlbumViewHolder>(AllAlbumsAdapter.DiffUtilAlbumDataCallback()) {
+/* RecyclerView.Adapter<ArtistsAlbumAdapter.ArtistsAlbumViewHolder>()*/
 
     private var audioList = CopyOnWriteArrayList<AllSongsModel>()
     private var mViewModelClass =
@@ -48,9 +42,11 @@ class ArtistsAlbumAdapter(
         val artisNameTV = binding.artisNameTV
         val albumArtIV = binding.albumArtIV
         val playAlbumBtn = binding.playAlbum
-        val albumArtOverlay = binding.albumArtOverlay
-        val albumArtLeftDarkBG = binding.albumArtLeftDarkBG
-        val cvAlbumCard = binding.cvAlbumCard
+        val rlAlbumViewContainer = binding.rlAlbumViewContainer
+
+        // val albumArtOverlay = binding.albumArtOverlay
+        //val albumArtLeftDarkBG = binding.albumArtLeftDarkBG
+        //val cvAlbumCard = binding.cvAlbumCard
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtistsAlbumViewHolder {
@@ -64,7 +60,7 @@ class ArtistsAlbumAdapter(
     }
 
     override fun onBindViewHolder(holder: ArtistsAlbumViewHolder, position: Int) {
-        val albumModel = albumList[position]
+        val albumModel = getItem(position)
         holder.albumNameTV.text = albumModel.albumName
         holder.artisNameTV.text = albumModel.artistName
 
@@ -74,15 +70,15 @@ class ArtistsAlbumAdapter(
             .apply(RequestOptions.placeholderOf(R.drawable.album_png).centerCrop())
             .into(holder.albumArtIV)
 
-        val albumArt = albumModel?.albumBitmap
-
-        if (albumArt != null) {
-            createPaletteColor(albumArt, holder)
-        } else {
-            val albumArtPlaceHolder =
-                BitmapFactory.decodeResource(context.resources, R.drawable.album_png)
-            createPaletteColor(albumArtPlaceHolder, holder)
-        }
+        // val albumArt = albumModel?.albumBitmap
+        //val albumArt: Bitmap? = BitmapFactory.decodeFile(albumModel?.artUri.toString())
+        // if (albumArt != null) {
+        ///   createPaletteColor(albumArt, holder)
+        //} else {
+        //val albumArtPlaceHolder =
+        //  BitmapFactory.decodeResource(context.resources, R.drawable.album_png)
+        //  createPaletteColor(albumArtPlaceHolder, holder)
+        //}
 
         holder.playAlbumBtn.setOnClickListener {
             StorageUtil(context).saveIsShuffled(false)
@@ -98,151 +94,151 @@ class ArtistsAlbumAdapter(
             //loadAlbumAudio(albumModel)
         }
 
-        holder.cvAlbumCard.setOnClickListener {
+        holder.rlAlbumViewContainer.setOnClickListener {
             listener.onClicked(albumModel)
         }
 
     }
 
-    private fun createPaletteColor(albumArt: Bitmap, holder: ArtistsAlbumViewHolder) {
-        Palette.from(albumArt).generate {
-            val swatch = it?.dominantSwatch
-            if (swatch != null) {
-                holder.albumArtOverlay.setBackgroundResource(R.drawable.shadow_from_left)
-                holder.albumArtLeftDarkBG.setBackgroundResource(R.drawable.album_card_dark_bg)
+    /*  private fun createPaletteColor(albumArt: Bitmap, holder: ArtistsAlbumViewHolder) {
+          Palette.from(albumArt).generate {
+              val swatch = it?.dominantSwatch
+              if (swatch != null) {
+                  holder.albumArtOverlay.setBackgroundResource(R.drawable.shadow_from_left)
+                  holder.albumArtLeftDarkBG.setBackgroundResource(R.drawable.album_card_dark_bg)
 
-                val gradientDrawableRight = GradientDrawable(
-                    GradientDrawable.Orientation.LEFT_RIGHT,
-                    intArrayOf(swatch.rgb, 0x00000000)
-                )
+                  val gradientDrawableRight = GradientDrawable(
+                      GradientDrawable.Orientation.LEFT_RIGHT,
+                      intArrayOf(swatch.rgb, 0x00000000)
+                  )
 
-                val gradientDrawableLeft = GradientDrawable(
-                    GradientDrawable.Orientation.LEFT_RIGHT,
-                    intArrayOf(swatch.rgb, swatch.rgb)
-                )
+                  val gradientDrawableLeft = GradientDrawable(
+                      GradientDrawable.Orientation.LEFT_RIGHT,
+                      intArrayOf(swatch.rgb, swatch.rgb)
+                  )
 
 
-                //holder.albumArtOverlay.background = gradientDrawableRight
-                //holder.albumArtLeftDarkBG.background = gradientDrawableLeft
-                Glide.with(context).load(gradientDrawableRight)
-                    //.apply(RequestOptions.placeholderOf(R.drawable.shadow_from_left))
-                    .into(holder.albumArtOverlay)
+                  //holder.albumArtOverlay.background = gradientDrawableRight
+                  //holder.albumArtLeftDarkBG.background = gradientDrawableLeft
+                  Glide.with(context).load(gradientDrawableRight)
+                      //.apply(RequestOptions.placeholderOf(R.drawable.shadow_from_left))
+                      .into(holder.albumArtOverlay)
 
-                Glide.with(context).load(gradientDrawableLeft)
-                    //.apply(RequestOptions.placeholderOf(R.drawable.album_card_dark_bg))
-                    .into(holder.albumArtLeftDarkBG)
-                holder.albumNameTV.setTextColor(swatch.bodyTextColor)
-                holder.artisNameTV.setTextColor(swatch.titleTextColor)
-            }
-        }
+                  Glide.with(context).load(gradientDrawableLeft)
+                      //.apply(RequestOptions.placeholderOf(R.drawable.album_card_dark_bg))
+                      .into(holder.albumArtLeftDarkBG)
+                  holder.albumNameTV.setTextColor(swatch.bodyTextColor)
+                  holder.artisNameTV.setTextColor(swatch.titleTextColor)
+              }
+          }
 
-    }
+      }*/
 
-    private fun loadAlbumAudio(albumModel: AlbumModel) {
-        audioList.clear()
-        val collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+    /*  private fun loadAlbumAudio(albumModel: AlbumModel) {
+          audioList.clear()
+          val collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 
-        val projection = arrayOf(
-            MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.DISPLAY_NAME,
-            MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.SIZE,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.ALBUM_ID,
-            MediaStore.Audio.Media.DATA, // path
-            MediaStore.Audio.Media.DATE_ADDED
-        )
+          val projection = arrayOf(
+              MediaStore.Audio.Media._ID,
+              MediaStore.Audio.Media.DISPLAY_NAME,
+              MediaStore.Audio.Media.DURATION,
+              MediaStore.Audio.Media.SIZE,
+              MediaStore.Audio.Media.ALBUM,
+              MediaStore.Audio.Media.ARTIST,
+              MediaStore.Audio.Media.ALBUM_ID,
+              MediaStore.Audio.Media.DATA, // path
+              MediaStore.Audio.Media.DATE_ADDED
+          )
 
-        // Show only audios that are at least 1 minutes in duration.
-        //val selection =
-        //  "${MediaStore.Audio.Media.DURATION} >= ? AND ${MediaStore.Audio.Albums.ALBUM} =?"
-        val selection =
-            "${MediaStore.Audio.Albums.ALBUM} =?"
-        val selectionArgs = arrayOf(
-            //TimeUnit.MILLISECONDS.convert(20, TimeUnit.SECONDS).toString(),
-            albumModel.albumName
-        )
+          // Show only audios that are at least 1 minutes in duration.
+          //val selection =
+          //  "${MediaStore.Audio.Media.DURATION} >= ? AND ${MediaStore.Audio.Albums.ALBUM} =?"
+          val selection =
+              "${MediaStore.Audio.Albums.ALBUM} =?"
+          val selectionArgs = arrayOf(
+              //TimeUnit.MILLISECONDS.convert(20, TimeUnit.SECONDS).toString(),
+              albumModel.albumName
+          )
 
-        // Display videos in alphabetical order based on their display name.
-        val sortOrder = "${MediaStore.Audio.Media.DISPLAY_NAME} ASC"
+          // Display videos in alphabetical order based on their display name.
+          val sortOrder = "${MediaStore.Audio.Media.DISPLAY_NAME} ASC"
 
-        val query =
-            context.contentResolver.query(
-                collection,
-                projection,
-                selection,
-                selectionArgs,
-                sortOrder
-            )
+          val query =
+              context.contentResolver.query(
+                  collection,
+                  projection,
+                  selection,
+                  selectionArgs,
+                  sortOrder
+              )
 
-        query?.use { cursor ->
-            // Cache column indices.
-            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-            val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
-            val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
-            val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
-            val artistsColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
-            val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
-            val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
-            val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-            val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
+          query?.use { cursor ->
+              // Cache column indices.
+              val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
+              val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
+              val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
+              val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
+              val artistsColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+              val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
+              val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
+              val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+              val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
 
-            while (cursor.moveToNext()) {
-                //Get values of columns of a given audio
-                val id = cursor.getLong(idColumn)
-                val name = cursor.getString(nameColumn)
-                val duration = cursor.getInt(durationColumn)
-                val size = cursor.getInt(sizeColumn)
-                val album = cursor.getString(albumColumn)
-                val artist = cursor.getString(artistsColumn)
-                val albumId = cursor.getLong(albumIdColumn)
-                val data = cursor.getString(dataColumn)
-                val dateAdded = cursor.getString(dateAddedColumn)
+              while (cursor.moveToNext()) {
+                  //Get values of columns of a given audio
+                  val id = cursor.getLong(idColumn)
+                  val name = cursor.getString(nameColumn)
+                  val duration = cursor.getInt(durationColumn)
+                  val size = cursor.getInt(sizeColumn)
+                  val album = cursor.getString(albumColumn)
+                  val artist = cursor.getString(artistsColumn)
+                  val albumId = cursor.getLong(albumIdColumn)
+                  val data = cursor.getString(dataColumn)
+                  val dateAdded = cursor.getString(dateAddedColumn)
 
-                Log.d("SongDetails", "loadAlbumSongs: $name, $artist")
+                  Log.d("SongDetails", "loadAlbumSongs: $name, $artist")
 
-                val sArtworkUri = Uri
-                    .parse("content://media/external/audio/albumart")
-                val albumArtUri =
-                    Uri.withAppendedPath(sArtworkUri, albumId.toString()).toString()
+                  val sArtworkUri = Uri
+                      .parse("content://media/external/audio/albumart")
+                  val albumArtUri =
+                      Uri.withAppendedPath(sArtworkUri, albumId.toString()).toString()
 
-                // getting audio uri
-                val contentUri: Uri = ContentUris.withAppendedId(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    id
-                )
+                  // getting audio uri
+                  val contentUri: Uri = ContentUris.withAppendedId(
+                      MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                      id
+                  )
 
-                val allSongsModel =
-                    AllSongsModel(
-                        id,
-                        albumId,
-                        name,
-                        artist,
-                        album,
-                        size,
-                        duration,
-                        data,
-                        contentUri.toString(),
-                        albumArtUri,
-                        dateAdded,
-                        false,
-                        0L
-                    )
+                  val allSongsModel =
+                      AllSongsModel(
+                          id,
+                          albumId,
+                          name,
+                          artist,
+                          album,
+                          size,
+                          duration,
+                          data,
+                          contentUri.toString(),
+                          albumArtUri,
+                          dateAdded,
+                          false,
+                          0L
+                      )
 
-                allSongsModel.playingOrPause = -1
-                audioList.add(allSongsModel)
+                  allSongsModel.playingOrPause = -1
+                  audioList.add(allSongsModel)
 
-            }
+              }
 
-            // Stuff that updates the UI
-            (context as AppCompatActivity).runOnUiThread {
-                playAudio() // from start
-            }
-            cursor.close()
-        }
+              // Stuff that updates the UI
+              (context as AppCompatActivity).runOnUiThread {
+                  playAudio() // from start
+              }
+              cursor.close()
+          }
 
-    }
+      }*/
 
     private fun updateAndPlayAudio(allSongModel: AllSongsModel) {
         val storageUtil = StorageUtil(context)
@@ -286,13 +282,14 @@ class ArtistsAlbumAdapter(
                 audio.size,
                 audio.duration,
                 audio.data,
-                audio.audioUri,
+                audio.contentUri,
                 audio.artUri,
                 -1,
                 audio.dateAdded,
                 audio.isFavourite,
                 audio.favAudioAddedTime,
-                audio.mostPlayedCount
+                audio.mostPlayedCount,
+                audio.artistId
             )
             queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
             mViewModelClass.insertQueue(
@@ -316,7 +313,6 @@ class ArtistsAlbumAdapter(
         )
     }
 
-
     private fun playAudio() {
         val storageUtil = StorageUtil(context)
         AudioPlayingFromCategory.audioPlayingFromAlbumORArtist = true
@@ -329,5 +325,5 @@ class ArtistsAlbumAdapter(
         (context).sendBroadcast(broadcastIntent)
     }
 
-    override fun getItemCount() = albumList.size
+    //override fun getItemCount() = albumList.size
 }

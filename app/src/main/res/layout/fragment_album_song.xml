@@ -10,40 +10,104 @@
     <ImageView
         android:id="@+id/blurredCoverIV"
         android:layout_width="match_parent"
-        android:layout_height="245dp"
+        android:layout_height="310dp"
         android:contentDescription="@null"
         android:scaleType="centerCrop" />
 
     <ImageView
         android:id="@+id/topViewIV"
         android:layout_width="match_parent"
-        android:layout_height="245dp"
+        android:layout_height="310dp"
         android:background="@drawable/gradient_background_bottom_shadow"
         android:contentDescription="@null" />
 
-    <!--back arrow-->
-    <ImageView
-        android:id="@+id/arrowBackIV"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="45dp"
-        android:layout_marginEnd="15dp"
-        android:layout_marginBottom="15dp"
-        android:background="@drawable/curved_all_edges"
-        android:contentDescription="@null"
-        android:paddingTop="5dp"
-        android:paddingEnd="2dp"
-        android:paddingBottom="5dp"
-        android:src="@drawable/ic_back_arrow_ios"
-        tools:ignore="RtlSymmetry" />
+    <!-- context menu-->
+    <RelativeLayout
+        android:id="@+id/rlToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:background="@color/transparent">
+        <!--back arrow-->
+        <ImageView
+            android:id="@+id/arrowBackIV"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="45dp"
+            android:layout_marginEnd="15dp"
+            android:background="@drawable/curved_all_edges"
+            android:contentDescription="@null"
+            android:paddingTop="5dp"
+            android:paddingEnd="2dp"
+            android:paddingBottom="5dp"
+            android:src="@drawable/ic_back_arrow_ios"
+            android:visibility="visible"
+            tools:ignore="RtlSymmetry" />
+
+        <RelativeLayout
+            android:id="@+id/rlContextMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="45dp"
+            android:layout_toEndOf="@id/arrowBackIV"
+            android:paddingTop="5dp"
+            android:paddingEnd="2dp"
+            android:paddingBottom="5dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/closeContextMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:layout_marginEnd="10dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_close" />
+
+            <TextSwitcher
+                android:id="@+id/selectedAudiosTS"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="20dp"
+                android:layout_toEndOf="@id/closeContextMenu"
+                android:animateFirstView="true"
+                tools:ignore="RelativeOverlap" />
+
+            <ImageView
+                android:id="@+id/moreOptionIV"
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_more_white" />
+
+            <CheckBox
+                android:id="@+id/selectAllAudios"
+                android:layout_width="26dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="15dp"
+                android:layout_toStartOf="@id/moreOptionIV"
+                android:background="?selectableItemBackgroundBorderless"
+                android:textColor="@color/white" />
+
+
+        </RelativeLayout>
+    </RelativeLayout>
+
 
     <!--album art-->
     <RelativeLayout
+        android:id="@+id/rlAlbumArt"
         android:layout_width="250dp"
         android:layout_height="200dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp">
+        android:layout_marginTop="90dp">
 
         <ImageView
             android:layout_width="160dp"
@@ -52,7 +116,7 @@
             android:layout_marginTop="10dp"
             android:contentDescription="@null"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_album"
+            android:src="@drawable/ic_album_black"
             app:shapeAppearanceOverlay="@style/circular_5" />
 
         <RelativeLayout
@@ -61,7 +125,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
             android:background="@drawable/curved_all_edges"
-            android:elevation="10dp">
+            android:elevation="5dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/albumArtIV"
@@ -85,11 +149,10 @@
         android:contentDescription="@null" />
 
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/playAlbum"
+    <!--<com.google.android.material.button.MaterialButton
         android:layout_width="135dp"
         android:layout_height="55dp"
-        android:layout_below="@id/topViewIV"
+        android:layout_below="@id/albumNameTV"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="20dp"
         android:contentDescription="@null"
@@ -103,22 +166,40 @@
         app:icon="@drawable/ic_album_play_btn"
         app:iconGravity="end"
         app:iconSize="30dp"
+        app:rippleColor="@color/rippleColor" />-->
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/playAlbum"
+        android:layout_width="125dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/albumNameTV"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:text="Play"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        app:backgroundTint="@color/teal_200"
+        app:cornerRadius="20dp"
+        app:icon="@drawable/ic_play_white_circle"
+        app:iconGravity="textStart"
+        app:iconSize="30dp"
         app:rippleColor="@color/rippleColor" />
 
     <TextView
         android:id="@+id/albumNameTV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/playAlbum"
+        android:layout_below="@id/rlAlbumArt"
         android:layout_marginStart="25dp"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="50dp"
+        android:layout_marginEnd="25dp"
         android:ellipsize="marquee"
         android:fontFamily="@font/segoe_ui"
         android:marqueeRepeatLimit="marquee_forever"
         android:maxLines="1"
         android:singleLine="true"
         android:text="Album Name"
+        android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold" />
@@ -146,13 +227,12 @@
         android:id="@+id/rvAlbumAudio"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/artistNameTV"
-        android:layout_marginTop="18dp"
+        android:layout_below="@id/playAlbum"
+        android:layout_marginTop="20dp"
         android:layoutAnimation="@anim/layout_down_to_up"
         android:nestedScrollingEnabled="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/recycler_album_items"
-
-        />
+        tools:itemCount="5"
+        tools:listitem="@layout/recycler_all_songs_item" />
 
 </RelativeLayout>

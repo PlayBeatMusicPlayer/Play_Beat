@@ -45,7 +45,7 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
     private var currentPlayingAudioIndex = -1
     var listener: OnRepeatAudioListener? = null
     private lateinit var queueLisAdapter: QueueListAdapter
-    private lateinit var audioModel: AllSongsModel
+    private lateinit var currentPlayingAudioModel: AllSongsModel
     private lateinit var mViewModelClass: ViewModelClass
     private var isSwipedToDel = false
     private var buttonLayoutParams: ConstraintLayout.LayoutParams? = null
@@ -149,7 +149,7 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
         audioList.addAll(loadAudioList)
         currentPlayingAudioIndex = storageUtil?.loadAudioIndex()!!
 
-        setupUpNextAdapter()
+        setupUpNextAudioAdapter()
         updateCurrentPlayingAudio()
         manageRepeatAudio()
 
@@ -189,7 +189,7 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
         }
     }
 
-    private fun setupUpNextAdapter() {
+    private fun setupUpNextAudioAdapter() {
         queueLisAdapter = QueueListAdapter(mContext, audioList, this)
         binding?.rvUpNext?.layoutManager = LinearLayoutManager(mContext)
         binding?.rvUpNext?.adapter = queueLisAdapter
@@ -207,21 +207,23 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                 Log.d("QueueListSwipeListener", "onItemSwiped:pos: $position , item: $item ")
                 when (direction) {
                     OnItemSwipeListener.SwipeDirection.LEFT_TO_RIGHT -> {
-                        Log.d(
-                            "QueueItemDeleted",
-                            "onItemSwiped:Position: $position , ${item.playingOrPause} deleted ******* audioModel: $audioModel "
-                        )
+                        /* Log.d(
+                             "QueueItemDeleted",
+                             "onItemSwiped:Position: $position , ${currentPlayingAudioModel.playingOrPause} deleted ******* audioModel: $currentPlayingAudioModel "
+                         )*/
 
                         audioList.clear()
                         audioList.addAll(storageUtil?.loadQueueAudio()!!)
                         currentPlayingAudioIndex =
-                            audioList.indexOf(audioModel) // getting current playing audio index from a arranged list
+                            audioList.indexOf(currentPlayingAudioModel) // getting current playing audio index from a arranged list
                         Log.d(
                             "saveAudioListQueue",
-                            "saveAudioList: Name:$currentPlayingAudioIndex  ${audioList[1].songName} , 2.${audioModel.songName} ,  PlayingOrPause ${audioList[1].playingOrPause} 2. ${audioModel.playingOrPause}"
+                            "saveAudioList: Name: ${audioList.size} $currentPlayingAudioIndex  $/*audioList[1].songName*/} , 2.${currentPlayingAudioModel.songName} ,  PlayingOrPause $/*audioList[1].playingOrPause*/} 2. ${currentPlayingAudioModel.playingOrPause}"
                         )
 
+                        //if (position != audioList.size - 1) {
                         if (position == currentPlayingAudioIndex) {
+
                             mViewModelClass.updateSong(
                                 audioList[position].songId,
                                 audioList[position].songName,
@@ -229,28 +231,50 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                 (context as AppCompatActivity).lifecycleScope
                             )
 
-                            mViewModelClass.updateQueueAudio(
-                                audioList[position].songId,
-                                audioList[position].songName,
-                                1,
-                                (context as AppCompatActivity).lifecycleScope
-                            )
+                            Toast.makeText(
+                                mContext,
+                                "updated: audio ${audioList[position].songName}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            if (currentPlayingAudioIndex == audioList.size - 1) {
+                                // if current playing audio is last in a queue then after deleting audio update
+                                // the queue audio - (position -1)
+                                if (position != 0) {
+                                    // if swiped position is not zero then only update queue audio
+                                    mViewModelClass.updateQueueAudio(
+                                        audioList[position - 1].songId,
+                                        audioList[position - 1].songName,
+                                        1,
+                                        (context as AppCompatActivity).lifecycleScope
+                                    )
+                                }
+                            } else {
+                                mViewModelClass.updateQueueAudio(
+                                    audioList[position].songId,
+                                    audioList[position].songName,
+                                    1,
+                                    (context as AppCompatActivity).lifecycleScope
+                                )
+                            }
+
                         } else {
                             if (AllSongFragment.musicService?.mediaPlayer != null) {
                                 if (AllSongFragment.musicService?.mediaPlayer?.isPlaying!!) {
                                     isSwipedToDel = true
                                     mViewModelClass.updateQueueAudio(
-                                        audioModel.songId,
-                                        audioModel.songName,
+                                        currentPlayingAudioModel.songId,
+                                        currentPlayingAudioModel.songName,
                                         1,
                                         (context as AppCompatActivity).lifecycleScope
                                     )
                                 }
                             }
                         }
+                        //}
 
                         val deleteModel = audioList[position]
                         audioList.removeAt(position)
+                        mViewModelClass.deleteOneQueueAudio(deleteModel.songId, lifecycleScope)
 
                         // getting current playing audio index after removing any audio
                         if (currentPlayingAudioIndex != 0) {
@@ -258,15 +282,15 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                 "CurrentPlayingModel",
                                 "onItemSwiped: pos: $position -model $deleteModel "
                             )
-                            if (deleteModel.songId != audioModel.songId) {
-                                currentPlayingAudioIndex = audioList.indexOf(audioModel)
+                            if (deleteModel.songId != currentPlayingAudioModel.songId) {
+                                currentPlayingAudioIndex =
+                                    audioList.indexOf(currentPlayingAudioModel)
                                 storageUtil?.storeAudioIndex(currentPlayingAudioIndex)
                                 Toast.makeText(
                                     mContext,
                                     "del: $isSwipedToDel $currentPlayingAudioIndex",
                                     Toast.LENGTH_SHORT
-                                )
-                                    .show()
+                                ).show()
                             }
                         }
 
@@ -275,15 +299,31 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
 
                         // if deleted audio is a current playing audio
                         if (position == currentPlayingAudioIndex) {
-                            if (deleteModel.songName == audioModel.songName) {
+                            if (deleteModel.songName == currentPlayingAudioModel.songName) {
                                 if (AllSongFragment.musicService?.mediaPlayer != null) {
                                     //audioIndex = audioList.indexOf(audioModel)
-                                    storageUtil?.storeAudioIndex(position)
+                                    if (currentPlayingAudioIndex == audioList.size /* there is no need to subtract size by 1 here, since one audio is already deleted */) {
+                                        // last audio deleted which was playing
+                                        // so play a prev audio, for that save a new index
+                                        val newPos = position - 1
+                                        storageUtil?.storeAudioIndex(newPos)
+                                        Log.d("NewPosAfterDEl", "onItemSwiped: new $newPos")
+                                        Toast.makeText(
+                                            mContext,
+                                            "size ${audioList.size}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        if (audioList.size != 0)
+                                            currentPlayingAudioModel = audioList[position - 1]
+                                    } else {
+                                        storageUtil?.storeAudioIndex(position)
+                                        if (audioList.size != 0)
+                                            currentPlayingAudioModel = audioList[position]
+                                    }
                                     AllSongFragment.musicService?.pausedByManually = true
                                     val broadcastIntent =
                                         Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
                                     (mContext as AppCompatActivity).sendBroadcast(broadcastIntent)
-                                    audioModel = audioList[position]
 
                                     //audioModel = item
                                 }
@@ -291,12 +331,12 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                         } else {
                             // getting current playing audio index after removing any audio
                             currentPlayingAudioIndex =
-                                audioList.indexOf(audioModel)
+                                audioList.indexOf(currentPlayingAudioModel)
                             // saving current audio pos if somehow its changed while deleting
                             storageUtil?.storeAudioIndex(currentPlayingAudioIndex)
                             Log.d(
                                 "deletedAudio",
-                                "onItemSwiped:$currentPlayingAudioIndex , model: $audioModel "
+                                "onItemSwiped:$currentPlayingAudioIndex , model: $currentPlayingAudioModel "
                             )
                             Toast.makeText(
                                 mContext,
@@ -364,9 +404,9 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
             if (it != null) {
                 val loadAudio = storageUtil?.loadQueueAudio()
                 val list = CopyOnWriteArrayList<AllSongsModel>()
-                Log.d("updateCurrentPlayingAudioList", "updateCurrentPlayingAudio: $loadAudio")
+                Log.d("updateCurrentPlayingAudioList", "updateCurrentPlayingAudio: $it")
                 for (nowPlayingAudios in loadAudio!!) {
-                    for (audio in it) {
+                    for (audio in it.sortedBy { queueListModel -> queueListModel.songName }) {
                         if (nowPlayingAudios.songId == audio.songId) {
                             // sorted list
                             val queueListModel = AllSongsModel(
@@ -382,7 +422,11 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                 audio.artUri,
                                 audio.dateAdded,
                                 audio.isFavourite,
-                                audio.favAudioAddedTime
+                                audio.favAudioAddedTime,
+                                audio.artistId,
+                                "",
+                                "",
+                                0
                             )
                             queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
                             queueListModel.playingOrPause = audio.isPlayingOrPause
@@ -399,7 +443,8 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
 
 
                 if (!isSwipedToDel) {
-                    updateCurrentPlayingAudio()
+                    if (audioList.isNotEmpty())
+                        updateCurrentPlayingAudio()
                 } else {
                     isSwipedToDel = false
                 }
@@ -414,28 +459,25 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                 } else {
                     binding?.currentPlayingAudioLottie?.pauseAnimation()
                 }
-
-
             }
         })
 
     }
 
     private fun updateCurrentPlayingAudio() {
-
         if (currentPlayingAudioIndex == -1) currentPlayingAudioIndex =
             0 else currentPlayingAudioIndex
-        audioModel = audioList[currentPlayingAudioIndex]
+        currentPlayingAudioModel = audioList[currentPlayingAudioIndex]
         Log.d(
             "updateCurrentPlayingAudioIndex",
-            "updateCurrentPlayingAudio: $currentPlayingAudioIndex , ${audioModel.songName}  , PlayOrPause ${audioModel.playingOrPause}"
+            "updateCurrentPlayingAudio: $currentPlayingAudioIndex , ${currentPlayingAudioModel.songName}  , PlayOrPause ${currentPlayingAudioModel.playingOrPause}"
         )
-        binding?.songNameTV!!.text = audioModel.songName
-        binding?.artistNameTV!!.text = audioModel.artistsName
-        binding?.albumNameTv!!.text = audioModel.albumName
+        binding?.songNameTV!!.text = currentPlayingAudioModel.songName
+        binding?.artistNameTV!!.text = currentPlayingAudioModel.artistsName
+        binding?.albumNameTv!!.text = currentPlayingAudioModel.albumName
 
-        Glide.with(mContext).load(audioModel.artUri)
-            .apply(RequestOptions.placeholderOf(R.drawable.audio_icon_placeholder))
+        Glide.with(mContext).load(currentPlayingAudioModel.artUri)
+            .apply(RequestOptions.placeholderOf(R.drawable.music_note_icon))
             .into(binding?.albumArtIv!!)
     }
 
@@ -461,7 +503,11 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
         audioList.clear()
         audioList.addAll(loadAudioList)
 
-        Toast.makeText(activity as Context, "onClick: $currentPlayingAudioIndex", Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            activity as Context,
+            "onClick: $currentPlayingAudioIndex",
+            Toast.LENGTH_SHORT
+        ).show()
         val prevPlayingAudioIndex = audioList[currentPlayingAudioIndex]
 
         mViewModelClass.updateQueueAudio(
@@ -513,11 +559,15 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                 audio.size,
                 audio.duration,
                 audio.data,
-                audio.audioUri,
+                audio.contentUri,
                 audio.artUri,
                 audio.dateAdded,
                 audio.isFavourite,
-                audio.favAudioAddedTime
+                audio.favAudioAddedTime,
+                audio.artistId,
+                audio.displayName,
+                audio.contentType,
+                audio.year
             )
             allSongsModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
 

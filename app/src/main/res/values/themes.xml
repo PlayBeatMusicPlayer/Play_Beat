@@ -56,6 +56,11 @@
         <item name="strokeWidth">@dimen/mtrl_btn_stroke_size</item>
     </style>
 
+    <style name="CustomAlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/curved_all_edges</item>
+    </style>
 
-
+    <style name="SplashTheme" parent="AppTheme">
+        <item name="android:windowBackground">@drawable/app_theme_background_drawable</item>
+    </style>
 </resources>

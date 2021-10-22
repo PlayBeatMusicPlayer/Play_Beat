@@ -14,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -32,11 +33,12 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 
 class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClickSongItem */ {
+    private var mPermRequest: ActivityResultLauncher<String>? = null
+    private var mreqPermForManageAllFiles: ActivityResultLauncher<Intent>? = null
     private lateinit var allSongsAdapter: AllSongsAdapter
     lateinit var progressBar: CustomProgressDialog
     private var _binding: FragmentAllSongBinding? = null
     private val binding get() = _binding
-
     private var audioIndexPos = -1
     private var isDestroyedActivity = false
     private var audioList = CopyOnWriteArrayList<AllSongsModel>()
@@ -46,11 +48,10 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
     private var isAnimated = false
     private var shuffledList = CopyOnWriteArrayList<AllSongsModel>()
     private var count = 0
-    private var selectedAudioIdList = ArrayList<Long>()
+    private var selectedSongsIdList = ArrayList<Long>()
+    private var selectedAudioList = ArrayList<AllSongsModel>()
     private var selectedPositionList = ArrayList<Int>()
     private lateinit var viewModel: DataObservableClass
-
-    //private var textToShowSelectedCount = ArrayList<String>()
     private lateinit var textCountTV: TextView
 
     companion object {
@@ -81,7 +82,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         startService()
 
         //set up recycler view
-        refreshLayout()
+        setUpAllSongRecyclerAdapter()
 
         observeAudioData()
 
@@ -89,46 +90,13 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
 
         shuffleAudio()
 
-        addMultipleAudiosToPlaylist()
-
-        binding?.deleteIV?.setOnClickListener {
-            Toast.makeText(
-                activity as Context,
-                "Sorry for inconvenience, feature is under development",
-                Toast.LENGTH_LONG
-            ).show()
-        }
+        moreOptionMenu()
 
         binding?.closeContextMenu?.setOnClickListener {
             disableContextMenu()
         }
 
-        binding?.selectAllAudios?.setOnCheckedChangeListener { compoundButton, isChecked ->
-            if (isChecked) {
-                allSongsAdapter.selectAllAudios()
-                for ((position, audio) in audioList.withIndex()) {
-                    if (!selectedAudioIdList.contains(audio.songId)) {
-                        selectedAudioIdList.add(audio.songId)
-                    }
-                    if (!selectedPositionList.contains(position)) {
-                        selectedPositionList.add(position)
-                    }
-                    textSwitcherIncrementTextAnim()
-                }
-                Log.d("selectAllAudiosSize", "onCreateView:${selectedAudioIdList.size} ")
-            } else {
-                allSongsAdapter.unSelectAllAudios()
-                for ((position, audio) in audioList.withIndex()) {
-                    selectedAudioIdList.remove(audio.songId)
-                    selectedPositionList.remove(position)
-                }
-                binding?.toolbar?.visibility = View.VISIBLE
-                binding?.rlContextMenu?.visibility = View.INVISIBLE
-                AllSongsAdapter.isContextMenuEnabled = false
-                binding?.selectedAudiosTS!!.setText("0")
-                viewModel.isContextMenuEnabled.value = AllSongsAdapter.isContextMenuEnabled
-            }
-        }
+        selectAllAudio()
 
         setTextSwitcherFactory()
 
@@ -142,6 +110,77 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
 
     }
 
+    private fun selectAllAudio() {
+        binding?.selectAllAudios?.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                allSongsAdapter.selectAllAudios()
+                for ((position, audio) in audioList.withIndex()) {
+                    if (!selectedSongsIdList.contains(audio.songId)) {
+                        selectedSongsIdList.add(audio.songId)
+                        selectedAudioList.add(audio)
+                    }
+                    if (!selectedPositionList.contains(position)) {
+                        selectedPositionList.add(position)
+                    }
+                    textSwitcherIncrementTextAnim()
+                }
+                Log.d("selectAllAudiosSize", "onCreateView:${selectedSongsIdList.size} ")
+            } else {
+                allSongsAdapter.unSelectAllAudios()
+                for ((position, audio) in audioList.withIndex()) {
+                    selectedSongsIdList.remove(audio.songId)
+                    selectedPositionList.remove(position)
+                    selectedAudioList.remove(audio)
+                }
+                binding?.toolbar?.visibility = View.VISIBLE
+                binding?.rlContextMenu?.visibility = View.INVISIBLE
+                AllSongsAdapter.isContextMenuEnabled = false
+                binding?.selectedAudiosTS!!.setText("0")
+                viewModel.isContextMenuEnabled.value = AllSongsAdapter.isContextMenuEnabled
+            }
+        }
+    }
+
+    private fun moreOptionMenu() {
+        binding?.moreOptionIV?.setOnClickListener {
+            val bottomSheetMultiSelectMoreOptions = BottomSheetMultiSelectMoreOptions(false)
+            bottomSheetMultiSelectMoreOptions.show(
+                (activity as AppCompatActivity).supportFragmentManager,
+                "bottomSheetMultiSelectMoreOptions"
+            )
+
+            bottomSheetMultiSelectMoreOptions.listener =
+                object : BottomSheetMultiSelectMoreOptions.MultiSelectAudioMenuOption {
+                    override fun playNext() {
+                        addToPlayNextAudiosToQueue()
+                        bottomSheetMultiSelectMoreOptions.dismiss()
+                        disableContextMenu()
+                    }
+
+                    override fun addToPlaylist() {
+                        addMultipleAudiosToPlaylist()
+                        bottomSheetMultiSelectMoreOptions.dismiss()
+                    }
+
+                    override fun addToPlayingQueue() {
+                        addAudiosToPlayingQueue()
+                        bottomSheetMultiSelectMoreOptions.dismiss()
+                        disableContextMenu()
+                    }
+
+                    override fun deleteFromDevice() {
+                        Toast.makeText(
+                            activity as Context,
+                            "Sorry for inconvenience, feature is under development",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        bottomSheetMultiSelectMoreOptions.dismiss()
+                        disableContextMenu()
+                    }
+                }
+        }
+    }
+
     private fun disableContextMenu() {
         binding?.toolbar?.visibility = View.VISIBLE
         binding?.rlContextMenu?.visibility = View.INVISIBLE
@@ -149,9 +188,212 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         binding?.selectAllAudios?.isChecked = false
         allSongsAdapter.updateChanges(selectedPositionList)
         selectedPositionList.clear()
-        selectedAudioIdList.clear()
+        selectedSongsIdList.clear()
+        selectedAudioList.clear()
         binding?.selectedAudiosTS!!.setText("0")
         viewModel.isContextMenuEnabled.value = false
+    }
+
+    private fun addAudiosToPlayingQueue() {
+        if (selectedAudioList.isNotEmpty()) {
+            var playingQueueAudioList = CopyOnWriteArrayList<AllSongsModel>()
+            try {
+                playingQueueAudioList = storage.loadQueueAudio()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            mViewModelClass.deleteQueue(lifecycleScope)
+            //val newAudiosForQueue = CopyOnWriteArrayList<AllSongsModel>()
+            for (audio in selectedAudioList) {
+                if (audio.playingOrPause != 1) {
+                    // selected audio is not playing then only add to play next
+                    if (playingQueueAudioList.contains(audio)) {
+                        playingQueueAudioList.remove(audio)
+                        /* mViewModelClass.deleteOneQueueAudio(
+                             audio.songId,
+                             lifecycleScope
+                         )*/
+                    }
+
+                    // adding to last index
+                    playingQueueAudioList.add(audio)
+                    // this list is for adding audio into database
+                    //newAudiosForQueue.add(audio)
+                }
+            }
+
+            if (playingQueueAudioList.isNotEmpty()) {
+                for (audio in playingQueueAudioList) {
+                    val queueListModel = QueueListModel(
+                        audio.songId,
+                        audio.albumId,
+                        audio.songName,
+                        audio.artistsName,
+                        audio.albumName,
+                        audio.size,
+                        audio.duration,
+                        audio.data,
+                        audio.contentUri,
+                        audio.artUri,
+                        audio.playingOrPause,
+                        audio.dateAdded,
+                        audio.isFavourite,
+                        audio.favAudioAddedTime,
+                        audio.mostPlayedCount,
+                        audio.artistId
+                    )
+                    queueListModel.currentPlayedAudioTime =
+                        audio.currentPlayedAudioTime
+                    mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+                }
+                val playingAudio =
+                    playingQueueAudioList.find { allSongsModel -> allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0 }
+                val playingAudioIndex =
+                    playingQueueAudioList.indexOf(playingAudio)
+                if (playingAudioIndex != -1) {
+                    Log.d(
+                        "playingQueueAudioListaaaa",
+                        "playNext:$playingAudioIndex "
+                    )
+                    storage.storeAudioIndex(playingAudioIndex)
+                } else {
+                    // -1 index
+                    Log.d(
+                        "playingQueueAudioListaaaa",
+                        "playNext:$playingAudioIndex "
+                    )
+                }
+                storage.storeQueueAudio(playingQueueAudioList)
+            }
+
+            Toast.makeText(
+                activity as Context,
+                "Added ${selectedAudioList.size} songs to playing queue",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun addToPlayNextAudiosToQueue() {
+        if (selectedAudioList.isNotEmpty()) {
+            var playingQueueAudioList = CopyOnWriteArrayList<AllSongsModel>()
+            var audioIndex: Int
+            try {
+                playingQueueAudioList = storage.loadQueueAudio()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            audioIndex = storage.loadAudioIndex()
+
+            // if queue list is empty then index will be -1 and so audio will be added from 0th pos
+            if (playingQueueAudioList.isEmpty()) {
+                audioIndex = -1
+            }
+
+            mViewModelClass.deleteQueue(lifecycleScope)
+            // val newAudiosForQueue = CopyOnWriteArrayList<AllSongsModel>()
+            for (audio in selectedAudioList) {
+                if (audio.playingOrPause != 1 && audio.playingOrPause != 0) {
+                    // selected audio is not playing then only add to play next
+                    audioIndex++
+                    if (playingQueueAudioList.contains(audio)) {
+                        if (playingQueueAudioList.indexOf(audio) < audioIndex) {
+                            audioIndex--
+                        }
+                        playingQueueAudioList.remove(audio)
+                        /*mViewModelClass.deleteOneQueueAudio(
+                            audio.songId,
+                            lifecycleScope
+                        )*/
+                    }
+                    // adding next to playing index
+                    playingQueueAudioList.add(audioIndex, audio)
+                    // this list is for adding audio into database
+                    //newAudiosForQueue.add(audio)
+                    Log.d(
+                        "PlalistAudioTesting",
+                        "playNext: Index: $audioIndex , $audio , playingOrPause: ${audio.playingOrPause} "
+                    )
+                }
+            }
+
+            if (playingQueueAudioList.isNotEmpty()) {
+                //insert into database
+                for (audio in playingQueueAudioList) {
+                    val queueListModel = QueueListModel(
+                        audio.songId,
+                        audio.albumId,
+                        audio.songName,
+                        audio.artistsName,
+                        audio.albumName,
+                        audio.size,
+                        audio.duration,
+                        audio.data,
+                        audio.contentUri,
+                        audio.artUri,
+                        audio.playingOrPause,
+                        audio.dateAdded,
+                        audio.isFavourite,
+                        audio.favAudioAddedTime,
+                        audio.mostPlayedCount,
+                        audio.artistId
+                    )
+                    queueListModel.currentPlayedAudioTime =
+                        audio.currentPlayedAudioTime
+                    mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+                }
+                val playingAudio =
+                    playingQueueAudioList.find { allSongsModel -> allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0 }
+                val playingAudioIndex =
+                    playingQueueAudioList.indexOf(playingAudio)
+                if (playingAudioIndex != -1) {
+                    Log.d(
+                        "playingQueueAudioListaaaa",
+                        "playNext:$playingAudioIndex "
+                    )
+                    storage.storeAudioIndex(playingAudioIndex)
+                } else {
+                    // -1 index
+                    Log.d(
+                        "playingQueueAudioListaaaa",
+                        "playNext:$playingAudioIndex "
+                    )
+                }
+                storage.storeQueueAudio(playingQueueAudioList)
+            }
+            Toast.makeText(
+                activity as Context,
+                "Added ${selectedAudioList.size} songs to playing queue",
+                Toast.LENGTH_SHORT
+            )
+                .show()
+        }
+    }
+
+    private fun addMultipleAudiosToPlaylist() {
+        val bottomSheetChooseToPlaylist =
+            BottomSheetChoosePlaylist(null, false, selectedSongsIdList)
+        bottomSheetChooseToPlaylist.show(
+            (activity as AppCompatActivity).supportFragmentManager,
+            "bottomSheetChooseToPlaylist"
+        )
+        bottomSheetChooseToPlaylist.listener =
+            object : BottomSheetChoosePlaylist.PlaylistSelected {
+                override fun onSelected() {
+                    /*binding?.toolbar?.visibility = View.VISIBLE
+                    binding?.rlContextMenu?.visibility = View.INVISIBLE
+                    AllSongsAdapter.isContextMenuEnabled = false
+                    binding?.selectAllAudios?.isChecked = false
+                    allSongsAdapter.updateChanges(selectedPositionList)
+                    selectedPositionList.clear()
+                    selectedSongsIdList.clear()
+                    selectedAudioList.clear()
+                    binding?.selectedAudiosTS!!.setText("0")
+                    viewModel.isContextMenuEnabled.value = AllSongsAdapter.isContextMenuEnabled*/
+                    disableContextMenu()
+                }
+            }
     }
 
     private fun setTextSwitcherFactory() {
@@ -164,31 +406,6 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         }
     }
 
-    private fun addMultipleAudiosToPlaylist() {
-        binding?.addToPlaylistIV?.setOnClickListener {
-            val bottomSheetChooseToPlaylist =
-                BottomSheetChoosePlaylist(null, false, selectedAudioIdList)
-            bottomSheetChooseToPlaylist.show(
-                (activity as AppCompatActivity).supportFragmentManager,
-                "bottomSheetChooseToPlaylist"
-            )
-            bottomSheetChooseToPlaylist.listener =
-                object : BottomSheetChoosePlaylist.PlaylistSelected {
-                    override fun onSelected() {
-                        binding?.toolbar?.visibility = View.VISIBLE
-                        binding?.rlContextMenu?.visibility = View.INVISIBLE
-                        AllSongsAdapter.isContextMenuEnabled = false
-                        binding?.selectAllAudios?.isChecked = false
-                        allSongsAdapter.updateChanges(selectedPositionList)
-                        selectedPositionList.clear()
-                        selectedAudioIdList.clear()
-                        binding?.selectedAudiosTS!!.setText("0")
-                        viewModel.isContextMenuEnabled.value = AllSongsAdapter.isContextMenuEnabled
-                    }
-                }
-        }
-    }
-
     private fun observeAudioData() {
         mViewModelClass.getAllSong().observe(viewLifecycleOwner, {
             if (it != null) {
@@ -196,88 +413,98 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                 tempAudioList.clear()
                 tempAudioList.addAll(it)
                 count++
-                val sortedList: List<AllSongsModel>
-                when (storage.getAudioSortedValue(StorageUtil.AUDIO_KEY)) {
-                    "Name" -> {
-                        sortedList = it.sortedBy { allSongsModel -> allSongsModel.songName }
-                        audioList.addAll(sortedList)
-                        if (AllSongsAdapter.isContextMenuEnabled) {
-                            allSongsAdapter.submitList(getCheckedAudioList(sortedList).toMutableList())
-                        } else {
-                            allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.songName })
+                if (it.isEmpty()) {
+                    binding?.rlAllSongContainer!!.visibility = View.GONE
+                    binding?.rlNoSongsPresent!!.visibility = View.VISIBLE
+                } else {
+                    binding?.rlAllSongContainer!!.visibility = View.VISIBLE
+                    binding?.rlNoSongsPresent!!.visibility = View.GONE
+                    val sortedList: List<AllSongsModel>
+                    when (storage.getAudioSortedValue(StorageUtil.AUDIO_KEY)) {
+                        "Name" -> {
+                            sortedList = it.sortedBy { allSongsModel -> allSongsModel.songName }
+                            audioList.addAll(sortedList)
+                            if (AllSongsAdapter.isContextMenuEnabled) {
+                                allSongsAdapter.submitList(getCheckedAudioList(sortedList).toMutableList())
+                            } else {
+                                allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.songName })
+                            }
+                            binding?.sortAudioTV?.text = "Name"
+                            Log.d("sortedListObserved", "observeAudioData:$sortedList ")
                         }
-                        binding?.sortAudioTV?.text = "Name"
-                        Log.d("sortedListObserved", "observeAudioData:$sortedList ")
-                    }
-                    "Duration" -> {
-                        sortedList = it.sortedBy { allSongsModel -> allSongsModel.duration }
-                        audioList.addAll(sortedList)
-                        if (AllSongsAdapter.isContextMenuEnabled) {
-                            allSongsAdapter.submitList(getCheckedAudioList(sortedList).toMutableList())
-                        } else {
-                            allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.duration })
+                        "Duration" -> {
+                            sortedList = it.sortedBy { allSongsModel -> allSongsModel.duration }
+                            audioList.addAll(sortedList)
+                            if (AllSongsAdapter.isContextMenuEnabled) {
+                                allSongsAdapter.submitList(getCheckedAudioList(sortedList).toMutableList())
+                            } else {
+                                allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.duration })
+                            }
+                            binding?.sortAudioTV?.text = "Duration"
                         }
-                        binding?.sortAudioTV?.text = "Duration"
-                    }
-                    "DateAdded" -> {
-                        sortedList =
-                            it.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
-                        audioList.addAll(sortedList)
-                        if (AllSongsAdapter.isContextMenuEnabled) {
-                            allSongsAdapter.submitList(getCheckedAudioList(sortedList).toMutableList())
-                        } else {
-                            allSongsAdapter.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.dateAdded })
+                        "DateAdded" -> {
+                            sortedList =
+                                it.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
+                            audioList.addAll(sortedList)
+                            if (AllSongsAdapter.isContextMenuEnabled) {
+                                allSongsAdapter.submitList(getCheckedAudioList(sortedList).toMutableList())
+                            } else {
+                                allSongsAdapter.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.dateAdded })
+                            }
+                            binding?.sortAudioTV?.text = "Date Added"
                         }
-                        binding?.sortAudioTV?.text = "Date Added"
-                    }
-                    "ArtistName" -> {
-                        sortedList =
-                            it.sortedBy { allSongsModel -> allSongsModel.artistsName }
-                        audioList.addAll(sortedList)
-                        if (AllSongsAdapter.isContextMenuEnabled) {
-                            allSongsAdapter.submitList(getCheckedAudioList(sortedList).toMutableList())
-                        } else {
-                            allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.artistsName })
+                        "ArtistName" -> {
+                            sortedList =
+                                it.sortedBy { allSongsModel -> allSongsModel.artistsName }
+                            audioList.addAll(sortedList)
+                            if (AllSongsAdapter.isContextMenuEnabled) {
+                                allSongsAdapter.submitList(getCheckedAudioList(sortedList).toMutableList())
+                            } else {
+                                allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.artistsName })
+                            }
+                            binding?.sortAudioTV?.text = "Artist Name"
                         }
-                        binding?.sortAudioTV?.text = "Artist Name"
-                    }
-                    else -> {
-                        storage.saveAudioSortingMethod(StorageUtil.AUDIO_KEY, "Name")
-                        sortedList = it.sortedBy { allSongsModel -> allSongsModel.songName }
-                        audioList.addAll(sortedList)
-                        if (AllSongsAdapter.isContextMenuEnabled) {
-                            allSongsAdapter.submitList(getCheckedAudioList(sortedList).toMutableList())
-                        } else {
-                            allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.songName })
+                        else -> {
+                            storage.saveAudioSortingMethod(StorageUtil.AUDIO_KEY, "Name")
+                            sortedList = it.sortedBy { allSongsModel -> allSongsModel.songName }
+                            audioList.addAll(sortedList)
+                            if (AllSongsAdapter.isContextMenuEnabled) {
+                                allSongsAdapter.submitList(getCheckedAudioList(sortedList).toMutableList())
+                            } else {
+                                allSongsAdapter.submitList(it.sortedBy { allSongsModel -> allSongsModel.songName })
+                            }
+                            binding?.sortAudioTV?.text = "Name"
                         }
-                        binding?.sortAudioTV?.text = "Name"
                     }
-                }
 
-                if (!isAnimated) {
-                    /*for ((index, _) in audioList.withIndex()) {
-                        textToShowSelectedCount.add("${index + 1} Selected")
-                    }*/
-                    //animate once when app opens
-                    if (it.isNotEmpty()) {
-                        animateRecyclerView()
-                        isAnimated = true
+                    if (!isAnimated) {
+                        /*for ((index, _) in audioList.withIndex()) {
+                            textToShowSelectedCount.add("${index + 1} Selected")
+                        }*/
+                        //animate once when app opens
+                        if (it.isNotEmpty()) {
+                            animateRecyclerView()
+                            isAnimated = true
+                        }
+                    } else {
+                        //animate once when app opens first time
+                        if (storage.getIsAudioPlayedFirstTime()) {
+                            animateRecyclerView()
+                            isAnimated = true
+                        }
                     }
-                } else {
-                    //animate once when app opens first time
-                    if (storage.getIsAudioPlayedFirstTime()) {
-                        animateRecyclerView()
-                        isAnimated = true
+                    if (it.size >= 2) {
+                        binding?.totalAudioTV?.text = "${audioList.size} Songs"
+                    } else {
+                        binding?.totalAudioTV?.text = "${audioList.size} Song"
                     }
-                }
-                if (it.size >= 2) {
-                    binding?.totalAudioTV?.text = "${audioList.size} Songs"
-                } else {
-                    binding?.totalAudioTV?.text = "${audioList.size} Song"
+
                 }
 
             } else {
                 binding?.totalAudioTV?.text = "0 Song"
+                binding?.rlAllSongContainer!!.visibility = View.GONE
+                binding?.rlNoSongsPresent!!.visibility = View.VISIBLE
             }
         })
     }
@@ -336,7 +563,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                     val sortedByDateAdded =
                         tempAudioList.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
 
-                    refreshLayout()
+                    setUpAllSongRecyclerAdapter()
                     allSongsAdapter.submitList(sortedByDateAdded)
                     audioList.clear()
                     audioList.addAll(sortedByDateAdded)
@@ -353,7 +580,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                     val sortedBySongName =
                         tempAudioList.sortedBy { allSongsModel -> allSongsModel.songName }
 
-                    refreshLayout()
+                    setUpAllSongRecyclerAdapter()
                     allSongsAdapter.submitList(sortedBySongName)
                     audioList.clear()
                     audioList.addAll(sortedBySongName)
@@ -366,7 +593,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                     storage.saveAudioSortingMethod(StorageUtil.AUDIO_KEY, "Duration")
                     val sortedByDuration =
                         tempAudioList.sortedBy { allSongsModel -> allSongsModel.duration }
-                    refreshLayout()
+                    setUpAllSongRecyclerAdapter()
                     allSongsAdapter.submitList(sortedByDuration)
                     audioList.clear()
                     audioList.addAll(sortedByDuration)
@@ -379,7 +606,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                     storage.saveAudioSortingMethod(StorageUtil.AUDIO_KEY, "ArtistName")
                     val sortedByArtistName =
                         tempAudioList.sortedBy { allSongsModel -> allSongsModel.artistsName }
-                    refreshLayout()
+                    setUpAllSongRecyclerAdapter()
                     allSongsAdapter.submitList(sortedByArtistName)
                     audioList.clear()
                     audioList.addAll(sortedByArtistName)
@@ -391,7 +618,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         }
     }
 
-    private fun refreshLayout() {
+    private fun setUpAllSongRecyclerAdapter() {
         allSongsAdapter =
             AllSongsAdapter(
                 activity as Context,
@@ -401,30 +628,34 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                     if (allSongModel.isChecked) {
                         binding?.toolbar?.visibility = View.INVISIBLE
                         binding?.rlContextMenu?.visibility = View.VISIBLE
-                        selectedAudioIdList.add(allSongModel.songId)
+                        selectedSongsIdList.add(allSongModel.songId)
                         selectedPositionList.add(position)
+                        selectedAudioList.add(allSongModel)
 
                         textSwitcherIncrementTextAnim()
 
                     } else {
-                        selectedAudioIdList.remove(allSongModel.songId)
-                        //textToShowSelectedCount.remove("${selectedPositionList.size} Selected")
+                        selectedSongsIdList.remove(allSongModel.songId)
                         selectedPositionList.remove(position)
+                        selectedAudioList.remove(allSongModel)
 
                         textSwitcherDecrementTextAnim()
 
-                        if (selectedAudioIdList.isEmpty()) {
+                        if (selectedSongsIdList.isEmpty()) {
                             binding?.toolbar?.visibility = View.VISIBLE
                             binding?.rlContextMenu?.visibility = View.INVISIBLE
                             AllSongsAdapter.isContextMenuEnabled = false
                         }
                     }
                     viewModel.isContextMenuEnabled.value = AllSongsAdapter.isContextMenuEnabled
-                })
+                }, false
+            )
         allSongsAdapter.isSearching = false
         AllSongsAdapter.isContextMenuEnabled = false
+        //binding!!.rvAllSongs.setHasFixedSize(true)
+        //allSongsAdapter.setHasStableIds(true)
         binding!!.rvAllSongs.adapter = allSongsAdapter
-        //binding!!.rvAllSongs.itemAnimator = null
+        // binding!!.rvAllSongs.itemAnimator = null
         binding!!.rvAllSongs.scrollToPosition(0)
         binding?.rvAllSongs?.alpha = 0.0f
     }
@@ -438,7 +669,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
             activity as Context,
             R.anim.slide_down
         )
-        if (selectedAudioIdList.isNotEmpty()) {
+        if (selectedSongsIdList.isNotEmpty()) {
             binding?.selectedAudiosTS!!.setText("${selectedPositionList.size}")
         }
     }
@@ -469,13 +700,27 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                 audioIndexPos = storage.loadAudioIndex()
 
                 //highlight the paused audio when app opens and service is closed
-                val audio = storage.loadQueueAudio()
-                mViewModelClass.updateSong(
-                    audio[audioIndexPos].songId,
-                    audio[audioIndexPos].songName,
-                    0, /*pause*/
-                    (context as AppCompatActivity).lifecycleScope
-                )
+                var queueAudioList = CopyOnWriteArrayList<AllSongsModel>()
+                try {
+                    queueAudioList = storage.loadQueueAudio()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+                if (queueAudioList.isNotEmpty()) {
+                    val audio = storage.loadQueueAudio()
+                    mViewModelClass.updateSong(
+                        audio[audioIndexPos].songId,
+                        audio[audioIndexPos].songName,
+                        0, /*pause*/
+                        (context as AppCompatActivity).lifecycleScope
+                    )
+                } /*else {
+                    // if queue is empty then add audios to it
+                    val audioList = storage.loadAudio()
+                    storage.storeQueueAudio(audioList)
+                    storage.storeAudioIndex(0)
+                }*/
             }
 
             Log.d(
@@ -504,6 +749,8 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
 
     private fun playAudio(audioIndex: Int) {
         this.audioIndexPos = audioIndex
+        //val loadQueueAudio = storage.loadQueueAudio()
+        //loadQueueAudio[audioIndex].playingOrPause = 1
         //store audio to prefs
         storage.storeQueueAudio(audioList)
         //Store the new audioIndex to SharedPreferences
@@ -513,8 +760,8 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         val broadcastIntent = Intent(Broadcast_PLAY_NEW_AUDIO)
         (activity as AppCompatActivity).sendBroadcast(broadcastIntent)
 
-        /*val updatePlayer = Intent(Broadcast_BOTTOM_UPDATE_PLAYER_UI)
-        (activity as Context).sendBroadcast(updatePlayer)*/
+        /* val updatePlayer = Intent(Broadcast_BOTTOM_UPDATE_PLAYER_UI)
+        (activity as Context).sendBroadcast(updatePlayer) */
     }
 
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -542,39 +789,43 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
     private fun onClickAudio(allSongModel: AllSongsModel, position: Int, isShuffled: Boolean) {
         storage.saveIsShuffled(isShuffled)
 
+        var restrictToUpdateAudio = false
         val prevPlayingAudioIndex = storage.loadAudioIndex()
         val audioList = storage.loadQueueAudio()
-        val prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
+        var prevPlayingAudioModel: AllSongsModel? = null
 
-        var restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
+        if (audioList.isNotEmpty()) {
+            prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
+
+            restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
+
+            if (storage.getIsAudioPlayedFirstTime()) {
+                restrictToUpdateAudio = false
+            }
+
+            // restricting to update if clicked audio is same
+            if (!restrictToUpdateAudio) {
+                mViewModelClass.deleteQueue(lifecycleScope)
+
+                mViewModelClass.updateSong(
+                    prevPlayingAudioModel.songId,
+                    prevPlayingAudioModel.songName,
+                    -1,
+                    (context as AppCompatActivity).lifecycleScope
+                )
+
+                mViewModelClass.updateSong(
+                    allSongModel.songId,
+                    allSongModel.songName,
+                    1,
+                    (context as AppCompatActivity).lifecycleScope
+                )
+            }
+        }
 
         /*Toast.makeText(context, "$position , ${this.audioList.indexOf(allSongModel)}", Toast.LENGTH_SHORT)
             .show()*/
 
-        if (storage.getIsAudioPlayedFirstTime()) {
-            restrictToUpdateAudio = false
-        }
-
-        // restricting to update if clicked audio is same
-        if (!restrictToUpdateAudio) {
-            mViewModelClass.deleteQueue(lifecycleScope)
-
-
-            mViewModelClass.updateSong(
-                prevPlayingAudioModel.songId,
-                prevPlayingAudioModel.songName,
-                -1,
-                (context as AppCompatActivity).lifecycleScope
-            )
-
-            mViewModelClass.updateSong(
-                allSongModel.songId,
-                allSongModel.songName,
-                1,
-                (context as AppCompatActivity).lifecycleScope
-            )
-
-        }
 
         playAudio(this.audioList.indexOf(allSongModel))
 
@@ -591,23 +842,26 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                     audio.size,
                     audio.duration,
                     audio.data,
-                    audio.audioUri,
+                    audio.contentUri,
                     audio.artUri,
                     -1,
                     audio.dateAdded,
                     audio.isFavourite,
                     audio.favAudioAddedTime,
-                    audio.mostPlayedCount
+                    audio.mostPlayedCount,
+                    audio.artistId
                 )
                 mViewModelClass.insertQueue(queueListModel, lifecycleScope)
             }
 
-            mViewModelClass.updateQueueAudio(
-                prevPlayingAudioModel.songId,
-                prevPlayingAudioModel.songName,
-                -1,
-                (context as AppCompatActivity).lifecycleScope
-            )
+            if (audioList.isNotEmpty()) {
+                mViewModelClass.updateQueueAudio(
+                    prevPlayingAudioModel!!.songId,
+                    prevPlayingAudioModel.songName,
+                    -1,
+                    (context as AppCompatActivity).lifecycleScope
+                )
+            }
 
             mViewModelClass.updateQueueAudio(
                 allSongModel.songId,
@@ -642,11 +896,15 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                 audio.size,
                 audio.duration,
                 audio.data,
-                audio.audioUri,
+                audio.contentUri,
                 audio.artUri,
                 audio.dateAdded,
                 audio.isFavourite,
-                audio.favAudioAddedTime
+                audio.favAudioAddedTime,
+                audio.artistId,
+                audio.displayName,
+                audio.contentType,
+                audio.year
             )
 
             allSongsModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
@@ -666,11 +924,6 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                 list.add(allSongsModel)
             }
 
-            Log.d(
-                "MostPlayedAudio1111",
-                "onReceive:  ${allSongsModel.songName} , ${allSongsModel.mostPlayedCount} "
-            )
-
         }
         storage.storeQueueAudio(list)
     }
@@ -678,7 +931,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
     private fun getCheckedAudioList(sortedList: List<AllSongsModel>): ArrayList<AllSongsModel> {
         val audioList = ArrayList<AllSongsModel>()
         for (audio in sortedList) {
-            for (audioId in selectedAudioIdList) {
+            for (audioId in selectedSongsIdList) {
                 if (audio.songId == audioId) {
                     audio.isChecked = true
                 }

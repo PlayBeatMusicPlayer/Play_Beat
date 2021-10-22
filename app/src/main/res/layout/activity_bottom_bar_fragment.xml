@@ -1,22 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/app_theme_color"
     android:orientation="vertical">
 
-    <FrameLayout
-        android:id="@+id/fragmentContainer"
-        android:name="androidx.navigation.fragment.NavHostFragment"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="65dp" />
+        android:background="@color/app_theme_color"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/fragmentContainer"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="65dp" />
 
 
-    <include
-        android:id="@+id/bottomSheet"
-        layout="@layout/bottom_sheet_now_playing" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <include
+            android:id="@+id/bottomSheet"
+            layout="@layout/bottom_sheet_now_playing" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <me.ibrahimsn.lib.SmoothBottomBar
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="62dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="-5dp"
+        android:contextClickable="false"
+        android:elevation="0dp"
+        app:backgroundColor="@color/app_theme_color"
+        app:layout_anchorGravity="bottom"
+        app:layout_dodgeInsetEdges="top"
+        app:menu="@menu/bottom_bar_menu" />
+
+</RelativeLayout>
+
+
