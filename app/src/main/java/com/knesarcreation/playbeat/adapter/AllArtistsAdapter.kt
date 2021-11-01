@@ -63,7 +63,7 @@ class AllArtistsAdapter(
 
     class DiffUtilArtistCallback : DiffUtil.ItemCallback<ArtistsModel>() {
         override fun areItemsTheSame(oldItem: ArtistsModel, newItem: ArtistsModel) =
-            oldItem.id == newItem.id
+            oldItem.artistId == newItem.artistId
 
         override fun areContentsTheSame(oldItem: ArtistsModel, newItem: ArtistsModel) =
             oldItem == newItem

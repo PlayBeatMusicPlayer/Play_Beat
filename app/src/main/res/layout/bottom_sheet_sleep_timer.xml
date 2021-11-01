@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/curved_top_right_top_left_app_theme_color">
@@ -18,7 +19,7 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="20dp"
             android:fontFamily="@font/segoe_ui"
-            android:text="Sleep Timer (min)"
+            android:text="@string/sleep_time_title"
             android:textColor="@color/white"
             android:textSize="17sp"
             android:textStyle="bold" />
@@ -61,7 +62,7 @@
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:text="5"
+                android:text="@string/five_min"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 android:theme="@style/ThemeButtonColorToggle" />
@@ -72,7 +73,7 @@
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:text="10"
+                android:text="@string/ten_min"
                 android:textColor="@color/white"
                 android:textSize="12sp"
 
@@ -84,7 +85,7 @@
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:text="15"
+                android:text="@string/fifteen_min"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 android:theme="@style/ThemeButtonColorToggle" />
@@ -106,7 +107,7 @@
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:text="30"
+                android:text="@string/thirty_min"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 android:theme="@style/ThemeButtonColorToggle" />
@@ -117,7 +118,7 @@
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:text="40"
+                android:text="@string/fourty_min"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 android:theme="@style/ThemeButtonColorToggle" />
@@ -128,7 +129,7 @@
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:text="60"
+                android:text="@string/sixty_min"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 android:theme="@style/ThemeButtonColorToggle" />
@@ -155,10 +156,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:text="Ends In"
+                android:text="@string/ends_in"
                 android:textColor="@color/white"
                 android:textSize="13sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:ignore="RelativeOverlap" />
 
             <TextView
                 android:id="@+id/countingTimeTV"
@@ -166,7 +168,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp"
-                android:text="00 : 00"
+                android:text="@string/sleep_time"
                 android:textColor="@color/teal_200"
                 android:textSize="32sp"
                 android:textStyle="normal" />
@@ -202,7 +204,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:text="End Of The Song"
+            android:text="@string/end_of_the_song"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:cornerRadius="20dp"
@@ -219,14 +221,28 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/cancelOrStopTimerBtn"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
-            android:layout_height="55dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="10dp"
             android:layout_marginBottom="20dp"
             android:layout_weight="1"
-            android:backgroundTint="@color/light_grey"
-            android:text="Cancel" />
+            android:text="@string/cancel"
+            android:textColor="@color/white"
+            app:rippleColor="@color/grey"
+            app:strokeColor="@color/grey"
+            app:strokeWidth="0.8dp" />
+        <!-- <com.google.android.material.button.MaterialButton
+             android:id="@+id/cancelOrStopTimerBtn"
+             android:layout_width="wrap_content"
+             android:layout_height="55dp"
+             android:layout_marginStart="20dp"
+             android:layout_marginEnd="20dp"
+             android:layout_marginBottom="20dp"
+             android:layout_weight="1"
+             android:backgroundTint="@color/light_grey"
+             android:text="@string/cancel" />-->
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/startTimerBtn"
@@ -236,7 +252,7 @@
             android:layout_marginBottom="20dp"
             android:layout_weight="2.5"
             android:backgroundTint="@color/teal_200"
-            android:text="Start" />
+            android:text="@string/start" />
     </LinearLayout>
 
 </RelativeLayout>

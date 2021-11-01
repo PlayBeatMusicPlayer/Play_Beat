@@ -27,6 +27,7 @@ import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.model.AudioArtBitmapModel
 import com.knesarcreation.playbeat.utils.MakeStatusBarTransparent
 import com.knesarcreation.playbeat.utils.StorageUtil
+import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
 
@@ -123,7 +124,7 @@ class SplashScreenActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.R)
     private fun showPermissionAlert() {
         val permAlert = AlertDialog.Builder(this)
-        permAlert.setMessage("Permission to access external storage is denied.")
+        permAlert.setMessage("Play beat required external storage permission to manage audio files. Please grant permission to proceed further.")
         permAlert.setPositiveButton("Grant") { dialog, _ ->
             val intent = Intent(
                 ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
@@ -244,13 +245,14 @@ class SplashScreenActivity : AppCompatActivity() {
                      }
                  }*/
 
-                val allSongsModel =
+                val allSongsModel = if (displayName != null) {
+
                     AllSongsModel(
                         id,
                         albumId,
-                        name,
-                        artist,
-                        album,
+                        name.trim(),
+                        artist.trim(),
+                        album.trim(),
                         size,
                         duration,
                         data,
@@ -264,6 +266,27 @@ class SplashScreenActivity : AppCompatActivity() {
                         "",
                         year
                     )
+                } else {
+                    AllSongsModel(
+                        id,
+                        albumId,
+                        name.trim(),
+                        artist.trim(),
+                        album.trim(),
+                        size,
+                        duration,
+                        data,
+                        contentUri.toString(),
+                        artUri,
+                        dateAdded,
+                        false,
+                        0L,
+                        artistId,
+                        "",
+                        "",
+                        year
+                    )
+                }
 
                 /*storage.loadAudioIndex()
                 val playingAudio = storage.loadAudio()[]*/
@@ -287,6 +310,11 @@ class SplashScreenActivity : AppCompatActivity() {
                 if (audioCount < query!!.count) {
                     mViewModelClass.deleteAllAlbum(lifecycleScope)
                     storage.saveAudioCount(query.count)
+
+                    /* val oldQueueAudio = storage.loadQueueAudio()
+                     val currentPlayingAudioIndex = storage.loadAudioIndex()
+                     val currentPlayingAudio = oldQueueAudio[currentPlayingAudioIndex]*/
+
                     // if any new audio added then update DB with new audio
                     val storedAudioList = storage.loadAudio()
                     var isNewAudioFound = false
@@ -300,22 +328,46 @@ class SplashScreenActivity : AppCompatActivity() {
                             }
                         }
                         if (isNewAudioFound) {
+                            /* if (currentPlayingAudio.songName == newAudio.songName) {
+                                *//* val newIndex = currentPlayingAudioIndex + 1
+                                val allSongsModel = oldQueueAudio[newIndex]
+                                if(File(Uri.parse(allSongsModel.data).path!!).exists()){
+                                    // save this new index
+                                }*//*
+                                if (AllSongFragment.musicService != null) {
+                                    if (AllSongFragment.musicService?.mediaPlayer?.isPlaying!!)
+                                        newAudio.playingOrPause = 1
+                                    else
+                                        newAudio.playingOrPause = 0
+                                } else {
+                                    newAudio.playingOrPause = 0
+                                }
+
+                                newAudio.songId = currentPlayingAudio.songId
+
+                            }*/
                             mViewModelClass.insertAllSongs(newAudio, lifecycleScope)
                         }
                     }
+
                     loadAlbum()
                     loadArtists()
                     //loadAudioArtThumbnail()
                     storage.storeAudio(queriedAudioList)
                 } else if (audioCount > query.count) {
-                    mViewModelClass.deleteAllAlbum(lifecycleScope)
-                    storage.saveAudioCount(query.count)
+
                     // if any audio deleted then update DB
                     val storedAudioList = storage.loadAudio()
                     val loadQueueAudio = storage.loadQueueAudio()
                     val audioIndex = storage.loadAudioIndex()
                     val currentPlayingAudio = loadQueueAudio[audioIndex]
                     var isAudioFound = false
+
+                    val data = currentPlayingAudio.data
+                    val file = File(Uri.parse(data).path!!)
+                    if (file.exists()) {
+                        mViewModelClass.deleteAllAlbum(lifecycleScope)
+                    }
 
                     for (audio in storedAudioList) {
                         for (queriedAudio in queriedAudioList) {
@@ -327,20 +379,29 @@ class SplashScreenActivity : AppCompatActivity() {
                             }
                         }
                         if (!isAudioFound) {
-                            loadQueueAudio.remove(audio)
-                            mViewModelClass.deleteOneSong(audio.songId, lifecycleScope)
+                            if (file.exists()) {
+                                // if current playing audio file deleted then this code will not execute
+                                // this code will only execute if current playing audio file is not deleted
+                                loadQueueAudio.remove(audio)
+                                mViewModelClass.deleteOneSong(audio.songId, lifecycleScope)
+                            }
                         }
                     }
 
-                    loadAlbum()
-                    loadArtists()
                     // loadAudioArtThumbnail()
                     //get a new index when any audio is deleted
-                    val newCurrentPlayingAudioIndex = loadQueueAudio.indexOf(currentPlayingAudio)
-                    storage.storeAudioIndex(newCurrentPlayingAudioIndex)
-                    storage.storeQueueAudio(loadQueueAudio)
-                    storage.storeAudio(queriedAudioList)
+                    if (file.exists()) {
+                        val newCurrentPlayingAudioIndex =
+                            loadQueueAudio.indexOf(currentPlayingAudio)
+                        storage.storeAudioIndex(newCurrentPlayingAudioIndex)
+                        //save query count only when current playing audio not deleted
+                        storage.storeQueueAudio(loadQueueAudio)
+                        storage.storeAudio(queriedAudioList)
+                        storage.saveAudioCount(query.count)
 
+                        loadAlbum()
+                        loadArtists()
+                    }
                 }
             }
 
@@ -435,8 +496,8 @@ class SplashScreenActivity : AppCompatActivity() {
                 val audioAlbumModel =
                     AlbumModel(
                         id,
-                        album,
-                        artist,
+                        album.trim(),
+                        artist.trim(),
                         artUri,
                         lastYear,
                         noOfSongs
@@ -509,7 +570,7 @@ class SplashScreenActivity : AppCompatActivity() {
                 val artistModel =
                     ArtistsModel(
                         id,
-                        artists,
+                        artists.trim(),
                         //noOfAlbum,
                         //noOfTracks,
                     )

@@ -26,6 +26,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.activity.TagEditorActivity
@@ -55,6 +56,20 @@ class BottomSheetAudioMoreOptions(
     private var audioIndexPos = 0
     private lateinit var mViewModelClass: ViewModelClass
     private var isTempFavAudio = false
+    var listener: SingleSelectionMenuOption? = null
+
+    interface SingleSelectionMenuOption {
+        fun playNext()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        try {
+            listener = context as SingleSelectionMenuOption
+        } catch (e: ClassCastException) {
+            e.printStackTrace()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -81,10 +96,9 @@ class BottomSheetAudioMoreOptions(
         }
 
         binding?.llEqualizer?.setOnClickListener {
-            Toast.makeText(
-                mContext,
-                "Sorry for inconvenience, feature is under development",
-                Toast.LENGTH_LONG
+            Snackbar.make(
+                dialog!!.window!!.decorView,
+                "Sorry for inconvenience, feature is under development", Snackbar.LENGTH_LONG
             ).show()
         }
 
@@ -105,7 +119,9 @@ class BottomSheetAudioMoreOptions(
 
         likeOrUnLikeAudio()
 
-        playNext()
+        binding!!.llPlayNext.setOnClickListener {
+            listener?.playNext()
+        }
 
         addToPlayingQueue()
 
@@ -115,7 +131,20 @@ class BottomSheetAudioMoreOptions(
 
         deleteAudioFromDevice()
 
+        shareAudio()
+
         return view
+    }
+
+    private fun shareAudio() {
+        binding?.llShare?.setOnClickListener {
+            val shareIntent = Intent()
+            shareIntent.action = Intent.ACTION_SEND
+            shareIntent.type = "audio/*"
+            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(allSongsModel.contentUri))
+            startActivity(Intent.createChooser(shareIntent, "Share a audio file"))
+            dismiss()
+        }
     }
 
     private fun deleteAudioFromDevice() {
@@ -138,7 +167,7 @@ class BottomSheetAudioMoreOptions(
                             customView.findViewById<TextView>(R.id.dialogMessageTV)
                         val cancelButton =
                             customView.findViewById<MaterialButton>(R.id.cancelButton)
-                        val deleteBtn = customView.findViewById<MaterialButton>(R.id.deleteBtn)
+                        val deleteBtn = customView.findViewById<MaterialButton>(R.id.positiveBtn)
                         alertDialog.setView(customView)
                         val dialog = alertDialog.create()
 
@@ -216,9 +245,12 @@ class BottomSheetAudioMoreOptions(
                                     "deleteAudioFromDevice: audioIndexChanged: newIndex- $newIndex "
                                 )
                             }
-
+                           /* Snackbar.make(
+                                it,
+                                "${allSongsModel.songName} deleted", Snackbar.LENGTH_LONG
+                            ).show()*/
+                            Toast.makeText(mContext, "Song deleted", Toast.LENGTH_SHORT).show()
                             dialog.dismiss()
-
                         }
                         cancelButton.setOnClickListener {
                             dialog.dismiss()
@@ -227,16 +259,15 @@ class BottomSheetAudioMoreOptions(
 
                         dismiss()//dismiss bottom sheet
 
+
                     } else {
-                        Toast.makeText(mContext, "File doesn't exist.", Toast.LENGTH_SHORT)
-                            .show()
+                        Snackbar.make(
+                            (activity as AppCompatActivity).window.decorView,
+                            "File doesn't exists", Snackbar.LENGTH_LONG
+                        ).show()
+
                     }
-                    Toast.makeText(
-                        mContext,
-                        "${allSongsModel.songName} deleted",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
+
                 } catch (e: FileNotFoundException) {
                     e.printStackTrace()
                     Log.d("FileNotFoundException", "deleteAudioFromDevice:${e.message} ")
@@ -317,70 +348,6 @@ class BottomSheetAudioMoreOptions(
         }
     }
 
-    private fun playNext() {
-        binding!!.llPlayNext.setOnClickListener {
-
-            if (allSongsModel.playingOrPause != 1) {
-                // selected audio is not playing then only add to play next
-
-                var playingQueueAudioList = CopyOnWriteArrayList<AllSongsModel>()
-                var audioIndex: Int
-                try {
-                    playingQueueAudioList = storage.loadQueueAudio()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-                audioIndex = storage.loadAudioIndex()
-                // if queue list is empty then index will be -1 and so audio will be added from 0th pos
-                if (playingQueueAudioList.isEmpty()) {
-                    audioIndex = -1
-                }
-
-                if (playingQueueAudioList.contains(allSongsModel)) {
-                    //remove duplicates
-                    playingQueueAudioList.remove(allSongsModel)
-                    mViewModelClass.deleteOneQueueAudio(allSongsModel.songId, lifecycleScope)
-                }
-
-                Handler(Looper.getMainLooper()).postDelayed({
-                    playingQueueAudioList.add(audioIndex + 1, allSongsModel)
-                    val queueListModel = QueueListModel(
-                        allSongsModel.songId,
-                        allSongsModel.albumId,
-                        allSongsModel.songName,
-                        allSongsModel.artistsName,
-                        allSongsModel.albumName,
-                        allSongsModel.size,
-                        allSongsModel.duration,
-                        allSongsModel.data,
-                        allSongsModel.contentUri,
-                        allSongsModel.artUri,
-                        allSongsModel.playingOrPause,
-                        allSongsModel.dateAdded,
-                        allSongsModel.isFavourite,
-                        allSongsModel.favAudioAddedTime,
-                        allSongsModel.mostPlayedCount,
-                        allSongsModel.artistId
-                    )
-
-                    queueListModel.currentPlayedAudioTime = allSongsModel.currentPlayedAudioTime
-                    mViewModelClass.insertQueue(queueListModel, lifecycleScope)
-                    storage.storeQueueAudio(playingQueueAudioList)
-                }, 1000)
-
-            }
-
-            Toast.makeText(
-                activity as Context,
-                "Added 1 song to playing queue",
-                Toast.LENGTH_SHORT
-            )
-                .show()
-
-            dismiss()
-        }
-    }
-
     private fun addToPlayingQueue() {
         binding?.llAddToQueue?.setOnClickListener {
             var playingQueueAudioList = CopyOnWriteArrayList<AllSongsModel>()
@@ -432,12 +399,10 @@ class BottomSheetAudioMoreOptions(
                 }
             }, 1000)
 
-            Toast.makeText(
-                activity as Context,
-                "Added 1 song to playing queue",
-                Toast.LENGTH_SHORT
-            )
-                .show()
+            Snackbar.make(
+                (activity as AppCompatActivity).window.decorView,
+                "Added 1 song to playing queue", Snackbar.LENGTH_LONG
+            ).show()
 
             dismiss()
         }

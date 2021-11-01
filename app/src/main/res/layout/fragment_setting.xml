@@ -1,16 +1,186 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_theme_color"
     tools:context=".fragment.SettingFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="Setting"
-        android:textSize="20sp" />
 
-</FrameLayout>
+    <RelativeLayout
+        android:id="@+id/appDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/little_curved_all_edges"
+        android:elevation="10dp">
+        <!--2C353A-->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="150dp">
+
+            <ImageView
+                android:id="@+id/logoIV"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="40dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_play_beat_logo_v2" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/logoIV"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/segoe_ui"
+                    android:text="@string/app_name"
+                    android:textColor="@color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/version_1_0_0"
+                    android:textColor="@color/grey" />
+
+            </LinearLayout>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/appDetails"
+        android:layout_marginTop="80dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/little_curved_all_edges"
+
+            android:elevation="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginTop="40dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/developed_and_designed_by"
+                    android:textColor="@color/grey" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="@font/segoe_ui"
+                    android:text="@string/developer_name"
+                    android:textColor="@color/white"
+                    android:textSize="17sp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal">
+
+                    <!--<ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="15dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_linkedin" />-->
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/openLinkedInBtn"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        app:backgroundTint="#2C353A"
+                        app:cornerRadius="20dp"
+                        app:icon="@drawable/ic_linkedin"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:rippleColor="#2503DAC5"
+                        app:strokeColor="@color/light_transparent"
+                        app:strokeWidth="0.2dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/openGitHubBtn"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        app:backgroundTint="#2C353A"
+                        app:cornerRadius="20dp"
+                        app:icon="@drawable/ic_github"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:rippleColor="#2503DAC5"
+                        app:strokeColor="@color/light_transparent"
+                        app:strokeWidth="0.2dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/openMailBtn"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        app:backgroundTint="#2C353A"
+                        app:cornerRadius="20dp"
+                        app:icon="@drawable/ic_mail_white"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:rippleColor="#2503DAC5"
+                        app:strokeColor="@color/light_transparent"
+                        app:strokeWidth="0.2dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_below="@id/appDetails"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="50dp"
+        android:contentDescription="@null"
+        android:src="@drawable/dev_avatar" />
+
+</RelativeLayout>

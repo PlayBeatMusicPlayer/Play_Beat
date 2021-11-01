@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -123,7 +122,7 @@ class BottomSheetPlaylistMoreOptions(var playlistModel: PlaylistModel) :
             val dialogTitleTV = customView.findViewById<TextView>(R.id.dialogTitleTV)
             val dialogMessageTV = customView.findViewById<TextView>(R.id.dialogMessageTV)
             val cancelButton = customView.findViewById<MaterialButton>(R.id.cancelButton)
-            val deleteBtn = customView.findViewById<MaterialButton>(R.id.deleteBtn)
+            val deleteBtn = customView.findViewById<MaterialButton>(R.id.positiveBtn)
             alertDialog.setView(customView)
             val dialog = alertDialog.create()
             deleteBtn.setOnClickListener {

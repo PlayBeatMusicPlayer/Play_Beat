@@ -1,7 +1,10 @@
 package com.knesarcreation.playbeat.database
 
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface QueueListDao {
@@ -15,8 +18,10 @@ interface QueueListDao {
     suspend fun deleteOneQueueAudio(songId: Long)
 
     @Query("UPDATE queueList set isPlayingOrPause = :isPlayingOrPause where songId = :songId and songName =:songName")
-    suspend fun updateQueue(songId: Long, songName: String, isPlayingOrPause: Int)
+    suspend fun updateQueueAudio(songId: Long, songName: String, isPlayingOrPause: Int)
 
+    @Update
+    suspend fun updateQueue(queueListModel: QueueListModel)
     /* suspend fun updateAllQueueList(
          songId: Long,
          albumId: Long,

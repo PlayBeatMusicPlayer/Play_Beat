@@ -1,12 +1,15 @@
 package com.knesarcreation.playbeat.database
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "allSongsModel")
+@Entity(tableName = "allSongsModel", indices = [Index(value = ["songName"], unique = true)])
 data class AllSongsModel(
     var songId: Long,
     var albumId: Long,
+    @ColumnInfo(name = "songName")
     var songName: String,
     var artistsName: String,
     var albumName: String,
@@ -19,7 +22,7 @@ data class AllSongsModel(
     var isFavourite: Boolean,
     var favAudioAddedTime: Long,
     var artistId: Long,
-    var displayName: String,
+    var displayName: String?,
     var contentType: String,
     var year: Int,
 

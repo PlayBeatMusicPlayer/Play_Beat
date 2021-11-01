@@ -12,6 +12,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -23,11 +24,11 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.database.AllSongsModel
+import com.knesarcreation.playbeat.database.QueueListModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.fragment.BottomSheetAudioMoreOptions
 import com.knesarcreation.playbeat.model.AudioArtBitmapModel
 import com.knesarcreation.playbeat.utils.StorageUtil
-import kotlinx.coroutines.Job
 import java.util.concurrent.CopyOnWriteArrayList
 
 
@@ -40,6 +41,7 @@ class AllSongsAdapter(
 ) : ListAdapter<AllSongsModel, AllSongsAdapter.AllSongsViewHolder>(AllSongItemCallback()) {
     // RecyclerView.Adapter<AllSongsAdapter.AllSongsViewHolder>() {
 
+    private var storage = StorageUtil(context)
     var isSearching = false
     var queryText = ""
     private val mViewModelClass =
@@ -62,9 +64,8 @@ class AllSongsAdapter(
             view.findViewById(R.id.currentPlayingAudioLottie)
         private val rlCurrentPlayingLottie: RelativeLayout =
             view.findViewById(R.id.rlCurrentPlayingLottie)
-        private var loadingArtJob: Job? = null
-        private var storageUtil = StorageUtil(context)
-        private val loadAudioArtBitmapImage = storageUtil.loadAudioArtBitmapImage()
+        //private var loadingArtJob: Job? = null
+        //private val loadAudioArtBitmapImage = storageUtil.loadAudioArtBitmapImage()
 
         fun bind(
             allSongModel: AllSongsModel,
@@ -215,21 +216,21 @@ class AllSongsAdapter(
 
 
     override fun onBindViewHolder(holder: AllSongsViewHolder, position: Int) {
-        val allSongModel = getItem(position)
+        val allSongsModel = getItem(position)
 
         holder.rlAudio.setOnClickListener {
             if (isContextMenuEnabled) {
                 if (!isSearching) {
-                    allSongModel.isChecked = !allSongModel.isChecked
-                    onLongClickListener.onLongClick(allSongModel, holder.bindingAdapterPosition)
-                    notifyItemHasChanged(holder.bindingAdapterPosition, allSongModel)
+                    allSongsModel.isChecked = !allSongsModel.isChecked
+                    onLongClickListener.onLongClick(allSongsModel, holder.bindingAdapterPosition)
+                    notifyItemHasChanged(holder.bindingAdapterPosition, allSongsModel)
                 }
             } else {
-                onClickListener.onClick(allSongModel, holder.bindingAdapterPosition)
+                onClickListener.onClick(allSongsModel, holder.bindingAdapterPosition)
             }
         }
 
-        if (allSongModel.isChecked) {
+        if (allSongsModel.isChecked) {
             holder.selectedAudioFL.visibility = View.VISIBLE
         } else {
             holder.selectedAudioFL.visibility = View.GONE
@@ -238,15 +239,15 @@ class AllSongsAdapter(
         holder.rlAudio.setOnLongClickListener {
             if (!isSearching) {
                 isContextMenuEnabled = true
-                allSongModel.isChecked = !allSongModel.isChecked
-                onLongClickListener.onLongClick(allSongModel, holder.bindingAdapterPosition)
-                notifyItemHasChanged(holder.bindingAdapterPosition, allSongModel)
+                allSongsModel.isChecked = !allSongsModel.isChecked
+                onLongClickListener.onLongClick(allSongsModel, holder.bindingAdapterPosition)
+                notifyItemHasChanged(holder.bindingAdapterPosition, allSongsModel)
             }
             return@setOnLongClickListener true
         }
 
         holder.bind(
-            allSongModel,
+            allSongsModel,
             isSearching,
             queryText
         )
@@ -255,15 +256,95 @@ class AllSongsAdapter(
             if (!isContextMenuEnabled) {
                 val bottomSheetMoreOptions = BottomSheetAudioMoreOptions(
                     context,
-                    allSongModel,
+                    allSongsModel,
                     false
                 )
                 bottomSheetMoreOptions.show(
                     (context as AppCompatActivity).supportFragmentManager,
                     "bottomSheetMoreOptions"
                 )
+
+                bottomSheetMoreOptions.listener =
+                    object : BottomSheetAudioMoreOptions.SingleSelectionMenuOption {
+                        override fun playNext() {
+                            addPlayNextAudioToQueue(allSongsModel)
+                            bottomSheetMoreOptions.dismiss()
+                        }
+                    }
             }
         }
+    }
+
+    private fun addPlayNextAudioToQueue(allSongsModel: AllSongsModel) {
+        if (allSongsModel.playingOrPause != 1) {
+            // selected audio is not playing then only add to play next
+
+            var playingQueueAudioList = CopyOnWriteArrayList<AllSongsModel>()
+            var currentPlayingAudioIndex: Int
+            try {
+                playingQueueAudioList = storage.loadQueueAudio()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            currentPlayingAudioIndex = storage.loadAudioIndex()
+            // if queue list is empty then index will be -1 and so audio should be added from 0th pos
+            if (playingQueueAudioList.isEmpty()) {
+                currentPlayingAudioIndex = -1 // later audio index will be incremented by 1
+            }
+
+            if (playingQueueAudioList.contains(allSongsModel)) {
+                val selectedAudioIndex = playingQueueAudioList.indexOf(allSongsModel)
+
+                //remove duplicates
+                playingQueueAudioList.remove(allSongsModel)
+                mViewModelClass.deleteOneQueueAudio(
+                    allSongsModel.songId,
+                    (context as AppCompatActivity).lifecycleScope
+                )
+
+                if (selectedAudioIndex < currentPlayingAudioIndex) {
+                    currentPlayingAudioIndex--
+                    storage.storeAudioIndex(currentPlayingAudioIndex)
+                }
+            }
+
+            playingQueueAudioList.add(currentPlayingAudioIndex + 1, allSongsModel)
+            val queueListModel = QueueListModel(
+                allSongsModel.songId,
+                allSongsModel.albumId,
+                allSongsModel.songName,
+                allSongsModel.artistsName,
+                allSongsModel.albumName,
+                allSongsModel.size,
+                allSongsModel.duration,
+                allSongsModel.data,
+                allSongsModel.contentUri,
+                allSongsModel.artUri,
+                allSongsModel.playingOrPause,
+                allSongsModel.dateAdded,
+                allSongsModel.isFavourite,
+                allSongsModel.favAudioAddedTime,
+                allSongsModel.mostPlayedCount,
+                allSongsModel.artistId
+            )
+
+            queueListModel.currentPlayedAudioTime = allSongsModel.currentPlayedAudioTime
+            mViewModelClass.insertQueue(
+                queueListModel,
+                (context as AppCompatActivity).lifecycleScope
+            )
+            storage.storeQueueAudio(playingQueueAudioList)
+
+
+        }
+
+        Toast.makeText(
+            context,
+            "Added 1 song to playing queue",
+            Toast.LENGTH_SHORT
+        )
+            .show()
+
     }
 
     //override fun getItemCount() = allSongList.size

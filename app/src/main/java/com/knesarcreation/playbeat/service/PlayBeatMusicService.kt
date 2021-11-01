@@ -11,6 +11,7 @@ import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.*
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.RatingCompat
@@ -35,6 +36,7 @@ import com.knesarcreation.playbeat.utils.ApplicationChannel.Companion.CHANNEL_ID
 import com.knesarcreation.playbeat.utils.PlaybackStatus
 import com.knesarcreation.playbeat.utils.StorageUtil
 import com.knesarcreation.playbeat.utils.UriToBitmapConverter
+import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
 
 
@@ -128,6 +130,11 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
 
         // initialize audio when app reOpens and user click on playPause btn
         initAudioOnPressResumeBtn = true
+        /*Toast.makeText(
+            applicationContext,
+            "PlayBeatService: OnCreate: Service is created",
+            Toast.LENGTH_SHORT
+        ).show()*/
 
     }
 
@@ -143,7 +150,7 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
         //Reset so that the MediaPlayer is not pointing to another data source
         mediaPlayer?.reset()
 
-        mediaPlayer = MediaPlayer.create(applicationContext, activeAudio?.contentUri!!.toUri())
+        mediaPlayer = MediaPlayer.create(applicationContext, activeAudio?.data!!.toUri())
 
         mediaPlayer?.setOnCompletionListener {
             if (!it?.isPlaying!!) {
@@ -244,25 +251,25 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
             // Toast.makeText(applicationContext, "onStartCommand:$audioIndex  $audioList", Toast.LENGTH_LONG)
             // .show()
 
-            if (audioIndex != -1 && audioIndex < audioList!!.size) {
+            if (audioIndex != -1 && audioIndex < audioList.size) {
                 //index is in a valid range
-                activeAudio = audioList!![audioIndex]
+                activeAudio = audioList[audioIndex]
             } else {
                 stopSelf()
-                Toast.makeText(
-                    applicationContext,
-                    "onStartCommand: Self stop: Service stopped 1",
-                    Toast.LENGTH_LONG
-                ).show()
+                //  Toast.makeText(
+                //      applicationContext,
+                //      "onStartCommand: Self stop: Service stopped 1",
+                //      Toast.LENGTH_LONG
+                //  ).show()
             }
 
         } catch (e: Exception) {
             stopSelf()
-            Toast.makeText(
-                applicationContext,
-                "onStartCommand: Self stop: Service stopped 2",
-                Toast.LENGTH_LONG
-            ).show()
+            // Toast.makeText(
+            //     applicationContext,
+            //     "onStartCommand: Self stop: Service stopped 2",
+            //     Toast.LENGTH_LONG
+            // ).show()
         }
 
         //Request audio focus
@@ -281,11 +288,11 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
             } catch (e: RemoteException) {
                 e.printStackTrace()
                 stopSelf()
-                Toast.makeText(
-                    applicationContext,
-                    "onStartCommand: Self stop: Service stopped 3",
-                    Toast.LENGTH_LONG
-                ).show()
+                //Toast.makeText(
+                //    applicationContext,
+                //    "onStartCommand: Self stop: Service stopped 3",
+                //   Toast.LENGTH_LONG
+                // ).show()
             }
             //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
             //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
@@ -297,17 +304,13 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
     }
 
     private fun playMedia() {
-        if (mediaPlayer == null) {
-            //Toast.makeText(applicationContext, "media player is null", Toast.LENGTH_SHORT).show()
-            return
-        }
+        if (mediaPlayer == null) return
+
         if (!mediaPlayer?.isPlaying!!) {
             mediaPlayer?.start()
             /** Update UI of [AllSongFragment] */
             val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
             sendBroadcast(updatePlayer)
-        } else {
-            // Toast.makeText(applicationContext, "media player is null", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -333,99 +336,148 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
     fun resumeMedia() {
         if (mediaPlayer == null) return
         if (!mediaPlayer?.isPlaying!!) {
-            if (requestAudioFocus()) {
-                if (initAudioOnPressResumeBtn) {
-                    initAudioOnPressResumeBtn = false
-                    initMediaPlayer()
-                }
-                /* Toast.makeText(
-                     applicationContext,
-                     "initAudio: $initAudioOnPressResumeBtn",
-                     Toast.LENGTH_SHORT
-                 ).show()*/
-                mediaPlayer?.seekTo(resumePosition)
-                mediaPlayer?.start()
 
-                //requestAudioFocus()
-
-                /** Update UI of [AllSongFragment] */
-                val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
-                sendBroadcast(updatePlayer)
-
-                // Toast.makeText(
-                //     applicationContext,
-                //     "resumed audio, ${activeAudio!!.songName}",
-                //   Toast.LENGTH_LONG
-                // ).show()
-            } else {
-                Toast.makeText(
-                    applicationContext,
-                    "Failed to get audio focus, Please restart app and clear recent",
-                    Toast.LENGTH_LONG
-                ).show()
+            requestAudioFocus()
+            if (initAudioOnPressResumeBtn) {
+                initAudioOnPressResumeBtn = false
+                initMediaPlayer()
             }
+            /* Toast.makeText(
+                 applicationContext,
+                 "initAudio: $initAudioOnPressResumeBtn",
+                 Toast.LENGTH_SHORT
+             ).show()*/
+            mediaPlayer?.seekTo(resumePosition)
+            mediaPlayer?.start()
+
+            //requestAudioFocus()
+
+            /** Update UI of [AllSongFragment] */
+            val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
+            sendBroadcast(updatePlayer)
+
+            // Toast.makeText(
+            //     applicationContext,
+            //     "resumed audio, ${activeAudio!!.songName}",
+            //   Toast.LENGTH_LONG
+            // ).show()
+            /*else {
+               Toast.makeText(
+                   applicationContext,
+                   "Failed to get audio focus, Please restart app and clear recent",
+                   Toast.LENGTH_LONG
+               ).show()
+           }*/
 
         }
     }
 
     private fun skipToNext() {
         val storageUtil = StorageUtil(applicationContext)
-        audioList!!.clear()
+        audioList.clear()
         audioList = storageUtil.loadQueueAudio()
         audioIndex = storageUtil.loadAudioIndex()
-        val tempIndex: Int = audioIndex
-        if (audioIndex == audioList!!.size - 1) {
-            //if last in playlist
-            audioIndex = 0
-            activeAudio = audioList!![audioIndex]
-        } else {
-            //get next in playlist
-            activeAudio = audioList!![++audioIndex]
-        }
-
-        //Toast.makeText(applicationContext, "$audioIndex", Toast.LENGTH_SHORT).show()
-        //Update stored index
-        storageUtil.storeAudioIndex(audioIndex)
-        stopMedia()
-        //reset mediaPlayer
-        mediaPlayer!!.reset()
-        initMediaPlayer()
-
-        /** Update UI of [AllSongFragment] */
-        val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
-        val bundle = Bundle()
-        bundle.putInt("index", tempIndex)
-        updatePlayer.putExtras(bundle)
-        sendBroadcast(updatePlayer)
+        checkAudioExistenceWhenSkipNext(audioIndex)
     }
 
     private fun skipToPrevious() {
         val storageUtil = StorageUtil(applicationContext)
         audioIndex = storageUtil.loadAudioIndex()
-        val tempIndex: Int = audioIndex
-        if (audioIndex == 0) {
-            //if first in playlist
-            //set index to the last of audioList
-            audioIndex = audioList!!.size - 1
-            activeAudio = audioList!![audioIndex]
+        checkAudioExistenceWhenSkipPrev(audioIndex)
+    }
+
+    private fun checkAudioExistenceWhenSkipNext(prevAudioIndex: Int) {
+        //Toast.makeText(applicationContext, "prev: $prevAudioIndex", Toast.LENGTH_SHORT).show()
+        val newAudioIndexPos = if (prevAudioIndex != audioList.size - 1) {
+            prevAudioIndex + 1
         } else {
-            //get previous in playlist
-            activeAudio = audioList!![--audioIndex]
+            0
+        }
+        val audioPath = audioList[newAudioIndexPos].data
+
+        //Toast.makeText(applicationContext, "new: $newAudioIndexPos", Toast.LENGTH_SHORT).show()
+
+        if (File(Uri.parse(audioPath).path!!).exists()) {
+            val storageUtil = StorageUtil(applicationContext)
+            val currentAudioPlayingIndex: Int = storageUtil.loadAudioIndex()
+            if (prevAudioIndex == audioList.size - 1) {
+                //if last in playlist
+                audioIndex = 0
+                activeAudio = audioList[0]
+            } else {
+                //get next in playlist
+                audioIndex = prevAudioIndex + 1
+                activeAudio = audioList[prevAudioIndex + 1]
+            }
+
+            //Toast.makeText(applicationContext, "audioInd: $audioIndex  or ${prevAudioIndex == audioList.size - 1} ", Toast.LENGTH_SHORT).show()
+
+            //Update stored index
+            storageUtil.storeAudioIndex(audioIndex)
+            stopMedia()
+            //reset mediaPlayer
+            mediaPlayer!!.reset()
+            initMediaPlayer()
+
+            /** Update UI of [AllSongFragment] */
+            val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
+            val bundle = Bundle()
+            bundle.putInt("index", currentAudioPlayingIndex)
+            updatePlayer.putExtras(bundle)
+            sendBroadcast(updatePlayer)
+        } else {
+
+            if (audioIndex == audioList.size - 1) {
+                //if audio index is last index then  assign it to 0
+                audioIndex = 0
+                activeAudio = audioList[audioIndex]
+            }
+
+            checkAudioExistenceWhenSkipNext(audioIndex++)
+
+        }
+    }
+
+    private fun checkAudioExistenceWhenSkipPrev(prevAudioIndex: Int) {
+        val newAudioIndexPos: Int = if (prevAudioIndex != 0) {
+            prevAudioIndex - 1
+        } else {
+            audioList.size - 1
         }
 
-        //Update stored index
-        storageUtil.storeAudioIndex(audioIndex)
-        stopMedia()
-        //reset mediaPlayer
-        mediaPlayer!!.reset()
-        initMediaPlayer()
+        val audioPath = audioList[newAudioIndexPos].data
 
-        /** Update UI of [AllSongFragment] */
-        val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
-        val bundle = Bundle()
-        bundle.putInt("index", tempIndex)
-        updatePlayer.putExtras(bundle)
-        sendBroadcast(updatePlayer)
+        if (File(Uri.parse(audioPath).path!!).exists()) {
+            val storageUtil = StorageUtil(applicationContext)
+            val tempIndex: Int = storageUtil.loadAudioIndex()
+            if (prevAudioIndex == 0) {
+                //if first in playlist
+                //set index to the last of audioList
+                audioIndex = audioList.size - 1
+                activeAudio = audioList[audioIndex]
+            } else {
+                //get previous in playlist
+                audioIndex = prevAudioIndex - 1
+                activeAudio = audioList[prevAudioIndex - 1]
+            }
+
+            //Update stored index
+            storageUtil.storeAudioIndex(audioIndex)
+            stopMedia()
+            //reset mediaPlayer
+            mediaPlayer!!.reset()
+            initMediaPlayer()
+
+            /** Update UI of [AllSongFragment] */
+            val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
+            val bundle = Bundle()
+            bundle.putInt("index", tempIndex)
+            updatePlayer.putExtras(bundle)
+            sendBroadcast(updatePlayer)
+        } else {
+            checkAudioExistenceWhenSkipPrev(audioIndex--)
+        }
+
     }
 
     fun onSeekTo(position: Long) {
@@ -562,8 +614,10 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
             .setLargeIcon(largeIcon)
             .setSmallIcon(R.drawable.ic_play_beat_logo_noti) // Set Notification content information
             .setContentText(activeAudio!!.artistsName)
-            .setContentTitle(activeAudio!!.albumName)
-            .setContentInfo(activeAudio!!.songName) // Add playback actions
+            .setContentTitle(activeAudio!!.songName)
+            .setCategory(activeAudio!!.albumName)
+            .setSubText(activeAudio!!.albumName)
+            //.setContentInfo(activeAudio!!.albumName)
             .setContentIntent(contentPendingIntent)
             .addAction(R.drawable.ic_noti_skip_prev, "previous", playbackAction(3))
             .addAction(playPauseActionIcon, "pause", playPauseAction)
@@ -584,6 +638,7 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
 
         setNotificationPlaybackState(playbackStatus, playbackSpeed, notificationBuilder)
 
+        //Toast.makeText(applicationContext, "Notification build", Toast.LENGTH_SHORT).show()
         /*(getSystemService(NOTIFICATION_SERVICE) as NotificationManager).notify(
             NOTIFICATION_ID,
             notificationBuilder.build()
@@ -995,6 +1050,122 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
         sendBroadcast(updatePlayer)
     }
 
+    // Broad cast receivers .......................................................
+    private val playNewAudio: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val storageUtil = StorageUtil(applicationContext)
+
+            initAudioOnPressResumeBtn = false
+
+            try {
+                audioList = storageUtil.loadQueueAudio()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            //Get the new media index form SharedPreferences
+            audioIndex = storageUtil.loadAudioIndex()
+            if (audioIndex == -1) {
+                val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
+                sendBroadcast(updatePlayer)
+                stopForeground(true)
+                stopMedia()
+                // initMediaSession()
+            } else {
+                if (audioIndex != -1 && audioIndex < audioList.size) {
+                    //index is in a valid range
+                    activeAudio = audioList[audioIndex]
+                } else {
+                    stopSelf()
+                }
+
+                pausedByManually = false
+
+                requestAudioFocus()
+
+                //A PLAY_NEW_AUDIO action received
+                //reset mediaPlayer to play the new Audio
+
+                try {
+                    if (mediaPlayer != null && mediaPlayer?.isPlaying!!) {
+                        stopMedia()
+                        //mediaPlayer!!.reset()
+                    }
+                } catch (e: java.lang.IllegalStateException) {
+                    e.printStackTrace()
+                }
+
+                initMediaPlayer()
+                updateMetaData()
+                //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+                updateNotification(true)
+
+                // Toast.makeText(
+                //   applicationContext,
+                // "Played new audio, ${activeAudio!!.songName}",
+                // Toast.LENGTH_LONG
+                //).show()
+
+                // if (requestAudioFocus()) {
+
+                //  } else {
+                //      Toast.makeText(
+                //          applicationContext,
+                //         "Failed to get audio focus, Please restart app and clear recent",
+                //         Toast.LENGTH_LONG
+                //     ).show()
+                // }
+            }
+
+            // requestAudioFocus()
+
+            //A PLAY_NEW_AUDIO action received
+            //reset mediaPlayer to play the new Audio
+
+            //if (mediaPlayer != null && mediaPlayer?.isPlaying!!) {
+            //   stopMedia()
+            //mediaPlayer!!.reset()
+            //}
+
+            //initMediaPlayer()
+            //updateMetaData()
+            //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+            //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
+            //    updateNotification(true)
+        }
+    }
+
+    fun registerPlayNewAudio() {
+        //Register playNewMedia receiver
+        val filter = IntentFilter(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
+        try {
+            registerReceiver(playNewAudio, filter)
+        } catch (e: Exception) {
+            Log.d("unregisterReceiverExceptionPlayMedia", "registerPlayNewAudio: ${e.message}")
+        }
+
+    }
+
+    private val becomingNoisyReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            //pause audio on ACTION_AUDIO_BECOMING_NOISY
+            pauseMedia()
+            //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
+            updateNotification(false)
+        }
+    }
+
+    fun registerBecomingNoisyReceiver() {
+        //register after getting audio focus
+        val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+        try {
+            registerReceiver(becomingNoisyReceiver, intentFilter)
+        } catch (e: Exception) {
+            Log.d("unregisterReceiverExceptionBecomingNoisy", "registerPlayNewAudio: ${e.message}")
+        }
+
+    }
+
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
         isTaskRemoved = true
@@ -1055,109 +1226,6 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
                 e.printStackTrace()
             }
         }
-    }
-
-    // Broad cast receivers .......................................................
-    private val playNewAudio: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val storageUtil = StorageUtil(applicationContext)
-
-            initAudioOnPressResumeBtn = false
-
-            try {
-                audioList = storageUtil.loadQueueAudio()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            //Get the new media index form SharedPreferences
-            audioIndex = storageUtil.loadAudioIndex()
-            if (audioIndex == -1) {
-                val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
-                sendBroadcast(updatePlayer)
-                stopForeground(true)
-                stopMedia()
-                // initMediaSession()
-            } else {
-                if (audioIndex != -1 && audioIndex < audioList!!.size) {
-                    //index is in a valid range
-                    activeAudio = audioList!![audioIndex]
-                } else {
-                    stopSelf()
-                }
-
-                pausedByManually = false
-                if (requestAudioFocus()) {
-                    // requestAudioFocus()
-
-                    //A PLAY_NEW_AUDIO action received
-                    //reset mediaPlayer to play the new Audio
-
-                    try {
-                        if (mediaPlayer != null && mediaPlayer?.isPlaying!!) {
-                            stopMedia()
-                            //mediaPlayer!!.reset()
-                        }
-
-                    } catch (e: java.lang.IllegalStateException) {
-                        e.printStackTrace()
-                    }
-
-                    initMediaPlayer()
-                    updateMetaData()
-                    //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
-                    //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
-                    updateNotification(true)
-                    // Toast.makeText(
-                    //   applicationContext,
-                    // "Played new audio, ${activeAudio!!.songName}",
-                    // Toast.LENGTH_LONG
-                    //).show()
-                } else {
-                    Toast.makeText(
-                        applicationContext,
-                        "Failed to get audio focus, Please restart app and clear recent",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-
-            // requestAudioFocus()
-
-            //A PLAY_NEW_AUDIO action received
-            //reset mediaPlayer to play the new Audio
-
-            //if (mediaPlayer != null && mediaPlayer?.isPlaying!!) {
-            //   stopMedia()
-            //mediaPlayer!!.reset()
-            //}
-
-            //initMediaPlayer()
-            //updateMetaData()
-            //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
-            //buildNotification(PlaybackStatus.PLAYING, PlaybackStatus.UN_FAVOURITE, 1f)
-            //    updateNotification(true)
-        }
-    }
-
-    private fun registerPlayNewAudio() {
-        //Register playNewMedia receiver
-        val filter = IntentFilter(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
-        registerReceiver(playNewAudio, filter)
-    }
-
-    private val becomingNoisyReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            //pause audio on ACTION_AUDIO_BECOMING_NOISY
-            pauseMedia()
-            //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
-            updateNotification(false)
-        }
-    }
-
-    private fun registerBecomingNoisyReceiver() {
-        //register after getting audio focus
-        val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
-        registerReceiver(becomingNoisyReceiver, intentFilter)
     }
 
 /* private val openContent: BroadcastReceiver = object : BroadcastReceiver() {

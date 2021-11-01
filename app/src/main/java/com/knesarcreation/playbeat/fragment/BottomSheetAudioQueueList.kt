@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
@@ -25,6 +26,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.snackbar.Snackbar
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.QueueListAdapter
 import com.knesarcreation.playbeat.database.AllSongsModel
@@ -32,6 +34,7 @@ import com.knesarcreation.playbeat.database.QueueListModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.BottomSheetQueueListBinding
 import com.knesarcreation.playbeat.utils.StorageUtil
+import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
 
 
@@ -175,13 +178,19 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
         binding?.repeatQueueIV?.setOnClickListener {
             if (!storageUtil?.getIsRepeatAudio()!!) {
                 //repeat current audio
-                Toast.makeText(mContext, "Repeat current audio", Toast.LENGTH_SHORT).show()
+                Snackbar.make(
+                    dialog!!.window!!.decorView,
+                    "Repeat current audio", Snackbar.LENGTH_LONG
+                ).show()
                 binding?.repeatQueueIV?.setImageResource(R.drawable.repeat_one_on_24)
                 storageUtil?.saveIsRepeatAudio(true)
                 listener?.onRepeatIconClicked()
             } else {
                 //repeat audio list
-                Toast.makeText(mContext, "Repeat audio list", Toast.LENGTH_SHORT).show()
+                Snackbar.make(
+                    dialog!!.window!!.decorView,
+                    "Repeat audio list", Snackbar.LENGTH_LONG
+                ).show()
                 binding?.repeatQueueIV?.setImageResource(R.drawable.ic_repeat_24)
                 storageUtil?.saveIsRepeatAudio(false)
                 listener?.onRepeatIconClicked()
@@ -231,11 +240,11 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                 (context as AppCompatActivity).lifecycleScope
                             )
 
-                            Toast.makeText(
-                                mContext,
-                                "updated: audio ${audioList[position].songName}",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            /* Snackbar.make(
+                                 (activity as AppCompatActivity).window.decorView,
+                                 "updated: audio ${audioList[position].songName}", Snackbar.LENGTH_LONG
+                             ).show()*/
+
                             if (currentPlayingAudioIndex == audioList.size - 1) {
                                 // if current playing audio is last in a queue then after deleting audio update
                                 // the queue audio - (position -1)
@@ -286,11 +295,11 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                 currentPlayingAudioIndex =
                                     audioList.indexOf(currentPlayingAudioModel)
                                 storageUtil?.storeAudioIndex(currentPlayingAudioIndex)
-                                Toast.makeText(
+                              /*  Toast.makeText(
                                     mContext,
                                     "del: $isSwipedToDel $currentPlayingAudioIndex",
                                     Toast.LENGTH_SHORT
-                                ).show()
+                                ).show()*/
                             }
                         }
 
@@ -308,11 +317,11 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                         val newPos = position - 1
                                         storageUtil?.storeAudioIndex(newPos)
                                         Log.d("NewPosAfterDEl", "onItemSwiped: new $newPos")
-                                        Toast.makeText(
+                                       /* Toast.makeText(
                                             mContext,
                                             "size ${audioList.size}",
                                             Toast.LENGTH_SHORT
-                                        ).show()
+                                        ).show()*/
                                         if (audioList.size != 0)
                                             currentPlayingAudioModel = audioList[position - 1]
                                     } else {
@@ -338,11 +347,11 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                 "deletedAudio",
                                 "onItemSwiped:$currentPlayingAudioIndex , model: $currentPlayingAudioModel "
                             )
-                            Toast.makeText(
+                           /* Toast.makeText(
                                 mContext,
                                 "$currentPlayingAudioIndex",
                                 Toast.LENGTH_SHORT
-                            ).show()
+                            ).show()*/
                         }
 
                         // queueLisAdapter.dataSet = audioList
@@ -496,53 +505,61 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
     }
 
     override fun onClick(allSongModel: AllSongsModel, position: Int) {
-        currentPlayingAudioIndex = position
+        if (File(Uri.parse(allSongModel.data).path!!).exists()) {
+            currentPlayingAudioIndex = position
 
-        val currentPlayingAudioIndex = storageUtil!!.loadAudioIndex()
-        val loadAudioList = storageUtil!!.loadQueueAudio()
-        audioList.clear()
-        audioList.addAll(loadAudioList)
+            val currentPlayingAudioIndex = storageUtil!!.loadAudioIndex()
+            val loadAudioList = storageUtil!!.loadQueueAudio()
+            audioList.clear()
+            audioList.addAll(loadAudioList)
 
-        Toast.makeText(
-            activity as Context,
-            "onClick: $currentPlayingAudioIndex",
-            Toast.LENGTH_SHORT
-        ).show()
-        val prevPlayingAudioIndex = audioList[currentPlayingAudioIndex]
+            /*Toast.makeText(
+                activity as Context,
+                "onClick: $currentPlayingAudioIndex",
+                Toast.LENGTH_SHORT
+            ).show()*/
+            val prevPlayingAudioIndex = audioList[currentPlayingAudioIndex]
 
-        mViewModelClass.updateQueueAudio(
-            prevPlayingAudioIndex.songId,
-            prevPlayingAudioIndex.songName,
-            -1,
-            (context as AppCompatActivity).lifecycleScope
-        )
+            mViewModelClass.updateQueueAudio(
+                prevPlayingAudioIndex.songId,
+                prevPlayingAudioIndex.songName,
+                -1,
+                (context as AppCompatActivity).lifecycleScope
+            )
 
-        mViewModelClass.updateQueueAudio(
-            allSongModel.songId,
-            allSongModel.songName,
-            1,
-            (context as AppCompatActivity).lifecycleScope
-        )
+            mViewModelClass.updateQueueAudio(
+                allSongModel.songId,
+                allSongModel.songName,
+                1,
+                (context as AppCompatActivity).lifecycleScope
+            )
 
-        mViewModelClass.updateSong(
-            prevPlayingAudioIndex.songId,
-            prevPlayingAudioIndex.songName,
-            -1,
-            (context as AppCompatActivity).lifecycleScope
-        )
+            mViewModelClass.updateSong(
+                prevPlayingAudioIndex.songId,
+                prevPlayingAudioIndex.songName,
+                -1,
+                (context as AppCompatActivity).lifecycleScope
+            )
 
-        mViewModelClass.updateSong(
-            allSongModel.songId,
-            allSongModel.songName,
-            1,
-            (context as AppCompatActivity).lifecycleScope
-        )
+            mViewModelClass.updateSong(
+                allSongModel.songId,
+                allSongModel.songName,
+                1,
+                (context as AppCompatActivity).lifecycleScope
+            )
 
 
-        saveAudioList(audioList)
+            saveAudioList(audioList)
 
-        playAudio(position)
-        updateCurrentPlayingAudio()
+            playAudio(position)
+            updateCurrentPlayingAudio()
+        } else {
+            Snackbar.make(
+                dialog!!.window!!.decorView,
+                "File doesn't exists", Snackbar.LENGTH_LONG
+            ).show()
+        }
+
     }
 
     private fun saveAudioList(queueAudioList: ArrayList<AllSongsModel>) {

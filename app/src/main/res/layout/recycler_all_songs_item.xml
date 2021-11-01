@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rlAudio"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -35,13 +36,14 @@
 
         <RelativeLayout
             android:id="@+id/rlAlbumArtContainer"
-            android:layout_width="50dp"
-            android:layout_height="50dp">
+            android:layout_width="@dimen/album_art_width_small"
+            android:layout_centerVertical="true"
+            android:layout_height="@dimen/album_art_height_small">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/album_art_iv"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/album_art_width_small"
+                android:layout_height="@dimen/album_art_height_small"
                 android:background="@drawable/little_curved_all_edges"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_artist"
@@ -49,13 +51,13 @@
 
             <RelativeLayout
                 android:id="@+id/rlCurrentPlayingLottie"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/album_art_width_small"
+                android:layout_height="@dimen/album_art_height_small"
                 android:visibility="gone">
 
                 <com.google.android.material.imageview.ShapeableImageView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="@dimen/album_art_width_small"
+                    android:layout_height="@dimen/album_art_height_small"
                     android:alpha="0.7"
                     android:contentDescription="@null"
                     android:src="@color/app_theme_color"
@@ -90,10 +92,10 @@
                 android:ellipsize="end"
                 android:fontFamily="@font/segoe_ui"
                 android:maxLines="1"
-                android:text="Song Name"
                 android:textColor="@color/white"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textSize="@dimen/text_size_normal"
+                android:textStyle="bold"
+                tools:text="Song Name" />
 
             <LinearLayout
                 android:id="@+id/llArtistNameOrAlbumName"
@@ -109,10 +111,10 @@
                     android:fontFamily="@font/segoe_ui"
                     android:maxLength="28"
                     android:maxLines="1"
-                    android:text="Artist Name"
                     android:textColor="@color/grey"
-                    android:textSize="13sp"
-                    android:textStyle="normal" />
+                    android:textSize="@dimen/text_size_small"
+                    android:textStyle="normal"
+                    tools:text="Artist Name" />
 
                 <View
                     android:id="@+id/sepratorView"
@@ -131,10 +133,10 @@
                     android:ellipsize="end"
                     android:fontFamily="@font/segoe_ui"
                     android:maxLines="1"
-                    android:text="Album Name"
                     android:textColor="@color/grey"
-                    android:textSize="13sp"
-                    android:textStyle="normal" />
+                    android:textSize="@dimen/text_size_small"
+                    android:textStyle="normal"
+                    tools:text="Album Name" />
             </LinearLayout>
         </LinearLayout>
 

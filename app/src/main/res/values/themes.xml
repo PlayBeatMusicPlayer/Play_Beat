@@ -57,7 +57,7 @@
     </style>
 
     <style name="CustomAlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:windowBackground">@drawable/curved_all_edges</item>
+        <item name="android:windowBackground">@drawable/curved_all_edges_app_theme</item>
     </style>
 
     <style name="SplashTheme" parent="AppTheme">

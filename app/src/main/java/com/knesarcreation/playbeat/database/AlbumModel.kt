@@ -7,8 +7,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "albumModel", indices = [Index(value = ["albumName"], unique = true)])
 data class AlbumModel(
-    @PrimaryKey
-    var id: Long,
+    var albumId: Long,
     @ColumnInfo(name = "albumName")
     var albumName: String,
     var artistName: String,
@@ -18,6 +17,9 @@ data class AlbumModel(
     var songCount: Int,
     /* var dateAdded: String,*/
 ) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Long = 0L
+
     constructor() : this(0L, "", "", "", 0, 0)
 
     override fun equals(other: Any?): Boolean {

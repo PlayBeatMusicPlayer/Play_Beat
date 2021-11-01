@@ -7,8 +7,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "artistsModel", indices = [Index(value = ["artistName"], unique = true)])
 data class ArtistsModel(
-    @PrimaryKey(autoGenerate = true)
-    var id: Long,
+    var artistId: Long,
     @ColumnInfo(name = "artistName")
     var artistName: String,
     //var noOfAlbums: Int,
@@ -17,8 +16,10 @@ data class ArtistsModel(
     var albumName: String,
     var subArtistName: String*/
 ) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Long = 0L
 
-    constructor() : this(0L, "", /*0, 0*//*, 0L, "", ""*/)
+    constructor() : this(0L, "" /*0, 0*//*, 0L, "", ""*/)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

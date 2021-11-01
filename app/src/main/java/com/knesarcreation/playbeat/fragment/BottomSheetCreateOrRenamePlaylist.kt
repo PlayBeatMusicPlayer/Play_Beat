@@ -5,10 +5,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.snackbar.Snackbar
 import com.knesarcreation.playbeat.database.PlaylistModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.BottomSheetCreatePlayListBinding
@@ -55,16 +56,18 @@ class BottomSheetCreateOrRenamePlaylist(
                         ),
                         lifecycleScope
                     )
-                    Toast.makeText(
-                        activity as Context,
-                        "Playlist created successfully.",
-                        Toast.LENGTH_SHORT
+                    Snackbar.make(
+                        (activity as AppCompatActivity).window.decorView,
+                        "Playlist created successfully.", Snackbar.LENGTH_LONG
                     ).show()
+
                     dismiss()
                 } else {
                     binding?.etPlaylist?.error = "Playlist name can't be empty."
-                    Toast.makeText(mContext, "Playlist name can't be empty.", Toast.LENGTH_SHORT)
-                        .show()
+                    Snackbar.make(
+                        dialog!!.window!!.decorView,
+                        "Playlist name can't be empty.", Snackbar.LENGTH_LONG
+                    ).show()
                 }
             } else {
                 // rename playlist
@@ -79,11 +82,15 @@ class BottomSheetCreateOrRenamePlaylist(
                     dismiss()
                 } else {
                     binding?.etPlaylist?.error = "Playlist name can't be empty."
-                    Toast.makeText(
+                    Snackbar.make(
+                        dialog!!.window!!.decorView,
+                        "Playlist name can't be empty.", Snackbar.LENGTH_LONG
+                    ).show()
+                   /* Toast.makeText(
                         activity as Context,
                         "Playlist name can't be empty.",
                         Toast.LENGTH_SHORT
-                    ).show()
+                    ).show()*/
                 }
             }
 

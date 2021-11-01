@@ -115,5 +115,8 @@ dependencies {
 //    imple mentation 'com.jackandphantom.android:blurimage:1.2.0'
 //    implementation 'com.eightbitlab:blurview:1.6.1'
 
+    //dynamic screen sizes
+    implementation 'com.github.MrNouri:DynamicSizes:1.0'
+
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }

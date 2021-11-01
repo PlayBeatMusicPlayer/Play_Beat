@@ -9,6 +9,7 @@
     <color name="grey">#BAB9B9</color>
     <color name="white">#FFFFFFFF</color>
     <color name="app_theme_color">#3A3C46</color>
+    <!--2B2727--> <!--3A3C46-->
     <color name="transparent">#00ffffff</color>
 
     <color name="indigo">#590995</color>
@@ -59,4 +60,5 @@
     <color name="light_transparent">#69696C</color>
     <color name="queue_now_playing_background">#474953</color>
     <color name="icon_background">#2A2929</color>
+    <color name="card_color">#535353</color>
 </resources>

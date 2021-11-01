@@ -7,16 +7,16 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.database.CursorWindow
-import android.graphics.BitmapFactory
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.GradientDrawable
+import android.net.Uri
 import android.os.*
 import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
@@ -33,6 +33,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.google.android.gms.cast.framework.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.snackbar.Snackbar
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.ViewModelClass
@@ -40,6 +41,7 @@ import com.knesarcreation.playbeat.databinding.ActivityBottomBarFragmentBinding
 import com.knesarcreation.playbeat.fragment.*
 import com.knesarcreation.playbeat.utils.*
 import me.ibrahimsn.lib.OnItemSelectedListener
+import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
 
 
@@ -48,20 +50,20 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     ArtistsTracksAndAlbumFragment.OnArtistAlbumItemClicked,
     PlaylistsFragment.OnPlayListCategoryClicked {
 
-    private var mPermRequest: ActivityResultLauncher<String>? = null
-    private var mreqPermForManageAllFiles: ActivityResultLauncher<Intent>? = null
+    // private var mPermRequest: ActivityResultLauncher<String>? = null
+    // private var mreqPermForManageAllFiles: ActivityResultLauncher<Intent>? = null
     private lateinit var binding: ActivityBottomBarFragmentBinding
-    private val homeFragment = HomeFragment()
-    private val playlistsFragment = PlaylistsFragment()
-    private val settingFragment = SettingFragment()
-    private val albumSongFragment = AlbumFragment()
-    private val searchFragment = SearchFragment()
-    private val favouriteAudiosFragment = FavouriteAudiosFragment()
-    private val lastAddedAudioFragment = LastAddedAudioFragment()
-    private val historyAudiosFragment = HistoryAudiosFragment()
-    private val mostPlayedFragment = MostPlayedFragment()
-    private val artistsTracksAndAlbumFragment = ArtistsTracksAndAlbumFragment()
-    private val customPlaylist = CustomPlaylist()
+    private var homeFragment = HomeFragment()
+    private var playlistsFragment = PlaylistsFragment()
+    private var settingFragment = SettingFragment()
+    private var albumSongFragment = AlbumFragment()
+    private var searchFragment = SearchFragment()
+    private var favouriteAudiosFragment = FavouriteAudiosFragment()
+    private var lastAddedAudioFragment = LastAddedAudioFragment()
+    private var historyAudiosFragment = HistoryAudiosFragment()
+    private var mostPlayedFragment = MostPlayedFragment()
+    private var artistsTracksAndAlbumFragment = ArtistsTracksAndAlbumFragment()
+    private var customPlaylist = CustomPlaylist()
     private var audioIndexPos = -1
     private var isDestroyedActivity = false
     private var handler = Handler(Looper.getMainLooper())
@@ -79,9 +81,10 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private var shuffledList = CopyOnWriteArrayList<AllSongsModel>()
     private var isShuffled = false
     private var isPlayPauseClicked = false
-    private var mCastSession: CastSession? = null
-    private var mSessionManagerListener: SessionManagerListener<CastSession>? = null
-    private var mCastContext: CastContext? = null
+
+    //private var mCastSession: CastSession? = null
+    //private var mSessionManagerListener: SessionManagerListener<CastSession>? = null
+    // private var mCastContext: CastContext? = null
     private lateinit var storage: StorageUtil
     private lateinit var mViewModelClass: ViewModelClass
     private var isContextMenuEnabled = false
@@ -136,26 +139,13 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             }
         })
 
-        // requestStoragePermission()
-        onCreateMethods()
-
-    }
-
-    private fun onCreateMethods() {
-
-        supportFragmentManager.beginTransaction()
-            .add(R.id.fragmentContainer, homeFragment)
-            .add(R.id.fragmentContainer, playlistsFragment)
-            .add(R.id.fragmentContainer, settingFragment)
-            .add(R.id.fragmentContainer, albumSongFragment)
-            .add(R.id.fragmentContainer, artistsTracksAndAlbumFragment)
-            .add(R.id.fragmentContainer, searchFragment)
-            .add(R.id.fragmentContainer, favouriteAudiosFragment)
-            .add(R.id.fragmentContainer, lastAddedAudioFragment)
-            .add(R.id.fragmentContainer, historyAudiosFragment)
-            .add(R.id.fragmentContainer, mostPlayedFragment)
-            .add(R.id.fragmentContainer, customPlaylist)
-            .commit()
+        if (savedInstanceState == null) {
+            addFragmentsToFragmentContainer()
+        } else {
+            // if activity recreates then instead of adding new fragment get the old instances of fragment and assign it to all the fragments
+            // this helps to prevent creation of duplicates fragment
+            getOldFragInstances()
+        }
 
         setBottomBarFragmentState(FragmentState.HOME).commit()
 
@@ -168,7 +158,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         openAudioQueueList()
         manageRepeatAudioList()
         openSleepTimerSheet()
-
 
         binding.bottomSheet.seekBar.setOnClickListener { }
 
@@ -195,6 +184,65 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 )
             bottomSheetMoreOptions.show(supportFragmentManager, "bottomSheetMoreOptions")
         }
+
+    }
+
+    private fun addFragmentsToFragmentContainer() {
+        supportFragmentManager.beginTransaction()
+            .add(R.id.fragmentContainer, homeFragment, "homeFragment")
+            .add(R.id.fragmentContainer, playlistsFragment, "playlistsFragment")
+            .add(R.id.fragmentContainer, settingFragment, "settingFragment")
+            .add(R.id.fragmentContainer, albumSongFragment, "albumSongFragment")
+            .add(
+                R.id.fragmentContainer,
+                artistsTracksAndAlbumFragment,
+                "artistsTracksAndAlbumFragment"
+            )
+            .add(R.id.fragmentContainer, searchFragment, "searchFragment")
+            .add(R.id.fragmentContainer, favouriteAudiosFragment, "favouriteAudiosFragment")
+            .add(R.id.fragmentContainer, lastAddedAudioFragment, "lastAddedAudioFragment")
+            .add(R.id.fragmentContainer, historyAudiosFragment, "historyAudiosFragment")
+            .add(R.id.fragmentContainer, mostPlayedFragment, "mostPlayedFragment")
+            .add(R.id.fragmentContainer, customPlaylist, "customPlaylist")
+            .commit()
+        Log.d("ActivitySavedInstanceState", "onCreate: null instance ")
+    }
+
+    private fun getOldFragInstances() {
+        val oldHomeFragInstance =
+            supportFragmentManager.findFragmentByTag("homeFragment") as HomeFragment
+        val oldPlayListFragInstance =
+            supportFragmentManager.findFragmentByTag("playlistsFragment") as PlaylistsFragment
+        val oldSettingFragInstance =
+            supportFragmentManager.findFragmentByTag("settingFragment") as SettingFragment
+        val oldAlbumFragInstance =
+            supportFragmentManager.findFragmentByTag("albumSongFragment") as AlbumFragment
+        val oldArtistsTracksAndAlbumFragInstance =
+            supportFragmentManager.findFragmentByTag("artistsTracksAndAlbumFragment") as ArtistsTracksAndAlbumFragment
+        val oldSearchFragInstance =
+            supportFragmentManager.findFragmentByTag("searchFragment") as SearchFragment
+        val oldFavouriteAudiosFragInstance =
+            supportFragmentManager.findFragmentByTag("favouriteAudiosFragment") as FavouriteAudiosFragment
+        val oldLastAddedAudioFragInstance =
+            supportFragmentManager.findFragmentByTag("lastAddedAudioFragment") as LastAddedAudioFragment
+        val oldHistoryAudiosFragmentInstance =
+            supportFragmentManager.findFragmentByTag("historyAudiosFragment") as HistoryAudiosFragment
+        val oldMostPlayedFragmentInstance =
+            supportFragmentManager.findFragmentByTag("mostPlayedFragment") as MostPlayedFragment
+        val oldCustomPlaylistInstance =
+            supportFragmentManager.findFragmentByTag("customPlaylist") as CustomPlaylist
+
+        homeFragment = oldHomeFragInstance
+        playlistsFragment = oldPlayListFragInstance
+        settingFragment = oldSettingFragInstance
+        albumSongFragment = oldAlbumFragInstance
+        artistsTracksAndAlbumFragment = oldArtistsTracksAndAlbumFragInstance
+        searchFragment = oldSearchFragInstance
+        favouriteAudiosFragment = oldFavouriteAudiosFragInstance
+        lastAddedAudioFragment = oldLastAddedAudioFragInstance
+        historyAudiosFragment = oldHistoryAudiosFragmentInstance
+        mostPlayedFragment = oldMostPlayedFragmentInstance
+        customPlaylist = oldCustomPlaylistInstance
     }
 
     private fun likeOrUnLikeAudio() {
@@ -338,12 +386,12 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         binding.bottomSheet.loopOneSong.setOnClickListener {
             if (!storage.getIsRepeatAudio()) {
                 //repeat current audio
-                Toast.makeText(this, "Repeat current audio", Toast.LENGTH_SHORT).show()
+                Snackbar.make(window.decorView, "Repeat current audio", Snackbar.LENGTH_LONG).show()
                 binding.bottomSheet.loopOneSong.setImageResource(R.drawable.repeat_one_on_24)
                 storage.saveIsRepeatAudio(true)
             } else {
                 //repeat audio list
-                Toast.makeText(this, "Repeat audio list", Toast.LENGTH_SHORT).show()
+                Snackbar.make(window.decorView, "Repeat audio list", Snackbar.LENGTH_LONG).show()
                 binding.bottomSheet.loopOneSong.setImageResource(R.drawable.ic_repeat_24)
                 storage.saveIsRepeatAudio(false)
             }
@@ -366,6 +414,24 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     }
 
     private fun setupNowPlayingBottomSheet() {
+        val screenInches = GetScreenSizes(this).getScreenInches()
+        when {
+            screenInches < 5.5 -> {
+                val rlCoverArtLayoutParams =
+                    binding.bottomSheet.rlCoverArt.layoutParams as RelativeLayout.LayoutParams
+                rlCoverArtLayoutParams.height = ConvertDpToPx.dpToPx(300, this)
+                binding.bottomSheet.rlCoverArt.layoutParams = rlCoverArtLayoutParams
+            }
+
+            screenInches > 5.6 -> {
+                val rlCoverArtLayoutParams =
+                    binding.bottomSheet.rlCoverArt.layoutParams as RelativeLayout.LayoutParams
+                rlCoverArtLayoutParams.height = ConvertDpToPx.dpToPx(400, this)
+                binding.bottomSheet.rlCoverArt.layoutParams = rlCoverArtLayoutParams
+            }
+        }
+
+
         nowPlayingBottomSheetBehavior =
             BottomSheetBehavior.from(binding.bottomSheet.nowPlayingBottomSheetContainer)
         newState = BottomSheetBehavior.STATE_COLLAPSED
@@ -373,10 +439,11 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         nowPlayingBottomSheetBehavior.state = BottomSheetBehavior.STATE_DRAGGING
         nowPlayingBottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
-        if (!storage.getIsAudioPlayedFirstTime()) {
+        if (!storage.getIsAudioPlayedFirstTime() && queueAudioList.isNotEmpty()) {
             nowPlayingBottomSheetBehavior.peekHeight =
                 ConvertDpToPx.dpToPx(120, this@ActivityBottomBarFragmentContainer)
             binding.bottomSheet.rlMiniPlayerBottomsheet.visibility = View.VISIBLE
+
             val layoutParams =
                 binding.fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams
             layoutParams.bottomMargin =
@@ -394,6 +461,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         binding.bottomSheet.rlMiniPlayerBottomsheet.setOnClickListener {
             if (!isContextMenuEnabled) {
                 nowPlayingBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                binding.bottomSheet.rlMiniPlayerBottomsheet.visibility = View.GONE
             }
         }
 
@@ -422,7 +490,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     (0.4 - slideOffset).toFloat()
                 binding.bottomSheet.rlNowPlayingBottomSheet.alpha = slideOffset
 
-                // if (audioIndexPos != -1) {
                 if (isPlaylstCategoryOpened || isAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag) {
                     if (slideOffset >= 0.2f) {
                         binding.bottomSheet.nowPlayingBottomSheetContainer.animate()
@@ -433,13 +500,12 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                             200
                     }
                 }
-                //}
             }
         })
 
     }
 
-    private fun updatePlayingMusic(audioIndex: Int) {
+    private fun updateMiniPlayer(audioIndex: Int) {
         binding.bottomSheet.songNameTV.text = queueAudioList[audioIndex].songName
         binding.bottomSheet.artistOrAlbumNameTV.text = queueAudioList[audioIndex].artistsName
 
@@ -485,28 +551,13 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     }
 
     private fun controlAudio() {
-        binding.bottomSheet.skipNextAudio1.setOnClickListener {
+        binding.bottomSheet.skipNextAudioMP.setOnClickListener {
             audioIndexPos = storage.loadAudioIndex()
             queueAudioList = storage.loadQueueAudio()
             // remove previous audio highlight
-            mViewModelClass.updateSong(
-                queueAudioList[audioIndexPos].songId,
-                queueAudioList[audioIndexPos].songName,
-                -1, // default
-                lifecycleScope
-            )
-            mViewModelClass.updateQueueAudio(
-                queueAudioList[audioIndexPos].songId,
-                queueAudioList[audioIndexPos].songName,
-                -1, // default
-                lifecycleScope
-            )
-            incrementPosByOne()
-            storage.storeAudioIndex(audioIndexPos)
-            AllSongFragment.musicService?.pausedByManually = false
-            val broadcastIntent = Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
-            sendBroadcast(broadcastIntent)
-            updatePlayingMusic(audioIndexPos)
+
+            checkAudioExistWhenSkipNext(audioIndexPos)
+
         }
 
         binding.bottomSheet.playPauseMiniPlayer.setOnClickListener {
@@ -523,67 +574,143 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             updateMPAndEPPlayPauseBtn()
         }
 
-        binding.bottomSheet.skipNextAudio.setOnClickListener {
+        binding.bottomSheet.skipNextAudioEP.setOnClickListener {
             audioIndexPos = storage.loadAudioIndex()
             queueAudioList = storage.loadQueueAudio()
             // remove previous audio highlight
+            /* mViewModelClass.updateSong(
+                 queueAudioList[audioIndexPos].songId,
+                 queueAudioList[audioIndexPos].songName,
+                 -1, // default
+                 lifecycleScope
+             )
+             mViewModelClass.updateQueueAudio(
+                 queueAudioList[audioIndexPos].songId,
+                 queueAudioList[audioIndexPos].songName,
+                 -1, // default
+                 lifecycleScope
+             )
+
+             incrementPosByOne(audioIndexPos)
+             storage.storeAudioIndex(audioIndexPos)
+             AllSongFragment.musicService?.pausedByManually = false
+             val broadcastIntent = Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
+             sendBroadcast(broadcastIntent)*/
+            checkAudioExistWhenSkipNext(audioIndexPos)
+
+            binding.bottomSheet.skipNextAudioEP.setImageResource(R.drawable.avd_music_next)
+            val animatedVectorDrawable =
+                binding.bottomSheet.skipNextAudioEP.drawable as AnimatedVectorDrawable
+            animatedVectorDrawable.start()
+            binding.bottomSheet.playPauseExpandedPlayer.isSelected = true
+        }
+
+        binding.bottomSheet.skipPrevAudioEP.setOnClickListener {
+            audioIndexPos = storage.loadAudioIndex()
+            queueAudioList = storage.loadQueueAudio()
+            // remove previous audio highlight
+
+            checkAudioExistWhenSkipPrev(audioIndexPos)
+
+        }
+    }
+
+    private fun checkAudioExistWhenSkipNext(prevAudioIndex: Int)/*: Boolean*/ {
+
+        Log.d("checkAudioExistWhenSkipNext", "checkAudioExistWhenSkipNext:$prevAudioIndex ")
+        val newAudioIndexPos = if (prevAudioIndex != queueAudioList.size - 1) {
+            prevAudioIndex + 1
+        } else {
+            0
+        }
+        //val newAudioIndexPos = prevAudioIndex + 1
+        val audioPath = queueAudioList[newAudioIndexPos].data
+
+        Log.d("CheckFileExist", "checkAudioExist: $newAudioIndexPos  ,  $audioPath")
+
+        if (File(Uri.parse(audioPath).path!!).exists()) {
+            Log.d("CheckFileExist", "checkAudioExist: exist ")
+            val currentPlayingAudioIndex = storage.loadAudioIndex()
             mViewModelClass.updateSong(
-                queueAudioList[audioIndexPos].songId,
-                queueAudioList[audioIndexPos].songName,
-                -1, // default
-                lifecycleScope
-            )
-            mViewModelClass.updateQueueAudio(
-                queueAudioList[audioIndexPos].songId,
-                queueAudioList[audioIndexPos].songName,
+                queueAudioList[currentPlayingAudioIndex].songId,
+                queueAudioList[currentPlayingAudioIndex].songName,
                 -1, // default
                 lifecycleScope
             )
 
-            incrementPosByOne()
+            mViewModelClass.updateQueueAudio(
+                queueAudioList[currentPlayingAudioIndex].songId,
+                queueAudioList[currentPlayingAudioIndex].songName,
+                -1, // default
+                lifecycleScope
+            )
+
+            incrementPosByOne(prevAudioIndex)
+            storage.storeAudioIndex(audioIndexPos)
+            AllSongFragment.musicService?.pausedByManually = false
+            val broadcastIntent = Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
+            sendBroadcast(broadcastIntent)
+            updateMiniPlayer(audioIndexPos)
+        } else {
+            Snackbar.make(
+                window!!.decorView,
+                "File doesn't exists", Snackbar.LENGTH_LONG
+            ).show()
+            if (audioIndexPos == queueAudioList.size - 1) {
+                audioIndexPos = 0
+            }
+
+            checkAudioExistWhenSkipNext(audioIndexPos++)
+
+        }
+    }
+
+    private fun checkAudioExistWhenSkipPrev(prevAudioIndex: Int) {
+        val newAudioIndexPos: Int = if (prevAudioIndex != 0) {
+            prevAudioIndex - 1
+        } else {
+            queueAudioList.size - 1
+        }
+
+        val audioPath = queueAudioList[newAudioIndexPos].data
+
+        Log.d("CheckFileExist", "checkAudioExist: $newAudioIndexPos  ,  $audioPath")
+
+        if (File(Uri.parse(audioPath).path!!).exists()) {
+            val currentPlayingAudioIndex = storage.loadAudioIndex()
+            mViewModelClass.updateSong(
+                queueAudioList[currentPlayingAudioIndex].songId,
+                queueAudioList[currentPlayingAudioIndex].songName,
+                -1, // default
+                lifecycleScope
+            )
+            mViewModelClass.updateQueueAudio(
+                queueAudioList[currentPlayingAudioIndex].songId,
+                queueAudioList[currentPlayingAudioIndex].songName,
+                -1, // default
+                lifecycleScope
+            )
+
+            decrementPosByOne(prevAudioIndex)
             storage.storeAudioIndex(audioIndexPos)
             AllSongFragment.musicService?.pausedByManually = false
             val broadcastIntent = Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
             sendBroadcast(broadcastIntent)
             //updateViews(audioIndexPos)
             //updateAudioController() // seek bar, start time, end time, play pause btn
-            binding.bottomSheet.skipNextAudio.setImageResource(R.drawable.avd_music_next)
+            binding.bottomSheet.skipPrevAudioEP.setImageResource(R.drawable.avd_music_previous)
             val animatedVectorDrawable =
-                binding.bottomSheet.skipNextAudio.drawable as AnimatedVectorDrawable
+                binding.bottomSheet.skipPrevAudioEP.drawable as AnimatedVectorDrawable
             animatedVectorDrawable.start()
             binding.bottomSheet.playPauseExpandedPlayer.isSelected = true
+        } else {
+            Snackbar.make(
+                window!!.decorView,
+                "File doesn't exists", Snackbar.LENGTH_LONG
+            ).show()
+            checkAudioExistWhenSkipPrev(audioIndexPos--)
         }
 
-        binding.bottomSheet.skipPrevAudio.setOnClickListener {
-            audioIndexPos = storage.loadAudioIndex()
-            queueAudioList = storage.loadQueueAudio()
-            // remove previous audio highlight
-            mViewModelClass.updateSong(
-                queueAudioList[audioIndexPos].songId,
-                queueAudioList[audioIndexPos].songName,
-                -1, // default
-                lifecycleScope
-            )
-            mViewModelClass.updateQueueAudio(
-                queueAudioList[audioIndexPos].songId,
-                queueAudioList[audioIndexPos].songName,
-                -1, // default
-                lifecycleScope
-            )
-
-            decrementPosByOne()
-            storage.storeAudioIndex(audioIndexPos)
-            AllSongFragment.musicService?.pausedByManually = false
-            val broadcastIntent = Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
-            sendBroadcast(broadcastIntent)
-            //updateViews(audioIndexPos)
-            //updateAudioController() // seek bar, start time, end time, play pause btn
-            binding.bottomSheet.skipPrevAudio.setImageResource(R.drawable.avd_music_previous)
-            val animatedVectorDrawable =
-                binding.bottomSheet.skipPrevAudio.drawable as AnimatedVectorDrawable
-            animatedVectorDrawable.start()
-            binding.bottomSheet.playPauseExpandedPlayer.isSelected = true
-        }
     }
 
     private fun updateMPAndEPPlayPauseBtn() {
@@ -633,9 +760,10 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             )
         }
 
-        binding.bottomSheet.playPauseExpandedPlayer.isSelected =
-            AllSongFragment.musicService?.mediaPlayer?.isPlaying!!
-
+        if (AllSongFragment.musicService?.mediaPlayer != null) {
+            binding.bottomSheet.playPauseExpandedPlayer.isSelected =
+                AllSongFragment.musicService?.mediaPlayer?.isPlaying!!
+        }
         // update progress bar
         //binding.bottomSheet.audioProgress.max = audioList[audioIndexPos].duration
         // AllSongFragment.musicService?.mediaPlayer?.duration!!
@@ -1009,10 +1137,17 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     }
 
     private fun animateMiniPlayerToGone() {
+        val bottomMarginOfFrag =
+            if (isPlaylstCategoryOpened || isAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag) {
+                65
+            } else {
+                120
+            }
+
         val layoutParams =
             binding.fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams
         layoutParams.bottomMargin =
-            ConvertDpToPx.dpToPx(65, this@ActivityBottomBarFragmentContainer)
+            ConvertDpToPx.dpToPx(bottomMarginOfFrag, this@ActivityBottomBarFragmentContainer)
         binding.fragmentContainer.layoutParams = layoutParams
 
         binding.bottomSheet.rlMiniPlayerBottomsheet.animate()
@@ -1028,23 +1163,33 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     }
 
     private fun animateMiniPlayerToVisible() {
-        binding.bottomSheet.rlMiniPlayerBottomsheet.animate()
-            .translationY(0f)
-            .alpha(1f).duration = 200
+        Handler(Looper.getMainLooper()).postDelayed({
+            binding.bottomSheet.rlMiniPlayerBottomsheet.animate()
+                .translationY(0f)
+                .alpha(1f).duration = 200
 
-        binding.bottomSheet.rlMiniPlayerBottomsheet.visibility = View.VISIBLE
+            binding.bottomSheet.rlMiniPlayerBottomsheet.visibility = View.VISIBLE
 
-        nowPlayingBottomSheetBehavior.peekHeight =
-            ConvertDpToPx.dpToPx(
-                120,
-                this@ActivityBottomBarFragmentContainer
-            )
+            nowPlayingBottomSheetBehavior.peekHeight =
+                ConvertDpToPx.dpToPx(
+                    120,
+                    this@ActivityBottomBarFragmentContainer
+                )
 
-        val layoutParams =
-            binding.fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams
-        layoutParams.bottomMargin =
-            ConvertDpToPx.dpToPx(120, this@ActivityBottomBarFragmentContainer)
-        binding.fragmentContainer.layoutParams = layoutParams
+            val bottomMarginOfFrag =
+                if (isPlaylstCategoryOpened || isAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag) {
+                    65
+                } else {
+                    120
+                }
+
+            val layoutParams =
+                binding.fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams
+            layoutParams.bottomMargin =
+                ConvertDpToPx.dpToPx(bottomMarginOfFrag, this@ActivityBottomBarFragmentContainer)
+            binding.fragmentContainer.layoutParams = layoutParams
+        }, 500)
+
     }
 
     private fun animateBottomBarToGone() {
@@ -1096,6 +1241,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
             //setting player background
             if (albumArt != null) {
+                binding.bottomSheet.nowPlayingNoAlbumArt.visibility = View.GONE
+                binding.bottomSheet.nowPlayingAlbumArtIV.visibility = View.VISIBLE
+
                 Glide.with(this).load(allSongsModel.artUri).transition(
                     withCrossFade(
                         factory
@@ -1103,66 +1251,74 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 )
                     .into(binding.bottomSheet.nowPlayingAlbumArtIV)
                 Palette.from(albumArt).generate {
-                    val swatch = it?.darkMutedSwatch
+                    val bottomSwatch = it?.darkMutedSwatch
+                    val topSwatch = it?.darkMutedSwatch
 
-                    if (swatch != null) {
+                    if (bottomSwatch != null && topSwatch != null) {
                         binding.bottomSheet.albumArtBottomGradient.setBackgroundResource(R.drawable.gradient_background_bottom_shadow)
                         binding.bottomSheet.bottomBackground.setBackgroundResource(R.drawable.app_theme_background_drawable)
-                        // binding.bottomSheet.albumArtTopGradient.setBackgroundResource(R.drawable.gradient_background_top_shadow)
+                        binding.bottomSheet.topBackground.setBackgroundResource(R.drawable.app_theme_background_drawable)
+                        binding.bottomSheet.albumArtTopGradient.setBackgroundResource(R.drawable.gradient_background_top_shadow)
 
                         val gradientDrawableBottomTop = GradientDrawable(
                             GradientDrawable.Orientation.BOTTOM_TOP,
-                            intArrayOf(swatch.rgb, 0x00000000)
+                            intArrayOf(bottomSwatch.rgb, 0x00000000)
                         )
 
-                        // Log.d("Swatch11", "updateViews: ${swatch.rgb}")
-                        //Toast.makeText(this, "${swatch.rgb}", Toast.LENGTH_SHORT).show()
-                        //val gradientDrawableTopBottom = GradientDrawable(
-                        //    GradientDrawable.Orientation.TOP_BOTTOM,
-                        //    intArrayOf(swatch.rgb, swatch.population)
-                        // )
-                        //  binding.bottomSheet.albumArtBottomGradient.background =
-                        //     gradientDrawableBottomTop
-                        //binding.bottomSheet.albumArtTopGradient.background =
-                        //   gradientDrawableTopBottom
+                        val gradientDrawableTopBottom = GradientDrawable(
+                            GradientDrawable.Orientation.TOP_BOTTOM,
+                            intArrayOf(topSwatch.rgb, 0x00000000)
+                        )
+
                         Glide.with(this).load(gradientDrawableBottomTop)
                             .transition(withCrossFade(factory))
                             .into(binding.bottomSheet.albumArtBottomGradient)
+
+                        Glide.with(this).load(gradientDrawableTopBottom)
+                            .transition(withCrossFade(factory))
+                            .into(binding.bottomSheet.albumArtTopGradient)
 
                         //Glide.with(this).load(gradientDrawableTopBottom)
                         //   .transition(withCrossFade(factory))
                         //  .into(binding.bottomSheet.albumArtTopGradient)
 
-                        // parent background
-                        val gradientDrawableParent = GradientDrawable(
+                        // parent bottom background
+                        val gradientDrawableParentBottom = GradientDrawable(
                             GradientDrawable.Orientation.BOTTOM_TOP,
-                            intArrayOf(swatch.rgb, swatch.rgb)
+                            intArrayOf(bottomSwatch.rgb, bottomSwatch.rgb)
                         )
 
-                        Glide.with(this).load(gradientDrawableParent)
+                        // parent top background
+                        val gradientDrawableParentTop = GradientDrawable(
+                            GradientDrawable.Orientation.TOP_BOTTOM,
+                            intArrayOf(topSwatch.rgb, topSwatch.rgb)
+                        )
+
+                        Glide.with(this).load(gradientDrawableParentBottom)
                             .transition(withCrossFade(factory))
                             .into(binding.bottomSheet.bottomBackground)
+
+                        Glide.with(this).load(gradientDrawableParentTop)
+                            .transition(withCrossFade(factory))
+                            .into(binding.bottomSheet.topBackground)
 //                        binding.bottomSheet.bottomBackground.background = gradientDrawableParent
 
+                    } else {
+                        defaultBackgroundOfExpandedPlayer()
                     }
+
                 }
 
             } else {
-                val originalBitmap = BitmapFactory.decodeResource(
-                    resources,
-                    R.drawable.music_note_icon
-                )
-                Glide.with(this).load(originalBitmap)
-                    .transition(withCrossFade(factory))
-                    .into(binding.bottomSheet.nowPlayingAlbumArtIV)
+                binding.bottomSheet.nowPlayingNoAlbumArt.visibility = View.VISIBLE
+                binding.bottomSheet.nowPlayingAlbumArtIV.visibility = View.GONE
 
-                Glide.with(this).load(R.drawable.purple_background_gradient)
-                    .transition(withCrossFade(factory))
-                    .into(binding.bottomSheet.albumArtBottomGradient)
+                // val originalBitmap = BitmapFactory.decodeResource(
+                //     resources,
+                //     R.drawable.music_note_icon
+                // )
 
-                Glide.with(this).load(R.drawable.purple_solid_background)
-                    .transition(withCrossFade(factory))
-                    .into(binding.bottomSheet.bottomBackground)
+                defaultBackgroundOfExpandedPlayer()
 
 //                Palette.from(originalBitmap).generate {
 //                    val swatch = it?.dominantSwatch
@@ -1196,6 +1352,30 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         }
     }
 
+    private fun defaultBackgroundOfExpandedPlayer() {
+        val factory = DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
+
+        Glide.with(this).load(R.drawable.music_note_icon)
+            .transition(withCrossFade(factory))
+            .into(binding.bottomSheet.nowPlayingNoAlbumArt)
+
+        Glide.with(this).load(R.drawable.purple_background_bottom_gradient)
+            .transition(withCrossFade(factory))
+            .into(binding.bottomSheet.albumArtBottomGradient)
+
+        Glide.with(this).load(R.drawable.purple_solid_background)
+            .transition(withCrossFade(factory))
+            .into(binding.bottomSheet.bottomBackground)
+
+        Glide.with(this).load(R.drawable.purple_background_top_gradient)
+            .transition(withCrossFade(factory))
+            .into(binding.bottomSheet.albumArtTopGradient)
+
+        Glide.with(this).load(R.drawable.purple_solid_background)
+            .transition(withCrossFade(factory))
+            .into(binding.bottomSheet.topBackground)
+    }
+
     private fun updateAudioController() {
         binding.bottomSheet.seekBar.max =
             (queueAudioList[audioIndexPos].duration.toDouble() / 1000).toInt()
@@ -1225,6 +1405,11 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         try {
                             binding.bottomSheet.startTimeTV.text =
                                 millisToMinutesAndSeconds(AllSongFragment.musicService?.mediaPlayer?.currentPosition!!)
+                            /* ObjectAnimator.ofInt(
+                                 binding.bottomSheet.seekBar,
+                                 "progress",
+                                 (AllSongFragment.musicService?.mediaPlayer?.currentPosition!!.toDouble() / 1000).toInt()
+                             ).setDuration(300).start()*/
                             binding.bottomSheet.seekBar.progress =
                                 (AllSongFragment.musicService?.mediaPlayer?.currentPosition!!.toDouble() / 1000).toInt()
                             handler.postDelayed(this, 1000)
@@ -1244,6 +1429,8 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekbar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
+                    /*ObjectAnimator.ofInt(binding.bottomSheet.seekBar, "progress", progress)
+                        .setDuration(300).start()*/
                     binding.bottomSheet.seekBar.progress = progress
                     binding.bottomSheet.startTimeTV.text =
                         millisToMinutesAndSeconds(progress * 1000)
@@ -1270,8 +1457,8 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         return if (seconds == 60) "${(minutes.toInt() + 1)}:00" else "${minutes.toInt()}:${if (seconds < 10) "0" else ""}$seconds "
     }
 
-    private fun incrementPosByOne() {
-        audioIndexPos = storage.loadAudioIndex()
+    private fun incrementPosByOne(newAudioIndexPos: Int) {
+        audioIndexPos = newAudioIndexPos/* storage.loadAudioIndex()*/
         if (audioIndexPos != queueAudioList.size - 1) {
             ++audioIndexPos
         } else {
@@ -1289,8 +1476,8 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
          }
      }*/
 
-    private fun decrementPosByOne() {
-        audioIndexPos = storage.loadAudioIndex()
+    private fun decrementPosByOne(prevAudioIndex: Int) {
+        audioIndexPos = prevAudioIndex
         if (audioIndexPos != 0) {
             --audioIndexPos
         } else {
@@ -1378,207 +1565,206 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private val updatePlayerUI: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
 
-            if (intent.action == AllSongFragment.Broadcast_UPDATE_MINI_PLAYER) {
-                isShuffled = storage.getIsShuffled()
+            // if (intent.action == AllSongFragment.Broadcast_UPDATE_MINI_PLAYER) {
+            isShuffled = storage.getIsShuffled()
 
-                try {
-                    queueAudioList = storage.loadQueueAudio()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-
-                //Get the current playing media index form SharedPreferences
-                audioIndexPos = storage.loadAudioIndex()
-
-                val bundle = intent.extras
-
-                //show the mini player
-                if (storage.getIsAudioPlayedFirstTime() || newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                    storage.saveIsAudioPlayedFirstTime(false)
-
-                    animateMiniPlayerToVisible()
-                    nowPlayingBottomSheetBehavior.isDraggable = !isContextMenuEnabled
-                }
-
-                Toast.makeText(
-                    this@ActivityBottomBarFragmentContainer,
-                    "audioIndexPos aa $audioIndexPos",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                if (audioIndexPos != -1) {
-                    if (isShuffled) {
-                        binding.bottomSheet.shuffleSongIV.setImageResource(R.drawable.ic_shuffle_on_24)
-                    } else {
-                        binding.bottomSheet.shuffleSongIV.setImageResource(R.drawable.ic_shuffle)
-                    }
-
-                    Log.d("prevPlayingAudioIndex", "onReceive:  $audioIndexPos")
-                    // AllSongFragment.musicService?.pausedByManually = false
-
-                    //this condition is used to prevent redundant update of views , this piece of code will only run when Play Pause Btn clicked
-                    var updateHeartImage = true
-                    if (isPlayPauseClicked) {
-                        updateHeartImage =
-                            false // if play pause btn is clicked then restrict to show animation in heart image
-                        isPlayPauseClicked = false
-                        if (AllSongFragment.musicService?.mediaPlayer != null) {
-                            if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
-                                binding.bottomSheet.playPauseMiniPlayer.setImageResource(R.drawable.ic_pause_audio)
-                            } else {
-                                binding.bottomSheet.playPauseMiniPlayer.setImageResource(R.drawable.ic_play_audio)
-                            }
-
-                            binding.bottomSheet.playPauseExpandedPlayer.isSelected =
-                                AllSongFragment.musicService?.mediaPlayer?.isPlaying!!
-                        }
-                    } else {
-                        binding.bottomSheet.audioProgress.max =
-                            queueAudioList[audioIndexPos].duration
-                        binding.bottomSheet.audioProgress.progress = storage.getAudioResumePos()
-
-                        handleAudioProgressBar()
-
-                        //update ui
-                        if (!isDestroyedActivity) {
-                            updatePlayingMusic(audioIndexPos)
-                            updateExpandedPlayerViews(audioIndexPos)
-                            updateAudioController()
-                        }
-
-                        val currentTime = System.currentTimeMillis()
-                        updateCurrentPlayedTime(queueAudioList, currentTime)
-                        //incrementMostPlayedCount(audioList,audioIndexPos)
-                        val mostPlayedCount = queueAudioList[audioIndexPos].mostPlayedCount + 1
-                        mViewModelClass.updateMostPlayedAudioCount(
-                            queueAudioList[audioIndexPos].songId,
-                            mostPlayedCount,
-                            lifecycleScope
-                        )
-
-                        // update audio highlight while skipping prev and next audio
-                        var hasSetFavFromNoti = false
-                        if (bundle != null) {
-                            hasSetFavFromNoti = bundle.getBoolean("hasSetFavFromNoti", false)
-                            if (hasSetFavFromNoti) {
-                                val isFav = bundle.getBoolean("isFav", false)
-                                if (isFav) {
-                                    binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.avd_trimclip_heart_fill)
-                                    showLikedAudioAnim()
-                                } else {
-                                    binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.avd_trimclip_heart_break)
-                                    showLikedAudioAnim()
-                                }
-                                addAudioToFavourites(isFav)
-                            } else {
-                                val previousRunningAudioIndex = bundle.getInt("index")
-                                Log.d(
-                                    "previousRunningAudioIndex",
-                                    "onReceive:$previousRunningAudioIndex "
-                                )
-                                // remove previous audio highlight
-                                mViewModelClass.updateSong(
-                                    queueAudioList[previousRunningAudioIndex].songId,
-                                    queueAudioList[previousRunningAudioIndex].songName,
-                                    -1,//default
-                                    lifecycleScope
-                                )
-                                mViewModelClass.updateQueueAudio(
-                                    queueAudioList[previousRunningAudioIndex].songId,
-                                    queueAudioList[previousRunningAudioIndex].songName,
-                                    -1,//default
-                                    lifecycleScope
-                                )
-                            }
-                        }
-
-                        //saving list with current playing audio only if hasSetFavFromNoti is FALSE
-                        if (!hasSetFavFromNoti) {
-                            Log.d("ActivityminiPlayer", "onReceive: $queueAudioList ")
-                            val list = CopyOnWriteArrayList<AllSongsModel>()
-                            for ((index, audio) in queueAudioList.withIndex()) {
-                                val allSongsModel = AllSongsModel(
-                                    audio.songId,
-                                    audio.albumId,
-                                    audio.songName,
-                                    audio.artistsName,
-                                    audio.albumName,
-                                    audio.size,
-                                    audio.duration,
-                                    audio.data,
-                                    audio.contentUri,
-                                    audio.artUri,
-                                    audio.dateAdded,
-                                    audio.isFavourite,
-                                    audio.favAudioAddedTime,
-                                    audio.artistId,
-                                    audio.displayName,
-                                    audio.contentType,
-                                    audio.year
-                                )
-
-                                if (index == audioIndexPos) {
-                                    allSongsModel.mostPlayedCount = mostPlayedCount
-                                    if (AllSongFragment.musicService?.mediaPlayer != null) {
-                                        if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
-                                            allSongsModel.playingOrPause = 1 /*playing*/
-                                        } else {
-                                            allSongsModel.playingOrPause = 0 /*pause*/
-                                        }
-                                    }
-
-                                    // if play pause btn is not clicked then only update this and animation will be shown
-                                    if (updateHeartImage) {
-                                        updateHeartImage = false
-                                        if (audio.isFavourite) {
-                                            binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.ic_filled_red_heart)
-                                        } else {
-                                            binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.vd_trimclip_heart_empty)
-                                        }
-                                    }
-
-                                    allSongsModel.currentPlayedAudioTime = currentTime
-                                    list.add(allSongsModel)
-                                } else {
-                                    allSongsModel.mostPlayedCount = audio.mostPlayedCount
-                                    allSongsModel.currentPlayedAudioTime =
-                                        audio.currentPlayedAudioTime
-                                    list.add(allSongsModel)
-                                }
-
-                                Log.d(
-                                    "MostPlayedAudio1111",
-                                    "onReceive:  ${allSongsModel.songName} , ${allSongsModel.mostPlayedCount} "
-                                )
-
-                            }
-                            storage.storeQueueAudio(list)
-                        }
-
-                    }
-
-                } else {
-                    if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                        binding.bottomSheet.rlMiniPlayerBottomsheet.visibility = View.GONE
-                        nowPlayingBottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                        if (queueListBottomSheet != null) {
-                            queueListBottomSheet!!.dismiss()
-                        }
-                    }
-
-                    animateMiniPlayerToGone()
-                    /* nowPlayingBottomSheetBehavior.peekHeight =
-                         ConvertDpToPx.dpToPx(
-                             65,
-                             this@ActivityBottomBarFragmentContainer
-                         )*/
-
-                    nowPlayingBottomSheetBehavior.isDraggable = false
-                }
+            try {
+                queueAudioList = storage.loadQueueAudio()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
+
+            //Get the current playing media index form SharedPreferences
+            audioIndexPos = storage.loadAudioIndex()
+
+            val bundle = intent.extras
+
+            //show the mini player
+            if (storage.getIsAudioPlayedFirstTime() || newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                storage.saveIsAudioPlayedFirstTime(false)
+
+                animateMiniPlayerToVisible()
+                nowPlayingBottomSheetBehavior.isDraggable = !isContextMenuEnabled
+            }
+
+            /*  Toast.makeText(
+                  this@ActivityBottomBarFragmentContainer,
+                  "audioIndexPos aa $audioIndexPos",
+                  Toast.LENGTH_SHORT
+              ).show()*/
+
+            if (audioIndexPos != -1) {
+                if (isShuffled) {
+                    binding.bottomSheet.shuffleSongIV.setImageResource(R.drawable.ic_shuffle_on_24)
+                } else {
+                    binding.bottomSheet.shuffleSongIV.setImageResource(R.drawable.ic_shuffle)
+                }
+
+                Log.d("prevPlayingAudioIndex", "onReceive:  $audioIndexPos")
+                // AllSongFragment.musicService?.pausedByManually = false
+
+                //this condition is used to prevent redundant update of views , this piece of code will only run when Play Pause Btn clicked
+                var updateHeartImage = true
+                if (isPlayPauseClicked) {
+                    updateHeartImage =
+                        false // if play pause btn is clicked then restrict to show animation in heart image
+                    isPlayPauseClicked = false
+                    if (AllSongFragment.musicService?.mediaPlayer != null) {
+                        if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
+                            binding.bottomSheet.playPauseMiniPlayer.setImageResource(R.drawable.ic_pause_audio)
+                        } else {
+                            binding.bottomSheet.playPauseMiniPlayer.setImageResource(R.drawable.ic_play_audio)
+                        }
+
+                        binding.bottomSheet.playPauseExpandedPlayer.isSelected =
+                            AllSongFragment.musicService?.mediaPlayer?.isPlaying!!
+                    }
+                } else {
+                    binding.bottomSheet.audioProgress.max =
+                        queueAudioList[audioIndexPos].duration
+                    binding.bottomSheet.audioProgress.progress = storage.getAudioResumePos()
+
+                    handleAudioProgressBar()
+
+                    //update ui
+                    if (!isDestroyedActivity) {
+                        updateMiniPlayer(audioIndexPos)
+                        updateExpandedPlayerViews(audioIndexPos)
+                        updateAudioController()
+                    }
+
+                    val currentTime = System.currentTimeMillis()
+                    updateCurrentPlayedTime(queueAudioList, currentTime)
+                    //incrementMostPlayedCount(audioList,audioIndexPos)
+                    val mostPlayedCount = queueAudioList[audioIndexPos].mostPlayedCount + 1
+                    mViewModelClass.updateMostPlayedAudioCount(
+                        queueAudioList[audioIndexPos].songId,
+                        mostPlayedCount,
+                        lifecycleScope
+                    )
+
+                    // update audio highlight while skipping prev and next audio
+                    var hasSetFavFromNoti = false
+                    if (bundle != null) {
+                        hasSetFavFromNoti = bundle.getBoolean("hasSetFavFromNoti", false)
+                        if (hasSetFavFromNoti) {
+                            val isFav = bundle.getBoolean("isFav", false)
+                            if (isFav) {
+                                binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.avd_trimclip_heart_fill)
+                                showLikedAudioAnim()
+                            } else {
+                                binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.avd_trimclip_heart_break)
+                                showLikedAudioAnim()
+                            }
+                            addAudioToFavourites(isFav)
+                        } else {
+                            val previousRunningAudioIndex = bundle.getInt("index")
+                            Log.d(
+                                "previousRunningAudioIndex",
+                                "onReceive:$previousRunningAudioIndex "
+                            )
+                            // remove previous audio highlight
+                            mViewModelClass.updateSong(
+                                queueAudioList[previousRunningAudioIndex].songId,
+                                queueAudioList[previousRunningAudioIndex].songName,
+                                -1,//default
+                                lifecycleScope
+                            )
+                            mViewModelClass.updateQueueAudio(
+                                queueAudioList[previousRunningAudioIndex].songId,
+                                queueAudioList[previousRunningAudioIndex].songName,
+                                -1,//default
+                                lifecycleScope
+                            )
+                        }
+                    }
+
+                    //saving list with current playing audio only if hasSetFavFromNoti is FALSE
+                    if (!hasSetFavFromNoti) {
+                        Log.d("ActivityminiPlayer", "onReceive: $queueAudioList ")
+                        val list = CopyOnWriteArrayList<AllSongsModel>()
+                        for ((index, audio) in queueAudioList.withIndex()) {
+                            val allSongsModel = AllSongsModel(
+                                audio.songId,
+                                audio.albumId,
+                                audio.songName,
+                                audio.artistsName,
+                                audio.albumName,
+                                audio.size,
+                                audio.duration,
+                                audio.data,
+                                audio.contentUri,
+                                audio.artUri,
+                                audio.dateAdded,
+                                audio.isFavourite,
+                                audio.favAudioAddedTime,
+                                audio.artistId,
+                                audio.displayName,
+                                audio.contentType,
+                                audio.year
+                            )
+
+                            if (index == audioIndexPos) {
+                                allSongsModel.mostPlayedCount = mostPlayedCount
+                                if (AllSongFragment.musicService?.mediaPlayer != null) {
+                                    if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
+                                        allSongsModel.playingOrPause = 1 /*playing*/
+                                    } else {
+                                        allSongsModel.playingOrPause = 0 /*pause*/
+                                    }
+                                }
+
+                                // if play pause btn is not clicked then only update this and animation will be shown
+                                if (updateHeartImage) {
+                                    updateHeartImage = false
+                                    if (audio.isFavourite) {
+                                        binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.ic_filled_red_heart)
+                                    } else {
+                                        binding.bottomSheet.likedAudioIV.setImageResource(R.drawable.vd_trimclip_heart_empty)
+                                    }
+                                }
+
+                                allSongsModel.currentPlayedAudioTime = currentTime
+                                list.add(allSongsModel)
+                            } else {
+                                allSongsModel.mostPlayedCount = audio.mostPlayedCount
+                                allSongsModel.currentPlayedAudioTime =
+                                    audio.currentPlayedAudioTime
+                                list.add(allSongsModel)
+                            }
+
+                            Log.d(
+                                "MostPlayedAudio1111",
+                                "onReceive:  ${allSongsModel.songName} , ${allSongsModel.mostPlayedCount} "
+                            )
+
+                        }
+                        storage.storeQueueAudio(list)
+                    }
+
+                }
+
+            } else {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    binding.bottomSheet.rlMiniPlayerBottomsheet.visibility = View.GONE
+                    nowPlayingBottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                    if (queueListBottomSheet != null) {
+                        queueListBottomSheet!!.dismiss()
+                    }
+                }
+
+                animateMiniPlayerToGone()
+                /* nowPlayingBottomSheetBehavior.peekHeight =
+                     ConvertDpToPx.dpToPx(
+                         65,
+                         this@ActivityBottomBarFragmentContainer
+                     )*/
+
+                nowPlayingBottomSheetBehavior.isDraggable = false
+            }
+            //}
         }
     }
-
 
     private fun updateCurrentPlayedTime(
         audioList: CopyOnWriteArrayList<AllSongsModel>,
@@ -1625,19 +1811,19 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         mCastContext!!.addCastStateListener { state ->
             if (state == CastState.NO_DEVICES_AVAILABLE) {
                 binding.bottomSheet.castBtn.visibility = View.GONE
-                binding.bottomSheet.skipNextAudio1.visibility = View.VISIBLE
+                binding.bottomSheet.skipNextAudioMP.visibility = View.VISIBLE
             } else {
                 binding.bottomSheet.castBtn.visibility = View.VISIBLE
-                binding.bottomSheet.skipNextAudio1.visibility = View.GONE
+                binding.bottomSheet.skipNextAudioMP.visibility = View.GONE
             }
         }
 
         if (mCastContext!!.castState == CastState.NO_DEVICES_AVAILABLE) {
             binding.bottomSheet.castBtn.visibility = View.GONE
-            binding.bottomSheet.skipNextAudio1.visibility = View.VISIBLE
+            binding.bottomSheet.skipNextAudioMP.visibility = View.VISIBLE
         } else {
             binding.bottomSheet.castBtn.visibility = View.VISIBLE
-            binding.bottomSheet.skipNextAudio1.visibility = View.GONE
+            binding.bottomSheet.skipNextAudioMP.visibility = View.GONE
         }
 
         CastButtonFactory.setUpMediaRouteButton(this, binding.bottomSheet.castBtn)

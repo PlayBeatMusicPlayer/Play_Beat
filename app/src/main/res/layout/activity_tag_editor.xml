@@ -16,7 +16,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            tools:ignore="UseCompoundDrawables">
             <!--back arrow-->
             <ImageView
                 android:id="@+id/arrowBackIV"
@@ -26,7 +27,7 @@
                 android:layout_marginTop="45dp"
                 android:layout_marginEnd="15dp"
                 android:layout_marginBottom="15dp"
-                android:background="@drawable/curved_all_edges"
+                android:background="@drawable/curved_all_edges_app_theme"
                 android:contentDescription="@null"
                 android:paddingTop="5dp"
                 android:paddingEnd="2dp"

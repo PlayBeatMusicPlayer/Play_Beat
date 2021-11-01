@@ -237,12 +237,12 @@ class PlaylistsFragment : Fragment() {
     }
 
 
-    override fun onHiddenChanged(hidden: Boolean) {
+   /* override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         if (hidden) {
             binding?.fabCreatePlaylist!!.animate().alpha(0.0f).duration = 300
         } else {
             binding?.fabCreatePlaylist!!.animate().alpha(1f).duration = 300
         }
-    }
+    }*/
 }

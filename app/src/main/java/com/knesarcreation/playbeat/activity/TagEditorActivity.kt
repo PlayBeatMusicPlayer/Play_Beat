@@ -38,14 +38,17 @@ import java.io.File
 class TagEditorActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTagEditorBinding
     private var registerPickImageRequest: ActivityResultLauncher<Intent>? = null
+    private lateinit var mViewModelClass: ViewModelClass
     private var audioModel = ""
     private var artist = ""
     private var album = ""
-    private lateinit var mViewModelClass: ViewModelClass
     private var audioTitle = ""
+    private var tempArtist = ""
+    private var tempAlbum = ""
+    private var tempAudioTitle = ""
     private var newAlbumArtUri: Uri? = null
     private lateinit var allSongsModel: AllSongsModel
-    private lateinit var albumData: AlbumModel
+    private var albumData: AlbumModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +70,10 @@ class TagEditorActivity : AppCompatActivity() {
         binding.etTitle.setText(allSongsModel.songName)
         binding.etAlbum.setText(allSongsModel.albumName)
         binding.etArtist.setText(allSongsModel.artistsName)
+
+        tempAudioTitle = allSongsModel.songName
+        tempAlbum = allSongsModel.albumName
+        tempArtist = allSongsModel.artistsName
 
         val factory = DrawableCrossFadeFactory.Builder(200)
 
@@ -94,12 +101,30 @@ class TagEditorActivity : AppCompatActivity() {
                     Log.d("albumListabcdefgh", "saveEditedTag: $albumList ")
                     if (albumList.isNotEmpty()) {
                         albumData = albumList[0]
-                        audioTitle = binding.etTitle.text.toString()
-                        artist = binding.etArtist.text.toString()
-                        album = binding.etAlbum.text.toString()
-                        //updateMetadata()
-                        updateAudioTagsToDatabase()
                     }
+                    audioTitle = binding.etTitle.text.toString().trim()
+                    artist = binding.etArtist.text.toString().trim()
+                    album = binding.etAlbum.text.toString().trim()
+
+                    if (audioTitle == "")
+                        audioTitle = tempAudioTitle
+
+                    if (artist == "")
+                        artist = tempArtist
+
+                    if (album == "")
+                        album = tempAlbum
+
+                    /*  runOnUiThread {
+                          Toast.makeText(
+                              this@TagEditorActivity,
+                              "title: $audioTitle , artist: $artist , album: $album",
+                              Toast.LENGTH_SHORT
+                          ).show()
+                      }*/
+
+                    updateAudioTagsToDatabase()
+
                 }
             } else {
                 Toast.makeText(this, "Title should not empty.", Toast.LENGTH_SHORT).show()
@@ -116,7 +141,7 @@ class TagEditorActivity : AppCompatActivity() {
                     if (it.data != null) {
                         newAlbumArtUri = it.data?.data!!
                         //val uriRealPath = GetRealPathOfUri().getUriRealPath(this, newAlbumArtUri!!)
-                        Toast.makeText(this, "$newAlbumArtUri", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this, "$newAlbumArtUri", Toast.LENGTH_SHORT).show()
                         Log.d(
                             "newAlbumArtUriTagEditor",
                             "registerActivityPickImageRequest:${newAlbumArtUri} "
@@ -178,7 +203,7 @@ class TagEditorActivity : AppCompatActivity() {
 
             if (albumArtFile != null) {
                 val cover = ArtworkFactory.createArtworkFromFile(albumArtFile)
-                Toast.makeText(applicationContext, "$cover", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(applicationContext, "$cover", Toast.LENGTH_SHORT).show()
 
                 cover.setFromFile(albumArtFile)
                 tag.deleteArtworkField()
@@ -192,7 +217,7 @@ class TagEditorActivity : AppCompatActivity() {
                 tag.createField(firstArtwork)
                 tag.addField(firstArtwork)
                 tag.setField(firstArtwork)
-                Toast.makeText(this, "$firstArtwork", Toast.LENGTH_SHORT).show()
+                // Toast.makeText(this, "$firstArtwork", Toast.LENGTH_SHORT).show()
             }
 
             musicFile.tag = tag
@@ -235,7 +260,7 @@ class TagEditorActivity : AppCompatActivity() {
             indexOfSelectedAudio = loadQueueAudio.indexOf(allSongsModel)
 
         if (newAlbumArtUri != null) {
-            if (indexOfSelectedAudio != -1) {
+            if (loadQueueAudio.isNotEmpty() && indexOfSelectedAudio != -1) {
                 mViewModelClass.deleteQueue(lifecycleScope)
                 //update queue audio
                 loadQueueAudio[indexOfSelectedAudio].songName = audioTitle.trim()
@@ -254,29 +279,38 @@ class TagEditorActivity : AppCompatActivity() {
 
             mViewModelClass.updateAudioTagsInAllSongsModel(
                 allSongsModel.songId,
-                binding.etTitle.text.toString().trim(),
-                binding.etAlbum.text.toString().trim(),
-                binding.etArtist.text.toString().trim(),
+                audioTitle,
+                album,
+                artist,
                 newAlbumArtUri!!.toString(),
                 lifecycleScope
             )
+
+            var lastYear = 0
+            var songCount = 0
+
+            if (albumData != null) {
+                lastYear = albumData!!.lastYear
+                songCount = albumData!!.songCount
+            }
+
             val albumModel = AlbumModel(
                 allSongsModel.albumId,
-                binding.etAlbum.text.toString().trim(),
-                binding.etArtist.text.toString().trim(),
+                album,
+                artist,
                 newAlbumArtUri!!.toString(),
-                albumData.lastYear,
-                albumData.songCount
+                lastYear,
+                songCount
             )
             mViewModelClass.insertAlbum(albumModel, lifecycleScope)
 
             val artistModel = ArtistsModel(
                 allSongsModel.artistId,
-                binding.etArtist.text.toString().trim()
+                artist
             )
             mViewModelClass.insertArtist(artistModel, lifecycleScope)
 
-            if (indexOfSelectedAudio != -1) {
+            if (indexOfSelectedAudio != -1 && loadQueueAudio.isNotEmpty()) {
                 storage.storeQueueAudio(loadQueueAudio)
                 storage.storeAudio(audioList)
                 for (audio in loadQueueAudio) {
@@ -307,7 +341,7 @@ class TagEditorActivity : AppCompatActivity() {
                 "updateAudioTagsToDatabase:${loadQueueAudio[indexOfSelectedAudio]} "
             )
         } else {
-            if (indexOfSelectedAudio != -1) {
+            if (loadQueueAudio.isNotEmpty() && indexOfSelectedAudio != -1) {
                 mViewModelClass.deleteQueue(lifecycleScope)
                 loadQueueAudio[indexOfSelectedAudio].songName = audioTitle
                 loadQueueAudio[indexOfSelectedAudio].albumName = album
@@ -319,34 +353,43 @@ class TagEditorActivity : AppCompatActivity() {
                 audioModel!!.songName = audioTitle.trim()
                 audioModel.albumName = album.trim()
                 audioModel.artistsName = artist.trim()
-                audioModel.artUri = newAlbumArtUri!!.toString()
+                audioModel.artUri = allSongsModel.artUri
             }
 
             mViewModelClass.updateAudioTagsInAllSongsModel(
                 allSongsModel.songId,
-                binding.etTitle.text.toString().trim(),
-                binding.etAlbum.text.toString().trim(),
-                binding.etArtist.text.toString().trim(),
+                audioTitle,
+                album,
+                artist,
                 allSongsModel.artUri,
                 lifecycleScope
             )
+
+            var lastYear = 0
+            var songCount = 0
+
+            if (albumData != null) {
+                lastYear = albumData!!.lastYear
+                songCount = albumData!!.songCount
+            }
+
             val albumModel = AlbumModel(
                 allSongsModel.albumId,
-                binding.etAlbum.text.toString().trim(),
-                binding.etArtist.text.toString().trim(),
+                album,
+                artist,
                 allSongsModel.artUri,
-                albumData.lastYear,
-                albumData.songCount
+                lastYear,
+                songCount
             )
             mViewModelClass.insertAlbum(albumModel, lifecycleScope)
 
             val artistModel = ArtistsModel(
                 allSongsModel.artistId,
-                binding.etArtist.text.toString().trim()
+                artist
             )
             mViewModelClass.insertArtist(artistModel, lifecycleScope)
 
-            if (indexOfSelectedAudio != -1) {
+            if (indexOfSelectedAudio != -1 && loadQueueAudio.isNotEmpty()) {
                 storage.storeQueueAudio(loadQueueAudio)
                 storage.storeAudio(audioList)
                 for (audio in loadQueueAudio) {

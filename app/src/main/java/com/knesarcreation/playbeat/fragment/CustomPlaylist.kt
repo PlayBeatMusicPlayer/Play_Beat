@@ -3,6 +3,7 @@ package com.knesarcreation.playbeat.fragment
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -13,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +23,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -36,6 +40,7 @@ import com.knesarcreation.playbeat.utils.StorageUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
 
 class CustomPlaylist : Fragment() {
@@ -174,7 +179,56 @@ class CustomPlaylist : Fragment() {
             }
         })
 
+        shareAudios()
+
         return view
+    }
+
+    private fun shareAudios() {
+        binding?.shareAudioIV?.setOnClickListener {
+            val shareAlertdialog =
+                AlertDialog.Builder(activity as Context, R.style.CustomAlertDialog)
+            val viewGroup: ViewGroup =
+                (activity as AppCompatActivity).findViewById(android.R.id.content)
+            val customView =
+                layoutInflater.inflate(R.layout.custom_alert_dialog, viewGroup, false)
+            val dialogTitleTV = customView.findViewById<TextView>(R.id.dialogTitleTV)
+            val dialogMessageTV =
+                customView.findViewById<TextView>(R.id.dialogMessageTV)
+            val cancelButton =
+                customView.findViewById<MaterialButton>(R.id.cancelButton)
+            val positiveBtn = customView.findViewById<MaterialButton>(R.id.positiveBtn)
+            shareAlertdialog.setView(customView)
+
+            positiveBtn.text = getString(R.string.share)
+            dialogTitleTV.text = getString(R.string.share_audio_dialog_title)
+            dialogMessageTV.text = getString(R.string.share_audio_dialog_msg)
+
+            val dialog = shareAlertdialog.create()
+
+            cancelButton.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            positiveBtn.setOnClickListener {
+                val uriList = ArrayList<Uri>()
+
+                for (audio in customPlaylist) {
+                    uriList.add(Uri.parse(audio.contentUri))
+                }
+
+                val shareIntent = Intent().apply {
+                    action = Intent.ACTION_SEND_MULTIPLE
+                    putParcelableArrayListExtra(Intent.EXTRA_STREAM, uriList)
+                    type = "audio/*"
+                }
+                startActivity(Intent.createChooser(shareIntent, null))
+                dialog.dismiss()
+            }
+
+            dialog.show()
+
+        }
     }
 
     private fun moreOptionMenu() {
@@ -237,28 +291,48 @@ class CustomPlaylist : Fragment() {
                 e.printStackTrace()
             }
 
-            mViewModelClass.deleteQueue(lifecycleScope)
-            //val newAudiosForQueue = CopyOnWriteArrayList<AllSongsModel>()
+            // mViewModelClass.deleteQueue(lifecycleScope)
+            val newAudiosForQueue = CopyOnWriteArrayList<AllSongsModel>()
             for (audio in selectedAudioList) {
-                if (audio.playingOrPause != 1) {
+                if (audio.playingOrPause != 1 && audio.playingOrPause != 0) {
                     // selected audio is not playing then only add to play next
                     if (playingQueueAudioList.contains(audio)) {
                         playingQueueAudioList.remove(audio)
-                        /* mViewModelClass.deleteOneQueueAudio(
-                             audio.songId,
-                             lifecycleScope
-                         )*/
+                        /*mViewModelClass.deleteOneQueueAudio(
+                            audio.songId,
+                            lifecycleScope
+                        )*/
+                    } else {
+                        // this list is for adding audio into database
+                        newAudiosForQueue.add(audio)
                     }
 
                     // adding to last index
                     playingQueueAudioList.add(audio)
-                    // this list is for adding audio into database
-                    //newAudiosForQueue.add(audio)
+
                 }
             }
+            val playingAudio =
+                playingQueueAudioList.find { allSongsModel -> allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0 }
+            val playingAudioIndex =
+                playingQueueAudioList.indexOf(playingAudio)
+            if (playingAudioIndex != -1) {
+                Log.d(
+                    "playingQueueAudioListaaaa",
+                    "playNext:$playingAudioIndex "
+                )
+                storage.storeAudioIndex(playingAudioIndex)
+            } else {
+                // -1 index
+                Log.d(
+                    "playingQueueAudioListaaaa",
+                    "playNext:$playingAudioIndex "
+                )
+            }
+            storage.storeQueueAudio(playingQueueAudioList)
 
-            if (playingQueueAudioList.isNotEmpty()) {
-                for (audio in playingQueueAudioList) {
+            if (newAudiosForQueue.isNotEmpty()) {
+                for (audio in newAudiosForQueue) {
                     val queueListModel = QueueListModel(
                         audio.songId,
                         audio.albumId,
@@ -281,31 +355,14 @@ class CustomPlaylist : Fragment() {
                         audio.currentPlayedAudioTime
                     mViewModelClass.insertQueue(queueListModel, lifecycleScope)
                 }
-                val playingAudio =
-                    playingQueueAudioList.find { allSongsModel -> allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0 }
-                val playingAudioIndex =
-                    playingQueueAudioList.indexOf(playingAudio)
-                if (playingAudioIndex != -1) {
-                    Log.d(
-                        "playingQueueAudioListaaaa",
-                        "playNext:$playingAudioIndex "
-                    )
-                    storage.storeAudioIndex(playingAudioIndex)
-                } else {
-                    // -1 index
-                    Log.d(
-                        "playingQueueAudioListaaaa",
-                        "playNext:$playingAudioIndex "
-                    )
-                }
-                storage.storeQueueAudio(playingQueueAudioList)
+
             }
 
-            Toast.makeText(
-                activity as Context,
-                "Added ${selectedAudioList.size} songs to playing queue",
-                Toast.LENGTH_SHORT
+            Snackbar.make(
+                (activity as AppCompatActivity).window.decorView,
+                "Added ${selectedAudioList.size} songs to playing queue", Snackbar.LENGTH_LONG
             ).show()
+
         }
     }
 
@@ -325,8 +382,8 @@ class CustomPlaylist : Fragment() {
                 audioIndex = -1
             }
 
-            mViewModelClass.deleteQueue(lifecycleScope)
-            // val newAudiosForQueue = CopyOnWriteArrayList<AllSongsModel>()
+            //mViewModelClass.deleteQueue(lifecycleScope)
+            val newAudiosForQueue = CopyOnWriteArrayList<AllSongsModel>()
             for (audio in selectedAudioList) {
                 if (audio.playingOrPause != 1 && audio.playingOrPause != 0) {
                     // selected audio is not playing then only add to play next
@@ -336,25 +393,46 @@ class CustomPlaylist : Fragment() {
                             audioIndex--
                         }
                         playingQueueAudioList.remove(audio)
-                        /*mViewModelClass.deleteOneQueueAudio(
-                            audio.songId,
-                            lifecycleScope
-                        )*/
+                        /* mViewModelClass.deleteOneQueueAudio(
+                             audio.songId,
+                             lifecycleScope
+                         )*/
+                    } else {
+                        newAudiosForQueue.add(audio)
+                        Log.d(
+                            "PlalistAudioTesting",
+                            "playNext: Index: $audioIndex , $audio , playingOrPause: ${audio.playingOrPause} "
+                        )
                     }
                     // adding next to playing index
                     playingQueueAudioList.add(audioIndex, audio)
                     // this list is for adding audio into database
-                    //newAudiosForQueue.add(audio)
-                    Log.d(
-                        "PlalistAudioTesting",
-                        "playNext: Index: $audioIndex , $audio , playingOrPause: ${audio.playingOrPause} "
-                    )
+
                 }
             }
 
-            if (playingQueueAudioList.isNotEmpty()) {
+            val playingAudio =
+                playingQueueAudioList.find { allSongsModel -> allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0 }
+            val playingAudioIndex =
+                playingQueueAudioList.indexOf(playingAudio)
+            if (playingAudioIndex != -1) {
+                Log.d(
+                    "playingQueueAudioListaaaa",
+                    "playNext:$playingAudioIndex "
+                )
+                storage.storeAudioIndex(playingAudioIndex)
+            } else {
+                // -1 index
+                Log.d(
+                    "playingQueueAudioListaaaa",
+                    "playNext:$playingAudioIndex "
+                )
+            }
+            storage.storeQueueAudio(playingQueueAudioList)
+
+            if (newAudiosForQueue.isNotEmpty()) {
                 //insert into database
-                for (audio in playingQueueAudioList) {
+                for (audio in newAudiosForQueue) {
                     val queueListModel = QueueListModel(
                         audio.songId,
                         audio.albumId,
@@ -377,31 +455,13 @@ class CustomPlaylist : Fragment() {
                         audio.currentPlayedAudioTime
                     mViewModelClass.insertQueue(queueListModel, lifecycleScope)
                 }
-                val playingAudio =
-                    playingQueueAudioList.find { allSongsModel -> allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0 }
-                val playingAudioIndex =
-                    playingQueueAudioList.indexOf(playingAudio)
-                if (playingAudioIndex != -1) {
-                    Log.d(
-                        "playingQueueAudioListaaaa",
-                        "playNext:$playingAudioIndex "
-                    )
-                    storage.storeAudioIndex(playingAudioIndex)
-                } else {
-                    // -1 index
-                    Log.d(
-                        "playingQueueAudioListaaaa",
-                        "playNext:$playingAudioIndex "
-                    )
-                }
-                storage.storeQueueAudio(playingQueueAudioList)
+
             }
-            Toast.makeText(
-                activity as Context,
-                "Added ${selectedAudioList.size} songs to playing queue",
-                Toast.LENGTH_SHORT
-            )
-                .show()
+
+            Snackbar.make(
+                (activity as AppCompatActivity).window.decorView,
+                "Added ${selectedAudioList.size} songs to playing queue", Snackbar.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -565,15 +625,33 @@ class CustomPlaylist : Fragment() {
                                         sortedList =
                                             audio.sortedBy { allSongsModel -> allSongsModel.songName }
                                         customPlaylist.addAll(sortedList)
-                                        customPlaylistAdapter!!.submitList(audio.sortedBy { allSongsModel -> allSongsModel.songName }
-                                            .toMutableList())
+
+                                        if (AllSongsAdapter.isContextMenuEnabled) {
+                                            customPlaylistAdapter!!.submitList(
+                                                getCheckedAudioList(
+                                                    sortedList
+                                                ).toMutableList()
+                                            )
+                                        } else {
+                                            customPlaylistAdapter!!.submitList(audio.sortedBy { allSongsModel -> allSongsModel.songName }
+                                                .toMutableList())
+                                        }
+
                                         binding?.sortedTextTV?.text = "Name"
                                     }
                                     "DateAdded" -> {
                                         sortedList =
                                             audio.sortedByDescending { allSongsModel -> allSongsModel.dateAdded }
                                         customPlaylist.addAll(sortedList)
-                                        customPlaylistAdapter!!.submitList(audio.sortedByDescending { allSongsModel -> allSongsModel.dateAdded })
+                                        if (AllSongsAdapter.isContextMenuEnabled) {
+                                            customPlaylistAdapter!!.submitList(
+                                                getCheckedAudioList(
+                                                    sortedList
+                                                ).toMutableList()
+                                            )
+                                        } else {
+                                            customPlaylistAdapter!!.submitList(audio.sortedByDescending { allSongsModel -> allSongsModel.dateAdded })
+                                        }
                                         binding?.sortedTextTV?.text = "Date Added"
                                     }
 
@@ -581,14 +659,30 @@ class CustomPlaylist : Fragment() {
                                         sortedList =
                                             audio.sortedBy { allSongsModel -> allSongsModel.artistsName }
                                         customPlaylist.addAll(sortedList)
-                                        customPlaylistAdapter!!.submitList(audio.sortedBy { allSongsModel -> allSongsModel.artistsName })
+                                        if (AllSongsAdapter.isContextMenuEnabled) {
+                                            customPlaylistAdapter!!.submitList(
+                                                getCheckedAudioList(
+                                                    sortedList
+                                                ).toMutableList()
+                                            )
+                                        } else {
+                                            customPlaylistAdapter!!.submitList(audio.sortedBy { allSongsModel -> allSongsModel.artistsName })
+                                        }
                                         binding?.sortedTextTV?.text = "Artist Name"
                                     }
                                     else -> {
                                         sortedList =
                                             audio.sortedBy { allSongsModel -> allSongsModel.songName }
                                         customPlaylist.addAll(sortedList)
-                                        customPlaylistAdapter!!.submitList(audio.sortedBy { allSongsModel -> allSongsModel.songName })
+                                        if (AllSongsAdapter.isContextMenuEnabled) {
+                                            customPlaylistAdapter!!.submitList(
+                                                getCheckedAudioList(
+                                                    sortedList
+                                                ).toMutableList()
+                                            )
+                                        } else {
+                                            customPlaylistAdapter!!.submitList(audio.sortedBy { allSongsModel -> allSongsModel.songName })
+                                        }
                                         binding?.sortedTextTV?.text = "Name"
                                         Log.d(
                                             "sortedListObserved",
@@ -647,92 +741,99 @@ class CustomPlaylist : Fragment() {
         allSongModel: AllSongsModel,
         position: Int,
     ) {
-        storage.saveIsShuffled(false)
-        val prevPlayingAudioIndex = storage.loadAudioIndex()
-        val prevQueueList = storage.loadQueueAudio()
-        var prevPlayingAudioModel: AllSongsModel? = null
+        if (File(Uri.parse(allSongModel.data).path!!).exists()) {
+            storage.saveIsShuffled(false)
+            val prevPlayingAudioIndex = storage.loadAudioIndex()
+            val prevQueueList = storage.loadQueueAudio()
+            var prevPlayingAudioModel: AllSongsModel? = null
 
-        if (prevQueueList.isNotEmpty()) {
-            prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
-            var restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
+            if (prevQueueList.isNotEmpty()) {
+                prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
+                var restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
 
-            if (storage.getIsAudioPlayedFirstTime()) {
-                restrictToUpdateAudio = false
-            }
+                if (storage.getIsAudioPlayedFirstTime()) {
+                    restrictToUpdateAudio = false
+                }
 
-            //update prev audio to not playing
-            mViewModelClass.updateSong(
-                prevPlayingAudioModel!!.songId,
-                prevPlayingAudioModel.songName,
-                -1, //not playing
-                lifecycleScope
-            )
-        }
-
-        Log.d(
-            "customPlaylist111111",
-            "onClickAudio: allSongModel  ,  favAudioList $customPlaylist "
-        )
-        // restricting to update if clicked audio is same
-        /*  if (!restrictToUpdateAudio) {*/
-        mViewModelClass.deleteQueue(lifecycleScope)
-
-        mViewModelClass.updateSong(
-            allSongModel.songId,
-            allSongModel.songName,
-            1,
-            lifecycleScope
-        )
-        // }
-
-        Toast.makeText(activity as Context, "$position", Toast.LENGTH_SHORT).show()
-        playAudio(position)
-
-
-        // restricting to update if clicked audio is same
-        // if (!restrictToUpdateAudio) {
-        // adding queue list to DB and show highlight of current audio
-        if (customPlaylist.isNotEmpty()) {
-            for (audio in this.customPlaylist) {
-                val queueListModel = QueueListModel(
-                    audio.songId,
-                    audio.albumId,
-                    audio.songName,
-                    audio.artistsName,
-                    audio.albumName,
-                    audio.size,
-                    audio.duration,
-                    audio.data,
-                    audio.contentUri,
-                    audio.artUri,
-                    -1,
-                    audio.dateAdded,
-                    audio.isFavourite,
-                    audio.favAudioAddedTime,
-                    audio.mostPlayedCount,
-                    audio.artistId
+                //update prev audio to not playing
+                mViewModelClass.updateSong(
+                    prevPlayingAudioModel!!.songId,
+                    prevPlayingAudioModel.songName,
+                    -1, //not playing
+                    lifecycleScope
                 )
-                queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
-                mViewModelClass.insertQueue(queueListModel, lifecycleScope)
             }
-        }
 
-        if (prevQueueList.isNotEmpty()) {
-            mViewModelClass.updateQueueAudio(
-                prevPlayingAudioModel!!.songId,
-                prevPlayingAudioModel.songName,
-                -1,
+            Log.d(
+                "customPlaylist111111",
+                "onClickAudio: allSongModel  ,  favAudioList $customPlaylist "
+            )
+            // restricting to update if clicked audio is same
+            /*  if (!restrictToUpdateAudio) {*/
+            mViewModelClass.deleteQueue(lifecycleScope)
+
+            mViewModelClass.updateSong(
+                allSongModel.songId,
+                allSongModel.songName,
+                1,
                 lifecycleScope
             )
-        }
+            // }
 
-        mViewModelClass.updateQueueAudio(
-            allSongModel.songId,
-            allSongModel.songName,
-            1,
-            lifecycleScope
-        )
-        //}
+            Toast.makeText(activity as Context, "$position", Toast.LENGTH_SHORT).show()
+            playAudio(position)
+
+
+            // restricting to update if clicked audio is same
+            // if (!restrictToUpdateAudio) {
+            // adding queue list to DB and show highlight of current audio
+            if (customPlaylist.isNotEmpty()) {
+                for (audio in this.customPlaylist) {
+                    val queueListModel = QueueListModel(
+                        audio.songId,
+                        audio.albumId,
+                        audio.songName,
+                        audio.artistsName,
+                        audio.albumName,
+                        audio.size,
+                        audio.duration,
+                        audio.data,
+                        audio.contentUri,
+                        audio.artUri,
+                        -1,
+                        audio.dateAdded,
+                        audio.isFavourite,
+                        audio.favAudioAddedTime,
+                        audio.mostPlayedCount,
+                        audio.artistId
+                    )
+                    queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
+                    mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+                }
+            }
+
+            if (prevQueueList.isNotEmpty()) {
+                mViewModelClass.updateQueueAudio(
+                    prevPlayingAudioModel!!.songId,
+                    prevPlayingAudioModel.songName,
+                    -1,
+                    lifecycleScope
+                )
+            }
+
+            mViewModelClass.updateQueueAudio(
+                allSongModel.songId,
+                allSongModel.songName,
+                1,
+                lifecycleScope
+            )
+            //}
+        } else {
+            Snackbar.make(
+                (activity as AppCompatActivity).window.decorView,
+                "File doesn't exists", Snackbar.LENGTH_LONG
+            ).show()
+        }
     }
 
     private fun playAudio(audioIndex: Int) {
@@ -846,5 +947,18 @@ class CustomPlaylist : Fragment() {
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         this.isFragHidden = hidden
+    }
+
+    private fun getCheckedAudioList(sortedList: List<AllSongsModel>): ArrayList<AllSongsModel> {
+        val audioList = ArrayList<AllSongsModel>()
+        for (audio in sortedList) {
+            for (audioId in selectedAudioIdList) {
+                if (audio.songId == audioId) {
+                    audio.isChecked = true
+                }
+            }
+            audioList.add(audio)
+        }
+        return audioList
     }
 }

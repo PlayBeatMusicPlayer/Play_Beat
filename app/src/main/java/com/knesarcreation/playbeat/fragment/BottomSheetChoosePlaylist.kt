@@ -6,11 +6,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.knesarcreation.playbeat.adapter.PlaylistNamesAdapter
@@ -73,11 +73,11 @@ class BottomSheetChoosePlaylist(
                     "bottomSheetCreatePlaylist"
                 )
             } else {
-                Toast.makeText(
-                    activity as Context,
-                    "No audio found in this playlist",
-                    Toast.LENGTH_SHORT
+                Snackbar.make(
+                    (activity as AppCompatActivity).window.decorView,
+                    "No audio found in this playlist", Snackbar.LENGTH_LONG
                 ).show()
+
             }
             dismiss()
         }
@@ -91,17 +91,15 @@ class BottomSheetChoosePlaylist(
                         System.currentTimeMillis(),
                         lifecycleScope
                     )
-                    Toast.makeText(
-                        activity as Context,
-                        "Song added to favourites",
-                        Toast.LENGTH_SHORT
+                    Snackbar.make(
+                        (activity as AppCompatActivity).window.decorView,
+                        "Song added to favourites", Snackbar.LENGTH_LONG
                     ).show()
                     dismiss()
                 } else {
-                    Toast.makeText(
-                        activity as Context,
-                        "Already added in favourites",
-                        Toast.LENGTH_SHORT
+                    Snackbar.make(
+                        (activity as AppCompatActivity).window.decorView,
+                        "Already added in favourites", Snackbar.LENGTH_LONG
                     ).show()
                 }
             } else {
@@ -113,11 +111,11 @@ class BottomSheetChoosePlaylist(
                             System.currentTimeMillis(),
                             lifecycleScope
                         )
-                        Toast.makeText(
-                            activity as Context,
-                            "Song added to favourites",
-                            Toast.LENGTH_SHORT
+                        Snackbar.make(
+                            (activity as AppCompatActivity).window.decorView,
+                            "Song added to favourites", Snackbar.LENGTH_LONG
                         ).show()
+
                         dismiss()
                     }
                     if (listener != null)
@@ -149,8 +147,11 @@ class BottomSheetChoosePlaylist(
             val audioJson: String = if (playlistModel.songIds != "") {
                 val audioListFromJson = convertStringToList(playlistModel.songIds)
                 duplicateData = if (audioListFromJson.contains(allSongsModel!!.songId)) {
-                    Toast.makeText(activity as Context, "Duplicate songs found", Toast.LENGTH_SHORT)
-                        .show()
+                    Snackbar.make(
+                        (activity as AppCompatActivity).window.decorView,
+                        "Duplicate songs found", Snackbar.LENGTH_LONG
+                    ).show()
+
                     true
                 } else {
                     audioListFromJson.add(allSongsModel!!.songId)
@@ -165,10 +166,9 @@ class BottomSheetChoosePlaylist(
 
             if (!duplicateData) {
                 mViewModelClass.updatePlaylist(audioJson, playlistModel.id, lifecycleScope)
-                Toast.makeText(
-                    activity as Context,
-                    "Song added to ${playlistModel.playlistName}.",
-                    Toast.LENGTH_SHORT
+                Snackbar.make(
+                    (activity as AppCompatActivity).window.decorView,
+                    "Song added to ${playlistModel.playlistName}.", Snackbar.LENGTH_LONG
                 ).show()
                 dismiss()
 
@@ -197,10 +197,9 @@ class BottomSheetChoosePlaylist(
             }
 
             mViewModelClass.updatePlaylist(audioJson, playlistModel.id, lifecycleScope)
-            Toast.makeText(
-                activity as Context,
-                "Song added to ${playlistModel.playlistName}.",
-                Toast.LENGTH_SHORT
+            Snackbar.make(
+                (activity as AppCompatActivity).window.decorView,
+                "Song added to ${playlistModel.playlistName}.", Snackbar.LENGTH_LONG
             ).show()
 
             if (listener != null)

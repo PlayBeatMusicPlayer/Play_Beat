@@ -26,11 +26,11 @@
     <string name="add_to_playlist">Add to playlist</string>
     <string name="tag_editor">Tag editor</string>
     <string name="details">Details</string>
-    <string name="delete">Delete from device</string>
+    <string name="delete_from_device">Delete from device</string>
     <string name="play">Play</string>
     <string name="rename">Rename</string>
     <string name="delete_playlist">Delete playlist</string>
-    <string name="create_playlist">Create Playlist</string>
+    <string name="create_playlist">Create Playlists</string>
     <string name="click_on_button_to_create_new_playlist">Click on \'+\' button to create new playlist</string>
     <string name="close">Close</string>
     <string name="path_name">Path name</string>
@@ -41,5 +41,30 @@
     <string name="year">Year</string>
     <string name="artist">Artist</string>
     <string name="album">Album</string>
+    <string name="no_songs_found">No songs found</string>
+    <string name="artist_name">Artist name</string>
+    <string name="time">00:00</string>
+    <string name="sleep_time">00 : 00</string>
+    <string name="sleep_time_title">Sleep Timer (min)</string>
+    <string name="five_min">5</string>
+    <string name="ten_min">10</string>
+    <string name="fifteen_min">15</string>
+    <string name="thirty_min">30</string>
+    <string name="fourty_min">40</string>
+    <string name="sixty_min">60</string>
+    <string name="ends_in">Ends In</string>
+    <string name="end_of_the_song">End of the song</string>
+    <string name="cancel">Cancel</string>
+    <string name="start">Start</string>
+    <string name="are_you_sure_you_want_to_delete_playlist">Are you sure you want to delete playlist?</string>
+    <string name="delete">Delete</string>
+    <string name="play_beat">Play Beat</string>
+    <string name="version_1_0_0">Version: 1.0.0</string>
+    <string name="developed_and_designed_by">Developed and designed by</string>
+    <string name="developer_name">Kaunain Nesar</string>
+    <string name="about">About</string>
+    <string name="share">Share</string>
+    <string name="share_audio_dialog_title">Share audios</string>
+    <string name="share_audio_dialog_msg">Do you want to share all audios present in this playlist?</string>
 
 </resources>

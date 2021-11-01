@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="txt_size">14sp</dimen>
+
+    <dimen name="playlist_text_size">14sp</dimen>
     <dimen name="playlist_btn_height">55dp</dimen>
     <dimen name="playlist_btn_icon_size">23dp</dimen>
+    <dimen name="rlAlbumArtHeight">400dp</dimen>
+    <dimen name="text_size_normal">15sp</dimen>
+    <dimen name="text_size_small">13sp</dimen>
+    <dimen name="album_art_width_small">50dp</dimen>
+    <dimen name="album_art_height_small">50dp</dimen>
+    <dimen name="lottie_playing_audio_width">30dp</dimen>
+    <dimen name="lottie_playing_audio_height">30dp</dimen>
+    <dimen name="album_art_mp_width">46dp</dimen>
+    <dimen name="album_art_mp_height">46dp</dimen>
+    <dimen name="rl_cover_art_ep_height">400dp</dimen>
+    <dimen name="nowPlayingNoAlbumArt_width_height">250dp</dimen>
+    <dimen name="seekbar_thumb_text">18dp</dimen>
+
 </resources>

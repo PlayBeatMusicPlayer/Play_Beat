@@ -3,6 +3,7 @@ package com.knesarcreation.playbeat.fragment
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -10,7 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +20,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
@@ -28,6 +31,7 @@ import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.FragmentPlayListAudiosBinding
 import com.knesarcreation.playbeat.utils.DataObservableClass
 import com.knesarcreation.playbeat.utils.StorageUtil
+import java.io.File
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -153,7 +157,56 @@ class HistoryAudiosFragment : Fragment() {
             }
         })
 
+        shareAudios()
+
         return view
+    }
+
+    private fun shareAudios() {
+        binding?.shareAudioIV?.setOnClickListener {
+            val shareAlertdialog =
+                AlertDialog.Builder(activity as Context, R.style.CustomAlertDialog)
+            val viewGroup: ViewGroup =
+                (activity as AppCompatActivity).findViewById(android.R.id.content)
+            val customView =
+                layoutInflater.inflate(R.layout.custom_alert_dialog, viewGroup, false)
+            val dialogTitleTV = customView.findViewById<TextView>(R.id.dialogTitleTV)
+            val dialogMessageTV =
+                customView.findViewById<TextView>(R.id.dialogMessageTV)
+            val cancelButton =
+                customView.findViewById<MaterialButton>(R.id.cancelButton)
+            val positiveBtn = customView.findViewById<MaterialButton>(R.id.positiveBtn)
+            shareAlertdialog.setView(customView)
+
+            positiveBtn.text = getString(R.string.share)
+            dialogTitleTV.text = getString(R.string.share_audio_dialog_title)
+            dialogMessageTV.text = getString(R.string.share_audio_dialog_msg)
+
+            val dialog = shareAlertdialog.create()
+
+            cancelButton.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            positiveBtn.setOnClickListener {
+                val uriList = ArrayList<Uri>()
+
+                for (audio in historyAudioList) {
+                    uriList.add(Uri.parse(audio.contentUri))
+                }
+
+                val shareIntent = Intent().apply {
+                    action = Intent.ACTION_SEND_MULTIPLE
+                    putParcelableArrayListExtra(Intent.EXTRA_STREAM, uriList)
+                    type = "audio/*"
+                }
+                startActivity(Intent.createChooser(shareIntent, null))
+                dialog.dismiss()
+            }
+
+            dialog.show()
+
+        }
     }
 
     private fun moreOptionMenu() {
@@ -184,11 +237,16 @@ class HistoryAudiosFragment : Fragment() {
                     }
 
                     override fun deleteFromDevice() {
-                        Toast.makeText(
-                            activity as Context,
+                        Snackbar.make(
+                            (activity as AppCompatActivity).window.decorView,
                             "Sorry for inconvenience, feature is under development",
-                            Toast.LENGTH_LONG
+                            Snackbar.LENGTH_LONG
                         ).show()
+                        /* Toast.makeText(
+                             activity as Context,
+                             "Sorry for inconvenience, feature is under development",
+                             Toast.LENGTH_LONG
+                         ).show()*/
                         bottomSheetMultiSelectMoreOptions.dismiss()
                     }
                 }
@@ -204,28 +262,49 @@ class HistoryAudiosFragment : Fragment() {
                 e.printStackTrace()
             }
 
-            mViewModelClass.deleteQueue(lifecycleScope)
-            //val newAudiosForQueue = CopyOnWriteArrayList<AllSongsModel>()
+            // mViewModelClass.deleteQueue(lifecycleScope)
+            val newAudiosForQueue = CopyOnWriteArrayList<AllSongsModel>()
             for (audio in selectedAudioList) {
-                if (audio.playingOrPause != 1) {
+                if (audio.playingOrPause != 1 && audio.playingOrPause != 0) {
                     // selected audio is not playing then only add to play next
                     if (playingQueueAudioList.contains(audio)) {
                         playingQueueAudioList.remove(audio)
-                        /* mViewModelClass.deleteOneQueueAudio(
-                             audio.songId,
-                             lifecycleScope
-                         )*/
+                        /*mViewModelClass.deleteOneQueueAudio(
+                            audio.songId,
+                            lifecycleScope
+                        )*/
+                    } else {
+                        // this list is for adding audio into database
+                        newAudiosForQueue.add(audio)
                     }
 
                     // adding to last index
                     playingQueueAudioList.add(audio)
-                    // this list is for adding audio into database
-                    //newAudiosForQueue.add(audio)
+
                 }
             }
 
-            if (playingQueueAudioList.isNotEmpty()) {
-                for (audio in playingQueueAudioList) {
+            val playingAudio =
+                playingQueueAudioList.find { allSongsModel -> allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0 }
+            val playingAudioIndex =
+                playingQueueAudioList.indexOf(playingAudio)
+            if (playingAudioIndex != -1) {
+                Log.d(
+                    "playingQueueAudioListaaaa",
+                    "playNext:$playingAudioIndex "
+                )
+                storage.storeAudioIndex(playingAudioIndex)
+            } else {
+                // -1 index
+                Log.d(
+                    "playingQueueAudioListaaaa",
+                    "playNext:$playingAudioIndex "
+                )
+            }
+            storage.storeQueueAudio(playingQueueAudioList)
+
+            if (newAudiosForQueue.isNotEmpty()) {
+                for (audio in newAudiosForQueue) {
                     val queueListModel = QueueListModel(
                         audio.songId,
                         audio.albumId,
@@ -248,31 +327,14 @@ class HistoryAudiosFragment : Fragment() {
                         audio.currentPlayedAudioTime
                     mViewModelClass.insertQueue(queueListModel, lifecycleScope)
                 }
-                val playingAudio =
-                    playingQueueAudioList.find { allSongsModel -> allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0 }
-                val playingAudioIndex =
-                    playingQueueAudioList.indexOf(playingAudio)
-                if (playingAudioIndex != -1) {
-                    Log.d(
-                        "playingQueueAudioListaaaa",
-                        "playNext:$playingAudioIndex "
-                    )
-                    storage.storeAudioIndex(playingAudioIndex)
-                } else {
-                    // -1 index
-                    Log.d(
-                        "playingQueueAudioListaaaa",
-                        "playNext:$playingAudioIndex "
-                    )
-                }
-                storage.storeQueueAudio(playingQueueAudioList)
+
             }
 
-            Toast.makeText(
-                activity as Context,
-                "Added ${selectedAudioList.size} songs to playing queue",
-                Toast.LENGTH_SHORT
+            Snackbar.make(
+                (activity as AppCompatActivity).window.decorView,
+                "Added ${selectedAudioList.size} songs to playing queue", Snackbar.LENGTH_LONG
             ).show()
+
         }
     }
 
@@ -292,8 +354,8 @@ class HistoryAudiosFragment : Fragment() {
                 audioIndex = -1
             }
 
-            mViewModelClass.deleteQueue(lifecycleScope)
-            // val newAudiosForQueue = CopyOnWriteArrayList<AllSongsModel>()
+            //mViewModelClass.deleteQueue(lifecycleScope)
+            val newAudiosForQueue = CopyOnWriteArrayList<AllSongsModel>()
             for (audio in selectedAudioList) {
                 if (audio.playingOrPause != 1 && audio.playingOrPause != 0) {
                     // selected audio is not playing then only add to play next
@@ -303,25 +365,46 @@ class HistoryAudiosFragment : Fragment() {
                             audioIndex--
                         }
                         playingQueueAudioList.remove(audio)
-                        /*mViewModelClass.deleteOneQueueAudio(
-                            audio.songId,
-                            lifecycleScope
-                        )*/
+                        /* mViewModelClass.deleteOneQueueAudio(
+                             audio.songId,
+                             lifecycleScope
+                         )*/
+                    } else {
+                        // this list is for adding audio into database
+                        newAudiosForQueue.add(audio)
+                        Log.d(
+                            "PlalistAudioTesting",
+                            "playNext: Index: $audioIndex , $audio , playingOrPause: ${audio.playingOrPause} "
+                        )
                     }
                     // adding next to playing index
                     playingQueueAudioList.add(audioIndex, audio)
-                    // this list is for adding audio into database
-                    //newAudiosForQueue.add(audio)
-                    Log.d(
-                        "PlalistAudioTesting",
-                        "playNext: Index: $audioIndex , $audio , playingOrPause: ${audio.playingOrPause} "
-                    )
+
                 }
             }
 
-            if (playingQueueAudioList.isNotEmpty()) {
+            val playingAudio =
+                playingQueueAudioList.find { allSongsModel -> allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0 }
+            val playingAudioIndex =
+                playingQueueAudioList.indexOf(playingAudio)
+            if (playingAudioIndex != -1) {
+                Log.d(
+                    "playingQueueAudioListaaaa",
+                    "playNext:$playingAudioIndex "
+                )
+                storage.storeAudioIndex(playingAudioIndex)
+            } else {
+                // -1 index
+                Log.d(
+                    "playingQueueAudioListaaaa",
+                    "playNext:$playingAudioIndex "
+                )
+            }
+            storage.storeQueueAudio(playingQueueAudioList)
+
+            if (newAudiosForQueue.isNotEmpty()) {
                 //insert into database
-                for (audio in playingQueueAudioList) {
+                for (audio in newAudiosForQueue) {
                     val queueListModel = QueueListModel(
                         audio.songId,
                         audio.albumId,
@@ -344,31 +427,13 @@ class HistoryAudiosFragment : Fragment() {
                         audio.currentPlayedAudioTime
                     mViewModelClass.insertQueue(queueListModel, lifecycleScope)
                 }
-                val playingAudio =
-                    playingQueueAudioList.find { allSongsModel -> allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0 }
-                val playingAudioIndex =
-                    playingQueueAudioList.indexOf(playingAudio)
-                if (playingAudioIndex != -1) {
-                    Log.d(
-                        "playingQueueAudioListaaaa",
-                        "playNext:$playingAudioIndex "
-                    )
-                    storage.storeAudioIndex(playingAudioIndex)
-                } else {
-                    // -1 index
-                    Log.d(
-                        "playingQueueAudioListaaaa",
-                        "playNext:$playingAudioIndex "
-                    )
-                }
-                storage.storeQueueAudio(playingQueueAudioList)
+
             }
-            Toast.makeText(
-                activity as Context,
-                "Added ${selectedAudioList.size} songs to playing queue",
-                Toast.LENGTH_SHORT
-            )
-                .show()
+            Snackbar.make(
+                (activity as AppCompatActivity).window.decorView,
+                "Added ${selectedAudioList.size} songs to playing queue", Snackbar.LENGTH_LONG
+            ).show()
+
         }
     }
 
@@ -421,8 +486,13 @@ class HistoryAudiosFragment : Fragment() {
                 }*/
 
                 historyAudioList.addAll(it.sortedByDescending { allSongsModel -> allSongsModel.currentPlayedAudioTime })
-                historyAdapter!!.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.currentPlayedAudioTime })
-                binding?.rvHistoryAdded?.scrollToPosition(0)
+                if (AllSongsAdapter.isContextMenuEnabled) {
+                    historyAdapter!!.submitList(getCheckedAudioList(historyAudioList).toMutableList())
+                } else {
+                    historyAdapter!!.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.currentPlayedAudioTime })
+                }
+
+                // binding?.rvHistoryAdded?.scrollToPosition(0)
 
                 if (it.size >= 2) {
                     binding?.totalSongsTV?.text = "${historyAudioList.size} Songs"
@@ -495,77 +565,85 @@ class HistoryAudiosFragment : Fragment() {
         allSongModel: AllSongsModel,
         position: Int,
     ) {
-        storage.saveIsShuffled(false)
-        val prevPlayingAudioIndex = storage.loadAudioIndex()
-        val prevQueueList = storage.loadQueueAudio()
-        var prevPlayingAudioModel: AllSongsModel? = null
-        //var restrictToUpdateAudio = false
+        if (File(Uri.parse(allSongModel.data).path!!).exists()) {
+            storage.saveIsShuffled(false)
+            val prevPlayingAudioIndex = storage.loadAudioIndex()
+            val prevQueueList = storage.loadQueueAudio()
+            var prevPlayingAudioModel: AllSongsModel? = null
+            //var restrictToUpdateAudio = false
 
-        mViewModelClass.deleteQueue(lifecycleScope)
+            mViewModelClass.deleteQueue(lifecycleScope)
 
-        if (prevQueueList.isNotEmpty()) {
-            prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
-            Log.d(
-                "PlayListAudios111s",
-                "onClickAudio: allSongModel $allSongModel ,  historyAudioList $historyAudioList "
-            )
+            if (prevQueueList.isNotEmpty()) {
+                prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
+                Log.d(
+                    "PlayListAudios111s",
+                    "onClickAudio: allSongModel $allSongModel ,  historyAudioList $historyAudioList "
+                )
 
-            mViewModelClass.updateSong(
-                prevPlayingAudioModel.songId,
-                prevPlayingAudioModel.songName,
-                -1,
-                (context as AppCompatActivity).lifecycleScope
-            )
+                mViewModelClass.updateSong(
+                    prevPlayingAudioModel.songId,
+                    prevPlayingAudioModel.songName,
+                    -1,
+                    (context as AppCompatActivity).lifecycleScope
+                )
 
-            mViewModelClass.updateSong(
+                mViewModelClass.updateSong(
+                    allSongModel.songId,
+                    allSongModel.songName,
+                    1,
+                    (context as AppCompatActivity).lifecycleScope
+                )
+            }
+
+            playAudio(historyAudioList.indexOf(allSongModel))
+
+            // adding queue list to DB and show highlight of current audio
+            for (audio in this.historyAudioList) {
+                val queueListModel = QueueListModel(
+                    audio.songId,
+                    audio.albumId,
+                    audio.songName,
+                    audio.artistsName,
+                    audio.albumName,
+                    audio.size,
+                    audio.duration,
+                    audio.data,
+                    audio.contentUri,
+                    audio.artUri,
+                    -1,
+                    audio.dateAdded,
+                    audio.isFavourite,
+                    audio.favAudioAddedTime,
+                    audio.mostPlayedCount,
+                    audio.artistId
+                )
+                queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
+                mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+            }
+
+            if (prevQueueList.isNotEmpty()) {
+                mViewModelClass.updateQueueAudio(
+                    prevPlayingAudioModel!!.songId,
+                    prevPlayingAudioModel.songName,
+                    -1,
+                    (context as AppCompatActivity).lifecycleScope
+                )
+            }
+
+            mViewModelClass.updateQueueAudio(
                 allSongModel.songId,
                 allSongModel.songName,
                 1,
                 (context as AppCompatActivity).lifecycleScope
             )
+        }else{
+            Snackbar.make(
+                (activity as AppCompatActivity).window.decorView,
+                "File doesn't exists", Snackbar.LENGTH_LONG
+            ).show()
         }
 
-        playAudio(historyAudioList.indexOf(allSongModel))
-
-        // adding queue list to DB and show highlight of current audio
-        for (audio in this.historyAudioList) {
-            val queueListModel = QueueListModel(
-                audio.songId,
-                audio.albumId,
-                audio.songName,
-                audio.artistsName,
-                audio.albumName,
-                audio.size,
-                audio.duration,
-                audio.data,
-                audio.contentUri,
-                audio.artUri,
-                -1,
-                audio.dateAdded,
-                audio.isFavourite,
-                audio.favAudioAddedTime,
-                audio.mostPlayedCount,
-                audio.artistId
-            )
-            queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
-            mViewModelClass.insertQueue(queueListModel, lifecycleScope)
-        }
-
-        if (prevQueueList.isNotEmpty()) {
-            mViewModelClass.updateQueueAudio(
-                prevPlayingAudioModel!!.songId,
-                prevPlayingAudioModel.songName,
-                -1,
-                (context as AppCompatActivity).lifecycleScope
-            )
-        }
-
-        mViewModelClass.updateQueueAudio(
-            allSongModel.songId,
-            allSongModel.songName,
-            1,
-            (context as AppCompatActivity).lifecycleScope
-        )
     }
 
     private fun playAudio(audioIndex: Int) {
@@ -630,4 +708,18 @@ class HistoryAudiosFragment : Fragment() {
 
         binding?.selectedAudiosTS!!.setText("${selectedPositionList.size}")
     }
+
+    private fun getCheckedAudioList(sortedList: List<AllSongsModel>): ArrayList<AllSongsModel> {
+        val audioList = ArrayList<AllSongsModel>()
+        for (audio in sortedList) {
+            for (audioId in selectedAudioIdList) {
+                if (audio.songId == audioId) {
+                    audio.isChecked = true
+                }
+            }
+            audioList.add(audio)
+        }
+        return audioList
+    }
+
 }

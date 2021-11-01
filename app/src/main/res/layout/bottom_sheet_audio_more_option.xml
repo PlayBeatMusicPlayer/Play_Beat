@@ -319,6 +319,35 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/llShare"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_gravity="center_vertical"
+        android:background="?selectableItemBackground"
+        android:orientation="horizontal"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="20dp"
+            android:contentDescription="@null"
+            android:rotationY="180"
+            android:src="@drawable/ic_share" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:text="@string/share"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
     <!--<LinearLayout
         android:id="@+id/llDeleteFromPlaylist"
         android:layout_width="match_parent"
@@ -372,7 +401,7 @@
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:text="@string/delete"
+            android:text="@string/delete_from_device"
             android:textColor="@color/white" />
 
     </LinearLayout>

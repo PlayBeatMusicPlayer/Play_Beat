@@ -1,5 +1,6 @@
 package com.knesarcreation.playbeat.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.transition.MaterialSharedAxis
 import com.knesarcreation.playbeat.adapter.ViewPagerAdapter
 import com.knesarcreation.playbeat.databinding.HomeFragmentBinding
+import com.knesarcreation.playbeat.utils.CustomProgressDialog
 import com.knesarcreation.playbeat.utils.DataObservableClass
 import com.knesarcreation.playbeat.viewPager.CustomViewPager
 

@@ -2,49 +2,60 @@ package com.knesarcreation.playbeat.fragment
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.AllAlbumsAdapter
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.adapter.ArtistsAlbumAdapter
 import com.knesarcreation.playbeat.database.*
 import com.knesarcreation.playbeat.databinding.FragmentArtistsTracksAndAlbumBinding
 import com.knesarcreation.playbeat.utils.AudioPlayingFromCategory
-import com.knesarcreation.playbeat.utils.CustomProgressDialog
 import com.knesarcreation.playbeat.utils.DataObservableClass
 import com.knesarcreation.playbeat.utils.StorageUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
 
 class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongItem*/ {
 
     private var _binding: FragmentArtistsTracksAndAlbumBinding? = null
     private val binding get() = _binding
-    private lateinit var viewmodel: DataObservableClass
+    private lateinit var viewModel: DataObservableClass
     private var artistsModel: ArtistsModel? = null
     private var audioList = CopyOnWriteArrayList<AllSongsModel>()
     private val albumList = CopyOnWriteArrayList<AlbumModel>()
-    private var progressBar: CustomProgressDialog? = null
+
+    //private var progressBar: CustomProgressDialog? = null
     private var listener: OnArtistAlbumItemClicked? = null
-    private lateinit var storageUtil: StorageUtil
+    private lateinit var storage: StorageUtil
     private lateinit var mViewModelClass: ViewModelClass
-    private lateinit var allSongsAdapter: AllSongsAdapter
+    private var allSongsAdapter: AllSongsAdapter? = null
     private lateinit var artistsAlbumAdapter: ArtistsAlbumAdapter
-    private lateinit var allSongsAdapterMoreTracks: AllSongsAdapter
+    private var allSongsAdapterMoreTracks: AllSongsAdapter? = null
     private var launchAlumData: Job? = null
-    private var isBackPressed = false
+    private var selectedSongsIdList = ArrayList<Long>()
+    private var selectedAudioList = ArrayList<AllSongsModel>()
+    private var selectedPositionList = ArrayList<Int>()
+    private lateinit var textCountTV: TextView
 
     interface OnArtistAlbumItemClicked {
         fun openAlbumFromArtistFrag(album: String)
@@ -83,18 +94,18 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
             (activity as AppCompatActivity).onBackPressed()
         }
 
-        storageUtil = StorageUtil(activity as Context)
+        storage = StorageUtil(activity as Context)
 
-        viewmodel = activity?.run {
+        viewModel = activity?.run {
             ViewModelProvider(this)[DataObservableClass::class.java]
         } ?: throw Exception("Invalid Activity")
 
-        progressBar = CustomProgressDialog(requireContext())
-        progressBar!!.setMessage("Please wait...")
-        progressBar!!.setIsCancelable(true)
-        progressBar!!.setCanceledOnOutsideTouch(true)
+        //progressBar = CustomProgressDialog(requireContext())
+        //progressBar!!.show()
+        // progressBar!!.setIsCancelable(true)
+        // progressBar!!.setCanceledOnOutsideTouch(true)
 
-        viewmodel.artistsData.observe(viewLifecycleOwner, {
+        viewModel.artistsData.observe(viewLifecycleOwner, {
             convertGsonToAlbumModel(it)
 
             //binding?.rvAlbums?.setHasFixedSize(true)
@@ -104,8 +115,6 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
             binding?.artisNameTV?.text = artistsModel?.artistName
             binding?.artisNameTVToolbar?.text = artistsModel?.artistName
             binding?.artisNameTVToolbar2?.text = artistsModel?.artistName
-
-            isBackPressed = false
 
             binding?.motionLayoutArtistAndAlbum?.visibility = View.VISIBLE
             binding?.rlMoreAudios?.visibility = View.GONE
@@ -117,12 +126,47 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
                     AllSongsAdapter.OnClickListener { allSongModel, position ->
                         onClickAudio(allSongModel, position)
                     },
-                    AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
+                    AllSongsAdapter.OnLongClickListener { allSongModel, position ->
+                        if (allSongModel.isChecked) {
+                            binding?.arrowBackIV?.visibility = View.GONE
+                            binding?.rlContextMenu?.visibility = View.VISIBLE
+                            binding?.selectAllAudios?.visibility = View.GONE
+                            binding?.rlToolbar?.setBackgroundColor(
+                                ContextCompat.getColor(
+                                    activity as Context,
+                                    R.color.app_theme_color
+                                )
+                            )
+                            selectedSongsIdList.add(allSongModel.songId)
+                            selectedPositionList.add(position)
+                            selectedAudioList.add(allSongModel)
 
+                            textSwitcherIncrementTextAnim()
+
+                        } else {
+                            selectedSongsIdList.remove(allSongModel.songId)
+                            selectedPositionList.remove(position)
+                            selectedAudioList.remove(allSongModel)
+
+                            textSwitcherDecrementTextAnim()
+
+                            if (selectedSongsIdList.isEmpty()) {
+                                binding?.arrowBackIV?.visibility = View.VISIBLE
+                                binding?.rlContextMenu?.visibility = View.INVISIBLE
+                                binding?.rlToolbar?.setBackgroundColor(
+                                    ContextCompat.getColor(
+                                        activity as Context,
+                                        R.color.transparent
+                                    )
+                                )
+                                AllSongsAdapter.isContextMenuEnabled = false
+                            }
+                        }
+                        viewModel.isContextMenuEnabled.value = AllSongsAdapter.isContextMenuEnabled
                     },
                     false
                 )
-            allSongsAdapter.isSearching = false
+            allSongsAdapter!!.isSearching = false
             binding!!.rvTracks.adapter = allSongsAdapter
             binding!!.rvTracks.itemAnimator = null
             binding!!.rvTracks.scrollToPosition(0)
@@ -138,10 +182,340 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
         binding?.seeAllTV?.setOnClickListener {
             binding?.motionLayoutArtistAndAlbum?.visibility = View.GONE
             binding?.rlMoreAudios?.visibility = View.VISIBLE
+            if (AllSongsAdapter.isContextMenuEnabled) {
+                binding?.selectAllAudios?.visibility = View.VISIBLE
+            }
             setUpMoreTracksRV()
         }
 
+        moreOptionMenu()
+
+        binding?.closeContextMenu?.setOnClickListener {
+            disableContextMenu()
+        }
+
+        selectAllAudio()
+
+        setTextSwitcherFactory()
+
+        viewModel.onBackPressed.observe(viewLifecycleOwner, {
+            if (it != null) {
+                disableContextMenu()
+            }
+        })
+
         return view
+    }
+
+    private fun disableContextMenu() {
+        binding?.arrowBackIV?.visibility = View.VISIBLE
+        binding?.rlContextMenu?.visibility = View.INVISIBLE
+        binding?.rlToolbar?.setBackgroundColor(
+            ContextCompat.getColor(
+                activity as Context,
+                R.color.transparent
+            )
+        )
+        AllSongsAdapter.isContextMenuEnabled = false
+        binding?.selectAllAudios?.isChecked = false
+        if (allSongsAdapter != null)
+            allSongsAdapter!!.updateChanges(selectedPositionList)
+
+        if (allSongsAdapterMoreTracks != null)
+            allSongsAdapterMoreTracks!!.updateChanges(selectedPositionList)
+
+        selectedPositionList.clear()
+        selectedSongsIdList.clear()
+        selectedAudioList.clear()
+        binding?.selectedAudiosTS!!.setText("0")
+        viewModel.isContextMenuEnabled.value = false
+    }
+
+    private fun selectAllAudio() {
+        binding?.selectAllAudios?.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+
+                allSongsAdapterMoreTracks!!.selectAllAudios()
+                allSongsAdapter!!.selectAllAudios()
+
+
+                for ((position, audio) in audioList.withIndex()) {
+                    if (!selectedSongsIdList.contains(audio.songId)) {
+                        selectedSongsIdList.add(audio.songId)
+                        selectedAudioList.add(audio)
+                    }
+                    if (!selectedPositionList.contains(position)) {
+                        selectedPositionList.add(position)
+                    }
+                    textSwitcherIncrementTextAnim()
+                }
+                Log.d("selectAllAudiosSize", "onCreateView:${selectedSongsIdList.size} ")
+            } else {
+
+                allSongsAdapterMoreTracks!!.unSelectAllAudios()
+                allSongsAdapter!!.unSelectAllAudios()
+
+                for ((position, audio) in audioList.withIndex()) {
+                    selectedSongsIdList.remove(audio.songId)
+                    selectedPositionList.remove(position)
+                    selectedAudioList.remove(audio)
+                }
+
+                binding?.arrowBackIV?.visibility = View.VISIBLE
+                binding?.rlContextMenu?.visibility = View.INVISIBLE
+                binding?.rlToolbar?.setBackgroundColor(
+                    ContextCompat.getColor(
+                        activity as Context,
+                        R.color.transparent
+                    )
+                )
+                AllSongsAdapter.isContextMenuEnabled = false
+                binding?.selectedAudiosTS!!.setText("0")
+                viewModel.isContextMenuEnabled.value = AllSongsAdapter.isContextMenuEnabled
+            }
+        }
+    }
+
+    private fun moreOptionMenu() {
+        binding?.moreOptionIV?.setOnClickListener {
+            val bottomSheetMultiSelectMoreOptions = BottomSheetMultiSelectMoreOptions(false)
+            bottomSheetMultiSelectMoreOptions.show(
+                (activity as AppCompatActivity).supportFragmentManager,
+                "bottomSheetMultiSelectMoreOptions"
+            )
+
+            bottomSheetMultiSelectMoreOptions.listener =
+                object : BottomSheetMultiSelectMoreOptions.MultiSelectAudioMenuOption {
+                    override fun playNext() {
+                        addToPlayNextAudiosToQueue()
+                        bottomSheetMultiSelectMoreOptions.dismiss()
+                        disableContextMenu()
+                    }
+
+                    override fun addToPlaylist() {
+                        addMultipleAudiosToPlaylist()
+                        bottomSheetMultiSelectMoreOptions.dismiss()
+                    }
+
+                    override fun addToPlayingQueue() {
+                        addAudiosToPlayingQueue()
+                        bottomSheetMultiSelectMoreOptions.dismiss()
+                        disableContextMenu()
+                    }
+
+                    override fun deleteFromDevice() {
+                        Snackbar.make(
+                            (activity as AppCompatActivity).window.decorView,
+                            "Sorry for inconvenience, feature is under development",
+                            Snackbar.LENGTH_LONG
+                        ).show()
+
+                        bottomSheetMultiSelectMoreOptions.dismiss()
+                        disableContextMenu()
+                    }
+                }
+        }
+    }
+
+    private fun addAudiosToPlayingQueue() {
+        if (selectedAudioList.isNotEmpty()) {
+            var playingQueueAudioList = CopyOnWriteArrayList<AllSongsModel>()
+            try {
+                playingQueueAudioList = storage.loadQueueAudio()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            //mViewModelClass.deleteQueue(lifecycleScope)
+            val newAudiosForQueue = CopyOnWriteArrayList<AllSongsModel>()
+            for (audio in selectedAudioList) {
+                if (audio.playingOrPause != 1 && audio.playingOrPause != 0) {
+                    // selected audio is not playing then only add to play next
+                    if (playingQueueAudioList.contains(audio)) {
+                        playingQueueAudioList.remove(audio)
+                        /*mViewModelClass.deleteOneQueueAudio(
+                            audio.songId,
+                            lifecycleScope
+                        )*/
+                    } else {
+                        // this list is for adding audio into database
+                        newAudiosForQueue.add(audio)
+                    }
+
+                    // adding to last index
+                    playingQueueAudioList.add(audio)
+
+                }
+            }
+
+            val playingAudio =
+                playingQueueAudioList.find { allSongsModel -> allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0 }
+            val playingAudioIndex =
+                playingQueueAudioList.indexOf(playingAudio)
+            if (playingAudioIndex != -1) {
+                Log.d(
+                    "playingQueueAudioListaaaa",
+                    "playNext:$playingAudioIndex "
+                )
+
+                storage.storeAudioIndex(playingAudioIndex)
+            } else {
+                // -1 index
+                Log.d(
+                    "playingQueueAudioListaaaa",
+                    "playNext:$playingAudioIndex "
+                )
+            }
+            storage.storeQueueAudio(playingQueueAudioList)
+
+            if (newAudiosForQueue.isNotEmpty()) {
+                for (audio in newAudiosForQueue) {
+                    val queueListModel = QueueListModel(
+                        audio.songId,
+                        audio.albumId,
+                        audio.songName,
+                        audio.artistsName,
+                        audio.albumName,
+                        audio.size,
+                        audio.duration,
+                        audio.data,
+                        audio.contentUri,
+                        audio.artUri,
+                        audio.playingOrPause,
+                        audio.dateAdded,
+                        audio.isFavourite,
+                        audio.favAudioAddedTime,
+                        audio.mostPlayedCount,
+                        audio.artistId
+                    )
+                    queueListModel.currentPlayedAudioTime =
+                        audio.currentPlayedAudioTime
+                    mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+                }
+            }
+
+            Snackbar.make(
+                (activity as AppCompatActivity).window.decorView,
+                "Added ${selectedAudioList.size} songs to playing queue", Snackbar.LENGTH_LONG
+            ).show()
+
+        }
+    }
+
+    private fun addToPlayNextAudiosToQueue() {
+        if (selectedAudioList.isNotEmpty()) {
+            var playingQueueAudioList = CopyOnWriteArrayList<AllSongsModel>()
+            var audioIndex: Int
+            try {
+                playingQueueAudioList = storage.loadQueueAudio()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            audioIndex = storage.loadAudioIndex()
+
+            // if queue list is empty then index will be -1 and so audio will be added from 0th pos
+            if (playingQueueAudioList.isEmpty()) {
+                audioIndex = -1
+            }
+
+            // mViewModelClass.deleteQueue(lifecycleScope)
+            val newAudiosForQueue = CopyOnWriteArrayList<AllSongsModel>()
+            for (audio in selectedAudioList) {
+                if (audio.playingOrPause != 1 && audio.playingOrPause != 0) {
+                    // selected audio is not playing then only add to play next
+                    audioIndex++
+                    if (playingQueueAudioList.contains(audio)) {
+                        if (playingQueueAudioList.indexOf(audio) < audioIndex) {
+                            audioIndex--
+                        }
+                        playingQueueAudioList.remove(audio)
+                        /*mViewModelClass.deleteOneQueueAudio(
+                            audio.songId,
+                            lifecycleScope
+                        )*/
+                    } else {
+                        // this list is for adding audio into database
+                        newAudiosForQueue.add(audio)
+                    }
+                    // adding next to playing index
+                    playingQueueAudioList.add(audioIndex, audio)
+
+                    Log.d(
+                        "PlalistAudioTesting",
+                        "playNext: Index: $audioIndex , $audio , playingOrPause: ${audio.playingOrPause} "
+                    )
+                }
+            }
+
+            val playingAudio =
+                playingQueueAudioList.find { allSongsModel -> allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0 }
+            val playingAudioIndex =
+                playingQueueAudioList.indexOf(playingAudio)
+            if (playingAudioIndex != -1) {
+                Log.d(
+                    "playingQueueAudioListaaaa",
+                    "playNext:$playingAudioIndex "
+                )
+                storage.storeAudioIndex(playingAudioIndex)
+            } else {
+                // -1 index
+                Log.d(
+                    "playingQueueAudioListaaaa",
+                    "playNext:$playingAudioIndex "
+                )
+            }
+            storage.storeQueueAudio(playingQueueAudioList)
+
+
+            if (newAudiosForQueue.isNotEmpty()) {
+                //insert into database
+                for (audio in newAudiosForQueue) {
+                    val queueListModel = QueueListModel(
+                        audio.songId,
+                        audio.albumId,
+                        audio.songName,
+                        audio.artistsName,
+                        audio.albumName,
+                        audio.size,
+                        audio.duration,
+                        audio.data,
+                        audio.contentUri,
+                        audio.artUri,
+                        audio.playingOrPause,
+                        audio.dateAdded,
+                        audio.isFavourite,
+                        audio.favAudioAddedTime,
+                        audio.mostPlayedCount,
+                        audio.artistId
+                    )
+                    queueListModel.currentPlayedAudioTime =
+                        audio.currentPlayedAudioTime
+                    mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+                }
+
+            }
+
+            Snackbar.make(
+                (activity as AppCompatActivity).window.decorView,
+                "Added ${selectedAudioList.size} songs to playing queue", Snackbar.LENGTH_LONG
+            ).show()
+
+        }
+    }
+
+    private fun addMultipleAudiosToPlaylist() {
+        val bottomSheetChooseToPlaylist =
+            BottomSheetChoosePlaylist(null, false, selectedSongsIdList)
+        bottomSheetChooseToPlaylist.show(
+            (activity as AppCompatActivity).supportFragmentManager,
+            "bottomSheetChooseToPlaylist"
+        )
+        bottomSheetChooseToPlaylist.listener =
+            object : BottomSheetChoosePlaylist.PlaylistSelected {
+                override fun onSelected() {
+                    disableContextMenu()
+                }
+            }
     }
 
     private fun setUpMoreTracksRV() {
@@ -149,16 +523,63 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
             activity as Context,
             AllSongsAdapter.OnClickListener { allSongModel, position ->
                 onClickAudio(allSongModel, position)
-            }, AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
+            }, AllSongsAdapter.OnLongClickListener { allSongModel, position ->
+                if (allSongModel.isChecked) {
+                    binding?.arrowBackIV?.visibility = View.GONE
+                    binding?.rlContextMenu?.visibility = View.VISIBLE
+                    binding?.selectAllAudios?.visibility = View.VISIBLE
+                    binding?.rlToolbar?.setBackgroundColor(
+                        ContextCompat.getColor(
+                            activity as Context,
+                            R.color.app_theme_color
+                        )
+                    )
+                    selectedSongsIdList.add(allSongModel.songId)
+                    selectedPositionList.add(position)
+                    selectedAudioList.add(allSongModel)
+
+                    textSwitcherIncrementTextAnim()
+
+                } else {
+                    selectedSongsIdList.remove(allSongModel.songId)
+                    selectedPositionList.remove(position)
+                    selectedAudioList.remove(allSongModel)
+
+                    textSwitcherDecrementTextAnim()
+
+                    if (selectedSongsIdList.isEmpty()) {
+                        binding?.arrowBackIV?.visibility = View.VISIBLE
+                        binding?.rlContextMenu?.visibility = View.INVISIBLE
+                        binding?.rlToolbar?.setBackgroundColor(
+                            ContextCompat.getColor(
+                                activity as Context,
+                                R.color.transparent
+                            )
+                        )
+                        AllSongsAdapter.isContextMenuEnabled = false
+                    }
+                }
+
+                viewModel.isContextMenuEnabled.value = AllSongsAdapter.isContextMenuEnabled
 
             }, false
         )
-        allSongsAdapterMoreTracks.isSearching = false
+        allSongsAdapterMoreTracks!!.isSearching = false
         binding!!.rvMoreTracks.adapter = allSongsAdapterMoreTracks
         binding!!.rvMoreTracks.itemAnimator = null
         binding!!.rvMoreTracks.scrollToPosition(0)
 
         getAudioAccordingAlbum(true)
+    }
+
+    private fun setTextSwitcherFactory() {
+        binding?.selectedAudiosTS!!.setFactory {
+            textCountTV = TextView(activity as Context)
+            textCountTV.setTextColor(Color.WHITE)
+            textCountTV.textSize = 20f
+            textCountTV.gravity = Gravity.CENTER_HORIZONTAL
+            return@setFactory textCountTV
+        }
     }
 
     private fun setUpAlbumAdapter() {
@@ -199,18 +620,24 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
                         binding?.seeAllTV?.visibility = View.GONE
                     }
 
-
                     if (audioArtist.isEmpty()) {
-                        if (!isBackPressed) {
-                            isBackPressed = true
+                        if (!isHidden) {
+                            Snackbar.make(
+                                (activity as AppCompatActivity).window.decorView,
+                                "Deleted empty artist",
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+                            mViewModelClass.deleteArtist(artistsModel!!.id, lifecycleScope)
                             (activity as AppCompatActivity).onBackPressed()
                         }
                     }
+
                     if (moreTrackRV) {
-                        allSongsAdapterMoreTracks.submitList(audioArtist.sortedBy { allSongsModel -> allSongsModel.songName })
+                        allSongsAdapterMoreTracks!!.submitList(getCheckedAudioList(audioArtist).toMutableList())
                     } else {
-                        allSongsAdapter.submitList(audioArtist.sortedBy { allSongsModel -> allSongsModel.songName })
+                        allSongsAdapter!!.submitList(getCheckedAudioList(audioArtist).toMutableList())
                     }
+
                     Log.d(
                         "ArtistsAlbumFrag",
                         "getAudioAccordingAlbum: ${artistsModel?.artistName!!}  , audioAlbum : $audioList"
@@ -250,84 +677,92 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
     }
 
     private fun onClickAudio(allSongModel: AllSongsModel, position: Int) {
-        storageUtil.saveIsShuffled(false)
 
-        val prevPlayingAudioIndex = storageUtil.loadAudioIndex()
-        val audioList = storageUtil.loadQueueAudio()
-        var prevPlayingAudioModel: AllSongsModel? = null
-        var restrictToUpdateAudio = false
+        if (File(Uri.parse(allSongModel.data).path!!).exists()) {
+            storage.saveIsShuffled(false)
 
-        if (audioList.isNotEmpty()) {
-            prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
-            restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
+            val prevPlayingAudioIndex = storage.loadAudioIndex()
+            val audioList = storage.loadQueueAudio()
+            var prevPlayingAudioModel: AllSongsModel? = null
+            var restrictToUpdateAudio = false
 
-            if (storageUtil.getIsAudioPlayedFirstTime()) {
-                restrictToUpdateAudio = false
+            if (audioList.isNotEmpty()) {
+                prevPlayingAudioModel = audioList[prevPlayingAudioIndex]
+                restrictToUpdateAudio = allSongModel.songId == prevPlayingAudioModel.songId
+
+                if (storage.getIsAudioPlayedFirstTime()) {
+                    restrictToUpdateAudio = false
+                }
+
+                // restricting to update if clicked audio is same
+                if (!restrictToUpdateAudio) {
+                    mViewModelClass.deleteQueue(lifecycleScope)
+
+                    mViewModelClass.updateSong(
+                        prevPlayingAudioModel.songId,
+                        prevPlayingAudioModel.songName,
+                        -1,
+                        (context as AppCompatActivity).lifecycleScope
+                    )
+
+                    mViewModelClass.updateSong(
+                        allSongModel.songId,
+                        allSongModel.songName,
+                        1,
+                        (context as AppCompatActivity).lifecycleScope
+                    )
+                }
             }
+
+            playAudio(position)
 
             // restricting to update if clicked audio is same
             if (!restrictToUpdateAudio) {
-                mViewModelClass.deleteQueue(lifecycleScope)
+                // adding queue list to DB and show highlight of current audio
+                for (audio in this.audioList) {
+                    val queueListModel = QueueListModel(
+                        audio.songId,
+                        audio.albumId,
+                        audio.songName,
+                        audio.artistsName,
+                        audio.albumName,
+                        audio.size,
+                        audio.duration,
+                        audio.data,
+                        audio.contentUri,
+                        audio.artUri,
+                        -1,
+                        audio.dateAdded,
+                        audio.isFavourite,
+                        audio.favAudioAddedTime,
+                        audio.mostPlayedCount,
+                        audio.artistId
+                    )
+                    queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
+                    mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+                }
 
-                mViewModelClass.updateSong(
-                    prevPlayingAudioModel.songId,
-                    prevPlayingAudioModel.songName,
-                    -1,
-                    (context as AppCompatActivity).lifecycleScope
-                )
+                if (audioList.isNotEmpty()) {
+                    mViewModelClass.updateQueueAudio(
+                        prevPlayingAudioModel!!.songId,
+                        prevPlayingAudioModel.songName,
+                        -1,
+                        (context as AppCompatActivity).lifecycleScope
+                    )
+                }
 
-                mViewModelClass.updateSong(
+                mViewModelClass.updateQueueAudio(
                     allSongModel.songId,
                     allSongModel.songName,
                     1,
                     (context as AppCompatActivity).lifecycleScope
                 )
             }
-        }
-
-        playAudio(position)
-
-        // restricting to update if clicked audio is same
-        if (!restrictToUpdateAudio) {
-            // adding queue list to DB and show highlight of current audio
-            for (audio in this.audioList) {
-                val queueListModel = QueueListModel(
-                    audio.songId,
-                    audio.albumId,
-                    audio.songName,
-                    audio.artistsName,
-                    audio.albumName,
-                    audio.size,
-                    audio.duration,
-                    audio.data,
-                    audio.contentUri,
-                    audio.artUri,
-                    -1,
-                    audio.dateAdded,
-                    audio.isFavourite,
-                    audio.favAudioAddedTime,
-                    audio.mostPlayedCount,
-                    audio.artistId
-                )
-                queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
-                mViewModelClass.insertQueue(queueListModel, lifecycleScope)
-            }
-
-            if (audioList.isNotEmpty()) {
-                mViewModelClass.updateQueueAudio(
-                    prevPlayingAudioModel!!.songId,
-                    prevPlayingAudioModel.songName,
-                    -1,
-                    (context as AppCompatActivity).lifecycleScope
-                )
-            }
-
-            mViewModelClass.updateQueueAudio(
-                allSongModel.songId,
-                allSongModel.songName,
-                1,
-                (context as AppCompatActivity).lifecycleScope
-            )
+        } else {
+            Snackbar.make(
+                (activity as AppCompatActivity).window.decorView,
+                "File doesn't exists", Snackbar.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -345,8 +780,8 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
     private fun playAudio(position: Int) {
         AudioPlayingFromCategory.audioPlayingFromAlbumORArtist = true
 
-        storageUtil.storeQueueAudio(audioList)
-        storageUtil.storeAudioIndex(position)
+        storage.storeQueueAudio(audioList)
+        storage.storeAudioIndex(position)
 
         //Send a broadcast to the service -> PLAY_NEW_AUDIO
         val broadcastIntent = Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
@@ -366,5 +801,46 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
         } catch (e: ClassCastException) {
             e.printStackTrace()
         }
+    }
+
+    private fun textSwitcherDecrementTextAnim() {
+        binding?.selectedAudiosTS!!.setInAnimation(
+            activity as Context,
+            R.anim.slide_up
+        )
+        binding?.selectedAudiosTS!!.setOutAnimation(
+            activity as Context,
+            R.anim.slide_down
+        )
+        if (selectedSongsIdList.isNotEmpty()) {
+            binding?.selectedAudiosTS!!.setText("${selectedPositionList.size}")
+        }
+    }
+
+    private fun textSwitcherIncrementTextAnim() {
+        // show selected audio count
+        binding?.selectedAudiosTS!!.setOutAnimation(
+            activity as Context,
+            R.anim.slide_up
+        )
+        binding?.selectedAudiosTS!!.setInAnimation(
+            activity as Context,
+            R.anim.slide_down
+        )
+
+        binding?.selectedAudiosTS!!.setText("${selectedPositionList.size}")
+    }
+
+    private fun getCheckedAudioList(sortedList: List<AllSongsModel>): ArrayList<AllSongsModel> {
+        val audioList = ArrayList<AllSongsModel>()
+        for (audio in sortedList) {
+            for (audioId in selectedSongsIdList) {
+                if (audio.songId == audioId) {
+                    audio.isChecked = true
+                }
+            }
+            audioList.add(audio)
+        }
+        return audioList
     }
 }

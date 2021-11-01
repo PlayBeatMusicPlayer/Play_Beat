@@ -272,7 +272,7 @@ class Repository(var application: Application) {
         lifecycleScope: LifecycleCoroutineScope
     ) {
         lifecycleScope.launch(Dispatchers.IO) {
-            queueListDao.updateQueue(songId, songName, isPlayingOrPause)
+            queueListDao.updateQueueAudio(songId, songName, isPlayingOrPause)
         }
     }
 

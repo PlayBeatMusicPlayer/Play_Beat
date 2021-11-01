@@ -62,7 +62,7 @@ class AllAlbumsAdapter(
             .into(holder.albumIV)
 
         holder.rlParentView.setOnClickListener {
-            Log.d("AlbumAdapterAlbumId", "onBindViewHolder: albumId: ${albumModel.id} ")
+            Log.d("AlbumAdapterAlbumId", "onBindViewHolder: albumId: ${albumModel.albumId} ")
             listener.onClicked(albumModel)
         }
     }
@@ -71,7 +71,7 @@ class AllAlbumsAdapter(
 
     class DiffUtilAlbumDataCallback : DiffUtil.ItemCallback<AlbumModel>() {
         override fun areItemsTheSame(oldItem: AlbumModel, newItem: AlbumModel) =
-            oldItem.id == newItem.id
+            oldItem.albumId == newItem.albumId
 
 
         override fun areContentsTheSame(oldItem: AlbumModel, newItem: AlbumModel) =
