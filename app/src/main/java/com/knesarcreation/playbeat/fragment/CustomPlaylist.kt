@@ -13,7 +13,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -780,7 +779,7 @@ class CustomPlaylist : Fragment() {
             )
             // }
 
-            Toast.makeText(activity as Context, "$position", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(activity as Context, "$position", Toast.LENGTH_SHORT).show()
             playAudio(position)
 
 

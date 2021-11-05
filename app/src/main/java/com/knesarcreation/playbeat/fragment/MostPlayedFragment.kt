@@ -523,7 +523,7 @@ class MostPlayedFragment : Fragment() {
                     mostPlayedAudioAdapter!!.submitList(it.sortedByDescending { allSongsModel -> allSongsModel.mostPlayedCount })
                 }
 
-                binding?.rvMostPlayed?.scrollToPosition(0)
+                //binding?.rvMostPlayed?.scrollToPosition(0)
 
                 if (it.size >= 2) {
                     binding?.totalSongsTV?.text = "${mostPlayedAudioList.size} Songs"

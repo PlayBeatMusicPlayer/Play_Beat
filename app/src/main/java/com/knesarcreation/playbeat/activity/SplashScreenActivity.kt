@@ -7,7 +7,10 @@ import android.content.Intent
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
 import android.util.Size
@@ -57,15 +60,15 @@ class SplashScreenActivity : AppCompatActivity() {
         MakeStatusBarTransparent().transparent(this)
         requestStoragePermission()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (Environment.isExternalStorageManager()) {
                 loadAudio()
             } else {
                 showPermissionAlert()
             }
-        } else {
-            mPermRequest!!.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        }
+        } else {*/
+        mPermRequest!!.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        //}
 
         /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             mPermRequest!!.launch(android.Manifest.permission.MANAGE_EXTERNAL_STORAGE)
@@ -76,49 +79,49 @@ class SplashScreenActivity : AppCompatActivity() {
     }
 
     private fun requestStoragePermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            mReqPermForManageAllFiles = registerForActivityResult(
-                ActivityResultContracts.StartActivityForResult()
-            ) {
-                // for android 11 and above
-                if (Environment.isExternalStorageManager()) {
-                    // Permission granted. Now resume workflow.
+        /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+             mReqPermForManageAllFiles = registerForActivityResult(
+                 ActivityResultContracts.StartActivityForResult()
+             ) {
+                 // for android 11 and above
+                 if (Environment.isExternalStorageManager()) {
+                     // Permission granted. Now resume workflow.
+                     loadAudio()
+                 } else {
+                     showPermissionAlert()
+                 }
+             }
+         } else {*/
+        // for android 10 and below
+        mPermRequest =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+                if (it) {
+                    // do stuff if permission granted
                     loadAudio()
+
                 } else {
-                    showPermissionAlert()
+                    val permAlert = AlertDialog.Builder(this)
+                    permAlert.setMessage("Storage permission is required to read Media Files. Please grant permission to proceed further.")
+                    permAlert.setPositiveButton("Allow") { dialog, _ ->
+                        mPermRequest!!.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        dialog.dismiss()
+                    }
+                    permAlert.setNegativeButton("Dismiss") { dialog, _ ->
+                        Toast.makeText(
+                            this,
+                            "Permission is required to access media files",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                        finish()
+                        dialog.dismiss()
+                    }
+                    permAlert.setCancelable(false)
+                    permAlert.show()
+
                 }
             }
-        } else {
-            // for android 10 and below
-            mPermRequest =
-                registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-                    if (it) {
-                        // do stuff if permission granted
-                        loadAudio()
-
-                    } else {
-                        val permAlert = AlertDialog.Builder(this)
-                        permAlert.setMessage("Storage permission is required to access Media Files.")
-                        permAlert.setPositiveButton("Allow") { dialog, _ ->
-                            mPermRequest!!.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            dialog.dismiss()
-                        }
-                        permAlert.setNegativeButton("Dismiss") { dialog, _ ->
-                            Toast.makeText(
-                                this,
-                                "Permission is required to access media files",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
-                            finish()
-                            dialog.dismiss()
-                        }
-                        permAlert.setCancelable(false)
-                        permAlert.show()
-
-                    }
-                }
-        }
+        //}
     }
 
     @RequiresApi(Build.VERSION_CODES.R)

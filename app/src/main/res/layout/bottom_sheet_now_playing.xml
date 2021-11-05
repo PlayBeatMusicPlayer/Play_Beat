@@ -139,7 +139,7 @@
                     android:layout_marginEnd="10dp"
                     android:layout_toEndOf="@id/play_pause_mini_player"
                     android:mediaRouteTypes="user"
-                    android:visibility="visible"
+                    android:visibility="gone"
                     app:mediaRouteButtonTint="@color/white" />
 
             </RelativeLayout>

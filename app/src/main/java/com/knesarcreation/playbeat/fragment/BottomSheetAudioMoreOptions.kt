@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.media.MediaMetadataRetriever
-import android.media.MediaScannerConnection
+import android.media.audiofx.AudioEffect
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -16,6 +16,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -39,10 +41,9 @@ import com.knesarcreation.playbeat.utils.PlaybackStatus
 import com.knesarcreation.playbeat.utils.StorageUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileNotFoundException
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.round
+
 
 class BottomSheetAudioMoreOptions(
     var mContext: Context,
@@ -57,6 +58,7 @@ class BottomSheetAudioMoreOptions(
     private lateinit var mViewModelClass: ViewModelClass
     private var isTempFavAudio = false
     var listener: SingleSelectionMenuOption? = null
+    var requestIntent: ActivityResultLauncher<Intent>? = null
 
     interface SingleSelectionMenuOption {
         fun playNext()
@@ -95,14 +97,6 @@ class BottomSheetAudioMoreOptions(
             binding?.llSavePlayingQueue?.visibility = View.VISIBLE
         }
 
-        binding?.llEqualizer?.setOnClickListener {
-            Snackbar.make(
-                dialog!!.window!!.decorView,
-                "Sorry for inconvenience, feature is under development", Snackbar.LENGTH_LONG
-            ).show()
-        }
-
-
         savePlayingQueue()
 
         lifecycleScope.launch(Dispatchers.IO) {
@@ -133,7 +127,26 @@ class BottomSheetAudioMoreOptions(
 
         shareAudio()
 
+        requestIntent =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                Log.d("Equalizer", "onCreateView: $it")
+            }
+
+        openSystemEqualizer()
+
         return view
+    }
+
+    private fun openSystemEqualizer() {
+        binding?.llEqualizer?.setOnClickListener {
+            val intent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL)
+            if (intent.resolveActivity((mContext as AppCompatActivity).packageManager) != null) {
+                requestIntent!!.launch(intent)
+            } else {
+                Toast.makeText(mContext, "No Equalizer found", Toast.LENGTH_SHORT).show()
+            }
+            dismiss()
+        }
     }
 
     private fun shareAudio() {
@@ -149,12 +162,21 @@ class BottomSheetAudioMoreOptions(
 
     private fun deleteAudioFromDevice() {
         binding?.llDeleteFromDevice?.setOnClickListener {
-            val audioPath =
+            Toast.makeText(
+                mContext,
+                "Coming soon, feature is under development.",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            dismiss()
+            /*val audioPath =
                 GetRealPathOfUri().getUriRealPath(mContext, Uri.parse(allSongsModel.contentUri))
+
             if (audioPath != null) {
                 try {
                     val audioFile = File(audioPath)
                     Log.d("SongThatWillBeDelete", "deleteAudioFromDevice: path: $audioFile ")
+
                     if (audioFile.exists()) {
                         val alertDialog =
                             AlertDialog.Builder(activity as Context, R.style.CustomAlertDialog)
@@ -206,7 +228,7 @@ class BottomSheetAudioMoreOptions(
 
                             if (allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0) {
                                 // if deleted audio was playing audio then play next audio
-                                if (currentPlayingAudioIndex == loadQueueAudio.size /* there is no need to subtract size by 1 here, since one audio is already deleted */) {
+                                if (currentPlayingAudioIndex == loadQueueAudio.size *//* there is no need to subtract size by 1 here, since one audio is already deleted *//*) {
                                     // last audio deleted which was playing
                                     // so play a prev audio, for that save a new index
 
@@ -245,10 +267,7 @@ class BottomSheetAudioMoreOptions(
                                     "deleteAudioFromDevice: audioIndexChanged: newIndex- $newIndex "
                                 )
                             }
-                           /* Snackbar.make(
-                                it,
-                                "${allSongsModel.songName} deleted", Snackbar.LENGTH_LONG
-                            ).show()*/
+
                             Toast.makeText(mContext, "Song deleted", Toast.LENGTH_SHORT).show()
                             dialog.dismiss()
                         }
@@ -272,7 +291,7 @@ class BottomSheetAudioMoreOptions(
                     e.printStackTrace()
                     Log.d("FileNotFoundException", "deleteAudioFromDevice:${e.message} ")
                 }
-            }
+            }*/
 
         }
     }

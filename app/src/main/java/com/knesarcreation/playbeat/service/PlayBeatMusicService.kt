@@ -11,6 +11,9 @@ import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.media.audiofx.BassBoost
+import android.media.audiofx.Equalizer
+import android.media.audiofx.PresetReverb
 import android.net.Uri
 import android.os.*
 import android.support.v4.media.MediaMetadataCompat
@@ -88,6 +91,9 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
         const val ACTION_FAVOURITE = "com.knesarcreation.playbeat.service.ACTION_FAVOURITE"
         const val ACTION_UN_FAVOURITE = "com.knesarcreation.playbeat.service.ACTION_UNFAVOURITE"
         const val OPEN_CONTENT = "com.knesarcreation.playbeat.service.OPEN_CONTENT"
+        var mEqualizer: Equalizer? = null
+        var bassBoost: BassBoost? = null
+        var presetReverb: PresetReverb? = null
     }
 
     fun updateNotification(isAudioPlaying: Boolean) {
@@ -1135,7 +1141,7 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
         }
     }
 
-    fun registerPlayNewAudio() {
+    private fun registerPlayNewAudio() {
         //Register playNewMedia receiver
         val filter = IntentFilter(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
         try {
@@ -1149,13 +1155,14 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
     private val becomingNoisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             //pause audio on ACTION_AUDIO_BECOMING_NOISY
+            pausedByManually = true
             pauseMedia()
             //buildNotification(PlaybackStatus.PAUSED, PlaybackStatus.UN_FAVOURITE, 0f)
             updateNotification(false)
         }
     }
 
-    fun registerBecomingNoisyReceiver() {
+    private fun registerBecomingNoisyReceiver() {
         //register after getting audio focus
         val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
         try {

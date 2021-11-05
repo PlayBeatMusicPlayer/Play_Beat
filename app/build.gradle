@@ -118,5 +118,10 @@ dependencies {
     //dynamic screen sizes
     implementation 'com.github.MrNouri:DynamicSizes:1.0'
 
+    //Equalizer
+    implementation 'com.github.bullheadandplato:AndroidEqualizer:2.2'
+    //vertical seekbar
+    implementation 'com.h6ah4i.android.widget.verticalseekbar:verticalseekbar:1.0.0'
+
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }

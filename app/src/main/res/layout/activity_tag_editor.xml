@@ -246,6 +246,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="textCapSentences"
                 android:maxLines="1"
+                android:visibility="gone"
                 android:textCursorDrawable="@drawable/cursor"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark" />
         </com.google.android.material.textfield.TextInputLayout>

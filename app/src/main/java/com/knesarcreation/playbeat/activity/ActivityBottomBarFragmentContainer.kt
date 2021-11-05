@@ -16,7 +16,6 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import android.widget.SeekBar
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
@@ -119,10 +118,11 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
         MakeStatusBarTransparent().transparent(this)
         storage = StorageUtil(this)
+
         //setupCastListener()
         // setting cast context
-        mCastContext = CastContext.getSharedInstance(this)
-        mCastSession = mCastContext!!.sessionManager.currentCastSession
+        //mCastContext = CastContext.getSharedInstance(this)
+        //mCastSession = mCastContext!!.sessionManager.currentCastSession
 
         binding.bottomSheet.songNameTV.isSelected = true
         binding.bottomSheet.songTextTV.isSelected = true
@@ -1783,91 +1783,86 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         registerReceiver(updatePlayerUI, filter)
     }
 
-    override fun onPause() {
-        super.onPause()
-        //mCastContext!!.sessionManager.removeSessionManagerListener(
-        //   mSessionManagerListener!!, CastSession::class.java
-        // )
-    }
-
     override fun onResume() {
         super.onResume()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
                 startActivity(Intent(this, SplashScreenActivity::class.java))
                 finishAffinity()
             }
-        } else {
-            /* mPermRequest!!.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)*/
-            val checkSelfPermission: Int = ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            if (checkSelfPermission != PackageManager.PERMISSION_GRANTED) {
-                startActivity(Intent(this, SplashScreenActivity::class.java))
-                finishAffinity()
-            }
+        } else {*/
+        /* mPermRequest!!.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)*/
+        val checkSelfPermission: Int = ContextCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+        if (checkSelfPermission != PackageManager.PERMISSION_GRANTED) {
+            startActivity(Intent(this, SplashScreenActivity::class.java))
+            finishAffinity()
         }
-        mCastContext!!.addCastStateListener { state ->
-            if (state == CastState.NO_DEVICES_AVAILABLE) {
-                binding.bottomSheet.castBtn.visibility = View.GONE
-                binding.bottomSheet.skipNextAudioMP.visibility = View.VISIBLE
-            } else {
-                binding.bottomSheet.castBtn.visibility = View.VISIBLE
-                binding.bottomSheet.skipNextAudioMP.visibility = View.GONE
-            }
-        }
+        // }
+        //mCastContext!!.addCastStateListener { state ->
+        //    if (state == CastState.NO_DEVICES_AVAILABLE) {
+        //        binding.bottomSheet.castBtn.visibility = View.GONE
+        //        binding.bottomSheet.skipNextAudioMP.visibility = View.VISIBLE
+        //    } else {
+        //        binding.bottomSheet.castBtn.visibility = View.VISIBLE
+        //        binding.bottomSheet.skipNextAudioMP.visibility = View.GONE
+        //   }
+        // }
 
-        if (mCastContext!!.castState == CastState.NO_DEVICES_AVAILABLE) {
-            binding.bottomSheet.castBtn.visibility = View.GONE
-            binding.bottomSheet.skipNextAudioMP.visibility = View.VISIBLE
-        } else {
-            binding.bottomSheet.castBtn.visibility = View.VISIBLE
-            binding.bottomSheet.skipNextAudioMP.visibility = View.GONE
-        }
+        //if (mCastContext!!.castState == CastState.NO_DEVICES_AVAILABLE) {
+        //    binding.bottomSheet.castBtn.visibility = View.GONE
+        //    binding.bottomSheet.skipNextAudioMP.visibility = View.VISIBLE
+        //} else {
+        //    binding.bottomSheet.castBtn.visibility = View.VISIBLE
+        //    binding.bottomSheet.skipNextAudioMP.visibility = View.GONE
+        // }
 
-        CastButtonFactory.setUpMediaRouteButton(this, binding.bottomSheet.castBtn)
+        // CastButtonFactory.setUpMediaRouteButton(this, binding.bottomSheet.castBtn)
 
         //mCastContext!!.sessionManager.addSessionManagerListener(
         //    mSessionManagerListener!!, CastSession::class.java
         // )
+
+        //loadEqualizerSettings()
     }
 
-    private fun setupCastListener() {
-        mSessionManagerListener = object : SessionManagerListener<CastSession> {
-            override fun onSessionEnded(session: CastSession, error: Int) {
-                onApplicationDisconnected()
-            }
+    /* private fun setupCastListener() {
+         mSessionManagerListener = object : SessionManagerListener<CastSession> {
+             override fun onSessionEnded(session: CastSession, error: Int) {
+                 onApplicationDisconnected()
+             }
 
-            override fun onSessionResumed(session: CastSession, wasSuspended: Boolean) {
-                onApplicationConnected(session)
-            }
+             override fun onSessionResumed(session: CastSession, wasSuspended: Boolean) {
+                 onApplicationConnected(session)
+             }
 
-            override fun onSessionResumeFailed(session: CastSession, error: Int) {
-                onApplicationDisconnected()
-            }
+             override fun onSessionResumeFailed(session: CastSession, error: Int) {
+                 onApplicationDisconnected()
+             }
 
-            override fun onSessionStarted(session: CastSession, sessionId: String) {
-                onApplicationConnected(session)
-            }
+             override fun onSessionStarted(session: CastSession, sessionId: String) {
+                 onApplicationConnected(session)
+             }
 
-            override fun onSessionStartFailed(session: CastSession, error: Int) {
-                onApplicationDisconnected()
-            }
+             override fun onSessionStartFailed(session: CastSession, error: Int) {
+                 onApplicationDisconnected()
+             }
 
-            override fun onSessionStarting(session: CastSession) {}
-            override fun onSessionEnding(session: CastSession) {}
-            override fun onSessionResuming(session: CastSession, sessionId: String) {}
-            override fun onSessionSuspended(session: CastSession, reason: Int) {}
+             override fun onSessionStarting(session: CastSession) {}
+             override fun onSessionEnding(session: CastSession) {}
+             override fun onSessionResuming(session: CastSession, sessionId: String) {}
+             override fun onSessionSuspended(session: CastSession, reason: Int) {}
 
-            private fun onApplicationConnected(castSession: CastSession) {
-                mCastSession = castSession
-                Toast.makeText(
-                    this@ActivityBottomBarFragmentContainer,
-                    "RemoteServer Connected",
-                    Toast.LENGTH_SHORT
-                ).show()
-                /* if (null != mSelectedMedia) {
+             private fun onApplicationConnected(castSession: CastSession) {
+                 mCastSession = castSession
+                 Toast.makeText(
+                     this@ActivityBottomBarFragmentContainer,
+                     "RemoteServer Connected",
+                     Toast.LENGTH_SHORT
+                 ).show()
+                 *//* if (null != mSelectedMedia) {
                      if (mPlaybackState === PlaybackState.PLAYING) {
                          mVideoView.pause()
                          loadRemoteMedia(mSeekbar.getProgress(), true)
@@ -1878,16 +1873,16 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                      }
                  }
                  updatePlayButton(mPlaybackState)
-                 supportInvalidateOptionsMenu()*/
+                 supportInvalidateOptionsMenu()*//*
                 // loadRemoteMedia(binding.bottomSheet.seekBar.progress, true)
             }
 
             private fun onApplicationDisconnected() {
-                /* updatePlaybackLocation(PlaybackLocation.LOCAL)
+                *//* updatePlaybackLocation(PlaybackLocation.LOCAL)
                  mPlaybackState = PlaybackState.IDLE
                  mLocation = PlaybackLocation.LOCAL
                  updatePlayButton(mPlaybackState)
-                 supportInvalidateOptionsMenu()*/
+                 supportInvalidateOptionsMenu()*//*
                 Toast.makeText(
                     this@ActivityBottomBarFragmentContainer,
                     "RemoteServer disconnected",
@@ -1895,7 +1890,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 ).show()
             }
         }
-    }
+    }*/
 
     /* private fun loadRemoteMedia(position: Int, autoPlay: Boolean) {
          if (mCastSession == null) {
@@ -1947,4 +1942,5 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             binding.bottomSheet.likedAudioIV.drawable as AnimatedVectorDrawable
         animatedVectorDrawable.start()
     }
+
 }
