@@ -5,14 +5,14 @@
     android:id="@+id/nowPlayingBottomSheetContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/app_theme_background_drawable"
+    android:background="@color/app_theme_color"
     android:clickable="true"
     android:clipChildren="false"
     android:clipToPadding="false"
     android:focusable="true"
     app:behavior_draggable="true"
     app:behavior_hideable="false"
-    app:behavior_peekHeight="65dp"
+    app:behavior_peekHeight="55dp"
     app:layout_behavior="@string/bottom_sheet_behavior">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,8 +25,8 @@
         <RelativeLayout
             android:id="@+id/rl_mini_player_bottomsheet"
             android:layout_width="match_parent"
-            android:layout_height="65dp"
-            android:background="#41655F5F"
+            android:layout_height="55dp"
+            android:background="@drawable/mini_player_bg_1"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -130,17 +130,17 @@
                     android:padding="6dp"
                     android:src="@drawable/ic_noti_skip_next" />
 
-                <androidx.mediarouter.app.MediaRouteButton
-                    android:id="@+id/castBtn"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_centerInParent="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="10dp"
-                    android:layout_toEndOf="@id/play_pause_mini_player"
-                    android:mediaRouteTypes="user"
-                    android:visibility="gone"
-                    app:mediaRouteButtonTint="@color/white" />
+                <!-- <androidx.mediarouter.app.MediaRouteButton
+                     android:id="@+id/castBtn"
+                     android:layout_width="60dp"
+                     android:layout_height="60dp"
+                     android:layout_centerInParent="true"
+                     android:layout_centerVertical="true"
+                     android:layout_marginEnd="10dp"
+                     android:layout_toEndOf="@id/play_pause_mini_player"
+                     android:mediaRouteTypes="user"
+                     android:visibility="gone"
+                     app:mediaRouteButtonTint="@color/white" />-->
 
             </RelativeLayout>
 
@@ -161,7 +161,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_above="@id/rlCoverArt"
-                android:background="@drawable/app_theme_background_drawable"
+                android:background="@drawable/app_theme_default_background"
                 android:contentDescription="@null"
                 android:visibility="visible" />
 
@@ -170,7 +170,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_below="@id/rlCoverArt"
-                android:background="@drawable/app_theme_background_drawable"
+                android:background="@drawable/app_theme_default_background"
                 android:contentDescription="@null"
                 android:visibility="visible" />
 
@@ -212,7 +212,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_100mdp"
                     android:layout_alignParentBottom="true"
-                    android:background="@drawable/gradient_background_bottom_shadow"
+                    android:background="@drawable/gradient_background_bottom_shadow_default"
                     android:contentDescription="@null" />
 
                 <ImageView
@@ -344,8 +344,8 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:progress="20"
-                        android:theme="@style/ThemeOverlay.AppCompat.Dark"
                         android:requiresFadingEdge="vertical"
+                        android:theme="@style/ThemeOverlay.AppCompat.Dark"
                         android:tickMarkTintMode="src_in" />
 
                     <TextView
@@ -374,10 +374,10 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@id/seekBar"
                         android:layout_alignParentEnd="true"
+                        android:layout_marginTop="@dimen/mines3mdp"
                         android:layout_marginEnd="12dp"
                         android:shadowDx="0.0"
                         android:shadowDy="0.0"
-                        android:layout_marginTop="@dimen/mines3mdp"
                         android:shadowRadius="2"
                         android:text="@string/time"
                         android:textAlignment="center"

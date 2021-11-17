@@ -47,7 +47,8 @@ import java.util.concurrent.CopyOnWriteArrayList
 class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnection*/,
     AllAlbumsFragment.OnAlbumItemClicked, AllArtistsFragment.OpenArtisFragment,
     ArtistsTracksAndAlbumFragment.OnArtistAlbumItemClicked,
-    PlaylistsFragment.OnPlayListCategoryClicked {
+    PlaylistsFragment.OnPlayListCategoryClicked,
+    FoldersFragment.OnFolderItemOpened {
 
     // private var mPermRequest: ActivityResultLauncher<String>? = null
     // private var mreqPermForManageAllFiles: ActivityResultLauncher<Intent>? = null
@@ -62,6 +63,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private var historyAudiosFragment = HistoryAudiosFragment()
     private var mostPlayedFragment = MostPlayedFragment()
     private var artistsTracksAndAlbumFragment = ArtistsTracksAndAlbumFragment()
+    private var foldersSpecificSongsFrag = FoldersSpecificSongs()
     private var customPlaylist = CustomPlaylist()
     private var audioIndexPos = -1
     private var isDestroyedActivity = false
@@ -71,6 +73,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private var isAlbumFragOpened = false
     private var isArtistsFragOpened = false
     private var isPlaylstCategoryOpened = false
+    private var isFolderFragOpened = false
     private var isAlbumOpenedFromArtisFrag = false
     private var isNotiBuild = false
     private var runnableAudioProgress: Runnable? = null
@@ -99,12 +102,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         super.onCreate(savedInstanceState)
         binding = ActivityBottomBarFragmentBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        //navigationController = findNavController(R.id.fragmentContainer)
-        //setUpSmoothBottomMenu()
-
-        //if (intent != null) {
-        //    isOpenFromNoti = intent?.getBooleanExtra("is_open_from_noti", false)!!
-        //}
 
         try {
             val field = CursorWindow::class.java.getDeclaredField("sCursorWindowSize")
@@ -204,6 +201,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             .add(R.id.fragmentContainer, historyAudiosFragment, "historyAudiosFragment")
             .add(R.id.fragmentContainer, mostPlayedFragment, "mostPlayedFragment")
             .add(R.id.fragmentContainer, customPlaylist, "customPlaylist")
+            .add(R.id.fragmentContainer, foldersSpecificSongsFrag, "foldersSpecificSongs")
             .commit()
         Log.d("ActivitySavedInstanceState", "onCreate: null instance ")
     }
@@ -231,6 +229,8 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             supportFragmentManager.findFragmentByTag("mostPlayedFragment") as MostPlayedFragment
         val oldCustomPlaylistInstance =
             supportFragmentManager.findFragmentByTag("customPlaylist") as CustomPlaylist
+        val foldersSpecificSongs =
+            supportFragmentManager.findFragmentByTag("foldersSpecificSongs") as FoldersSpecificSongs
 
         homeFragment = oldHomeFragInstance
         playlistsFragment = oldPlayListFragInstance
@@ -243,6 +243,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         historyAudiosFragment = oldHistoryAudiosFragmentInstance
         mostPlayedFragment = oldMostPlayedFragmentInstance
         customPlaylist = oldCustomPlaylistInstance
+        foldersSpecificSongsFrag = foldersSpecificSongs
     }
 
     private fun likeOrUnLikeAudio() {
@@ -320,7 +321,10 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     audio.artistId,
                     audio.displayName,
                     audio.contentType,
-                    audio.year
+                    audio.year,
+                    audio.folderId,
+                    audio.folderName,
+                    audio.noOfSongs
                 )
                 allSongsModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
                 allSongsModel.playingOrPause = audio.playingOrPause
@@ -343,7 +347,10 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     audio.artistId,
                     audio.displayName,
                     audio.contentType,
-                    audio.year
+                    audio.year,
+                    audio.folderId,
+                    audio.folderName,
+                    audio.noOfSongs
                 )
                 allSongsModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
                 allSongsModel.playingOrPause = audio.playingOrPause
@@ -441,13 +448,13 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
         if (!storage.getIsAudioPlayedFirstTime() && queueAudioList.isNotEmpty()) {
             nowPlayingBottomSheetBehavior.peekHeight =
-                ConvertDpToPx.dpToPx(120, this@ActivityBottomBarFragmentContainer)
+                ConvertDpToPx.dpToPx(115, this@ActivityBottomBarFragmentContainer)
             binding.bottomSheet.rlMiniPlayerBottomsheet.visibility = View.VISIBLE
 
             val layoutParams =
                 binding.fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams
             layoutParams.bottomMargin =
-                ConvertDpToPx.dpToPx(120, this@ActivityBottomBarFragmentContainer)
+                ConvertDpToPx.dpToPx(115, this@ActivityBottomBarFragmentContainer)
             binding.fragmentContainer.layoutParams = layoutParams
             nowPlayingBottomSheetBehavior.isDraggable = true
         } else {
@@ -490,7 +497,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     (0.4 - slideOffset).toFloat()
                 binding.bottomSheet.rlNowPlayingBottomSheet.alpha = slideOffset
 
-                if (isPlaylstCategoryOpened || isAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag) {
+                if (isPlaylstCategoryOpened || isAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag || isFolderFragOpened) {
                     if (slideOffset >= 0.2f) {
                         binding.bottomSheet.nowPlayingBottomSheetContainer.animate()
                             .translationY(0f).duration = 200
@@ -815,6 +822,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         transaction.hide(mostPlayedFragment)
                         transaction.hide(customPlaylist)
                         transaction.show(albumSongFragment)
+                        transaction.hide(foldersSpecificSongsFrag)
                     }
                     isArtistsFragOpened || isAlbumOpenedFromArtisFrag -> {
                         transaction.hide(homeFragment)
@@ -828,6 +836,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         transaction.hide(historyAudiosFragment)
                         transaction.hide(customPlaylist)
                         transaction.hide(mostPlayedFragment)
+                        transaction.hide(foldersSpecificSongsFrag)
                     }
                     else -> {
                         transaction.show(homeFragment)
@@ -841,6 +850,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         transaction.hide(historyAudiosFragment)
                         transaction.hide(customPlaylist)
                         transaction.hide(mostPlayedFragment)
+                        transaction.hide(foldersSpecificSongsFrag)
                     }
                 }
                 binding.bottomBar.itemActiveIndex = 0
@@ -857,6 +867,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(historyAudiosFragment)
                 transaction.hide(mostPlayedFragment)
                 transaction.hide(customPlaylist)
+                transaction.hide(foldersSpecificSongsFrag)
                 binding.bottomBar.itemActiveIndex = 1
             }
             FragmentState.SEARCH -> {
@@ -871,6 +882,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(historyAudiosFragment)
                 transaction.hide(mostPlayedFragment)
                 transaction.hide(customPlaylist)
+                transaction.hide(foldersSpecificSongsFrag)
                 binding.bottomBar.itemActiveIndex = 2
             }
             FragmentState.SETTING -> {
@@ -885,6 +897,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(historyAudiosFragment)
                 transaction.hide(mostPlayedFragment)
                 transaction.hide(customPlaylist)
+                transaction.hide(foldersSpecificSongsFrag)
                 binding.bottomBar.itemActiveIndex = 3
             }
             FragmentState.ALBUM_FRAGMENT -> {
@@ -899,6 +912,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(historyAudiosFragment)
                 transaction.hide(customPlaylist)
                 transaction.hide(mostPlayedFragment)
+                transaction.hide(foldersSpecificSongsFrag)
 
                 isAlbumFragOpened = !isAlbumOpenedFromArtisFrag
                 isArtistsFragOpened = false
@@ -915,6 +929,8 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(historyAudiosFragment)
                 transaction.hide(mostPlayedFragment)
                 transaction.hide(customPlaylist)
+                transaction.hide(foldersSpecificSongsFrag)
+
                 isArtistsFragOpened = true
                 isAlbumFragOpened = false
             }
@@ -925,6 +941,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(albumSongFragment)
                 transaction.hide(artistsTracksAndAlbumFragment)
                 transaction.hide(searchFragment)
+                transaction.hide(foldersSpecificSongsFrag)
                 when (_playlistCategory) {
                     "fav" -> {
                         transaction.hide(lastAddedAudioFragment)
@@ -963,6 +980,21 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     }
                 }
                 isPlaylstCategoryOpened = true
+            }
+            FragmentState.FOLDER_SPECIFIC_AUDIO -> {
+                transaction.hide(homeFragment)
+                transaction.hide(playlistsFragment)
+                transaction.hide(settingFragment)
+                transaction.hide(albumSongFragment)
+                transaction.hide(artistsTracksAndAlbumFragment)
+                transaction.hide(searchFragment)
+                transaction.hide(favouriteAudiosFragment)
+                transaction.hide(lastAddedAudioFragment)
+                transaction.hide(historyAudiosFragment)
+                transaction.hide(customPlaylist)
+                transaction.hide(mostPlayedFragment)
+                transaction.show(foldersSpecificSongsFrag)
+                isFolderFragOpened = true
             }
         }
         return transaction
@@ -1016,7 +1048,8 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         ALBUM_FRAGMENT,
         ARTIST_TRACK_ALBUM_FRAGMENT,
         SEARCH,
-        PLAYLIST_CATEGORY
+        PLAYLIST_CATEGORY,
+        FOLDER_SPECIFIC_AUDIO,
     }
 
     override fun onBackPressed() {
@@ -1042,6 +1075,20 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                             binding.bottomBar.itemActiveIndex = 0
                         }
                     }
+                } else if (isFolderFragOpened) {
+                    /* if (!playlistsFragment.isHidden || !settingFragment.isHidden) {
+                         setBottomBarFragmentState(FragmentState.ALBUM_FRAGMENT).commit()
+                         binding.bottomBar.itemActiveIndex = 0
+                     } else {*/
+                    if (isContextMenuEnabled) {
+                        viewModel.onBackPressed.value = true
+                    } else {
+                        animateBottomBarToVisible()
+                        isFolderFragOpened = false
+                        setBottomBarFragmentState(FragmentState.HOME).commit()
+                        binding.bottomBar.itemActiveIndex = 0
+                    }
+                    //}
                 } else if (isArtistsFragOpened || isAlbumOpenedFromArtisFrag) {
                     if (!playlistsFragment.isHidden /* if open*/ || !settingFragment.isHidden /*if open*/) {
                         setBottomBarFragmentState(FragmentState.ARTIST_TRACK_ALBUM_FRAGMENT).commit()
@@ -1107,6 +1154,12 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         setBottomBarFragmentState(FragmentState.ALBUM_FRAGMENT).commit()
     }
 
+    override fun folderOpen(audioFiles: String) {
+        viewModel.folderData.value = audioFiles
+        animateBottomBarToGone()
+        setBottomBarFragmentState(FragmentState.FOLDER_SPECIFIC_AUDIO).commit()
+    }
+
     override fun onOpenArtistTrackAndAlbumFragment(artistsData: String) {
         viewModel.artistsData.value = artistsData
         animateBottomBarToGone()
@@ -1138,10 +1191,19 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
     private fun animateMiniPlayerToGone() {
         val bottomMarginOfFrag =
-            if (isPlaylstCategoryOpened || isAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag) {
-                65
+            if (isPlaylstCategoryOpened || isAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag || isFolderFragOpened) {
+                if (binding.bottomSheet.rlMiniPlayerBottomsheet.isVisible) {
+                    60
+                } else {
+                    0
+                }
+                // 65
             } else {
-                120
+                if (binding.bottomSheet.rlMiniPlayerBottomsheet.isVisible) {
+                    115
+                } else {
+                    55
+                }
             }
 
         val layoutParams =
@@ -1156,7 +1218,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
         nowPlayingBottomSheetBehavior.peekHeight =
             ConvertDpToPx.dpToPx(
-                65,
+                0,
                 this@ActivityBottomBarFragmentContainer
             )
 
@@ -1172,15 +1234,23 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
             nowPlayingBottomSheetBehavior.peekHeight =
                 ConvertDpToPx.dpToPx(
-                    120,
+                    115,
                     this@ActivityBottomBarFragmentContainer
                 )
 
             val bottomMarginOfFrag =
-                if (isPlaylstCategoryOpened || isAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag) {
-                    65
+                if (isPlaylstCategoryOpened || isAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag || isFolderFragOpened) {
+                    if (binding.bottomSheet.rlMiniPlayerBottomsheet.isVisible) {
+                        60
+                    } else {
+                        0
+                    }
                 } else {
-                    120
+                    if (binding.bottomSheet.rlMiniPlayerBottomsheet.isVisible) {
+                        115
+                    } else {
+                        55
+                    }
                 }
 
             val layoutParams =
@@ -1201,10 +1271,17 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             .translationY(binding.bottomBar.height.toFloat() - 15f).duration = 200
 
         if (binding.bottomSheet.rlMiniPlayerBottomsheet.isVisible) {
+            //Toast.makeText(applicationContext, "visible", Toast.LENGTH_SHORT).show()
             val layoutParams =
                 binding.fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams
             layoutParams.bottomMargin =
                 ConvertDpToPx.dpToPx(50, this@ActivityBottomBarFragmentContainer)
+            binding.fragmentContainer.layoutParams = layoutParams
+        } else {
+            val layoutParams =
+                binding.fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams
+            layoutParams.bottomMargin =
+                ConvertDpToPx.dpToPx(0, this@ActivityBottomBarFragmentContainer)
             binding.fragmentContainer.layoutParams = layoutParams
         }
     }
@@ -1221,7 +1298,13 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             val layoutParams =
                 binding.fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams
             layoutParams.bottomMargin =
-                ConvertDpToPx.dpToPx(120, this@ActivityBottomBarFragmentContainer)
+                ConvertDpToPx.dpToPx(115, this@ActivityBottomBarFragmentContainer)
+            binding.fragmentContainer.layoutParams = layoutParams
+        } else {
+            val layoutParams =
+                binding.fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams
+            layoutParams.bottomMargin =
+                ConvertDpToPx.dpToPx(55, this@ActivityBottomBarFragmentContainer)
             binding.fragmentContainer.layoutParams = layoutParams
         }
     }
@@ -1255,9 +1338,9 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     val topSwatch = it?.darkMutedSwatch
 
                     if (bottomSwatch != null && topSwatch != null) {
-                        binding.bottomSheet.albumArtBottomGradient.setBackgroundResource(R.drawable.gradient_background_bottom_shadow)
-                        binding.bottomSheet.bottomBackground.setBackgroundResource(R.drawable.app_theme_background_drawable)
-                        binding.bottomSheet.topBackground.setBackgroundResource(R.drawable.app_theme_background_drawable)
+                        binding.bottomSheet.albumArtBottomGradient.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_default)
+                        binding.bottomSheet.bottomBackground.setBackgroundResource(R.drawable.app_theme_default_background)
+                        binding.bottomSheet.topBackground.setBackgroundResource(R.drawable.app_theme_default_background)
                         binding.bottomSheet.albumArtTopGradient.setBackgroundResource(R.drawable.gradient_background_top_shadow)
 
                         val gradientDrawableBottomTop = GradientDrawable(
@@ -1512,7 +1595,10 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     queueAudioList[audioIndexPos].artistId,
                     queueAudioList[audioIndexPos].displayName,
                     queueAudioList[audioIndexPos].contentType,
-                    queueAudioList[audioIndexPos].year
+                    queueAudioList[audioIndexPos].year,
+                    queueAudioList[audioIndexPos].folderId,
+                    queueAudioList[audioIndexPos].folderName,
+                    queueAudioList[audioIndexPos].noOfSongs
                 )
                 allSongsModel.currentPlayedAudioTime =
                     queueAudioList[audioIndexPos].currentPlayedAudioTime
@@ -1581,10 +1667,12 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
             //show the mini player
             if (storage.getIsAudioPlayedFirstTime() || newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                storage.saveIsAudioPlayedFirstTime(false)
+                if (queueAudioList.isNotEmpty()) {
+                    storage.saveIsAudioPlayedFirstTime(false)
 
-                animateMiniPlayerToVisible()
-                nowPlayingBottomSheetBehavior.isDraggable = !isContextMenuEnabled
+                    animateMiniPlayerToVisible()
+                    nowPlayingBottomSheetBehavior.isDraggable = !isContextMenuEnabled
+                }
             }
 
             /*  Toast.makeText(
@@ -1593,7 +1681,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                   Toast.LENGTH_SHORT
               ).show()*/
 
-            if (audioIndexPos != -1) {
+            if (queueAudioList.isNotEmpty()) {
                 if (isShuffled) {
                     binding.bottomSheet.shuffleSongIV.setImageResource(R.drawable.ic_shuffle_on_24)
                 } else {
@@ -1701,7 +1789,10 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                                 audio.artistId,
                                 audio.displayName,
                                 audio.contentType,
-                                audio.year
+                                audio.year,
+                                audio.folderId,
+                                audio.folderName,
+                                audio.noOfSongs
                             )
 
                             if (index == audioIndexPos) {
@@ -1785,6 +1876,34 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
     override fun onResume() {
         super.onResume()
+        //Toast.makeText(this, "host activity", Toast.LENGTH_SHORT).show()
+        SavedAppTheme(
+            this,
+            null,
+            null,
+            binding.hostActivityBG,
+            false,
+            isHostActivity = true,
+            tagEditorsBG = null,
+            isTagEditor = false,
+            bottomBar = binding.bottomBar,
+            rlMiniPlayerBottomSheet = binding.bottomSheet.rlMiniPlayerBottomsheet,
+            bottomShadowIVAlbumFrag = null,
+            isAlbumFrag = false,
+            topViewIV = null,
+            bottomShadowIVArtistFrag = null,
+            isArtistFrag = false,
+            topViewIVArtistFrag = null,
+            bottomShadowIVPlaylist = null,
+            isPlaylistFragCategory = false,
+            topViewIVPlaylist = null,
+            playlistBG = null,
+            isPlaylistFrag = false,
+            null,
+            isSearchFrag = false,
+            null,
+            false
+        ).settingSavedBackgroundTheme()
         /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
                 startActivity(Intent(this, SplashScreenActivity::class.java))

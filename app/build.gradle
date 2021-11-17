@@ -11,8 +11,8 @@ android {
         applicationId "com.knesarcreation.playbeat"
         minSdk 24
         targetSdk 31
-        versionCode 1
-        versionName "1.0"
+        versionCode 4
+        versionName "2.1.1"
 
         renderscriptTargetApi 31
         renderscriptSupportModeEnabled true
@@ -55,8 +55,8 @@ dependencies {
     // kotlin coroutine
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0'
     def arch_version = '2.4.0-beta01'
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$arch_version"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$arch_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.1"
 
     //glide
     implementation 'com.github.bumptech.glide:glide:4.12.0'
@@ -89,9 +89,9 @@ dependencies {
     //custom seek bar
     implementation 'com.xw.repo:bubbleseekbar:3.4-lite'
 
-    implementation("androidx.navigation:navigation-fragment-ktx:2.4.0-alpha08")
-    implementation("androidx.navigation:navigation-ui-ktx:2.4.0-alpha08")
-
+    /* implementation("androidx.navigation:navigation-fragment-ktx:2.4.0-alpha08")
+     implementation("androidx.navigation:navigation-ui-ktx:2.4.0-alpha08")
+ */
     // Media route button and cast framework
     implementation 'androidx.mediarouter:mediarouter:1.2.5'
     implementation 'com.google.android.gms:play-services-cast-framework:20.0.0'
@@ -115,13 +115,16 @@ dependencies {
 //    imple mentation 'com.jackandphantom.android:blurimage:1.2.0'
 //    implementation 'com.eightbitlab:blurview:1.6.1'
 
-    //dynamic screen sizes
+    //dynamic screen sizes MDP
     implementation 'com.github.MrNouri:DynamicSizes:1.0'
 
     //Equalizer
-    implementation 'com.github.bullheadandplato:AndroidEqualizer:2.2'
+    //implementation 'com.github.bullheadandplato:AndroidEqualizer:2.2'
     //vertical seekbar
-    implementation 'com.h6ah4i.android.widget.verticalseekbar:verticalseekbar:1.0.0'
+    //implementation 'com.h6ah4i.android.widget.verticalseekbar:verticalseekbar:1.0.0'
+
+    //media facer
+    implementation 'com.github.CodeBoy722:MediaFacer:1.0.3'
 
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }

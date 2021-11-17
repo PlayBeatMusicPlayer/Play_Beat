@@ -12,7 +12,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
@@ -295,11 +294,11 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                 currentPlayingAudioIndex =
                                     audioList.indexOf(currentPlayingAudioModel)
                                 storageUtil?.storeAudioIndex(currentPlayingAudioIndex)
-                              /*  Toast.makeText(
-                                    mContext,
-                                    "del: $isSwipedToDel $currentPlayingAudioIndex",
-                                    Toast.LENGTH_SHORT
-                                ).show()*/
+                                /*  Toast.makeText(
+                                      mContext,
+                                      "del: $isSwipedToDel $currentPlayingAudioIndex",
+                                      Toast.LENGTH_SHORT
+                                  ).show()*/
                             }
                         }
 
@@ -317,11 +316,11 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                         val newPos = position - 1
                                         storageUtil?.storeAudioIndex(newPos)
                                         Log.d("NewPosAfterDEl", "onItemSwiped: new $newPos")
-                                       /* Toast.makeText(
-                                            mContext,
-                                            "size ${audioList.size}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()*/
+                                        /* Toast.makeText(
+                                             mContext,
+                                             "size ${audioList.size}",
+                                             Toast.LENGTH_SHORT
+                                         ).show()*/
                                         if (audioList.size != 0)
                                             currentPlayingAudioModel = audioList[position - 1]
                                     } else {
@@ -347,11 +346,11 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                 "deletedAudio",
                                 "onItemSwiped:$currentPlayingAudioIndex , model: $currentPlayingAudioModel "
                             )
-                           /* Toast.makeText(
-                                mContext,
-                                "$currentPlayingAudioIndex",
-                                Toast.LENGTH_SHORT
-                            ).show()*/
+                            /* Toast.makeText(
+                                 mContext,
+                                 "$currentPlayingAudioIndex",
+                                 Toast.LENGTH_SHORT
+                             ).show()*/
                         }
 
                         // queueLisAdapter.dataSet = audioList
@@ -433,6 +432,9 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                 audio.isFavourite,
                                 audio.favAudioAddedTime,
                                 audio.artistId,
+                                "",
+                                "",
+                                0,
                                 "",
                                 "",
                                 0
@@ -584,7 +586,10 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                 audio.artistId,
                 audio.displayName,
                 audio.contentType,
-                audio.year
+                audio.year,
+                audio.folderId,
+                audio.folderName,
+                audio.noOfSongs
             )
             allSongsModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
 

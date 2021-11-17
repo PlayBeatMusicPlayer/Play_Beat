@@ -2,7 +2,6 @@ package com.knesarcreation.playbeat.adapter
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.FragmentStatePagerAdapter
 
 
@@ -21,8 +20,11 @@ class ViewPagerAdapter(
             1 -> {
                 fragmentList[1]
             }
-            else -> {
+            2 -> {
                 fragmentList[2]
+            }
+            else -> {
+                fragmentList[3]
             }
         }
     }
@@ -33,6 +35,9 @@ class ViewPagerAdapter(
                 "Songs"
             }
             1 -> {
+                "Folders"
+            }
+            2 -> {
                 "Albums"
             }
             else -> {

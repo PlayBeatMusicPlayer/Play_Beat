@@ -39,7 +39,6 @@ class AllSongsAdapter(
     private var onLongClickListener: OnLongClickListener,
     private var isAdapterUsingFromCustomPlaylist: Boolean,
 ) : ListAdapter<AllSongsModel, AllSongsAdapter.AllSongsViewHolder>(AllSongItemCallback()) {
-    // RecyclerView.Adapter<AllSongsAdapter.AllSongsViewHolder>() {
 
     private var storage = StorageUtil(context)
     var isSearching = false

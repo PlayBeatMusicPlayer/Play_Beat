@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/app_theme_color"
+    android:id="@+id/tagEditorsBG"
+    android:background="@drawable/app_theme_background_drawable_1"
     android:orientation="vertical"
     tools:context=".activity.TagEditorActivity">
 
@@ -64,7 +65,7 @@
                 android:layout_width="130dp"
                 android:layout_height="70dp"
                 android:layout_alignBottom="@id/editAudioAlbumArt"
-                android:src="@drawable/gradient_background_bottom_shadow"
+                android:src="@drawable/gradient_background_bottom_shadow_default"
                 app:shapeAppearanceOverlay="@style/circular_5" />
 
             <ImageView

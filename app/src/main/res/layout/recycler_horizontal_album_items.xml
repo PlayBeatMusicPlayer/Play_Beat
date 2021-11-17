@@ -5,7 +5,6 @@
     android:layout_width="150dp"
     android:layout_height="wrap_content"
     android:id="@+id/rlAlbumViewContainer"
-    android:background="@color/app_theme_color"
     android:paddingStart="15dp"
     android:paddingTop="5dp"
     android:clipChildren="false"
@@ -26,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="130dp"
         android:layout_alignBottom="@id/albumArtIV"
-        android:src="@drawable/gradient_background_bottom_shadow"
+        android:src="@drawable/gradient_background_bottom_shadow_default"
         app:shapeAppearanceOverlay="@style/circular_5" />
 
     <ImageView
@@ -50,12 +49,12 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/albumArtIV"
         android:layout_marginStart="2dp"
-        android:layout_marginTop="-10dp"
+        android:layout_marginTop="@dimen/_3mdp"
         android:ellipsize="end"
         android:maxLines="1"
-        tools:text="Album name"
         android:textColor="@color/white"
-        android:textSize="15sp" />
+        android:textSize="15sp"
+        tools:text="Album name" />
 
     <TextView
         android:id="@+id/artisNameTV"

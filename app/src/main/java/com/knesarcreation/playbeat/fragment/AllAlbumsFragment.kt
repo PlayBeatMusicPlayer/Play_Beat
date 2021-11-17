@@ -41,10 +41,6 @@ class AllAlbumsFragment : Fragment() {
         mViewModelClass =
             ViewModelProvider(this)[ViewModelClass::class.java]
 
-        //lifecycleScope.launch(Dispatchers.IO) {
-        //    loadAlbum()
-        // }
-
         setUpRecyclerView()
         observerAlbumsData()
         sortAudios()

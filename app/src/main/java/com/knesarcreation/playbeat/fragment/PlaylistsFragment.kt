@@ -17,6 +17,7 @@ import com.knesarcreation.playbeat.adapter.PlaylistAdapter
 import com.knesarcreation.playbeat.database.PlaylistModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.FragmentPlaylistsBinding
+import com.knesarcreation.playbeat.utils.SavedAppTheme
 import com.knesarcreation.playbeat.utils.StorageUtil
 
 class PlaylistsFragment : Fragment() {
@@ -236,13 +237,43 @@ class PlaylistsFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        SavedAppTheme(
+            activity as Context,
+            null,
+            null,
+            null,
+            isHomeFrag = false,
+            isHostActivity = false,
+            tagEditorsBG = null,
+            isTagEditor = false,
+            bottomBar = null,
+            rlMiniPlayerBottomSheet = null,
+            bottomShadowIVAlbumFrag = null,
+            isAlbumFrag = false,
+            topViewIV = null,
+            bottomShadowIVArtistFrag = null,
+            isArtistFrag = false,
+            topViewIVArtistFrag = null,
+            bottomShadowIVPlaylist = null,
+            isPlaylistFragCategory = false,
+            topViewIVPlaylist = null,
+            playlistBG = binding!!.playlistBG,
+            isPlaylistFrag = true,
+              null,
+            isSearchFrag = false,
+            null,
+            false
+        ).settingSavedBackgroundTheme()
+    }
 
-   /* override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        if (hidden) {
-            binding?.fabCreatePlaylist!!.animate().alpha(0.0f).duration = 300
-        } else {
-            binding?.fabCreatePlaylist!!.animate().alpha(1f).duration = 300
-        }
-    }*/
+    /* override fun onHiddenChanged(hidden: Boolean) {
+         super.onHiddenChanged(hidden)
+         if (hidden) {
+             binding?.fabCreatePlaylist!!.animate().alpha(0.0f).duration = 300
+         } else {
+             binding?.fabCreatePlaylist!!.animate().alpha(1f).duration = 300
+         }
+     }*/
 }

@@ -2,25 +2,28 @@ package com.knesarcreation.playbeat.fragment
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.QueueListModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.FragmentSearchBinding
+import com.knesarcreation.playbeat.utils.SavedAppTheme
 import com.knesarcreation.playbeat.utils.StorageUtil
+import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
 
 class SearchFragment : Fragment() {
@@ -128,70 +131,77 @@ class SearchFragment : Fragment() {
     }
 
     private fun onClickAudio(allSongModel: AllSongsModel, position: Int) {
-        Toast.makeText(activity as Context, "$position", Toast.LENGTH_SHORT).show()
+        // Toast.makeText(activity as Context, "$position", Toast.LENGTH_SHORT).show()
+        if (File(Uri.parse(allSongModel.data).path!!).exists()) {
+            storageUtil.saveIsShuffled(false)
+            val prevPlayingAudioIndex = storageUtil.loadAudioIndex()
+            val prevQueueList = storageUtil.loadQueueAudio()
+            val prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
 
-        storageUtil.saveIsShuffled(false)
-        val prevPlayingAudioIndex = storageUtil.loadAudioIndex()
-        val prevQueueList = storageUtil.loadQueueAudio()
-        val prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
+            // restricting to update if clicked audio is same
 
-        // restricting to update if clicked audio is same
+            mViewModelClass.deleteQueue(lifecycleScope)
 
-        mViewModelClass.deleteQueue(lifecycleScope)
-
-        mViewModelClass.updateSong(
-            prevPlayingAudioModel.songId,
-            prevPlayingAudioModel.songName,
-            -1,
-            (context as AppCompatActivity).lifecycleScope
-        )
-
-        mViewModelClass.updateSong(
-            allSongModel.songId,
-            allSongModel.songName,
-            1,
-            (context as AppCompatActivity).lifecycleScope
-        )
-
-        playAudio(position)
-
-        // adding queue list to DB and show highlight of current audio
-        for (audio in this.audioSearchList) {
-            val queueListModel = QueueListModel(
-                audio.songId,
-                audio.albumId,
-                audio.songName,
-                audio.artistsName,
-                audio.albumName,
-                audio.size,
-                audio.duration,
-                audio.data,
-                audio.contentUri,
-                audio.artUri,
+            mViewModelClass.updateSong(
+                prevPlayingAudioModel.songId,
+                prevPlayingAudioModel.songName,
                 -1,
-                audio.dateAdded,
-                audio.isFavourite,
-                audio.favAudioAddedTime,
-                audio.mostPlayedCount,
-                audio.artistId
+                (context as AppCompatActivity).lifecycleScope
             )
-            queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
-            mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+
+            mViewModelClass.updateSong(
+                allSongModel.songId,
+                allSongModel.songName,
+                1,
+                (context as AppCompatActivity).lifecycleScope
+            )
+
+            playAudio(position)
+
+            // adding queue list to DB and show highlight of current audio
+            for (audio in this.audioSearchList) {
+                val queueListModel = QueueListModel(
+                    audio.songId,
+                    audio.albumId,
+                    audio.songName,
+                    audio.artistsName,
+                    audio.albumName,
+                    audio.size,
+                    audio.duration,
+                    audio.data,
+                    audio.contentUri,
+                    audio.artUri,
+                    -1,
+                    audio.dateAdded,
+                    audio.isFavourite,
+                    audio.favAudioAddedTime,
+                    audio.mostPlayedCount,
+                    audio.artistId
+                )
+                queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
+                mViewModelClass.insertQueue(queueListModel, lifecycleScope)
+            }
+
+            mViewModelClass.updateQueueAudio(
+                prevPlayingAudioModel.songId,
+                prevPlayingAudioModel.songName,
+                -1,
+                (context as AppCompatActivity).lifecycleScope
+            )
+
+            mViewModelClass.updateQueueAudio(
+                allSongModel.songId,
+                allSongModel.songName,
+                1,
+                (context as AppCompatActivity).lifecycleScope
+            )
+        } else {
+            Snackbar.make(
+                (activity as AppCompatActivity).window.decorView,
+                "File doesn't exists", Snackbar.LENGTH_LONG
+            ).show()
         }
 
-        mViewModelClass.updateQueueAudio(
-            prevPlayingAudioModel.songId,
-            prevPlayingAudioModel.songName,
-            -1,
-            (context as AppCompatActivity).lifecycleScope
-        )
-
-        mViewModelClass.updateQueueAudio(
-            allSongModel.songId,
-            allSongModel.songName,
-            1,
-            (context as AppCompatActivity).lifecycleScope
-        )
     }
 
     private fun playAudio(audioIndex: Int) {
@@ -223,13 +233,44 @@ class SearchFragment : Fragment() {
 //            binding?.searchView?.isFocusable = false
 //            binding?.searchView?.isIconified = false
             //binding?.searchView?.isFocusedByDefault = false
-        } else {
+        } //else {
 //            binding?.searchView?.setIconifiedByDefault(false);
-            //binding?.searchView?.isFocusable = true
+        //binding?.searchView?.isFocusable = true
 //            binding?.searchView?.isIconified = false
-            //binding?.searchView?.requestFocusFromTouch()
-            // binding?.searchView?.isFocusedByDefault = true
-        }
+        //binding?.searchView?.requestFocusFromTouch()
+        // binding?.searchView?.isFocusedByDefault = true
+        //}
     }
 
+    override fun onResume() {
+        super.onResume()
+        SavedAppTheme(
+            activity as Context,
+            null,
+            null,
+            null,
+            isHomeFrag = false,
+            isHostActivity = false,
+            tagEditorsBG = null,
+            isTagEditor = false,
+            bottomBar = null,
+            rlMiniPlayerBottomSheet = null,
+            bottomShadowIVAlbumFrag = null,
+            isAlbumFrag = false,
+            topViewIV = null,
+            bottomShadowIVArtistFrag = null,
+            isArtistFrag = false,
+            topViewIVArtistFrag = null,
+            bottomShadowIVPlaylist = null,
+            isPlaylistFragCategory = false,
+            topViewIVPlaylist = null,
+            playlistBG = null,
+            isPlaylistFrag = false,
+            searchFragBg = binding!!.searchFragBG,
+            isSearchFrag = true,
+            settingFragBg = null,
+            isSettingFrag = false,
+
+            ).settingSavedBackgroundTheme()
+    }
 }

@@ -4,21 +4,11 @@
     <string name="backwardiv">backwardIv</string>
     <string name="playpauseiv">playPauseIV</string>
     <string name="forwardiv">forwardIV</string>
-    <string name="notification_channel">Now Playing</string>
-    <string name="notification_channel_description">Shows what music is currently playing in Play Beat</string>
-    <string name="recommended_title">Recommended</string>
-    <string name="albums_title">Album</string>
-    <string name="generic_error">Generic_Error</string>
-    <string name="error_media_not_found">Error_Media_Not_Found</string>
-    <string name="allowed_caller_log">Allowed_Caller</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="home">Home</string>
     <string name="playlist">Playlists</string>
-    <string name="setting">Setting</string>
     <string name="app_id">73164B24</string>
-    <string name="media_route_menu_title">Play on&#8230;</string>
     <string name="search">Search</string>
     <string name="play_next">Play next</string>
     <string name="equalizer">Equalizer</string>
@@ -58,13 +48,17 @@
     <string name="start">Start</string>
     <string name="are_you_sure_you_want_to_delete_playlist">Are you sure you want to delete playlist?</string>
     <string name="delete">Delete</string>
-    <string name="play_beat">Play Beat</string>
-    <string name="version_1_0_0">Version: 1.0.0</string>
+    <string name="version">Version: 2.1.1</string>
     <string name="developed_and_designed_by">Developed and designed by</string>
     <string name="developer_name">Kaunain Nesar</string>
     <string name="about">About</string>
     <string name="share">Share</string>
     <string name="share_audio_dialog_title">Share audios</string>
     <string name="share_audio_dialog_msg">Do you want to share all audios present in this playlist?</string>
+    <string name="delete_song">Delete song</string>
+    <string name="changelog">Changelog</string>
+    <string name="rate_on_play_store">Rate on play store</string>
+    <string name="theme">App Themes</string>
+    <string name="set_as_ringtone">Set as ringtone</string>
 
 </resources>

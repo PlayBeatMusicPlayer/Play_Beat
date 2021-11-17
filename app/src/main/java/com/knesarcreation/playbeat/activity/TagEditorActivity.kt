@@ -23,6 +23,7 @@ import com.knesarcreation.playbeat.database.*
 import com.knesarcreation.playbeat.databinding.ActivityTagEditorBinding
 import com.knesarcreation.playbeat.utils.GetRealPathOfUri
 import com.knesarcreation.playbeat.utils.MakeStatusBarTransparent
+import com.knesarcreation.playbeat.utils.SavedAppTheme
 import com.knesarcreation.playbeat.utils.StorageUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -236,7 +237,7 @@ class TagEditorActivity : AppCompatActivity() {
 
         } catch (e: Exception) {
             Toast.makeText(applicationContext, "Failed  , ${e.message}", Toast.LENGTH_SHORT)
-                .show();
+                .show()
             Log.d("fieldsTagEditorCover", "updateMetadata:${e.message} ")
             e.printStackTrace()
         }
@@ -434,6 +435,37 @@ class TagEditorActivity : AppCompatActivity() {
         val baos = ByteArrayOutputStream()
         src.compress(Bitmap.CompressFormat.PNG, 100, baos)
         return baos.toByteArray()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        SavedAppTheme(
+            this,
+            null,
+            null,
+            null,
+            isHomeFrag = false,
+            isHostActivity = false,
+            tagEditorsBG = binding.tagEditorsBG,
+            isTagEditor = true,
+            bottomBar = null,
+            rlMiniPlayerBottomSheet = null,
+            bottomShadowIVAlbumFrag = null,
+            isAlbumFrag = false,
+            topViewIV = null,
+            bottomShadowIVArtistFrag = null,
+            isArtistFrag = false,
+            topViewIVArtistFrag = null,
+            bottomShadowIVPlaylist = null,
+            isPlaylistFragCategory = false,
+            topViewIVPlaylist = null,
+            playlistBG = null,
+            isPlaylistFrag = false,
+            null,
+            isSearchFrag = false,
+            null,
+            false
+        ).settingSavedBackgroundTheme()
     }
 
     /*private fun updateAlbumArtMediaStore(context: Context, id: Long, art: String?) {

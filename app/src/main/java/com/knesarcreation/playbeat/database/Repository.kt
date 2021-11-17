@@ -139,6 +139,18 @@ class Repository(var application: Application) {
         }
     }
 
+    fun updateFolderInAudio(
+        songId: Long,
+        folderId: String,
+        folderName: String,
+        noOfSongs: Int,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            allSongsDao.updateFolderInAudio(songId, folderId, folderName, noOfSongs)
+        }
+    }
+
     fun updateAlbumData(
         albumId: Long,
         albumName: String,
@@ -245,6 +257,13 @@ class Repository(var application: Application) {
     suspend fun getAudioAccordingArtist(artistName: String): List<AllSongsModel> {
         return withContext(Dispatchers.IO) {
             return@withContext allSongsDao.getAudioAccordingArtists(artistName)
+        }
+    }
+
+
+    suspend fun getAudioAccordingToFolders(folderId: String): List<AllSongsModel> {
+        return withContext(Dispatchers.IO) {
+            return@withContext allSongsDao.getAudioAccordingToFolders(folderId)
         }
     }
 

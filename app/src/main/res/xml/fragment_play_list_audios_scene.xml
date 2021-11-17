@@ -19,7 +19,6 @@
             android:layout_marginStart="15dp"
             android:layout_marginTop="45dp"
             android:visibility="invisible"
-            motion:layout_constraintEnd_toEndOf="@id/playAllToolbar"
             motion:layout_constraintHorizontal_bias="0.087"
             motion:layout_constraintStart_toEndOf="@id/arrowBackIV"
             motion:layout_constraintTop_toTopOf="parent" />

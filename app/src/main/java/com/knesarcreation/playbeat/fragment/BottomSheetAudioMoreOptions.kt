@@ -1,15 +1,22 @@
 package com.knesarcreation.playbeat.fragment
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.media.MediaMetadataRetriever
+import android.media.MediaScannerConnection
+import android.media.RingtoneManager
 import android.media.audiofx.AudioEffect
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -41,6 +48,8 @@ import com.knesarcreation.playbeat.utils.PlaybackStatus
 import com.knesarcreation.playbeat.utils.StorageUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileNotFoundException
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.round
 
@@ -58,7 +67,9 @@ class BottomSheetAudioMoreOptions(
     private lateinit var mViewModelClass: ViewModelClass
     private var isTempFavAudio = false
     var listener: SingleSelectionMenuOption? = null
-    var requestIntent: ActivityResultLauncher<Intent>? = null
+    private var requestIntent: ActivityResultLauncher<Intent>? = null
+    private var reqWriteToSystemSetting: ActivityResultLauncher<Intent>? = null
+    private lateinit var values: ContentValues
 
     interface SingleSelectionMenuOption {
         fun playNext()
@@ -132,9 +143,109 @@ class BottomSheetAudioMoreOptions(
                 Log.d("Equalizer", "onCreateView: $it")
             }
 
+        reqWriteToSystemSetting =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                // writeAudioToSystemSetting()
+            }
+
         openSystemEqualizer()
 
+        setAsRingtone()
+
         return view
+    }
+
+    private fun setAsRingtone() {
+        binding?.llSetAsRingtone?.setOnClickListener {
+            values = ContentValues()
+            values.put(MediaStore.MediaColumns.DATA, allSongsModel.data)
+            values.put(MediaStore.MediaColumns.TITLE, allSongsModel.songName)
+            values.put(MediaStore.MediaColumns.SIZE, allSongsModel.size)
+            // values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mpeg3")
+            values.put(MediaStore.Audio.Media.ARTIST, allSongsModel.artistsName)
+            values.put(MediaStore.Audio.Media.DURATION, allSongsModel.duration)
+            values.put(MediaStore.Audio.Media.IS_RINGTONE, true)
+            values.put(MediaStore.Audio.Media.IS_NOTIFICATION, false)
+            values.put(MediaStore.Audio.Media.IS_ALARM, false)
+            values.put(MediaStore.Audio.Media.IS_MUSIC, false)
+
+            checkSystemWritePermission()
+        }
+    }
+
+
+    @SuppressLint("ObsoleteSdkInt")
+    private fun checkSystemWritePermission(): Boolean {
+        var permAllowed = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            permAllowed = Settings.System.canWrite(mContext)
+            Log.d("WriteSettingPerm", "Can Write Settings: $permAllowed")
+            if (permAllowed) {
+                //Toast.makeText(mContext, "Write allowed :-)", Toast.LENGTH_LONG).show()
+                writeAudioToSystemSetting()
+            } else {
+                //Toast.makeText(mContext, "Write not allowed :-(", Toast.LENGTH_LONG).show()
+                val alertDialog = AlertDialog.Builder(mContext)
+                alertDialog.setMessage("We required permission of WRITE SYSTEM SETTING to set your selected audio as default ringtone. Allow to proceed further.")
+                alertDialog.setPositiveButton("Allow") { dialog, _ ->
+                    permAllowed = true
+                    openAndroidPermissionsMenu()
+                    dialog.dismiss()
+                }
+                alertDialog.setNegativeButton("Cancel") { dialog, _ ->
+                    permAllowed = true
+                    dialog.dismiss()
+                    dismiss()
+                }
+                alertDialog.show()
+
+            }
+        }
+        return permAllowed
+    }
+
+    private fun openAndroidPermissionsMenu() {
+        val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
+        intent.data = Uri.parse("package:" + (mContext as AppCompatActivity).packageName)
+        reqWriteToSystemSetting!!.launch(intent)
+    }
+
+    private fun writeAudioToSystemSetting() {
+        //Insert it into the database
+        val uri = MediaStore.Audio.Media.getContentUriForPath(allSongsModel.data)
+        if (uri != null) {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                RingtoneManager.setActualDefaultRingtoneUri(
+                    mContext,
+                    RingtoneManager.TYPE_RINGTONE,
+                    Uri.parse(allSongsModel.contentUri)
+                )
+                Toast.makeText(mContext, "Ringtone set", Toast.LENGTH_LONG).show()
+            } else {
+                val filePathToDelete =
+                    MediaStore.MediaColumns.DATA + "=\"" + allSongsModel.data + "\""
+                (mContext as AppCompatActivity).contentResolver.delete(uri, filePathToDelete, null)
+
+                val newUri: Uri? =
+                    (mContext as AppCompatActivity).contentResolver.insert(uri, values)
+
+                RingtoneManager.setActualDefaultRingtoneUri(
+                    mContext,
+                    RingtoneManager.TYPE_RINGTONE,
+                    newUri
+                )
+                Toast.makeText(mContext, "Ringtone set", Toast.LENGTH_LONG).show()
+            }
+
+        } else {
+            Toast.makeText(
+                mContext,
+                "Failed to set ringtone. Try with different audio.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        dismiss()
     }
 
     private fun openSystemEqualizer() {
@@ -162,137 +273,238 @@ class BottomSheetAudioMoreOptions(
 
     private fun deleteAudioFromDevice() {
         binding?.llDeleteFromDevice?.setOnClickListener {
-            Toast.makeText(
-                mContext,
-                "Coming soon, feature is under development.",
-                Toast.LENGTH_SHORT
-            ).show()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val uriList = listOf<Uri>(Uri.parse(allSongsModel.contentUri))
 
-            dismiss()
-            /*val audioPath =
-                GetRealPathOfUri().getUriRealPath(mContext, Uri.parse(allSongsModel.contentUri))
+                val pi: PendingIntent =
+                    MediaStore.createDeleteRequest(
+                        (activity as AppCompatActivity).contentResolver,
+                        uriList
+                    )
 
-            if (audioPath != null) {
                 try {
-                    val audioFile = File(audioPath)
-                    Log.d("SongThatWillBeDelete", "deleteAudioFromDevice: path: $audioFile ")
+                    /*val registerForActivityResult =
+                        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
+                            if (it.data != null) {
+                                Log.d("deleteAudioFromDevice", "deleteAudioFromDevice: ${it.data}")
+                            }
+                        }
+
+                    val isr = IntentSenderRequest.Builder(pi.intentSender).build()
+                    registerForActivityResult.launch(isr)*/
+                    startIntentSenderForResult(pi.intentSender, 1001, null, 0, 0, 0, null)
+                    //deleteAudioReqAboveApi30()
+                } catch (e: Exception) {
+                    Log.d(
+                        "startIntentSenderForResult",
+                        "requestDeleteMultipleAudioPermission:${e.message} "
+                    )
+                    Toast.makeText(mContext, "Permission denied!", Toast.LENGTH_SHORT).show()
+                }
+                /* dismiss()*/
+            } else {
+                deleteAudioReqBelowApi30()
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == -1) {
+            // if  resultCode == -1 i.e., audio deleted
+            // if resultCode == 0 i.e, permission denied
+            deleteAudioReqAboveApi30()
+            //Toast.makeText(mContext, "$data  ,$resultCode", Toast.LENGTH_SHORT).show()
+        } else {
+            // bottom sheet dismiss
+            dismiss()
+        }
+
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    // For api above 30
+    private fun deleteAudioReqAboveApi30() {
+        val loadQueueAudio = storage.loadQueueAudio()
+        var currentPlayingAudioIndex = storage.loadAudioIndex()
+        val currentPlayingAudio = loadQueueAudio[currentPlayingAudioIndex]
+
+        Log.d("SongThatWillBeDelete", "deleteAudioFromDevice:$allSongsModel ")
+        loadQueueAudio.remove(allSongsModel)
+
+        mViewModelClass.deleteOneSong(allSongsModel.songId, lifecycleScope)
+        mViewModelClass.deleteOneQueueAudio(
+            allSongsModel.songId,
+            lifecycleScope
+        )
+
+        if (allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0) {
+            // if deleted audio was playing audio then play next audio
+            if (currentPlayingAudioIndex == loadQueueAudio.size /* there is no need to subtract size by 1 here, since one audio is already deleted */) {
+                // last audio deleted which was playing
+                // so play a prev audio, for that save a new index
+
+                currentPlayingAudioIndex = --currentPlayingAudioIndex
+                storage.storeAudioIndex(currentPlayingAudioIndex)
+                Log.d(
+                    "SongThatWillBeDelete",
+                    "deleteAudioFromDevice: isAudioPlaying : $currentPlayingAudioIndex "
+                )
+
+            }
+
+            if (AllSongFragment.musicService?.mediaPlayer != null) {
+                storage.storeQueueAudio(loadQueueAudio)
+                AllSongFragment.musicService?.pausedByManually = true
+                val broadcastIntent =
+                    Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
+                (mContext as AppCompatActivity).sendBroadcast(
+                    broadcastIntent
+                )
+                Log.d(
+                    "SongThatWillBeDelete",
+                    "deleteAudioFromDevice: New audio played "
+                )
+            }
+
+
+        } else {
+            // after deleting audio, current playing audio index might get changed
+            // so save a new index
+            val newIndex = loadQueueAudio.indexOf(currentPlayingAudio)
+            storage.storeAudioIndex(newIndex)
+            storage.storeQueueAudio(loadQueueAudio)
+            Log.d(
+                "SongThatWillBeDelete",
+                "deleteAudioFromDevice: audioIndexChanged: newIndex- $newIndex "
+            )
+        }
+
+        Toast.makeText(mContext, "Song deleted", Toast.LENGTH_SHORT).show()
+        dismiss()
+    }
+
+    // For api below 30
+    private fun deleteAudioReqBelowApi30() {
+        val audioPath =
+            GetRealPathOfUri().getUriRealPath(mContext, Uri.parse(allSongsModel.contentUri))
+
+        if (audioPath != null) {
+            try {
+                val audioFile = File(audioPath)
+                Log.d("SongThatWillBeDelete", "deleteAudioFromDevice: path: $audioFile ")
+
+                val alertDialog =
+                    AlertDialog.Builder(activity as Context, R.style.CustomAlertDialog)
+                val viewGroup: ViewGroup =
+                    (activity as AppCompatActivity).findViewById(android.R.id.content)
+                val customView =
+                    layoutInflater.inflate(R.layout.custom_alert_dialog, viewGroup, false)
+                val dialogTitleTV = customView.findViewById<TextView>(R.id.dialogTitleTV)
+                val dialogMessageTV =
+                    customView.findViewById<TextView>(R.id.dialogMessageTV)
+                val cancelButton =
+                    customView.findViewById<MaterialButton>(R.id.cancelButton)
+                val deleteBtn = customView.findViewById<MaterialButton>(R.id.positiveBtn)
+                alertDialog.setView(customView)
+                val dialog = alertDialog.create()
+
+                dialogTitleTV.text = getString(R.string.delete_song)
+                dialogMessageTV.text =
+                    "Are you sure you want to delete ${allSongsModel.songName} song"
+
+                deleteBtn.setOnClickListener {
+                    val loadQueueAudio = storage.loadQueueAudio()
+                    var currentPlayingAudioIndex = storage.loadAudioIndex()
+                    val currentPlayingAudio = loadQueueAudio[currentPlayingAudioIndex]
+
+                    Log.d("SongThatWillBeDelete", "deleteAudioFromDevice:$allSongsModel ")
+                    loadQueueAudio.remove(allSongsModel)
+
+                    mViewModelClass.deleteOneSong(allSongsModel.songId, lifecycleScope)
+                    mViewModelClass.deleteOneQueueAudio(
+                        allSongsModel.songId,
+                        lifecycleScope
+                    )
 
                     if (audioFile.exists()) {
-                        val alertDialog =
-                            AlertDialog.Builder(activity as Context, R.style.CustomAlertDialog)
-                        val viewGroup: ViewGroup =
-                            (activity as AppCompatActivity).findViewById(android.R.id.content)
-                        val customView =
-                            layoutInflater.inflate(R.layout.custom_alert_dialog, viewGroup, false)
-                        val dialogTitleTV = customView.findViewById<TextView>(R.id.dialogTitleTV)
-                        val dialogMessageTV =
-                            customView.findViewById<TextView>(R.id.dialogMessageTV)
-                        val cancelButton =
-                            customView.findViewById<MaterialButton>(R.id.cancelButton)
-                        val deleteBtn = customView.findViewById<MaterialButton>(R.id.positiveBtn)
-                        alertDialog.setView(customView)
-                        val dialog = alertDialog.create()
+                        //delete file from storage
+                        audioFile.delete()
 
-                        dialogTitleTV.text = "Delete song"
-                        dialogMessageTV.text =
-                            "Are you sure you want to delete '${allSongsModel.songName}' song"
-
-                        deleteBtn.setOnClickListener {
-                            val loadQueueAudio = storage.loadQueueAudio()
-                            var currentPlayingAudioIndex = storage.loadAudioIndex()
-                            val currentPlayingAudio = loadQueueAudio[currentPlayingAudioIndex]
-
-                            Log.d("SongThatWillBeDelete", "deleteAudioFromDevice:$allSongsModel ")
-                            loadQueueAudio.remove(allSongsModel)
-
-                            mViewModelClass.deleteOneSong(allSongsModel.songId, lifecycleScope)
-                            mViewModelClass.deleteOneQueueAudio(
-                                allSongsModel.songId,
-                                lifecycleScope
-                            )
-
-                            //delete file from storage
-                            audioFile.delete()
-
-                            MediaScannerConnection.scanFile(
-                                mContext,
-                                arrayOf(audioFile.path),
-                                null,
-                                null
-                            )
-
-                            Log.d(
-                                "SongThatWillBeDelete",
-                                "deleteAudioFromDevice: isAudioPlaying : ${allSongsModel.playingOrPause} "
-                            )
-
-                            if (allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0) {
-                                // if deleted audio was playing audio then play next audio
-                                if (currentPlayingAudioIndex == loadQueueAudio.size *//* there is no need to subtract size by 1 here, since one audio is already deleted *//*) {
-                                    // last audio deleted which was playing
-                                    // so play a prev audio, for that save a new index
-
-                                    currentPlayingAudioIndex = --currentPlayingAudioIndex
-                                    storage.storeAudioIndex(currentPlayingAudioIndex)
-                                    Log.d(
-                                        "SongThatWillBeDelete",
-                                        "deleteAudioFromDevice: isAudioPlaying : $currentPlayingAudioIndex "
-                                    )
-
-                                }
-
-                                if (AllSongFragment.musicService?.mediaPlayer != null) {
-                                    storage.storeQueueAudio(loadQueueAudio)
-                                    AllSongFragment.musicService?.pausedByManually = true
-                                    val broadcastIntent =
-                                        Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
-                                    (mContext as AppCompatActivity).sendBroadcast(
-                                        broadcastIntent
-                                    )
-                                    Log.d(
-                                        "SongThatWillBeDelete",
-                                        "deleteAudioFromDevice: New audio played "
-                                    )
-                                }
-
-
-                            } else {
-                                // after deleting audio, current playing audio index might get changed
-                                // so save a new index
-                                val newIndex = loadQueueAudio.indexOf(currentPlayingAudio)
-                                storage.storeAudioIndex(newIndex)
-                                storage.storeQueueAudio(loadQueueAudio)
-                                Log.d(
-                                    "SongThatWillBeDelete",
-                                    "deleteAudioFromDevice: audioIndexChanged: newIndex- $newIndex "
-                                )
-                            }
-
-                            Toast.makeText(mContext, "Song deleted", Toast.LENGTH_SHORT).show()
-                            dialog.dismiss()
-                        }
-                        cancelButton.setOnClickListener {
-                            dialog.dismiss()
-                        }
-                        dialog.show()
-
-                        dismiss()//dismiss bottom sheet
-
-
-                    } else {
+                        MediaScannerConnection.scanFile(
+                            mContext,
+                            arrayOf(audioFile.path),
+                            null,
+                            null
+                        )
+                    } /*else {
                         Snackbar.make(
                             (activity as AppCompatActivity).window.decorView,
                             "File doesn't exists", Snackbar.LENGTH_LONG
                         ).show()
+                    }*/
 
+                    Log.d(
+                        "SongThatWillBeDelete",
+                        "deleteAudioFromDevice: isAudioPlaying : ${allSongsModel.playingOrPause} "
+                    )
+
+                    if (allSongsModel.playingOrPause == 1 || allSongsModel.playingOrPause == 0) {
+                        // if deleted audio was playing audio then play next audio
+                        if (currentPlayingAudioIndex == loadQueueAudio.size /* there is no need to subtract size by 1 here, since one audio is already deleted */) {
+                            // last audio deleted which was playing
+                            // so play a prev audio, for that save a new index
+
+                            currentPlayingAudioIndex = --currentPlayingAudioIndex
+                            storage.storeAudioIndex(currentPlayingAudioIndex)
+                            Log.d(
+                                "SongThatWillBeDelete",
+                                "deleteAudioFromDevice: isAudioPlaying : $currentPlayingAudioIndex "
+                            )
+
+                        }
+
+                        if (AllSongFragment.musicService?.mediaPlayer != null) {
+                            storage.storeQueueAudio(loadQueueAudio)
+                            AllSongFragment.musicService?.pausedByManually = true
+                            val broadcastIntent =
+                                Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
+                            (mContext as AppCompatActivity).sendBroadcast(
+                                broadcastIntent
+                            )
+                            Log.d(
+                                "SongThatWillBeDelete",
+                                "deleteAudioFromDevice: New audio played "
+                            )
+                        }
+
+
+                    } else {
+                        // after deleting audio, current playing audio index might get changed
+                        // so save a new index
+                        val newIndex = loadQueueAudio.indexOf(currentPlayingAudio)
+                        storage.storeAudioIndex(newIndex)
+                        storage.storeQueueAudio(loadQueueAudio)
+                        Log.d(
+                            "SongThatWillBeDelete",
+                            "deleteAudioFromDevice: audioIndexChanged: newIndex- $newIndex "
+                        )
                     }
 
-                } catch (e: FileNotFoundException) {
-                    e.printStackTrace()
-                    Log.d("FileNotFoundException", "deleteAudioFromDevice:${e.message} ")
+                    Toast.makeText(mContext, "Song deleted", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
                 }
-            }*/
+                cancelButton.setOnClickListener {
+                    dialog.dismiss()
+                }
+                dialog.show()
 
+                dismiss()//dismiss bottom sheet
+
+
+            } catch (e: FileNotFoundException) {
+                e.printStackTrace()
+                Log.d("FileNotFoundException", "deleteAudioFromDevice:${e.message} ")
+            }
         }
     }
 
@@ -558,7 +770,10 @@ class BottomSheetAudioMoreOptions(
                     audio.artistId,
                     audio.displayName,
                     audio.contentType,
-                    audio.year
+                    audio.year,
+                    audio.folderId,
+                    audio.folderName,
+                    audio.noOfSongs
                 )
                 allSongsModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
                 allSongsModel.playingOrPause = audio.playingOrPause
@@ -581,7 +796,10 @@ class BottomSheetAudioMoreOptions(
                     audio.artistId,
                     audio.displayName,
                     audio.contentType,
-                    audio.year
+                    audio.year,
+                    audio.folderId,
+                    audio.folderName,
+                    audio.noOfSongs
                 )
                 allSongsModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
                 allSongsModel.playingOrPause = audio.playingOrPause
@@ -602,12 +820,12 @@ class BottomSheetAudioMoreOptions(
         animatedVectorDrawable.start()
     }
 
-    /*override fun onAttach(context: Context) {
-        super.onAttach(context)
-        try {
-            listener = context as OnAudioDeleteFromPlaylist
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }*/
+/*override fun onAttach(context: Context) {
+    super.onAttach(context)
+    try {
+        listener = context as OnAudioDeleteFromPlaylist
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}*/
 }

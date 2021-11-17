@@ -54,7 +54,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="15dp"
-                android:background="@drawable/curved_light_transparent_bg"
+                android:background="@drawable/curved_light_transparent_purple_bg"
                 android:elevation="10dp">
 
                 <ImageView

@@ -57,7 +57,7 @@
                 android:id="@+id/topViewIV"
                 android:layout_width="match_parent"
                 android:layout_height="380dp"
-                android:background="@drawable/gradient_background_bottom_shadow"
+                android:background="@drawable/gradient_background_bottom_shadow_v1"
                 android:contentDescription="@null" />
 
             <ImageView
@@ -65,7 +65,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_below="@id/topViewIV"
-                android:background="@drawable/app_theme_background_drawable"
+                android:background="@drawable/app_theme_background_drawable_1"
                 android:contentDescription="@null" />
 
             <View

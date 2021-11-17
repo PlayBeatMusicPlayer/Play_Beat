@@ -25,8 +25,11 @@ data class AllSongsModel(
     var displayName: String?,
     var contentType: String,
     var year: Int,
+    var folderId: String,
+    var folderName: String,
+    var noOfSongs: Int
 
-    ) {
+) {
     @PrimaryKey(autoGenerate = true)
     var id = 0
     var playingOrPause: Int = -1 // 0 for pause , 1 for play and -1 for default
@@ -34,7 +37,28 @@ data class AllSongsModel(
     var mostPlayedCount: Int = 0
     var isChecked: Boolean = false
 
-    constructor() : this(0L, 0L, "", "", "", 0, 0/*null*/, "", "", "", "", false, 0L, 0L, "", "", 0)
+    constructor() : this(
+        0L,
+        0L,
+        "",
+        "",
+        "",
+        0,
+        0/*null*/,
+        "",
+        "",
+        "",
+        "",
+        false,
+        0L,
+        0L,
+        "",
+        "",
+        0,
+        "",
+        "",
+        0
+    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -1,64 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="grey">#BAB9B9</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="app_theme_color">#3A3C46</color>
+    <color name="app_theme_color">#272A3A</color>  <!--363949--> <!--383C4E-->
     <!--2B2727--> <!--3A3C46-->
     <color name="transparent">#00ffffff</color>
 
-    <color name="indigo">#590995</color>
     <color name="bright_pink">#FF87DA</color>
-    <color name="darkPink">#E8316F</color>
-    <color name="orange">#ffbd69</color>
-    <color name="light_blue">#3282b8</color>
     <color name="cyan">#03DCF8</color>
     <color name="dark_grey">#1b262c</color>
-    <color name="soil_color">#324047</color>
-    <color name="dark_orange">#ff5f40</color>
     <!-- <color name="light_grey">#F1EEEE</color>-->
     <color name="red">#E62525</color>
-    <color name="dark_red">#DA0505</color>
     <color name="bright_red">#ff414d</color>
-    <color name="green">#0F8717</color>
-    <color name="warm_color">#FFF9CB</color>
-    <color name="cool_color">#B5E3F3</color>
-    <color name="parrot_green">#2CEC73</color>  <!--50D55D-->
-    <color name="light_purple_2">#8C9EFF</color>
-    <color name="dim_light_blue">#DEE3FB</color>
-    <color name="deep_blue">#063270</color>
-    <color name="dim_grey">#E3E1E1</color>
-    <color name="sky_color">#1E88E5</color>
+    <!--50D55D-->
     <color name="light_green">#AFF3B2</color>
-    <color name="normal_green">#5BD560</color>
-    <color name="dim_blue">#88C2F1</color>
     <color name="yellow">#FFD740</color>
-    <color name="dark_yellow">#FFBF00</color><!--FFBF00--> <!--F1A11A-->
-    <color name="dark_purple">#110117</color>
+    <!--FFBF00--> <!--F1A11A-->
+    <!--<color name="dark_purple">#110117</color>-->
     <color name="semi_transparent">#41FFFFFF</color>
-    <color name="rgb_activity_background">#191818</color>
-    <color name="dim_light_grey">#E8E8E8</color>
-    <color name="sky_blue_v2">#1493F8</color>
-    <color name="fading_white">#F4F4F4</color>
-    <color name="plug_border_color">#37b0d0</color>
-    <color name="powerOnColor">#6592D6</color>
-    <color name="powerOnColorv2">#E2EAF6</color>
-    <color name="powerOffColor">#FFFFFF</color>
-    <color name="powerOffColorv2">#9E9E9E</color>
-    <color name="shimmerBG">#F7D8D8D8</color>
-    <color name="peach_pink">#FDEBFA</color>
-    <color name="_blue">#E0F2F8</color>
-    <color name="bright_orange">#DC973F</color>
     <color name="rippleColor">#22FBFBFB</color>
-    <color name="custom_ripple_color">#A1ABE6</color>
-    <color name="light_grey">#69696C</color>
     <color name="light_transparent">#69696C</color>
     <color name="queue_now_playing_background">#474953</color>
-    <color name="icon_background">#2A2929</color>
     <color name="card_color">#535353</color>
+    <color name="bottom_bar_color_1">#D0240B36</color>
+    <color name="bottom_bar_color_2">#FF4B2B</color>
+    <color name="bottom_bar_color_3">#00B4DB</color>
+    <color name="bottom_bar_color_4">#333333</color>
+    <color name="bottom_bar_color_5">#355C7D</color>
+    <color name="bottom_bar_color_6">#0f0c29</color>
+    <color name="bottom_bar_color_7">#23074d</color>
+    <color name="bottom_bar_color_8">#3C3B3F</color>
+    <color name="bottom_bar_color_9">#000046</color>
+    <color name="bottom_bar_color_10">#243B55</color>
+    <color name="bottom_bar_color_11">#1D4350</color>
+    <color name="bottom_bar_color_12">#000000</color>
+
+    <color name="theme_start_color_1">#c31432</color>
+    <color name="theme_start_color_2">#FF416C</color>
+    <color name="theme_start_color_3">#0083B0</color>
+    <color name="theme_start_color_4">#dd1818</color>
+    <color name="theme_start_color_5">#C06C84</color>
+    <color name="theme_start_color_6">#0f0c29</color>
+    <color name="theme_start_color_7">#cc5333</color>
+    <color name="theme_start_color_8">#605C3C</color>
+    <color name="theme_start_color_9">#1CB5E0</color>
+    <color name="theme_start_color_10">#141E30</color>
+    <color name="theme_start_color_11">#A43931</color>
+    <color name="theme_start_color_12">#434343</color>
+
 </resources>

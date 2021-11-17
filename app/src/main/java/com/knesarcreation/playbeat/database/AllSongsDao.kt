@@ -61,11 +61,22 @@ interface AllSongsDao {
     fun getMostPlayedAudio(): LiveData<List<AllSongsModel>>
 
     @Query("update allSongsModel set songName = :songName , albumName = :albumName , artistsName = :artistName , artUri = :artUri where songId = :songId")
-    fun updateAudioTags(
+  suspend  fun updateAudioTags(
         songId: Long,
         songName: String,
         albumName: String,
         artistName: String,
         artUri: String
     )
+
+    @Query("Update allSongsModel set folderId = :folderId , folderName = :folderName , noOfSongs = :noOfSongs where songId = :songId")
+    suspend fun updateFolderInAudio(
+        songId: Long,
+        folderId: String,
+        folderName: String,
+        noOfSongs: Int
+    )
+
+    @Query("SELECT * FROM allSongsModel where folderId = :folderId")
+    fun getAudioAccordingToFolders(folderId: String): List<AllSongsModel>
 }

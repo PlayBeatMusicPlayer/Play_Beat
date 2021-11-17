@@ -47,7 +47,7 @@
                 android:id="@+id/topViewIV"
                 android:layout_width="match_parent"
                 android:layout_height="380dp"
-                android:background="@drawable/gradient_background_bottom_shadow"
+                android:background="@drawable/gradient_background_bottom_shadow_v1"
                 android:contentDescription="@null" />
 
             <ImageView
@@ -55,7 +55,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_below="@id/topViewIV"
-                android:background="@drawable/app_theme_background_drawable"
+                android:background="@drawable/app_theme_background_drawable_1"
                 android:contentDescription="@null" />
 
             <View
@@ -255,7 +255,8 @@
                 android:layout_marginTop="15dp"
                 android:contentDescription="@null"
                 android:focusable="true"
-                android:foreground="@drawable/gradient_background_top_shadow" />
+                android:foreground="@drawable/gradient_background_top_shadow"
+                android:visibility="gone" />
         </RelativeLayout>
 
         <ImageView
@@ -291,7 +292,6 @@
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="@id/playAllToolbar"
             app:layout_constraintHorizontal_bias="0.087"
             app:layout_constraintStart_toEndOf="@id/arrowBackIV"
             app:layout_constraintTop_toTopOf="parent" />

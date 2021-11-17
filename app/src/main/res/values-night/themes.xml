@@ -35,10 +35,6 @@
         <item name="cornerSize">5%</item>
     </style>
 
-    <style name="circular_50">
-        <item name="cornerSize">50%</item>
-    </style>
-
     <style name="bottomSheet" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@drawable/curved_top_right_top_left_app_theme_color</item>
         <item name="behavior_draggable">true</item>
@@ -60,14 +56,6 @@
 
     <style name="CustomAlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:windowBackground">@drawable/curved_all_edges_app_theme</item>
-    </style>
-
-    <style name="AppTheme" parent="android:Theme">
-        <item name="android:windowDisablePreview">true</item>
-    </style>
-
-    <style name="SplashTheme" parent="AppTheme">
-        <item name="android:windowBackground">@drawable/app_theme_background_drawable</item>
     </style>
 
 </resources>

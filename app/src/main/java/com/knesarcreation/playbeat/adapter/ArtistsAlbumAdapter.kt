@@ -2,6 +2,7 @@ package com.knesarcreation.playbeat.adapter
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.material.snackbar.Snackbar
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.database.AlbumModel
 import com.knesarcreation.playbeat.database.AllSongsModel
@@ -23,6 +25,7 @@ import com.knesarcreation.playbeat.utils.AudioPlayingFromCategory
 import com.knesarcreation.playbeat.utils.StorageUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
 
 class ArtistsAlbumAdapter(
@@ -241,76 +244,90 @@ class ArtistsAlbumAdapter(
       }*/
 
     private fun updateAndPlayAudio(allSongModel: AllSongsModel) {
-        val storageUtil = StorageUtil(context)
-        storageUtil.saveIsShuffled(false)
-        val prevPlayingAudioIndex = storageUtil.loadAudioIndex()
-        val prevQueueList = storageUtil.loadQueueAudio()
-        val prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
+        if (File(Uri.parse(allSongModel.data).path!!).exists()) {
+            val storageUtil = StorageUtil(context)
+            storageUtil.saveIsShuffled(false)
+            val prevPlayingAudioIndex = storageUtil.loadAudioIndex()
+            val prevQueueList = storageUtil.loadQueueAudio()
 
-        /*val playedFirstTime = !storageUtil.getIsAudioPlayedFirstTime()
-        val playedSameAudio = allSongModel.songId != prevPlayingAudioModel.songId*/
+            var prevPlayingAudioModel: AllSongsModel? = null
 
-        mViewModelClass.deleteQueue((context as AppCompatActivity).lifecycleScope)
+            if (prevQueueList.isNotEmpty()) {
+                prevPlayingAudioModel = prevQueueList[prevPlayingAudioIndex]
+                mViewModelClass.deleteQueue((context as AppCompatActivity).lifecycleScope)
 
-        mViewModelClass.updateSong(
-            prevPlayingAudioModel.songId,
-            prevPlayingAudioModel.songName,
-            -1,
-            (context as AppCompatActivity).lifecycleScope
-        )
+                mViewModelClass.updateSong(
+                    prevPlayingAudioModel.songId,
+                    prevPlayingAudioModel.songName,
+                    -1,
+                    (context as AppCompatActivity).lifecycleScope
+                )
 
-        mViewModelClass.updateSong(
-            allSongModel.songId,
-            allSongModel.songName,
-            1,
-            (context as AppCompatActivity).lifecycleScope
-        )
+                mViewModelClass.updateSong(
+                    allSongModel.songId,
+                    allSongModel.songName,
+                    1,
+                    (context as AppCompatActivity).lifecycleScope
+                )
+
+            }
+
+            /*val playedFirstTime = !storageUtil.getIsAudioPlayedFirstTime()
+            val playedSameAudio = allSongModel.songId != prevPlayingAudioModel.songId*/
 
 
+            playAudio()
 
-        playAudio()
+            // restricting to update if clicked audio is same
+            // adding queue list to DB and show highlight of current audio
+            for (audio in this.audioList) {
+                val queueListModel = QueueListModel(
+                    audio.songId,
+                    audio.albumId,
+                    audio.songName,
+                    audio.artistsName,
+                    audio.albumName,
+                    audio.size,
+                    audio.duration,
+                    audio.data,
+                    audio.contentUri,
+                    audio.artUri,
+                    -1,
+                    audio.dateAdded,
+                    audio.isFavourite,
+                    audio.favAudioAddedTime,
+                    audio.mostPlayedCount,
+                    audio.artistId
+                )
+                queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
+                mViewModelClass.insertQueue(
+                    queueListModel,
+                    (context as AppCompatActivity).lifecycleScope
+                )
+            }
 
-        // restricting to update if clicked audio is same
-        // adding queue list to DB and show highlight of current audio
-        for (audio in this.audioList) {
-            val queueListModel = QueueListModel(
-                audio.songId,
-                audio.albumId,
-                audio.songName,
-                audio.artistsName,
-                audio.albumName,
-                audio.size,
-                audio.duration,
-                audio.data,
-                audio.contentUri,
-                audio.artUri,
-                -1,
-                audio.dateAdded,
-                audio.isFavourite,
-                audio.favAudioAddedTime,
-                audio.mostPlayedCount,
-                audio.artistId
-            )
-            queueListModel.currentPlayedAudioTime = audio.currentPlayedAudioTime
-            mViewModelClass.insertQueue(
-                queueListModel,
+            if (prevQueueList.isNotEmpty()) {
+                mViewModelClass.updateQueueAudio(
+                    prevPlayingAudioModel!!.songId,
+                    prevPlayingAudioModel.songName,
+                    -1,
+                    (context as AppCompatActivity).lifecycleScope
+                )
+            }
+
+            mViewModelClass.updateQueueAudio(
+                allSongModel.songId,
+                allSongModel.songName,
+                1,
                 (context as AppCompatActivity).lifecycleScope
             )
+        } else {
+            Snackbar.make(
+                (context as AppCompatActivity).window.decorView,
+                "File doesn't exists", Snackbar.LENGTH_LONG
+            ).show()
         }
 
-        mViewModelClass.updateQueueAudio(
-            prevPlayingAudioModel.songId,
-            prevPlayingAudioModel.songName,
-            -1,
-            (context as AppCompatActivity).lifecycleScope
-        )
-
-        mViewModelClass.updateQueueAudio(
-            allSongModel.songId,
-            allSongModel.songName,
-            1,
-            (context as AppCompatActivity).lifecycleScope
-        )
     }
 
     private fun playAudio() {

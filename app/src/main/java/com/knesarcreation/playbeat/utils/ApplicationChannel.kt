@@ -4,10 +4,8 @@ import android.app.Application
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.knesarcreation.playbeat.R
 
 class ApplicationChannel : Application() {
 

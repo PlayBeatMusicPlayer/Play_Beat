@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/app_theme_color"
+    android:background="@android:color/transparent"
     tools:context=".fragment.AllAlbumsFragment">
 
     <RelativeLayout
@@ -50,11 +50,11 @@
                 tools:listitem="@layout/recycler_all_songs_item" />
 
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="20dp"
-                android:contentDescription="@null"
-                android:foreground="@drawable/gradient_background_top_shadow" />
+            <!-- <ImageView
+                 android:layout_width="match_parent"
+                 android:layout_height="20dp"
+                 android:contentDescription="@null"
+                 android:foreground="@drawable/gradient_background_top_shadow" />-->
         </RelativeLayout>
 
     </RelativeLayout>

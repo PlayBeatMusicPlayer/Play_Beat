@@ -55,6 +55,10 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
         return repository.getAudioAccordingArtist(artistName)
     }
 
+    suspend fun getAudioAccordingToFolders(folderId: String): List<AllSongsModel> {
+        return repository.getAudioAccordingToFolders(folderId)
+    }
+
     fun deleteSongs(lifecycleScope: LifecycleCoroutineScope) {
         repository.deleteSongs(lifecycleScope)
     }
@@ -97,6 +101,16 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
         lifecycleScope: LifecycleCoroutineScope
     ) {
         repository.updateAudioTags(songId, songName, albumName, artistName, artUri, lifecycleScope)
+    }
+
+    fun updateFolderInAudio(
+        songId: Long,
+        folderId: String,
+        folderName: String,
+        noOfSongs: Int,
+        lifecycleScope: LifecycleCoroutineScope
+    ) {
+        repository.updateFolderInAudio(songId, folderId, folderName, noOfSongs, lifecycleScope)
     }
 
     fun updateAlbumData(

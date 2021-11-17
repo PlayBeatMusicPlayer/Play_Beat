@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/hostActivityBG"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/app_theme_color"
     android:orientation="vertical">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/app_theme_color"
         android:orientation="vertical">
 
         <FrameLayout
@@ -29,12 +28,12 @@
     <me.ibrahimsn.lib.SmoothBottomBar
         android:id="@+id/bottomBar"
         android:layout_width="match_parent"
-        android:layout_height="62dp"
+        android:layout_height="65dp"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="-5dp"
         android:contextClickable="false"
         android:elevation="0dp"
-        app:backgroundColor="@color/app_theme_color"
+        app:backgroundColor="@color/bottom_bar_color_1"
         app:layout_anchorGravity="bottom"
         app:layout_dodgeInsetEdges="top"
         app:menu="@menu/bottom_bar_menu" />

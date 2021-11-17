@@ -2,9 +2,10 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/homeFragBackground"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/app_theme_color"
+    android:background="@color/transparent"
     tools:context=".fragment.HomeFragment">
 
     <RelativeLayout
@@ -18,13 +19,13 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="35dp"
             android:layout_marginEnd="20dp"
-            android:background="@color/app_theme_color"
+            android:background="@color/transparent"
             app:tabGravity="fill"
-            app:tabIndicator="@drawable/curved_light_transparent_bg"
+            app:tabIndicator="@drawable/curved_light_transparent_default_bg"
             app:tabIndicatorAnimationMode="elastic"
             app:tabIndicatorColor="#69696C"
             app:tabIndicatorHeight="40dp"
-            app:tabMode="fixed"
+            app:tabMode="auto"
             app:tabPaddingTop="5dp"
             app:tabRippleColor="@color/transparent"
             app:tabSelectedTextColor="@color/white"

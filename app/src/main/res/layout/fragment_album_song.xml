@@ -35,7 +35,7 @@
                 android:id="@+id/topViewIV"
                 android:layout_width="match_parent"
                 android:layout_height="310dp"
-                android:background="@drawable/gradient_background_bottom_shadow"
+                android:background="@drawable/gradient_background_bottom_shadow_v1"
                 android:contentDescription="@null" />
 
             <!--bottom shadow, rv and play_button-->
@@ -52,8 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_below="@id/topViewIV"
-
-                android:background="@color/app_theme_color"
+                android:background="@drawable/app_theme_background_drawable_1"
                 android:contentDescription="@null" />
 
             <com.google.android.material.button.MaterialButton
@@ -64,7 +63,6 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="@dimen/_20mdp"
                 android:text="Play"
-
                 android:textSize="13sp"
                 android:textStyle="bold"
                 app:backgroundTint="@color/teal_200"

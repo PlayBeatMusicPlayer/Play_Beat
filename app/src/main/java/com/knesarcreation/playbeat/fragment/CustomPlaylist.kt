@@ -35,6 +35,7 @@ import com.knesarcreation.playbeat.database.QueueListModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.FragmentPlayListAudiosBinding
 import com.knesarcreation.playbeat.utils.DataObservableClass
+import com.knesarcreation.playbeat.utils.SavedAppTheme
 import com.knesarcreation.playbeat.utils.StorageUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -959,5 +960,37 @@ class CustomPlaylist : Fragment() {
             audioList.add(audio)
         }
         return audioList
+    }
+
+    override fun onResume() {
+        super.onResume()
+        SavedAppTheme(
+            activity as Context,
+            null,
+            null,
+            null,
+            isHomeFrag = false,
+            isHostActivity = false,
+            tagEditorsBG = null,
+            isTagEditor = false,
+            bottomBar = null,
+            rlMiniPlayerBottomSheet = null,
+            bottomShadowIVAlbumFrag = null,
+            isAlbumFrag = false,
+            topViewIV = null,
+            bottomShadowIVArtistFrag = null,
+            isArtistFrag = false,
+            topViewIVArtistFrag = null,
+            bottomShadowIVPlaylist = binding!!.bottomShadowIV,
+            isPlaylistFragCategory = true,
+            topViewIVPlaylist = binding!!.topViewIV,
+            playlistBG = null,
+            isPlaylistFrag = false,
+              null,
+            isSearchFrag = false,
+            null,
+            false
+
+        ).settingSavedBackgroundTheme()
     }
 }

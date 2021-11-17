@@ -1,21 +1,30 @@
 package com.knesarcreation.playbeat.fragment
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.media.MediaScannerConnection
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.provider.MediaStore
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.google.gson.Gson
@@ -26,13 +35,12 @@ import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.adapter.ArtistsAlbumAdapter
 import com.knesarcreation.playbeat.database.*
 import com.knesarcreation.playbeat.databinding.FragmentArtistsTracksAndAlbumBinding
-import com.knesarcreation.playbeat.utils.AudioPlayingFromCategory
-import com.knesarcreation.playbeat.utils.DataObservableClass
-import com.knesarcreation.playbeat.utils.StorageUtil
+import com.knesarcreation.playbeat.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileNotFoundException
 import java.util.concurrent.CopyOnWriteArrayList
 
 class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongItem*/ {
@@ -71,6 +79,7 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
                 duration = 200L
             }
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -304,17 +313,326 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
                     }
 
                     override fun deleteFromDevice() {
-                        Snackbar.make(
-                            (activity as AppCompatActivity).window.decorView,
-                            "Sorry for inconvenience, feature is under development",
-                            Snackbar.LENGTH_LONG
-                        ).show()
-
+                        requestDeleteMultipleAudioPermission()
                         bottomSheetMultiSelectMoreOptions.dismiss()
-                        disableContextMenu()
                     }
                 }
         }
+    }
+
+    private fun requestDeleteMultipleAudioPermission() {
+        val uriList = ArrayList<Uri>()
+        for (audio in selectedAudioList) {
+            uriList.add(Uri.parse(audio.contentUri))
+        }
+        if (selectedAudioList.isNotEmpty()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val pi =
+                    MediaStore.createDeleteRequest(
+                        (activity as AppCompatActivity).contentResolver,
+                        uriList
+                    )
+
+                try {
+                    startIntentSenderForResult(pi.intentSender, 1002, null, 0, 0, 0, null)
+                } catch (e: Exception) {
+                    Log.d(
+                        "startIntentSenderForResult",
+                        "requestDeleteMultipleAudioPermission:${e.message} "
+                    )
+                }
+
+            } else {
+                deleteAudioReqBelowApi30()
+            }
+        }
+    }
+
+    // For api above 30
+    private fun deleteAudioReqAboveApi30() {
+        //Log.d("SongThatWillBeDelete", "deleteAudioFromDevice:$allSongsModel ")
+
+        if (selectedAudioList.isNotEmpty()) {
+
+            for (audio in selectedAudioList) {
+
+                val loadQueueAudio = storage.loadQueueAudio()
+                var currentPlayingAudioIndex = storage.loadAudioIndex()
+                val currentPlayingAudio = loadQueueAudio[currentPlayingAudioIndex]
+
+                loadQueueAudio.remove(audio)
+                mViewModelClass.deleteOneSong(audio.songId, lifecycleScope)
+                mViewModelClass.deleteOneQueueAudio(
+                    audio.songId,
+                    lifecycleScope
+                )
+
+                if (audio.songId == currentPlayingAudio.songId) {
+                    // selected audio is found in current playing audio
+                    if (currentPlayingAudio.playingOrPause == 1 || currentPlayingAudio.playingOrPause == 0) {
+                        // if deleted audio was playing audio then play next audio
+                        if (currentPlayingAudioIndex == loadQueueAudio.size /* there is no need to subtract size by 1 here, since one audio is already deleted */) {
+                            // last audio deleted which was playing
+                            // so play a prev audio, for that save a new index
+
+                            currentPlayingAudioIndex = --currentPlayingAudioIndex
+                            storage.storeAudioIndex(currentPlayingAudioIndex)
+                            Log.d(
+                                "SongThatWillBeDelete",
+                                "deleteAudioFromDevice: isAudioPlaying : $currentPlayingAudioIndex "
+                            )
+
+                        }
+
+                        loadQueueAudio[currentPlayingAudioIndex].playingOrPause = 1
+                        storage.storeQueueAudio(loadQueueAudio)
+
+                        if (AllSongFragment.musicService?.mediaPlayer != null) {
+                            AllSongFragment.musicService?.pausedByManually = true
+                            val broadcastIntent =
+                                Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
+                            (activity as AppCompatActivity).sendBroadcast(
+                                broadcastIntent
+                            )
+                            Log.d(
+                                "SongThatWillBeDelete",
+                                "deleteAudioFromDevice: New audio played "
+                            )
+                        }
+
+                        //if (currentPlayingAudio.playingOrPause == 0) {
+                        // audio is already paused
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            AllSongFragment.musicService?.pauseMedia()
+                            AllSongFragment.musicService?.pausedByManually = true
+                            AllSongFragment.musicService?.updateNotification(isAudioPlaying = false)
+                            ///binding.bottomSheet.playPauseMiniPlayer.setImageResource(R.drawable.ic_play_audio)
+                            // highlight pause audio with pause anim
+                            mViewModelClass.updateSong(
+                                currentPlayingAudio.songId,
+                                currentPlayingAudio.songName,
+                                0,
+                                lifecycleScope
+                            )
+                            mViewModelClass.updateQueueAudio(
+                                currentPlayingAudio.songId,
+                                currentPlayingAudio.songName,
+                                0,
+                                lifecycleScope
+                            )
+                        }, 500)
+
+                    }
+                } else {
+                    // after deleting audio, current playing audio index might get changed
+                    // so save a new index
+                    val newIndex = loadQueueAudio.indexOf(currentPlayingAudio)
+                    storage.storeAudioIndex(newIndex)
+                    storage.storeQueueAudio(loadQueueAudio)
+                    Log.d(
+                        "SongThatWillBeDelete",
+                        "deleteAudioFromDevice: audioIndexChanged: newIndex: $newIndex "
+                    )
+                }
+            }
+
+            /*if (AllSongFragment.musicService?.mediaPlayer != null) {
+                AllSongFragment.musicService?.pausedByManually = true
+                val broadcastIntent =
+                    Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
+                (activity as AppCompatActivity).sendBroadcast(
+                    broadcastIntent
+                )
+                Log.d(
+                    "SongThatWillBeDelete",
+                    "deleteAudioFromDevice: New audio played "
+                )
+            }*/
+
+            Toast.makeText(activity as Context, "Songs deleted", Toast.LENGTH_SHORT).show()
+        }
+
+
+        //dismiss()
+    }
+
+    // For api below 30
+    @SuppressLint("SetTextI18n")
+    private fun deleteAudioReqBelowApi30() {
+
+        try {
+            //Log.d("SongThatWillBeDelete", "deleteAudioFromDevice: path: $audioFile ")
+
+            val alertDialog =
+                AlertDialog.Builder(activity as Context, R.style.CustomAlertDialog)
+            val viewGroup: ViewGroup =
+                (activity as AppCompatActivity).findViewById(android.R.id.content)
+            val customView =
+                layoutInflater.inflate(R.layout.custom_alert_dialog, viewGroup, false)
+            val dialogTitleTV = customView.findViewById<TextView>(R.id.dialogTitleTV)
+            val dialogMessageTV =
+                customView.findViewById<TextView>(R.id.dialogMessageTV)
+            val cancelButton =
+                customView.findViewById<MaterialButton>(R.id.cancelButton)
+            val deleteBtn = customView.findViewById<MaterialButton>(R.id.positiveBtn)
+            alertDialog.setView(customView)
+            val dialog = alertDialog.create()
+
+            dialogTitleTV.text = getString(R.string.delete_song)
+            dialogMessageTV.text =
+                "Are you sure you want to delete selected song."
+
+            deleteBtn.setOnClickListener {
+                for (audio in selectedAudioList) {
+                    val audioPath =
+                        GetRealPathOfUri().getUriRealPath(
+                            activity as Context,
+                            Uri.parse(audio.contentUri)
+                        )
+                    val loadQueueAudio = storage.loadQueueAudio()
+                    var currentPlayingAudioIndex = storage.loadAudioIndex()
+                    val currentPlayingAudio = loadQueueAudio[currentPlayingAudioIndex]
+
+                    Log.d("SongThatWillBeDelete", "deleteAudioFromDevice:$audio ")
+                    loadQueueAudio.remove(audio)
+
+                    mViewModelClass.deleteOneSong(audio.songId, lifecycleScope)
+                    mViewModelClass.deleteOneQueueAudio(
+                        audio.songId,
+                        lifecycleScope
+                    )
+
+                    try {
+                        val audioFile = File(audioPath!!)
+                        if (audioFile.exists()) {
+                            //delete file from storage
+                            audioFile.delete()
+
+                            MediaScannerConnection.scanFile(
+                                activity as Context,
+                                arrayOf(audioFile.path),
+                                null,
+                                null
+                            )
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+
+                    Log.d(
+                        "SongThatWillBeDelete",
+                        "deleteAudioFromDevice: isAudioPlaying : ${audio.playingOrPause} "
+                    )
+                    if (audio.songId == currentPlayingAudio.songId) {
+                        if (currentPlayingAudio.playingOrPause == 1 || currentPlayingAudio.playingOrPause == 0) {
+                            // if deleted audio was playing audio then play next audio
+                            if (currentPlayingAudioIndex == loadQueueAudio.size /* there is no need to subtract size by 1 here, since one audio is already deleted */) {
+                                // last audio deleted which was playing
+                                // so play a prev audio, for that save a new index
+
+                                currentPlayingAudioIndex = --currentPlayingAudioIndex
+                                storage.storeAudioIndex(currentPlayingAudioIndex)
+                                Log.d(
+                                    "SongThatWillBeDelete",
+                                    "deleteAudioFromDevice: isAudioPlaying : $currentPlayingAudioIndex "
+                                )
+
+                            }
+                            loadQueueAudio[currentPlayingAudioIndex].playingOrPause = 1
+                            storage.storeQueueAudio(loadQueueAudio)
+
+                            if (AllSongFragment.musicService?.mediaPlayer != null) {
+                                AllSongFragment.musicService?.pausedByManually = true
+                                val broadcastIntent =
+                                    Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
+                                (activity as AppCompatActivity).sendBroadcast(
+                                    broadcastIntent
+                                )
+                                Log.d(
+                                    "SongThatWillBeDelete",
+                                    "deleteAudioFromDevice: New audio played "
+                                )
+                            }
+
+                            //if (currentPlayingAudio.playingOrPause == 0) {
+                            // audio is already paused
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                AllSongFragment.musicService?.pauseMedia()
+                                AllSongFragment.musicService?.pausedByManually = true
+                                AllSongFragment.musicService?.updateNotification(isAudioPlaying = false)
+                                ///binding.bottomSheet.playPauseMiniPlayer.setImageResource(R.drawable.ic_play_audio)
+                                // highlight pause audio with pause anim
+                                mViewModelClass.updateSong(
+                                    currentPlayingAudio.songId,
+                                    currentPlayingAudio.songName,
+                                    0,
+                                    lifecycleScope
+                                )
+                                mViewModelClass.updateQueueAudio(
+                                    currentPlayingAudio.songId,
+                                    currentPlayingAudio.songName,
+                                    0,
+                                    lifecycleScope
+                                )
+                            }, 500)
+                        }
+
+                    } else {
+                        // after deleting audio, current playing audio index might get changed
+                        // so save a new index
+                        val newIndex = loadQueueAudio.indexOf(currentPlayingAudio)
+                        storage.storeAudioIndex(newIndex)
+                        storage.storeQueueAudio(loadQueueAudio)
+                        Log.d(
+                            "SongThatWillBeDelete",
+                            "deleteAudioFromDevice: audioIndexChanged: newIndex- $newIndex "
+                        )
+                    }
+                }
+
+                /*if (AllSongFragment.musicService?.mediaPlayer != null) {
+                    AllSongFragment.musicService?.pausedByManually = true
+                    val broadcastIntent =
+                        Intent(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
+                    (activity as Context as AppCompatActivity).sendBroadcast(
+                        broadcastIntent
+                    )
+                    Log.d(
+                        "SongThatWillBeDelete",
+                        "deleteAudioFromDevice: New audio played "
+                    )
+                }*/
+
+                Toast.makeText(activity as Context, "Song deleted", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+                disableContextMenu()
+
+            }
+            cancelButton.setOnClickListener {
+                dialog.dismiss()
+            }
+            dialog.show()
+
+            //dismiss()//dismiss bottom sheet
+
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+            Log.d("FileNotFoundException", "deleteAudioFromDevice:${e.message} ")
+        }
+
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == -1) {
+            // song deleted
+            deleteAudioReqAboveApi30()
+        }
+
+        disableContextMenu()
+
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d("startIntentSenderForResult", "onActivityResult: .... ")
     }
 
     private fun addAudiosToPlayingQueue() {
@@ -842,5 +1160,36 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
             audioList.add(audio)
         }
         return audioList
+    }
+
+    override fun onResume() {
+        super.onResume()
+        SavedAppTheme(
+            activity as Context,
+            null,
+            null,
+            null,
+            isHomeFrag = false,
+            isHostActivity = false,
+            tagEditorsBG = null,
+            isTagEditor = false,
+            bottomBar = null,
+            rlMiniPlayerBottomSheet = null,
+            bottomShadowIVAlbumFrag = null,
+            isAlbumFrag = false,
+            topViewIV = null,
+            bottomShadowIVArtistFrag = binding!!.bottomShadowIV,
+            isArtistFrag = true,
+            topViewIVArtistFrag = binding!!.topViewIV,
+            bottomShadowIVPlaylist = null,
+            isPlaylistFragCategory = false,
+            topViewIVPlaylist = null,
+            playlistBG = null,
+            isPlaylistFrag = false,
+            null,
+            isSearchFrag = false,
+            null,
+            false
+        ).settingSavedBackgroundTheme()
     }
 }

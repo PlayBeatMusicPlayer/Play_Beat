@@ -5,7 +5,6 @@ import android.app.AlertDialog
 import android.content.ContentUris
 import android.content.Intent
 import android.database.Cursor
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -13,7 +12,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
 import android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
-import android.util.Size
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,11 +27,14 @@ import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.ArtistsModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.model.AudioArtBitmapModel
+import com.knesarcreation.playbeat.model.FolderModel
 import com.knesarcreation.playbeat.utils.MakeStatusBarTransparent
 import com.knesarcreation.playbeat.utils.StorageUtil
 import java.io.File
+import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 
 @SuppressLint("CustomSplashScreen")
@@ -248,53 +250,63 @@ class SplashScreenActivity : AppCompatActivity() {
                      }
                  }*/
 
-                val allSongsModel = if (displayName != null) {
+                try {
+                    val allSongsModel = if (displayName != null) {
 
-                    AllSongsModel(
-                        id,
-                        albumId,
-                        name.trim(),
-                        artist.trim(),
-                        album.trim(),
-                        size,
-                        duration,
-                        data,
-                        contentUri.toString(),
-                        artUri,
-                        dateAdded,
-                        false,
-                        0L,
-                        artistId,
-                        displayName,
-                        "",
-                        year
-                    )
-                } else {
-                    AllSongsModel(
-                        id,
-                        albumId,
-                        name.trim(),
-                        artist.trim(),
-                        album.trim(),
-                        size,
-                        duration,
-                        data,
-                        contentUri.toString(),
-                        artUri,
-                        dateAdded,
-                        false,
-                        0L,
-                        artistId,
-                        "",
-                        "",
-                        year
-                    )
+                        AllSongsModel(
+                            id,
+                            albumId,
+                            name.trim(),
+                            artist.trim(),
+                            album.trim(),
+                            size,
+                            duration,
+                            data,
+                            contentUri.toString(),
+                            artUri,
+                            dateAdded,
+                            false,
+                            0L,
+                            artistId,
+                            displayName,
+                            "",
+                            year,
+                            "",
+                            "",
+                            0
+                        )
+                    } else {
+                        AllSongsModel(
+                            id,
+                            albumId,
+                            name.trim(),
+                            artist.trim(),
+                            album.trim(),
+                            size,
+                            duration,
+                            data,
+                            contentUri.toString(),
+                            artUri,
+                            dateAdded,
+                            false,
+                            0L,
+                            artistId,
+                            "",
+                            "",
+                            year,
+                            "",
+                            "",
+                            0
+                        )
+                    }
+
+                    /*storage.loadAudioIndex()
+             val playingAudio = storage.loadAudio()[]*/
+                    allSongsModel.playingOrPause = -1
+                    queriedAudioList.add(allSongsModel)
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-
-                /*storage.loadAudioIndex()
-                val playingAudio = storage.loadAudio()[]*/
-                allSongsModel.playingOrPause = -1
-                queriedAudioList.add(allSongsModel)
             }
 
             val audioCount = storage.getAudioCount()
@@ -308,6 +320,7 @@ class SplashScreenActivity : AppCompatActivity() {
                 // insert all album
                 loadAlbum()
                 loadArtists()
+                //addFolderInAudio()
                 //loadAudioArtThumbnail()
             } else {
                 if (audioCount < query!!.count) {
@@ -331,33 +344,17 @@ class SplashScreenActivity : AppCompatActivity() {
                             }
                         }
                         if (isNewAudioFound) {
-                            /* if (currentPlayingAudio.songName == newAudio.songName) {
-                                *//* val newIndex = currentPlayingAudioIndex + 1
-                                val allSongsModel = oldQueueAudio[newIndex]
-                                if(File(Uri.parse(allSongsModel.data).path!!).exists()){
-                                    // save this new index
-                                }*//*
-                                if (AllSongFragment.musicService != null) {
-                                    if (AllSongFragment.musicService?.mediaPlayer?.isPlaying!!)
-                                        newAudio.playingOrPause = 1
-                                    else
-                                        newAudio.playingOrPause = 0
-                                } else {
-                                    newAudio.playingOrPause = 0
-                                }
-
-                                newAudio.songId = currentPlayingAudio.songId
-
-                            }*/
                             mViewModelClass.insertAllSongs(newAudio, lifecycleScope)
                         }
                     }
 
                     loadAlbum()
                     loadArtists()
+                    //addFolderInAudio()
                     //loadAudioArtThumbnail()
                     storage.storeAudio(queriedAudioList)
-                } else if (audioCount > query.count) {
+                }
+                else if (audioCount > query.count) {
 
                     // if any audio deleted then update DB
                     val storedAudioList = storage.loadAudio()
@@ -404,11 +401,14 @@ class SplashScreenActivity : AppCompatActivity() {
 
                         loadAlbum()
                         loadArtists()
+                        //  addFolderInAudio()
                     }
                 }
             }
 
             cursor.close()
+
+            getFoldersFromAudio()
 
             Handler(Looper.getMainLooper()).postDelayed({
                 startActivity(Intent(this, ActivityBottomBarFragmentContainer::class.java))
@@ -417,30 +417,110 @@ class SplashScreenActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadAudioArtThumbnail() {
-        audioArtBitmapList.clear()
-        var thumbnail: Bitmap? = null
-        for (audio in queriedAudioList) {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                try {
-                    thumbnail =
-                        applicationContext.contentResolver.loadThumbnail(
-                            Uri.parse(audio.contentUri), Size(640, 480), null
-                        )
-                    audioArtBitmapList.add(
-                        AudioArtBitmapModel(
-                            audio.songId,
-                            audio.songName,
-                            thumbnail
-                        )
-                    )
-                } catch (e: java.lang.Exception) {
-                    e.printStackTrace()
-                }
-            }
+    private fun getFoldersFromAudio() {
+        //creating audio paths/uris list
+        val pathsList: ArrayList<String> = ArrayList()
+        pathsList.clear()
+        for (i in 0 until queriedAudioList.size) {
+            val folderName: String =
+                File(queriedAudioList[i].data).parentFile!!.name
+            val folderId: String =
+                File(queriedAudioList[i].data).parentFile!!.parent!!
+            pathsList.add("$folderId/$folderName")
         }
-        storage.storeAudioArtBitmapImage(audioArtBitmapList)
+
+        //generating folder names from audio paths/uris
+        val folderList: MutableList<FolderModel> = ArrayList()
+        folderList.clear()
+        for (i in 0 until queriedAudioList.size) {
+            val folderName: String = File(queriedAudioList[i].data).parentFile!!.name
+            val folderId: String = File(queriedAudioList[i].data).parentFile!!.parent!!
+            val count: Int = Collections.frequency(pathsList, "$folderId/$folderName")
+            /* var folderRoot1 = ""
+             val folderRoot: String = if (queriedAudioList[i].data.contains("emulated")) {
+                 "emulated"
+             } else {
+                 "storage"
+             }
+             if (i > 0) {
+                 folderRoot1 = if (queriedAudioList[i - 1].data.contains("emulated")) {
+                     "emulated"
+                 } else {
+                     "storage"
+                 }
+             }*/
+
+            mViewModelClass.updateFolderInAudio(
+                queriedAudioList[i].songId,
+                "${folderId}/$folderName",
+                folderName,
+                count,
+                lifecycleScope
+            )
+
+            /* if (i == 0) {
+                 *//*val model = FolderModel(
+                    folderId,
+                    folderName,
+                    count
+                )
+                folderList.add(model)*//*
+                mViewModelClass.updateFolderInAudio(
+                    queriedAudioList[i].songId,
+                    "${folderId}/$folderName",
+                    folderName,
+                    count,
+                    lifecycleScope
+                )
+
+            } else if (folderName == File(queriedAudioList[i - 1].data).parentFile!!
+                    .name && folderRoot == folderRoot1
+            ) {
+                //exclude
+            } else {
+                *//* val model = FolderModel(
+                     folderId,
+                     folderName,
+                     count
+                 )
+                 folderList.add(model)*//*
+                mViewModelClass.updateFolderInAudio(
+                    queriedAudioList[i].songId,
+                    "${folderId}/$folderName",
+                    folderName,
+                    count,
+                    lifecycleScope
+                )
+            }*/
+        }
+
+        Log.d("folderListSplash", "getFoldersFromAudio: $folderList ")
     }
+
+    /* private fun loadAudioArtThumbnail() {
+         audioArtBitmapList.clear()
+         var thumbnail: Bitmap? = null
+         for (audio in queriedAudioList) {
+             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                 try {
+                     thumbnail =
+                         applicationContext.contentResolver.loadThumbnail(
+                             Uri.parse(audio.contentUri), Size(640, 480), null
+                         )
+                     audioArtBitmapList.add(
+                         AudioArtBitmapModel(
+                             audio.songId,
+                             audio.songName,
+                             thumbnail
+                         )
+                     )
+                 } catch (e: java.lang.Exception) {
+                     e.printStackTrace()
+                 }
+             }
+         }
+         storage.storeAudioArtBitmapImage(audioArtBitmapList)
+     }*/
 
     private fun loadAlbum() {
         albumList.clear()
@@ -586,4 +666,5 @@ class SplashScreenActivity : AppCompatActivity() {
             }*/
         }
     }
+
 }

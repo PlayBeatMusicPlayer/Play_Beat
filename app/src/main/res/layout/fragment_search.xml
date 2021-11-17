@@ -4,18 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/app_theme_color"
+    android:background="@color/transparent"
+    android:id="@+id/searchFragBG"
     tools:context=".fragment.SearchFragment">
 
 
-  <!--  <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/searchLottie"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:layout_centerInParent="true"
-        app:lottie_autoPlay="true"
-        app:lottie_loop="true"
-        app:lottie_rawRes="@raw/search_music_lottie" />-->
+    <!--  <com.airbnb.lottie.LottieAnimationView
+          android:id="@+id/searchLottie"
+          android:layout_width="250dp"
+          android:layout_height="250dp"
+          android:layout_centerInParent="true"
+          app:lottie_autoPlay="true"
+          app:lottie_loop="true"
+          app:lottie_rawRes="@raw/search_music_lottie" />-->
 
     <androidx.appcompat.widget.SearchView
         android:id="@+id/searchView"
@@ -25,14 +26,14 @@
         android:layout_marginTop="45dp"
         android:layout_marginEnd="20dp"
         android:background="@drawable/search_view_background"
+        android:defaultFocusHighlightEnabled="true"
         android:elevation="2dp"
         android:focusable="true"
-        android:focusedByDefault="true"
-        android:defaultFocusHighlightEnabled="true"
-        android:touchscreenBlocksFocus="true"
         android:focusableInTouchMode="true"
+        android:focusedByDefault="true"
         android:screenReaderFocusable="true"
         android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        android:touchscreenBlocksFocus="true"
         app:iconifiedByDefault="false"
         app:queryHint="Search your music"
         app:searchIcon="@drawable/ic_search"

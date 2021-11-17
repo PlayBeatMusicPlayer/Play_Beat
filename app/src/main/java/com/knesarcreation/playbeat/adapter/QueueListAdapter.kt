@@ -66,6 +66,14 @@ class QueueListAdapter(
                 "onBindViewHolder:${item.playingOrPause} ,   Pos: $position "
             )
         }
+
+        viewHolder.rlAudio.setBackgroundColor(
+            ContextCompat.getColor(
+                context,
+                R.color.app_theme_color
+            )
+        )
+
         val artUri = item.artUri
 
 
@@ -191,5 +199,6 @@ class QueueListAdapter(
             "DragDropAdapter",
             "onDragFinished:currentPlayingAudio:  old pos: $currentPlayingAudioIndex , new pos: $newCurrentPlayingAudioIndex "
         )
+
     }
 }

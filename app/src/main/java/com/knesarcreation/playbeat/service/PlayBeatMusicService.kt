@@ -867,6 +867,7 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
                     if (action == KeyEvent.ACTION_DOWN) {
                         if (mediaPlayer != null) {
                             if (mediaPlayer?.isPlaying!!) {
+                                pausedByManually = true
                                 pauseMedia()
                                 /*buildNotification(
                                     PlaybackStatus.PAUSED,
@@ -875,6 +876,7 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
                                 )*/
                                 updateNotification(false)
                             } else {
+                                pausedByManually = false
                                 resumeMedia()
                                 /*buildNotification(
                                     PlaybackStatus.PLAYING,
@@ -889,6 +891,7 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
 
                     if (keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
                         resumePosition = 0
+                        pausedByManually = false
                         skipToNext()
                         updateMetaData()
                         /* buildNotification(
@@ -903,6 +906,7 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
 
                     if (keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS) {
                         resumePosition = 0
+                        pausedByManually = false
                         skipToPrevious()
                         updateMetaData()
                         /* buildNotification(
