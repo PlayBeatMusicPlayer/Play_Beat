@@ -186,7 +186,7 @@ class BottomSheetAudioMoreOptions(
             } else {
                 //Toast.makeText(mContext, "Write not allowed :-(", Toast.LENGTH_LONG).show()
                 val alertDialog = AlertDialog.Builder(mContext)
-                alertDialog.setMessage("We required permission of WRITE SYSTEM SETTING to set your selected audio as default ringtone. Allow to proceed further.")
+                alertDialog.setMessage("Play Beat requires permission of WRITE SYSTEM SETTING in order to set your selected audio as default ringtone.\n\nAfter granting permission, try setting your ringtone again.")
                 alertDialog.setPositiveButton("Allow") { dialog, _ ->
                     permAllowed = true
                     openAndroidPermissionsMenu()

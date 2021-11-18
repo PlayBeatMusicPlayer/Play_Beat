@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.IntentSender.SendIntentException
 import android.content.pm.PackageManager
 import android.database.CursorWindow
 import android.graphics.drawable.AnimatedVectorDrawable
@@ -14,7 +15,6 @@ import android.os.*
 import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.RelativeLayout
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -33,6 +33,15 @@ import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.google.android.gms.cast.framework.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.play.core.appupdate.AppUpdateInfo
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.install.InstallState
+import com.google.android.play.core.install.InstallStateUpdatedListener
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.InstallStatus
+import com.google.android.play.core.install.model.UpdateAvailability
+import com.google.android.play.core.tasks.Task
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.ViewModelClass
@@ -50,8 +59,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     PlaylistsFragment.OnPlayListCategoryClicked,
     FoldersFragment.OnFolderItemOpened {
 
-    // private var mPermRequest: ActivityResultLauncher<String>? = null
-    // private var mreqPermForManageAllFiles: ActivityResultLauncher<Intent>? = null
     private lateinit var binding: ActivityBottomBarFragmentBinding
     private var homeFragment = HomeFragment()
     private var playlistsFragment = PlaylistsFragment()
@@ -92,10 +99,41 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private var isContextMenuEnabled = false
     private var isOpenFromNoti = false
     private var queueListBottomSheet: BottomSheetAudioQueueList? = null
+    private var appUpdateManager: AppUpdateManager? = null
+    private var installStateUpdatedListener: InstallStateUpdatedListener? = null
 
     //private var isFavAudioObserved = false
     //private var launchFavAudioJob: Job? = null
     private var _playlistCategory = ""
+    private val RC_APP_UPDATE = 11
+
+    override fun onStart() {
+        super.onStart()
+        appUpdateManager = AppUpdateManagerFactory.create(this)
+
+        installStateUpdatedListener =
+            object : InstallStateUpdatedListener {
+                override fun onStateUpdate(state: InstallState) {
+                    if (state.installStatus() == InstallStatus.DOWNLOADED) {
+                        //CHECK THIS if AppUpdateType.FLEXIBLE, otherwise you can skip
+                        popupSnackbarForCompleteUpdate()
+                    } else if (state.installStatus() == InstallStatus.INSTALLED) {
+                        if (appUpdateManager != null) {
+                            appUpdateManager!!.unregisterListener(this)
+                        }
+                    } else {
+                        Log.i(
+                            "appUpdateManager",
+                            "InstallStateUpdatedListener: state: " + state.installStatus()
+                        )
+                    }
+                }
+            }
+
+        appUpdateManager!!.registerListener(installStateUpdatedListener!!)
+        checkUpdate()
+
+    }
 
     @SuppressLint("DiscouragedPrivateApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -182,6 +220,64 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             bottomSheetMoreOptions.show(supportFragmentManager, "bottomSheetMoreOptions")
         }
 
+    }
+
+    private fun checkUpdate() {
+        // Returns an intent object that you use to check for an update.
+        val appUpdateInfoTask: Task<AppUpdateInfo> = appUpdateManager!!.appUpdateInfo
+        // Checks that the platform will allow the specified type of update.
+        Log.d("AppUpdate", "Checking for updates")
+        appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
+            ) {
+                // Request the update.
+                Log.d("AppUpdate", "Update available")
+                //Toast.makeText(this, "Update available", Toast.LENGTH_SHORT).show()
+                try {
+                    appUpdateManager!!.startUpdateFlowForResult(
+                        appUpdateInfo,
+                        AppUpdateType.FLEXIBLE /*AppUpdateType.IMMEDIATE*/,
+                        this,
+                        RC_APP_UPDATE
+                    )
+                } catch (e: SendIntentException) {
+                    e.printStackTrace()
+                }
+
+            } else if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
+                //CHECK THIS if AppUpdateType.FLEXIBLE, otherwise you can skip
+                popupSnackbarForCompleteUpdate();
+            } else {
+                Log.d("AppUpdate", "No Update available")
+                //Toast.makeText(this, "No update available", Toast.LENGTH_SHORT).show()
+
+            }
+        }
+    }
+
+    private fun popupSnackbarForCompleteUpdate() {
+        val snackbar = Snackbar.make(
+            findViewById(R.id.coordinatorLayout_main),
+            "New app is ready!",
+            Snackbar.LENGTH_INDEFINITE
+        )
+        snackbar.setAction("Install") {
+            if (appUpdateManager != null) {
+                appUpdateManager!!.completeUpdate()
+            }
+        }
+        snackbar.setActionTextColor(ContextCompat.getColor(this, R.color.teal_200))
+        snackbar.show()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == RC_APP_UPDATE) {
+            if (resultCode != RESULT_OK) {
+                Log.e("InAppUpate", "onActivityResult: app download failed")
+            }
+        }
     }
 
     private fun addFragmentsToFragmentContainer() {
@@ -421,22 +517,22 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     }
 
     private fun setupNowPlayingBottomSheet() {
-        val screenInches = GetScreenSizes(this).getScreenInches()
-        when {
-            screenInches < 5.5 -> {
-                val rlCoverArtLayoutParams =
-                    binding.bottomSheet.rlCoverArt.layoutParams as RelativeLayout.LayoutParams
-                rlCoverArtLayoutParams.height = ConvertDpToPx.dpToPx(300, this)
-                binding.bottomSheet.rlCoverArt.layoutParams = rlCoverArtLayoutParams
-            }
+        // val screenInches = GetScreenSizes(this).getScreenInches()
+        /* when {
+             screenInches < 5.5 -> {
+                 val rlCoverArtLayoutParams =
+                     binding.bottomSheet.rlCoverArt.layoutParams as RelativeLayout.LayoutParams
+                 rlCoverArtLayoutParams.height = ConvertDpToPx.dpToPx(300, this)
+                 binding.bottomSheet.rlCoverArt.layoutParams = rlCoverArtLayoutParams
+             }
 
-            screenInches > 5.6 -> {
-                val rlCoverArtLayoutParams =
-                    binding.bottomSheet.rlCoverArt.layoutParams as RelativeLayout.LayoutParams
-                rlCoverArtLayoutParams.height = ConvertDpToPx.dpToPx(400, this)
-                binding.bottomSheet.rlCoverArt.layoutParams = rlCoverArtLayoutParams
-            }
-        }
+             screenInches > 5.6 -> {
+                 val rlCoverArtLayoutParams =
+                     binding.bottomSheet.rlCoverArt.layoutParams as RelativeLayout.LayoutParams
+                 rlCoverArtLayoutParams.height = ConvertDpToPx.dpToPx(400, this)
+                 binding.bottomSheet.rlCoverArt.layoutParams = rlCoverArtLayoutParams
+             }
+         }*/
 
 
         nowPlayingBottomSheetBehavior =
@@ -1340,26 +1436,26 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     if (bottomSwatch != null && topSwatch != null) {
                         binding.bottomSheet.albumArtBottomGradient.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_default)
                         binding.bottomSheet.bottomBackground.setBackgroundResource(R.drawable.app_theme_default_background)
-                        binding.bottomSheet.topBackground.setBackgroundResource(R.drawable.app_theme_default_background)
-                        binding.bottomSheet.albumArtTopGradient.setBackgroundResource(R.drawable.gradient_background_top_shadow)
+                        //binding.bottomSheet.topBackground.setBackgroundResource(R.drawable.app_theme_default_background)
+                        //binding.bottomSheet.albumArtTopGradient.setBackgroundResource(R.drawable.gradient_background_top_shadow)
 
                         val gradientDrawableBottomTop = GradientDrawable(
                             GradientDrawable.Orientation.BOTTOM_TOP,
                             intArrayOf(bottomSwatch.rgb, 0x00000000)
                         )
 
-                        val gradientDrawableTopBottom = GradientDrawable(
+                        /*val gradientDrawableTopBottom = GradientDrawable(
                             GradientDrawable.Orientation.TOP_BOTTOM,
                             intArrayOf(topSwatch.rgb, 0x00000000)
-                        )
+                        )*/
 
                         Glide.with(this).load(gradientDrawableBottomTop)
                             .transition(withCrossFade(factory))
                             .into(binding.bottomSheet.albumArtBottomGradient)
 
-                        Glide.with(this).load(gradientDrawableTopBottom)
+                        /*Glide.with(this).load(gradientDrawableTopBottom)
                             .transition(withCrossFade(factory))
-                            .into(binding.bottomSheet.albumArtTopGradient)
+                            .into(binding.bottomSheet.albumArtTopGradient)*/
 
                         //Glide.with(this).load(gradientDrawableTopBottom)
                         //   .transition(withCrossFade(factory))
@@ -1372,18 +1468,18 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                         )
 
                         // parent top background
-                        val gradientDrawableParentTop = GradientDrawable(
-                            GradientDrawable.Orientation.TOP_BOTTOM,
-                            intArrayOf(topSwatch.rgb, topSwatch.rgb)
-                        )
+                        // val gradientDrawableParentTop = GradientDrawable(
+                        //   GradientDrawable.Orientation.TOP_BOTTOM,
+                        //     intArrayOf(topSwatch.rgb, topSwatch.rgb)
+                        // )
 
                         Glide.with(this).load(gradientDrawableParentBottom)
                             .transition(withCrossFade(factory))
                             .into(binding.bottomSheet.bottomBackground)
 
-                        Glide.with(this).load(gradientDrawableParentTop)
+                        /*Glide.with(this).load(gradientDrawableParentTop)
                             .transition(withCrossFade(factory))
-                            .into(binding.bottomSheet.topBackground)
+                            .into(binding.bottomSheet.topBackground)*/
 //                        binding.bottomSheet.bottomBackground.background = gradientDrawableParent
 
                     } else {
@@ -1450,13 +1546,13 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             .transition(withCrossFade(factory))
             .into(binding.bottomSheet.bottomBackground)
 
-        Glide.with(this).load(R.drawable.purple_background_top_gradient)
-            .transition(withCrossFade(factory))
-            .into(binding.bottomSheet.albumArtTopGradient)
+        /*  Glide.with(this).load(R.drawable.purple_background_top_gradient)
+              .transition(withCrossFade(factory))
+              .into(binding.bottomSheet.albumArtTopGradient)
 
-        Glide.with(this).load(R.drawable.purple_solid_background)
-            .transition(withCrossFade(factory))
-            .into(binding.bottomSheet.topBackground)
+          Glide.with(this).load(R.drawable.purple_solid_background)
+              .transition(withCrossFade(factory))
+              .into(binding.bottomSheet.topBackground)*/
     }
 
     private fun updateAudioController() {
@@ -2060,6 +2156,13 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         val animatedVectorDrawable =
             binding.bottomSheet.likedAudioIV.drawable as AnimatedVectorDrawable
         animatedVectorDrawable.start()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (appUpdateManager != null) {
+            appUpdateManager!!.unregisterListener(installStateUpdatedListener!!)
+        }
     }
 
 }

@@ -156,14 +156,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
+           <!-- <ImageView
                 android:id="@+id/topBackground"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_above="@id/rlCoverArt"
                 android:background="@drawable/app_theme_default_background"
                 android:contentDescription="@null"
-                android:visibility="visible" />
+                android:visibility="visible" />-->
 
             <ImageView
                 android:id="@+id/bottomBackground"
@@ -215,13 +215,13 @@
                     android:background="@drawable/gradient_background_bottom_shadow_default"
                     android:contentDescription="@null" />
 
-                <ImageView
+               <!-- <ImageView
                     android:id="@+id/albumArtTopGradient"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_50mdp"
                     android:layout_alignParentTop="true"
                     android:background="@drawable/gradient_background_top_shadow"
-                    android:contentDescription="@null" />
+                    android:contentDescription="@null" />-->
                 <!-- <ImageView
                      android:id="@+id/albumArtTopGradient"
                      android:layout_width="match_parent"
