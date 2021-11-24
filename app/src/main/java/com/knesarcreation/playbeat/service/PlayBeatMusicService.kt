@@ -1074,7 +1074,8 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
             }
             //Get the new media index form SharedPreferences
             audioIndex = storageUtil.loadAudioIndex()
-            if (audioIndex == -1) {
+            if (audioIndex == -1 || audioList.size == 0) {
+                Log.d("audioList", "onReceive: $audioList")
                 val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
                 sendBroadcast(updatePlayer)
                 stopForeground(true)

@@ -2,10 +2,12 @@
 <resources>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
+    <color name="black">#121111</color>
+    <color name="black_V2">#6A333333</color>
     <color name="grey">#BAB9B9</color>
     <color name="white">#FFFFFFFF</color>
     <color name="app_theme_color">#272A3A</color>  <!--363949--> <!--383C4E-->
+    <color name="search_widget_bg">#313443</color>
     <!--2B2727--> <!--3A3C46-->
     <color name="transparent">#00ffffff</color>
 
@@ -15,6 +17,7 @@
     <!-- <color name="light_grey">#F1EEEE</color>-->
     <color name="red">#E62525</color>
     <color name="bright_red">#ff414d</color>
+    <color name="blue">#B44527A0</color>
     <!--50D55D-->
     <color name="light_green">#AFF3B2</color>
     <color name="yellow">#FFD740</color>
@@ -51,4 +54,16 @@
     <color name="theme_start_color_11">#A43931</color>
     <color name="theme_start_color_12">#434343</color>
 
+    <color name="colorGridLine">#00ed1b24</color>
+    <color name="colorSelectionBorder">#9c41bc</color>
+    <color name="colorWaveformBg">#E6182245</color>
+    <color name="colorPlaybackIndicator">#b2253571</color>
+    <color name="colorTimeCode">#dd253571</color>
+    <color name="colorTimeCodeShadow">#aa253571</color>
+    <color name="waveformSelected">#adb5cc</color>
+    <color name="waveformUnselected">#adb5cc</color>
+    <color name="waveformUnselectedBackground">#e8e6e7</color>
+
+    <color name="shrine_pink_900">#442c2e</color>
+    <color name="shrine_pink_100">#FEDBD0</color>
 </resources>

@@ -256,15 +256,16 @@ class PlaylistsFragment : Fragment() {
             bottomShadowIVArtistFrag = null,
             isArtistFrag = false,
             topViewIVArtistFrag = null,
+            parentViewArtistAndAlbumFrag = null,
             bottomShadowIVPlaylist = null,
             isPlaylistFragCategory = false,
             topViewIVPlaylist = null,
             playlistBG = binding!!.playlistBG,
             isPlaylistFrag = true,
-              null,
+            searchFragBg = null,
             isSearchFrag = false,
-            null,
-            false
+            settingFragBg = null,
+            isSettingFrag = false
         ).settingSavedBackgroundTheme()
     }
 

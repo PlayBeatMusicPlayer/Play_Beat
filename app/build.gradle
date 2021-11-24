@@ -11,8 +11,8 @@ android {
         applicationId "com.knesarcreation.playbeat"
         minSdk 24
         targetSdk 31
-        versionCode 5
-        versionName "2.2.1"
+        versionCode 6
+        versionName "3.0.1"
 
         renderscriptTargetApi 31
         renderscriptSupportModeEnabled true
@@ -118,6 +118,9 @@ dependencies {
     //dynamic screen sizes MDP
     implementation 'com.github.MrNouri:DynamicSizes:1.0'
 
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+    // implementation "com.github.skydoves:progressview:1.1.2"
     //Equalizer
     //implementation 'com.github.bullheadandplato:AndroidEqualizer:2.2'
     //vertical seekbar

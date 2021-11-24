@@ -1,10 +1,7 @@
 package com.knesarcreation.playbeat.activity
 
 import android.annotation.SuppressLint
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.IntentSender.SendIntentException
 import android.content.pm.PackageManager
 import android.database.CursorWindow
@@ -50,6 +47,7 @@ import com.knesarcreation.playbeat.fragment.*
 import com.knesarcreation.playbeat.utils.*
 import me.ibrahimsn.lib.OnItemSelectedListener
 import java.io.File
+import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 
@@ -107,33 +105,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private var _playlistCategory = ""
     private val RC_APP_UPDATE = 11
 
-    override fun onStart() {
-        super.onStart()
-        appUpdateManager = AppUpdateManagerFactory.create(this)
-
-        installStateUpdatedListener =
-            object : InstallStateUpdatedListener {
-                override fun onStateUpdate(state: InstallState) {
-                    if (state.installStatus() == InstallStatus.DOWNLOADED) {
-                        //CHECK THIS if AppUpdateType.FLEXIBLE, otherwise you can skip
-                        popupSnackbarForCompleteUpdate()
-                    } else if (state.installStatus() == InstallStatus.INSTALLED) {
-                        if (appUpdateManager != null) {
-                            appUpdateManager!!.unregisterListener(this)
-                        }
-                    } else {
-                        Log.i(
-                            "appUpdateManager",
-                            "InstallStateUpdatedListener: state: " + state.installStatus()
-                        )
-                    }
-                }
-            }
-
-        appUpdateManager!!.registerListener(installStateUpdatedListener!!)
-        checkUpdate()
-
-    }
 
     @SuppressLint("DiscouragedPrivateApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -154,6 +125,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         MakeStatusBarTransparent().transparent(this)
         storage = StorageUtil(this)
 
+        getAppUpdate()
         //setupCastListener()
         // setting cast context
         //mCastContext = CastContext.getSharedInstance(this)
@@ -222,6 +194,32 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
     }
 
+    private fun getAppUpdate() {
+        appUpdateManager = AppUpdateManagerFactory.create(this)
+
+        installStateUpdatedListener =
+            object : InstallStateUpdatedListener {
+                override fun onStateUpdate(state: InstallState) {
+                    if (state.installStatus() == InstallStatus.DOWNLOADED) {
+                        //CHECK THIS if AppUpdateType.FLEXIBLE, otherwise you can skip
+                        popupSnackbarForCompleteUpdate()
+                    } else if (state.installStatus() == InstallStatus.INSTALLED) {
+                        if (appUpdateManager != null) {
+                            appUpdateManager!!.unregisterListener(this)
+                        }
+                    } else {
+                        Log.i(
+                            "appUpdateManager",
+                            "InstallStateUpdatedListener: state: " + state.installStatus()
+                        )
+                    }
+                }
+            }
+
+        appUpdateManager!!.registerListener(installStateUpdatedListener!!)
+        checkUpdate()
+    }
+
     private fun checkUpdate() {
         // Returns an intent object that you use to check for an update.
         val appUpdateInfoTask: Task<AppUpdateInfo> = appUpdateManager!!.appUpdateInfo
@@ -233,7 +231,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             ) {
                 // Request the update.
                 Log.d("AppUpdate", "Update available")
-                //Toast.makeText(this, "Update available", Toast.LENGTH_SHORT).show()
+                // Toast.makeText(this, "Update available", Toast.LENGTH_SHORT).show()
                 try {
                     appUpdateManager!!.startUpdateFlowForResult(
                         appUpdateInfo,
@@ -250,7 +248,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 popupSnackbarForCompleteUpdate();
             } else {
                 Log.d("AppUpdate", "No Update available")
-                //Toast.makeText(this, "No update available", Toast.LENGTH_SHORT).show()
+                // Toast.makeText(this, "No update available", Toast.LENGTH_SHORT).show()
 
             }
         }
@@ -268,6 +266,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             }
         }
         snackbar.setActionTextColor(ContextCompat.getColor(this, R.color.teal_200))
+        snackbar.anchorView = binding.bottomBar
         snackbar.show()
     }
 
@@ -541,6 +540,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
         nowPlayingBottomSheetBehavior.state = BottomSheetBehavior.STATE_DRAGGING
         nowPlayingBottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        nowPlayingBottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
 
         if (!storage.getIsAudioPlayedFirstTime() && queueAudioList.isNotEmpty()) {
             nowPlayingBottomSheetBehavior.peekHeight =
@@ -556,6 +556,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         } else {
             // app open first time
             nowPlayingBottomSheetBehavior.isDraggable = false
+            binding.bottomSheet.rlMiniPlayerBottomsheet.visibility = View.GONE
         }
 
         binding.bottomSheet.closeSheetIV.setOnClickListener {
@@ -733,7 +734,11 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
         if (File(Uri.parse(audioPath).path!!).exists()) {
             Log.d("CheckFileExist", "checkAudioExist: exist ")
-            val currentPlayingAudioIndex = storage.loadAudioIndex()
+            var currentPlayingAudioIndex = storage.loadAudioIndex()
+            if (currentPlayingAudioIndex == -1) {
+                currentPlayingAudioIndex = 0
+                storage.storeAudioIndex(currentPlayingAudioIndex)
+            }
             mViewModelClass.updateSong(
                 queueAudioList[currentPlayingAudioIndex].songId,
                 queueAudioList[currentPlayingAudioIndex].songName,
@@ -838,6 +843,10 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             )
         } else if (!AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
             // resume through button
+            if (audioIndexPos == -1) {
+                audioIndexPos = 0
+                storage.storeAudioIndex(audioIndexPos)
+            }
             AllSongFragment.musicService?.resumeMedia()
             AllSongFragment.musicService?.pausedByManually = false
             binding.bottomSheet.playPauseMiniPlayer.setImageResource(R.drawable.ic_pause_audio)
@@ -1286,6 +1295,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     }
 
     private fun animateMiniPlayerToGone() {
+        binding.bottomSheet.rlMiniPlayerBottomsheet.visibility = View.GONE
         val bottomMarginOfFrag =
             if (isPlaylstCategoryOpened || isAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag || isFolderFragOpened) {
                 if (binding.bottomSheet.rlMiniPlayerBottomsheet.isVisible) {
@@ -1760,12 +1770,13 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             audioIndexPos = storage.loadAudioIndex()
 
             val bundle = intent.extras
+            Log.d("audioList", "onReceive: $queueAudioList")
 
             //show the mini player
             if (storage.getIsAudioPlayedFirstTime() || newState == BottomSheetBehavior.STATE_COLLAPSED) {
                 if (queueAudioList.isNotEmpty()) {
                     storage.saveIsAudioPlayedFirstTime(false)
-
+                    binding.bottomSheet.rlMiniPlayerBottomsheet.visibility = View.VISIBLE
                     animateMiniPlayerToVisible()
                     nowPlayingBottomSheetBehavior.isDraggable = !isContextMenuEnabled
                 }
@@ -1842,7 +1853,11 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                             }
                             addAudioToFavourites(isFav)
                         } else {
-                            val previousRunningAudioIndex = bundle.getInt("index")
+                            var previousRunningAudioIndex = bundle.getInt("index")
+                            if (previousRunningAudioIndex == -1) {
+                                previousRunningAudioIndex = 0
+                                storage.storeAudioIndex(previousRunningAudioIndex)
+                            }
                             Log.d(
                                 "previousRunningAudioIndex",
                                 "onReceive:$previousRunningAudioIndex "
@@ -1990,15 +2005,16 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             bottomShadowIVArtistFrag = null,
             isArtistFrag = false,
             topViewIVArtistFrag = null,
+            parentViewArtistAndAlbumFrag = null,
             bottomShadowIVPlaylist = null,
             isPlaylistFragCategory = false,
             topViewIVPlaylist = null,
             playlistBG = null,
             isPlaylistFrag = false,
-            null,
+            searchFragBg = null,
             isSearchFrag = false,
-            null,
-            false
+            settingFragBg = null,
+            isSettingFrag = false
         ).settingSavedBackgroundTheme()
         /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
@@ -2015,6 +2031,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             startActivity(Intent(this, SplashScreenActivity::class.java))
             finishAffinity()
         }
+
         // }
         //mCastContext!!.addCastStateListener { state ->
         //    if (state == CastState.NO_DEVICES_AVAILABLE) {
@@ -2151,7 +2168,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             .setStreamDuration(audioList[audioIndexPos].duration.toLong() * 1000)
             .build()
     }*/
-
     private fun showLikedAudioAnim() {
         val animatedVectorDrawable =
             binding.bottomSheet.likedAudioIV.drawable as AnimatedVectorDrawable
@@ -2164,5 +2180,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             appUpdateManager!!.unregisterListener(installStateUpdatedListener!!)
         }
     }
+
 
 }

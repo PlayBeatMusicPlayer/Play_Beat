@@ -153,16 +153,23 @@
             android:layout_marginTop="5dp"
             android:background="@android:color/transparent">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvAllSongs"
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swipeToRefresh"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="4dp"
-                android:nestedScrollingEnabled="true"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:itemCount="9"
-                tools:listitem="@layout/recycler_all_songs_item" />
+                android:layout_height="match_parent">
 
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvAllSongs"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="4dp"
+                    android:nestedScrollingEnabled="true"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:itemCount="9"
+                    tools:listitem="@layout/recycler_all_songs_item" />
+
+
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
             <!--   <ImageView
                    android:layout_width="match_parent"
@@ -181,7 +188,6 @@
         android:id="@+id/rlNoSongsPresent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/app_theme_color"
         android:visibility="gone">
 
         <ImageView

@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/scrollView"
+    android:id="@+id/rlParentArtistAndAlbum"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/app_theme_color"
@@ -108,8 +108,8 @@
                         android:background="@drawable/custom_ripple"
                         android:contentDescription="@null"
                         android:rotationY="180"
-                        android:visibility="gone"
-                        android:src="@drawable/ic_share" />
+                        android:src="@drawable/ic_share"
+                        android:visibility="gone" />
 
 
                     <!-- <RelativeLayout
@@ -346,7 +346,6 @@
         android:id="@+id/rlMoreAudios"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/app_theme_color"
         android:visibility="gone">
 
         <ImageView
@@ -389,14 +388,14 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/recycler_all_songs_item" />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:layout_alignTop="@id/rvMoreTracks"
-            android:contentDescription="@null"
-            android:focusable="true"
-            android:foreground="@drawable/gradient_background_top_shadow" />
-
+        <!-- <ImageView
+             android:layout_width="match_parent"
+             android:layout_height="20dp"
+             android:layout_alignTop="@id/rvMoreTracks"
+             android:contentDescription="@null"
+             android:focusable="true"
+             android:foreground="@drawable/gradient_background_top_shadow" />
+ -->
     </RelativeLayout>
 
     <!-- context menu-->
@@ -404,8 +403,7 @@
         android:id="@+id/rlToolbar"
         android:layout_width="match_parent"
         android:layout_height="88dp"
-        android:background="@color/transparent"
-        >
+        android:background="@color/transparent">
 
         <RelativeLayout
             android:id="@+id/rlContextMenu"

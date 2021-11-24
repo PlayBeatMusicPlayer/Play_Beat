@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/curved_all_edges_app_theme">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="@dimen/_17mdp"
+        android:layout_marginTop="@dimen/_20mdp"
+        android:layout_marginEnd="@dimen/_20mdp"
+        android:layout_marginBottom="@dimen/_20mdp"
+        android:text="@string/save_trimmed_audio"
+        android:textColor="@color/white"
+        android:textSize="20sp" />
+
+    <LinearLayout
+        android:id="@+id/llEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:layout_marginStart="@dimen/_17mdp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="@dimen/_17mdp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/name"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="@dimen/_12mdp"
+                android:layout_weight="1"
+                android:hint="@string/audio_name"
+                android:textColorHighlight="@color/teal_200"
+                android:textColorHint="@color/grey"
+                app:boxBackgroundColor="#DC3A3C46"
+                app:boxBackgroundMode="filled"
+                app:boxCollapsedPaddingTop="5dp"
+                app:boxCornerRadiusBottomEnd="0dp"
+                app:boxCornerRadiusBottomStart="0dp"
+                app:boxCornerRadiusTopEnd="5dp"
+                app:boxCornerRadiusTopStart="5dp"
+                app:boxStrokeColor="@color/teal_200"
+                app:boxStrokeErrorColor="@color/red"
+                app:boxStrokeWidth="2dp"
+                app:boxStrokeWidthFocused="2dp"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/teal_200">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etAudioName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapSentences"
+                    android:maxLines="1"
+                    android:textCursorDrawable="@drawable/cursor"
+                    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+                </com.google.android.material.textfield.TextInputEditText>
+
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/set_as"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+
+            <RadioGroup
+                android:id="@+id/setAsRG"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_9mdp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/ringtoneRB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:padding="6dp"
+                    android:text="@string/ringtone"
+                    android:textColor="@color/white"
+                    android:textSize="15sp" />
+
+                <RadioButton
+                    android:id="@+id/alarmRB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:padding="6dp"
+                    android:text="@string/alarm"
+                    android:textColor="@color/white"
+                    android:textSize="15sp" />
+
+                <!-- <RadioButton
+                     android:layout_width="wrap_content"
+                     android:layout_height="match_parent"
+                     android:padding="6dp"
+                     android:text="@string/music"
+                     android:textColor="@color/white"
+                     android:textSize="15sp" />-->
+            </RadioGroup>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cancelDialog"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="20dp"
+                android:layout_weight="1"
+                android:text="@string/cancel"
+                android:textColor="@color/white"
+                app:rippleColor="@color/grey"
+                app:strokeColor="@color/grey"
+                app:strokeWidth="0.8dp" />
+            <!--            android:backgroundTint="#2569696C"
+            -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/saveAudio"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginBottom="20dp"
+                android:layout_weight="2.5"
+                android:backgroundTint="@color/teal_200"
+                android:text="@string/save" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+</RelativeLayout>

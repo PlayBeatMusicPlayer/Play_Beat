@@ -48,7 +48,7 @@
     <string name="start">Start</string>
     <string name="are_you_sure_you_want_to_delete_playlist">Are you sure you want to delete playlist?</string>
     <string name="delete">Delete</string>
-    <string name="version">Version: 2.2.1</string>
+    <string name="version">Version: 3.0.1</string>
     <string name="developed_and_designed_by">Developed and designed by</string>
     <string name="developer_name">Kaunain Nesar</string>
     <string name="about">About</string>
@@ -60,5 +60,23 @@
     <string name="rate_on_play_store">Rate on play store</string>
     <string name="theme">App Themes</string>
     <string name="set_as_ringtone">Set as ringtone</string>
+    <string name="trim_audio">Trim audio</string>
+    <string name="save_trimmed_audio">Save trimmed audio</string>
+    <string name="name">Name:</string>
+    <string name="audio_name">Audio name</string>
+    <string name="music">Music</string>
+    <string name="alarm">Alarm</string>
+    <string name="ringtone">Ringtone</string>
+    <string name="set_as">Set as:</string>
+    <string name="save">Save</string>
+    <string name="loading">Loading…</string>
+    <string name="saving">Saving…</string>
+    <string name="saving_your_audio_please_wait">Saving your audio. Please wait…</string>
+    <string name="no_search_results">No search results</string>
+    <string name="no_folder_found">No folder found</string>
+    <string name="settings">SETTINGS</string>
+    <string name="filter_songs_by_duration">Filter songs by duration</string>
+    <string name="support">SUPPORT</string>
+    <string name="filter_songs">Filter Songs</string>
 
 </resources>

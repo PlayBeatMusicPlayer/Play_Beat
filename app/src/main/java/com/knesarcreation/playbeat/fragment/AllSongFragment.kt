@@ -30,10 +30,8 @@ import com.knesarcreation.playbeat.database.QueueListModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.FragmentAllSongBinding
 import com.knesarcreation.playbeat.service.PlayBeatMusicService
-import com.knesarcreation.playbeat.utils.CustomProgressDialog
-import com.knesarcreation.playbeat.utils.DataObservableClass
-import com.knesarcreation.playbeat.utils.GetRealPathOfUri
-import com.knesarcreation.playbeat.utils.StorageUtil
+import com.knesarcreation.playbeat.utils.*
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.concurrent.CopyOnWriteArrayList
@@ -116,6 +114,17 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                 disableContextMenu()
             }
         })
+
+        binding?.swipeToRefresh?.setOnRefreshListener {
+            binding?.swipeToRefresh?.isRefreshing = false
+            val mAudioThread: Thread = object : Thread() {
+                override fun run() {
+                    super.run()
+                    LoadAllAudios(activity as Context, false).loadAudio(false)
+                }
+            }
+            mAudioThread.start()
+        }
 
         return view!!
 
@@ -576,10 +585,11 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
                 }
             }
 
-            Snackbar.make(
+            val make = Snackbar.make(
                 (activity as AppCompatActivity).window.decorView,
                 "Added ${selectedAudioList.size} songs to playing queue", Snackbar.LENGTH_LONG
-            ).show()
+            )
+            make.show()
 
         }
     }
@@ -1013,6 +1023,10 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         } else {
             //audioList = storage.loadAudio()
             audioIndexPos = storage.loadAudioIndex()
+            if(audioIndexPos == -1 ){
+                audioIndexPos = 0
+                storage.storeAudioIndex(audioIndexPos)
+            }
 
             //highlight the paused audio when app opens and service is closed
             var queueAudioList = CopyOnWriteArrayList<AllSongsModel>()

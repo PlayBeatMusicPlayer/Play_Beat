@@ -316,11 +316,6 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
                                         val newPos = position - 1
                                         storageUtil?.storeAudioIndex(newPos)
                                         Log.d("NewPosAfterDEl", "onItemSwiped: new $newPos")
-                                        /* Toast.makeText(
-                                             mContext,
-                                             "size ${audioList.size}",
-                                             Toast.LENGTH_SHORT
-                                         ).show()*/
                                         if (audioList.size != 0)
                                             currentPlayingAudioModel = audioList[position - 1]
                                     } else {

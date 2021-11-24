@@ -2,21 +2,41 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/searchFragBG"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/transparent"
-    android:id="@+id/searchFragBG"
     tools:context=".fragment.SearchFragment">
 
 
-    <!--  <com.airbnb.lottie.LottieAnimationView
-          android:id="@+id/searchLottie"
-          android:layout_width="250dp"
-          android:layout_height="250dp"
-          android:layout_centerInParent="true"
-          app:lottie_autoPlay="true"
-          app:lottie_loop="true"
-          app:lottie_rawRes="@raw/search_music_lottie" />-->
+    <LinearLayout
+        android:id="@+id/llNoSearchResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/noSearchResult"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_no_serach_result" />
+
+        <TextView
+            android:id="@+id/noSearchResultTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/segoe_ui"
+            android:text="@string/no_search_results"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
 
     <androidx.appcompat.widget.SearchView
         android:id="@+id/searchView"

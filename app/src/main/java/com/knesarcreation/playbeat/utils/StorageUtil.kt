@@ -215,7 +215,19 @@ class StorageUtil(context: Context) {
         return preferences!!.getInt("audioCount", 0)
     }
 
-     fun storeAudioArtBitmapImage(arrayList: ArrayList<AudioArtBitmapModel>?) {
+    fun saveFilterAudioDuration(duration: Long) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putLong("duration", duration)
+        editor.apply()
+    }
+
+    fun getFilterAudioDuration(): Long {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getLong("duration", 0)
+    }
+
+    fun storeAudioArtBitmapImage(arrayList: ArrayList<AudioArtBitmapModel>?) {
         preferences =
             mContext.getSharedPreferences(
                 STORAGE,
@@ -228,7 +240,7 @@ class StorageUtil(context: Context) {
         editor.apply()
     }
 
-     fun loadAudioArtBitmapImage(): ArrayList<AudioArtBitmapModel> {
+    fun loadAudioArtBitmapImage(): ArrayList<AudioArtBitmapModel> {
         preferences =
             mContext.getSharedPreferences(
                 STORAGE,

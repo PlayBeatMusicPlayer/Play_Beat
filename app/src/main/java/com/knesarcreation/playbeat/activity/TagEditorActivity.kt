@@ -456,15 +456,16 @@ class TagEditorActivity : AppCompatActivity() {
             bottomShadowIVArtistFrag = null,
             isArtistFrag = false,
             topViewIVArtistFrag = null,
+            parentViewArtistAndAlbumFrag = null,
             bottomShadowIVPlaylist = null,
             isPlaylistFragCategory = false,
             topViewIVPlaylist = null,
             playlistBG = null,
             isPlaylistFrag = false,
-            null,
+            searchFragBg = null,
             isSearchFrag = false,
-            null,
-            false
+            settingFragBg = null,
+            isSettingFrag = false
         ).settingSavedBackgroundTheme()
     }
 

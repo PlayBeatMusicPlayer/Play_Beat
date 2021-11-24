@@ -45,6 +45,7 @@ class SearchFragment : Fragment() {
         returnTransition = MaterialSharedAxis(MaterialSharedAxis.Y, false).apply {
             duration = 200L
         }
+
     }
 
     override fun onCreateView(
@@ -56,6 +57,9 @@ class SearchFragment : Fragment() {
         val view = binding?.root
 
         mViewModelClass = ViewModelProvider(this)[ViewModelClass::class.java]
+
+        binding?.noSearchResultTV?.visibility = View.GONE
+        binding?.llNoSearchResult?.visibility = View.VISIBLE
 
         storageUtil = StorageUtil(activity as Context)
         // val list = storageUtil.loadAudio()
@@ -70,7 +74,8 @@ class SearchFragment : Fragment() {
                 audioSearchList.clear()
                 if (newText != null) {
                     binding?.rvSearchList?.visibility = View.VISIBLE
-                    //binding?.searchLottie?.visibility = View.GONE
+                    binding?.llNoSearchResult?.visibility = View.GONE
+                    binding?.noSearchResultTV?.visibility = View.VISIBLE
                     val userInput = newText.lowercase()
                     audioSearchList.clear()
                     for (audio in audioList) {
@@ -85,7 +90,7 @@ class SearchFragment : Fragment() {
                         AllSongsAdapter.OnClickListener { allSongModel, position ->
                             onClickAudio(allSongModel, position)
                         },
-                        AllSongsAdapter.OnLongClickListener { allSongModel, longClickSelectionEnable ->
+                        AllSongsAdapter.OnLongClickListener { _, _ ->
 
                         },
                         false
@@ -99,7 +104,12 @@ class SearchFragment : Fragment() {
                     audioSearchList.clear()
                     allSongsAdapter?.submitList(audioSearchList.sortedBy { allSongsModel -> allSongsModel.songName })
                     binding?.rvSearchList?.visibility = View.GONE
-                    // binding?.searchLottie?.visibility = View.VISIBLE
+                    binding?.llNoSearchResult?.visibility = View.VISIBLE
+                    binding?.noSearchResultTV?.visibility = View.VISIBLE
+                }
+                if(audioSearchList.isEmpty()){
+                    binding?.llNoSearchResult?.visibility = View.VISIBLE
+                    binding?.noSearchResultTV?.visibility = View.VISIBLE
                 }
                 return true
             }
@@ -261,6 +271,7 @@ class SearchFragment : Fragment() {
             bottomShadowIVArtistFrag = null,
             isArtistFrag = false,
             topViewIVArtistFrag = null,
+            parentViewArtistAndAlbumFrag = null,
             bottomShadowIVPlaylist = null,
             isPlaylistFragCategory = false,
             topViewIVPlaylist = null,

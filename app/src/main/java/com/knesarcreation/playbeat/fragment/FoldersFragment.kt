@@ -45,6 +45,7 @@ class FoldersFragment : Fragment() {
     private fun getAllFolders() {
         mViewModelClass.getAllSong().observe(viewLifecycleOwner, {
             if (it != null) {
+                folderList.clear()
                 for (audioData in it) {
                     val folderModel =
                         FolderModel(audioData.folderId, audioData.folderName, audioData.noOfSongs)
@@ -63,6 +64,13 @@ class FoldersFragment : Fragment() {
                 binding!!.rvAllFolders.adapter = foldersAdapter
 
                 foldersAdapter!!.submitList(folderList)
+                if (folderList.isEmpty()) {
+                    binding?.rlNoFolder?.visibility = View.VISIBLE
+                    binding?.rvAllFolders?.visibility = View.GONE
+                } else {
+                    binding?.rlNoFolder?.visibility = View.GONE
+                    binding?.rvAllFolders?.visibility = View.VISIBLE
+                }
 
             }
         })

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
@@ -28,6 +29,7 @@ class SavedAppTheme(
     private val bottomShadowIVArtistFrag: ImageView?,
     private val isArtistFrag: Boolean,
     private val topViewIVArtistFrag: ImageView?,
+    private val parentViewArtistAndAlbumFrag: RelativeLayout?,
     private val bottomShadowIVPlaylist: ImageView?,
     private val isPlaylistFragCategory: Boolean,
     private val topViewIVPlaylist: ImageView?,
@@ -58,13 +60,14 @@ class SavedAppTheme(
 
                     isHostActivity -> {
                         hostActivityBG!!.setBackgroundResource(AppThemesList.backgroundsList[0])
-                        rlMiniPlayerBottomSheet!!.setBackgroundResource(AppThemesList.backgroundsList[0])
+                        rlMiniPlayerBottomSheet!!.setBackgroundResource(R.drawable.mini_player_bg_default)
                         bottomBar!!.barBackgroundColor =
                             ContextCompat.getColor(mContext, R.color.app_theme_color)
                     }
                     isTagEditor -> tagEditorsBG!!.setBackgroundResource(AppThemesList.backgroundsList[0])
                     isArtistFrag -> {
                         bottomShadowIVArtistFrag!!.setBackgroundResource(AppThemesList.backgroundsList[0])
+                        parentViewArtistAndAlbumFrag!!.setBackgroundResource(AppThemesList.backgroundsList[0])
                         topViewIVArtistFrag!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_default)
                     }
                     isAlbumFrag -> {
@@ -104,6 +107,7 @@ class SavedAppTheme(
 
                     isArtistFrag -> {
                         bottomShadowIVArtistFrag!!.setBackgroundResource(AppThemesList.backgroundsList[1])
+                        parentViewArtistAndAlbumFrag!!.setBackgroundResource(AppThemesList.backgroundsList[1])
                         topViewIVArtistFrag!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_v1)
                     }
 
@@ -146,6 +150,7 @@ class SavedAppTheme(
                     isTagEditor -> tagEditorsBG!!.setBackgroundResource(AppThemesList.backgroundsList[2])
 
                     isArtistFrag -> {
+                        parentViewArtistAndAlbumFrag!!.setBackgroundResource(AppThemesList.backgroundsList[2])
                         bottomShadowIVArtistFrag!!.setBackgroundResource(AppThemesList.backgroundsList[2])
                         topViewIVArtistFrag!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_v2)
                     }
@@ -191,6 +196,8 @@ class SavedAppTheme(
                     isArtistFrag -> {
                         bottomShadowIVArtistFrag!!.setBackgroundResource(AppThemesList.backgroundsList[3])
                         topViewIVArtistFrag!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_v3)
+                        parentViewArtistAndAlbumFrag!!.setBackgroundResource(AppThemesList.backgroundsList[3])
+
                     }
 
                     isAlbumFrag -> {
@@ -239,6 +246,13 @@ class SavedAppTheme(
                             )
                         )
                         topViewIVArtistFrag!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_v4)
+                        parentViewArtistAndAlbumFrag!!.setBackgroundColor(
+                            ContextCompat.getColor(
+                                mContext,
+                                R.color.bottom_bar_color_4
+                            )
+                        )
+
                     }
 
                     isAlbumFrag -> {
@@ -297,6 +311,12 @@ class SavedAppTheme(
                             )
                         )
                         topViewIVArtistFrag!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_v5)
+                        parentViewArtistAndAlbumFrag!!.setBackgroundColor(
+                            ContextCompat.getColor(
+                                mContext,
+                                R.color.theme_start_color_5
+                            )
+                        )
                     }
 
                     isAlbumFrag -> {
@@ -355,6 +375,12 @@ class SavedAppTheme(
                             )
                         )
                         topViewIVArtistFrag!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_v6)
+                        parentViewArtistAndAlbumFrag!!.setBackgroundColor(
+                            ContextCompat.getColor(
+                                mContext,
+                                R.color.theme_start_color_6
+                            )
+                        )
                     }
 
                     isAlbumFrag -> {
@@ -408,6 +434,12 @@ class SavedAppTheme(
 
                     isArtistFrag -> {
                         bottomShadowIVArtistFrag!!.setBackgroundColor(
+                            ContextCompat.getColor(
+                                mContext,
+                                R.color.theme_start_color_7
+                            )
+                        )
+                        parentViewArtistAndAlbumFrag!!.setBackgroundColor(
                             ContextCompat.getColor(
                                 mContext,
                                 R.color.theme_start_color_7
@@ -471,6 +503,12 @@ class SavedAppTheme(
                                 R.color.bottom_bar_color_8
                             )
                         )
+                        parentViewArtistAndAlbumFrag!!.setBackgroundColor(
+                            ContextCompat.getColor(
+                                mContext,
+                                R.color.bottom_bar_color_8
+                            )
+                        )
                         topViewIVArtistFrag!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_v8)
                     }
 
@@ -488,7 +526,7 @@ class SavedAppTheme(
                         bottomShadowIVPlaylist!!.setBackgroundColor(
                             ContextCompat.getColor(
                                 mContext,
-                                R.color.theme_start_color_8
+                                R.color.bottom_bar_color_8
                             )
                         )
                         topViewIVPlaylist!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_v8)
@@ -524,6 +562,12 @@ class SavedAppTheme(
 
                     isArtistFrag -> {
                         bottomShadowIVArtistFrag!!.setBackgroundColor(
+                            ContextCompat.getColor(
+                                mContext,
+                                R.color.bottom_bar_color_9
+                            )
+                        )
+                        parentViewArtistAndAlbumFrag!!.setBackgroundColor(
                             ContextCompat.getColor(
                                 mContext,
                                 R.color.bottom_bar_color_9
@@ -589,6 +633,12 @@ class SavedAppTheme(
                                 R.color.bottom_bar_color_10
                             )
                         )
+                        parentViewArtistAndAlbumFrag!!.setBackgroundColor(
+                            ContextCompat.getColor(
+                                mContext,
+                                R.color.bottom_bar_color_10
+                            )
+                        )
                         topViewIVArtistFrag!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_v10)
                     }
 
@@ -642,6 +692,12 @@ class SavedAppTheme(
 
                     isArtistFrag -> {
                         bottomShadowIVArtistFrag!!.setBackgroundColor(
+                            ContextCompat.getColor(
+                                mContext,
+                                R.color.bottom_bar_color_11
+                            )
+                        )
+                        parentViewArtistAndAlbumFrag!!.setBackgroundColor(
                             ContextCompat.getColor(
                                 mContext,
                                 R.color.bottom_bar_color_11

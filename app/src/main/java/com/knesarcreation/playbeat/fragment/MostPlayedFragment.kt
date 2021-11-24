@@ -1051,15 +1051,16 @@ class MostPlayedFragment : Fragment() {
             bottomShadowIVArtistFrag = null,
             isArtistFrag = false,
             topViewIVArtistFrag = null,
+            parentViewArtistAndAlbumFrag = null,
             bottomShadowIVPlaylist = binding!!.bottomShadowIV,
             isPlaylistFragCategory = true,
             topViewIVPlaylist = binding!!.topViewIV,
             playlistBG = null,
             isPlaylistFrag = false,
-            null,
+            searchFragBg = null,
             isSearchFrag = false,
-            null,
-            false
+            settingFragBg = null,
+            isSettingFrag = false
 
         ).settingSavedBackgroundTheme()
     }

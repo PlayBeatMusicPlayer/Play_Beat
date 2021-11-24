@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
+import android.provider.Settings
 import android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
 import android.util.Log
 import android.widget.Toast
@@ -28,6 +29,7 @@ import com.knesarcreation.playbeat.database.ArtistsModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.model.AudioArtBitmapModel
 import com.knesarcreation.playbeat.model.FolderModel
+import com.knesarcreation.playbeat.utils.LoadAllAudios
 import com.knesarcreation.playbeat.utils.MakeStatusBarTransparent
 import com.knesarcreation.playbeat.utils.StorageUtil
 import java.io.File
@@ -41,6 +43,7 @@ import kotlin.collections.ArrayList
 class SplashScreenActivity : AppCompatActivity() {
 
     private var mPermRequest: ActivityResultLauncher<String>? = null
+    private var openSettingReq: ActivityResultLauncher<Intent>? = null
     private var mReqPermForManageAllFiles: ActivityResultLauncher<Intent>? = null
     private lateinit var mViewModelClass: ViewModelClass
     private lateinit var storage: StorageUtil
@@ -61,6 +64,7 @@ class SplashScreenActivity : AppCompatActivity() {
 
         MakeStatusBarTransparent().transparent(this)
         requestStoragePermission()
+        reqOpenSetting()
 
         /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (Environment.isExternalStorageManager()) {
@@ -70,6 +74,7 @@ class SplashScreenActivity : AppCompatActivity() {
             }
         } else {*/
         mPermRequest!!.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
         //}
 
         /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -77,6 +82,14 @@ class SplashScreenActivity : AppCompatActivity() {
         } else {
             mPermRequest!!.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
         }*/
+
+    }
+
+    private fun reqOpenSetting() {
+        openSettingReq =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                mPermRequest!!.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
 
     }
 
@@ -99,13 +112,16 @@ class SplashScreenActivity : AppCompatActivity() {
             registerForActivityResult(ActivityResultContracts.RequestPermission()) {
                 if (it) {
                     // do stuff if permission granted
-                    loadAudio()
+                    LoadAllAudios(this, true).loadAudio(false)
+                    //loadAudio()
 
                 } else {
+                    val openSetting = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:com.knesarcreation.playbeat"))
                     val permAlert = AlertDialog.Builder(this)
                     permAlert.setMessage("Storage permission is required to read Media Files. Please grant permission to proceed further.")
-                    permAlert.setPositiveButton("Allow") { dialog, _ ->
-                        mPermRequest!!.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    permAlert.setPositiveButton("Settings") { dialog, _ ->
+                        //mPermRequest!!.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        openSettingReq!!.launch(openSetting)
                         dialog.dismiss()
                     }
                     permAlert.setNegativeButton("Dismiss") { dialog, _ ->
@@ -310,6 +326,7 @@ class SplashScreenActivity : AppCompatActivity() {
             }
 
             val audioCount = storage.getAudioCount()
+            //Toast.makeText(this, "${audioCount} , ${query!!.count}", Toast.LENGTH_SHORT).show()
             if (audioCount == 0) {
                 storage.saveAudioCount(query?.count!!)
                 storage.storeAudio(queriedAudioList)
@@ -353,8 +370,7 @@ class SplashScreenActivity : AppCompatActivity() {
                     //addFolderInAudio()
                     //loadAudioArtThumbnail()
                     storage.storeAudio(queriedAudioList)
-                }
-                else if (audioCount > query.count) {
+                } else if (audioCount > query.count) {
 
                     // if any audio deleted then update DB
                     val storedAudioList = storage.loadAudio()

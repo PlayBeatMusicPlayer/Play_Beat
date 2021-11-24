@@ -5,7 +5,9 @@ import android.app.PendingIntent
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.drawable.AnimatedVectorDrawable
+import android.graphics.drawable.ColorDrawable
 import android.media.MediaMetadataRetriever
 import android.media.MediaScannerConnection
 import android.media.RingtoneManager
@@ -38,6 +40,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.activity.AudioTrimmerActivity
 import com.knesarcreation.playbeat.activity.TagEditorActivity
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.QueueListModel
@@ -152,7 +155,20 @@ class BottomSheetAudioMoreOptions(
 
         setAsRingtone()
 
+        trimAudio()
+
         return view
+    }
+
+    private fun trimAudio() {
+        binding?.llTrimAudio?.setOnClickListener {
+            val intent = Intent(mContext, AudioTrimmerActivity::class.java)
+            val gson = Gson()
+            val audioData = gson.toJson(allSongsModel)
+            intent.putExtra("AudioData", audioData)
+            startActivity(intent)
+            dismiss()
+        }
     }
 
     private fun setAsRingtone() {
@@ -210,42 +226,69 @@ class BottomSheetAudioMoreOptions(
         reqWriteToSystemSetting!!.launch(intent)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun writeAudioToSystemSetting() {
         //Insert it into the database
-        val uri = MediaStore.Audio.Media.getContentUriForPath(allSongsModel.data)
-        if (uri != null) {
+        val alertDialog = AlertDialog.Builder(mContext)
+        val customView = layoutInflater.inflate(R.layout.custom_alert_dialog, null)
+        alertDialog.setView(customView)
+        val dialogTitleTV = customView.findViewById<TextView>(R.id.dialogTitleTV)
+        val dialogMessageTV = customView.findViewById<TextView>(R.id.dialogMessageTV)
+        val positiveBtn = customView.findViewById<MaterialButton>(R.id.positiveBtn)
+        val cancelButton = customView.findViewById<MaterialButton>(R.id.cancelButton)
+        val create = alertDialog.create()
+        create.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        create.show()
+        positiveBtn.text = "Set"
+        dialogTitleTV.text = "Set as ringtone."
+        dialogMessageTV.text = "Set ${allSongsModel.songName} as your call ringtone."
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                RingtoneManager.setActualDefaultRingtoneUri(
-                    mContext,
-                    RingtoneManager.TYPE_RINGTONE,
-                    Uri.parse(allSongsModel.contentUri)
-                )
-                Toast.makeText(mContext, "Ringtone set", Toast.LENGTH_LONG).show()
-            } else {
-                val filePathToDelete =
-                    MediaStore.MediaColumns.DATA + "=\"" + allSongsModel.data + "\""
-                (mContext as AppCompatActivity).contentResolver.delete(uri, filePathToDelete, null)
 
-                val newUri: Uri? =
-                    (mContext as AppCompatActivity).contentResolver.insert(uri, values)
-
-                RingtoneManager.setActualDefaultRingtoneUri(
-                    mContext,
-                    RingtoneManager.TYPE_RINGTONE,
-                    newUri
-                )
-                Toast.makeText(mContext, "Ringtone set", Toast.LENGTH_LONG).show()
-            }
-
-        } else {
-            Toast.makeText(
-                mContext,
-                "Failed to set ringtone. Try with different audio.",
-                Toast.LENGTH_SHORT
-            ).show()
+        cancelButton.setOnClickListener {
+            create.dismiss()
+            dismiss()
         }
-        dismiss()
+
+        positiveBtn.setOnClickListener {
+            val uri = MediaStore.Audio.Media.getContentUriForPath(allSongsModel.data)
+            if (uri != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    RingtoneManager.setActualDefaultRingtoneUri(
+                        mContext,
+                        RingtoneManager.TYPE_RINGTONE,
+                        Uri.parse(allSongsModel.contentUri)
+                    )
+                    Toast.makeText(mContext, "Ringtone set", Toast.LENGTH_LONG).show()
+                } else {
+                    val filePathToDelete =
+                        MediaStore.MediaColumns.DATA + "=\"" + allSongsModel.data + "\""
+                    (mContext as AppCompatActivity).contentResolver.delete(
+                        uri,
+                        filePathToDelete,
+                        null
+                    )
+
+                    val newUri: Uri? =
+                        (mContext as AppCompatActivity).contentResolver.insert(uri, values)
+
+                    RingtoneManager.setActualDefaultRingtoneUri(
+                        mContext,
+                        RingtoneManager.TYPE_RINGTONE,
+                        newUri
+                    )
+                    Toast.makeText(mContext, "Ringtone set", Toast.LENGTH_LONG).show()
+                }
+
+            } else {
+                Toast.makeText(
+                    mContext,
+                    "Failed to set ringtone. Try with different audio.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            create.dismiss()
+            dismiss()
+        }
     }
 
     private fun openSystemEqualizer() {

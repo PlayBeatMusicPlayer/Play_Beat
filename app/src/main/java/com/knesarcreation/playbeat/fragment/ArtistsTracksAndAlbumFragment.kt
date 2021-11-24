@@ -1181,6 +1181,7 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
             bottomShadowIVArtistFrag = binding!!.bottomShadowIV,
             isArtistFrag = true,
             topViewIVArtistFrag = binding!!.topViewIV,
+            binding!!.rlParentArtistAndAlbum,
             bottomShadowIVPlaylist = null,
             isPlaylistFragCategory = false,
             topViewIVPlaylist = null,
