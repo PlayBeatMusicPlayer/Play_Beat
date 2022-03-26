@@ -41,10 +41,10 @@
     <ConstraintSet android:id="@+id/start">
         <Constraint
             android:id="@+id/albumNameToolbarTV"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="@dimen/_38mdp"
+            android:layout_marginStart="65dp"
+            android:layout_marginTop="@dimen/_40mdp"
             android:layout_marginEnd="25dp"
             android:visibility="invisible"
             motion:layout_constraintEnd_toEndOf="parent"
@@ -83,5 +83,16 @@
             motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
             motion:layout_constraintTop_toBottomOf="@id/rlAlbumArt" />
+        <Constraint
+            motion:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="25dp"
+            android:layout_marginStart="65dp"
+            motion:layout_constraintTop_toTopOf="parent"
+            motion:layout_constraintHorizontal_bias="0.17"
+            motion:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="@dimen/_40mdp"
+            android:id="@+id/albumNameToolbarTV" />
     </ConstraintSet>
 </MotionScene>

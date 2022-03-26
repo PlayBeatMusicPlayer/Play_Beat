@@ -92,6 +92,7 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
             (activity as AppCompatActivity).onBackPressed()
         }
         binding?.albumNameTV?.isSelected = true
+        binding?.albumNameToolbarTV?.isSelected = true
 
         storage = StorageUtil(activity as Context)
 
@@ -99,9 +100,10 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
             ViewModelProvider(this)[DataObservableClass::class.java]
         } ?: throw Exception("Invalid Activity")
 
-        viewModel.albumData.observe(viewLifecycleOwner, {
+        viewModel.albumData.observe(viewLifecycleOwner) {
             convertGsonToAlbumModel(it)
             binding?.albumNameTV!!.text = albumData?.albumName
+            binding?.albumNameToolbarTV!!.text = albumData?.albumName
             //setting album art to IV
             Glide.with(activity as Context).load(albumData?.artUri).apply(
                 RequestOptions.placeholderOf(
@@ -133,7 +135,7 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
             // loadAlbumSongs()
             getAudioAccordingAlbum()
 
-        })
+        }
 
         playAllAudioInAlbum()
 

@@ -572,7 +572,7 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
                 applicationContext,
                 786,
                 contentIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_IMMUTABLE
             )
         var playPauseActionIcon = R.drawable.ic_noti_pause_circle //needs to be initialized
         var favUnFavActionIcon = R.drawable.ic_pink_outlined_heart //needs to be initialized
@@ -726,32 +726,32 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
             0 -> {
                 // Play
                 playbackAction.action = ACTION_PLAY
-                return PendingIntent.getService(this, actionNumber, playbackAction, 0)
+                return PendingIntent.getService(this, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE)
             }
             1 -> {
                 // Pause
                 playbackAction.action = ACTION_PAUSE
-                return PendingIntent.getService(this, actionNumber, playbackAction, 0)
+                return PendingIntent.getService(this, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE)
             }
             2 -> {
                 // Next track
                 playbackAction.action = ACTION_NEXT
-                return PendingIntent.getService(this, actionNumber, playbackAction, 0)
+                return PendingIntent.getService(this, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE)
             }
             3 -> {
                 // Previous track
                 playbackAction.action = ACTION_PREVIOUS
-                return PendingIntent.getService(this, actionNumber, playbackAction, 0)
+                return PendingIntent.getService(this, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE)
             }
             4 -> {
                 //Favourite media
                 playbackAction.action = ACTION_FAVOURITE
-                return PendingIntent.getService(this, actionNumber, playbackAction, 0)
+                return PendingIntent.getService(this, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE)
             }
             5 -> {
                 // un favourite media
                 playbackAction.action = ACTION_UN_FAVOURITE
-                return PendingIntent.getService(this, actionNumber, playbackAction, 0)
+                return PendingIntent.getService(this, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE)
             }
             else -> {
             }

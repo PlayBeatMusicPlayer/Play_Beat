@@ -3,27 +3,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/splash_screen_gradient_background"
+    android:background="@color/app_theme_color"
     tools:context=".activity.SplashScreenActivity">
 
 
     <ImageView
         android:id="@+id/logo"
-        android:layout_width="@dimen/_90mdp"
-        android:layout_height="@dimen/_80mdp"
-        android:layout_above="@id/rlPlayBeatText"
-        android:layout_centerHorizontal="true"
+        android:layout_width="@dimen/_120mdp"
+        android:layout_height="@dimen/_120mdp"
+        android:layout_centerInParent="true"
         android:layout_marginStart="10dp"
         android:contentDescription="@string/splash_screen_img"
-        android:src="@drawable/ic_play_beat_logo_v2" />
+        android:src="@drawable/play_beat_logo" />
 
     <RelativeLayout
         android:id="@+id/rlPlayBeatText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_alignParentBottom="true"
         android:layout_marginStart="5dp"
         android:layout_marginEnd="5dp"
+        android:layout_marginBottom="20dp"
+        android:visibility="visible"
         tools:ignore="UselessParent">
 
         <LinearLayout
@@ -47,7 +48,7 @@
                     android:fontFamily="@font/ubuntu_bold"
                     android:text="Play"
                     android:textColor="@color/red"
-                    android:textSize="@dimen/_30font_mdp" />
+                    android:textSize="@dimen/_20font_mdp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -56,7 +57,7 @@
                     android:fontFamily="@font/ubuntu_bold"
                     android:text=" Beat"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/_30font_mdp" />
+                    android:textSize="@dimen/_20font_mdp" />
 
             </LinearLayout>
 
@@ -68,7 +69,7 @@
                 android:letterSpacing="0.3"
                 android:text="Let The Music Speak!"
                 android:textColor="@color/white"
-                android:textSize="@dimen/_12font_mdp" />
+                android:textSize="@dimen/_10font_mdp" />
         </LinearLayout>
 
 

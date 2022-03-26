@@ -95,7 +95,8 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private lateinit var storage: StorageUtil
     private lateinit var mViewModelClass: ViewModelClass
     private var isContextMenuEnabled = false
-    private var isOpenFromNoti = false
+
+    //private var isOpenFromNoti = false
     private var queueListBottomSheet: BottomSheetAudioQueueList? = null
     private var appUpdateManager: AppUpdateManager? = null
     private var installStateUpdatedListener: InstallStateUpdatedListener? = null
@@ -139,12 +140,12 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             ViewModelProvider(this)[DataObservableClass::class.java]
         }
 
-        viewModel.isContextMenuEnabled.observe(this, {
+        viewModel.isContextMenuEnabled.observe(this) {
             if (it != null) {
                 isContextMenuEnabled = it
                 nowPlayingBottomSheetBehavior.isDraggable = !it
             }
-        })
+        }
 
         if (savedInstanceState == null) {
             addFragmentsToFragmentContainer()
