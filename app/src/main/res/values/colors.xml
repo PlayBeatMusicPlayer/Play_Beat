@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <color name="teal_200">#ee9a9a</color> <!--new #ee9a9a--> <!--old - FF03DAC5 -->
+    <color name="teal_700">#ee9a9a</color> <!-- old FF018786-->
     <color name="black">#121111</color>
     <color name="black_V2">#6A333333</color>
     <color name="grey">#BAB9B9</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="app_theme_color">#272A3A</color>  <!--363949--> <!--383C4E-->
+    <color name="app_theme_color">#202125
+    </color>  <!--363949--> <!--383C4E--> <!--new - #202125--> <!--default - 272A3A-->
     <color name="search_widget_bg">#313443</color>
     <!--2B2727--> <!--3A3C46-->
     <color name="transparent">#00ffffff</color>
 
     <color name="bright_pink">#FF87DA</color>
-    <color name="cyan">#03DCF8</color>
+<!--    <color name="cyan">#03DCF8</color>-->
     <color name="dark_grey">#1b262c</color>
     <!-- <color name="light_grey">#F1EEEE</color>-->
     <color name="red">#E62525</color>
@@ -20,13 +21,16 @@
     <color name="blue">#B44527A0</color>
     <!--50D55D-->
     <color name="light_green">#AFF3B2</color>
+    <color name="light_cyan">#4A03DAC5</color>
+    <color name="ripple_cyan">#4AB7FFF8</color>
+    <color name="ripple_search_chip">#FAC5C5</color>
     <color name="yellow">#FFD740</color>
     <!--FFBF00--> <!--F1A11A-->
     <!--<color name="dark_purple">#110117</color>-->
     <color name="semi_transparent">#41FFFFFF</color>
     <color name="rippleColor">#22FBFBFB</color>
     <color name="light_transparent">#69696C</color>
-    <color name="queue_now_playing_background">#474953</color>
+    <color name="app_theme_default_light">#2D2E33</color> <!--new - 2D2E33--> <!--old 474953-->
     <color name="card_color">#535353</color>
     <color name="bottom_bar_color_1">#D0240B36</color>
     <color name="bottom_bar_color_2">#FF4B2B</color>

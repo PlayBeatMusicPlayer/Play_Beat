@@ -9,7 +9,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import com.airbnb.lottie.LottieAnimationView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.ernestoyaquello.dragdropswiperecyclerview.DragDropSwipeAdapter
@@ -18,6 +17,7 @@ import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.fragment.AllSongFragment
 import com.knesarcreation.playbeat.utils.StorageUtil
+import eu.gsottbauer.equalizerview.EqualizerView
 import java.util.concurrent.CopyOnWriteArrayList
 
 class QueueListAdapter(
@@ -42,8 +42,11 @@ class QueueListAdapter(
         val albumArtIV: ImageView = itemView.findViewById(R.id.album_art_iv)
         val rlAudio: RelativeLayout = itemView.findViewById(R.id.rlAudio)
         val dragIcon: ImageView = itemView.findViewById(R.id.dragIconIV)
-        val currentPlayingAudioLottie: LottieAnimationView =
-            itemView.findViewById(R.id.currentPlayingAudioLottie)
+
+        //val currentPlayingAudioLottie: LottieAnimationView =
+        //  itemView.findViewById(R.id.currentPlayingAudioLottie)
+        val equalizerView: EqualizerView = itemView.findViewById(R.id.equalizerView)
+
         val rlCurrentPlayingLottie: RelativeLayout =
             itemView.findViewById(R.id.rlCurrentPlayingLottie)
     }
@@ -77,14 +80,15 @@ class QueueListAdapter(
         val artUri = item.artUri
 
 
-        viewHolder.currentPlayingAudioLottie.setAnimation(R.raw.playing_audio_indicator)
+        //viewHolder.currentPlayingAudioLottie.setAnimation(R.raw.playing_audio_indicator)
         when (item.playingOrPause) {
             1 /* 1 for play */ -> {
                 if (AllSongFragment.musicService?.mediaPlayer != null) {
                     if (AllSongFragment.musicService?.mediaPlayer?.isPlaying!!) {
                         viewHolder.rlCurrentPlayingLottie.visibility = View.VISIBLE
                         //holder.currentPlayingAudioIndicator.visibility = View.VISIBLE
-                        viewHolder.currentPlayingAudioLottie.playAnimation()
+                        viewHolder.equalizerView.animateBars()
+
                         viewHolder.songName.setTextColor(
                             ContextCompat.getColor(
                                 context,
@@ -106,7 +110,8 @@ class QueueListAdapter(
                     } else {
                         viewHolder.rlCurrentPlayingLottie.visibility = View.VISIBLE
                         //holder.currentPlayingAudioIndicator.visibility = View.VISIBLE
-                        viewHolder.currentPlayingAudioLottie.pauseAnimation()
+                        viewHolder.equalizerView.stopBars()
+
                         viewHolder.songName.setTextColor(
                             ContextCompat.getColor(
                                 context,
@@ -132,7 +137,7 @@ class QueueListAdapter(
             0 /* 0 for pause*/ -> {
                 viewHolder.rlCurrentPlayingLottie.visibility = View.VISIBLE
                 //holder.currentPlayingAudioIndicator.visibility = View.VISIBLE
-                viewHolder.currentPlayingAudioLottie.pauseAnimation()
+                viewHolder.equalizerView.stopBars()
                 viewHolder.songName.setTextColor(ContextCompat.getColor(context, R.color.teal_200))
                 viewHolder.artistName.setTextColor(
                     ContextCompat.getColor(
@@ -143,7 +148,7 @@ class QueueListAdapter(
                 viewHolder.albumName.setTextColor(ContextCompat.getColor(context, R.color.teal_200))
             }
             -1 /*default*/ -> {
-                viewHolder.currentPlayingAudioLottie.pauseAnimation()
+                viewHolder.equalizerView.stopBars()
                 viewHolder.rlCurrentPlayingLottie.visibility = View.GONE
                 viewHolder.songName.setTextColor(ContextCompat.getColor(context, R.color.white))
                 viewHolder.artistName.setTextColor(ContextCompat.getColor(context, R.color.white))

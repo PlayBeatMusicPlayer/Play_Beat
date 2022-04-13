@@ -18,12 +18,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.google.gson.Gson
@@ -444,8 +444,7 @@ class FoldersSpecificSongs : Fragment() {
         try {
             //Log.d("SongThatWillBeDelete", "deleteAudioFromDevice: path: $audioFile ")
 
-            val alertDialog =
-                AlertDialog.Builder(activity as Context, R.style.CustomAlertDialog)
+            val alertDialog = MaterialAlertDialogBuilder(activity as Context, R.style.CustomAlertDialog)
             val viewGroup: ViewGroup =
                 (activity as AppCompatActivity).findViewById(android.R.id.content)
             val customView =

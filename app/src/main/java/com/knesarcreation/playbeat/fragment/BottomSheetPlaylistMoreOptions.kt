@@ -8,12 +8,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.knesarcreation.playbeat.R
@@ -115,7 +115,8 @@ class BottomSheetPlaylistMoreOptions(var playlistModel: PlaylistModel) :
 
     private fun deletePlaylist() {
         binding!!.llDelete.setOnClickListener {
-            val alertDialog = AlertDialog.Builder(activity as Context, R.style.CustomAlertDialog)
+            val alertDialog =
+                MaterialAlertDialogBuilder(activity as Context, R.style.CustomAlertDialog)
             val viewGroup: ViewGroup =
                 (activity as AppCompatActivity).findViewById(android.R.id.content)
             val customView = layoutInflater.inflate(R.layout.custom_alert_dialog, viewGroup, false)

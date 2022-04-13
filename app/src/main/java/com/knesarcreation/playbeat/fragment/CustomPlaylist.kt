@@ -13,7 +13,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -23,6 +22,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.google.gson.Gson
@@ -89,7 +89,7 @@ class CustomPlaylist : Fragment() {
         } ?: throw Exception("Invalid Activity")
 
 
-        viewModel.customPlaylistData.observe(viewLifecycleOwner, {
+        viewModel.customPlaylistData.observe(viewLifecycleOwner) {
             if (it != null) {
 
                 binding!!.rvFavSongs.visibility = View.GONE
@@ -110,7 +110,7 @@ class CustomPlaylist : Fragment() {
                 //getAudioArt(tempAudioList)
 
             }
-        })
+        }
 
         binding?.arrowBackIV?.setOnClickListener {
             if (AllSongsAdapter.isContextMenuEnabled) {
@@ -172,12 +172,12 @@ class CustomPlaylist : Fragment() {
 
         setTextSwitcherFactory()
 
-        viewModel.onBackPressed.observe(viewLifecycleOwner, {
+        viewModel.onBackPressed.observe(viewLifecycleOwner) {
             if (it != null) {
                 if (!isFragHidden)
                     disableContextMenu()
             }
-        })
+        }
 
         shareAudios()
 
@@ -187,7 +187,7 @@ class CustomPlaylist : Fragment() {
     private fun shareAudios() {
         binding?.shareAudioIV?.setOnClickListener {
             val shareAlertdialog =
-                AlertDialog.Builder(activity as Context, R.style.CustomAlertDialog)
+                MaterialAlertDialogBuilder(activity as Context, R.style.CustomAlertDialog)
             val viewGroup: ViewGroup =
                 (activity as AppCompatActivity).findViewById(android.R.id.content)
             val customView =
@@ -274,7 +274,10 @@ class CustomPlaylist : Fragment() {
         binding?.rlContextMenu?.visibility = View.INVISIBLE
         AllSongsAdapter.isContextMenuEnabled = false
         binding?.selectAllAudios?.isChecked = false
-        customPlaylistAdapter!!.updateChanges(selectedPositionList)
+        try {
+            customPlaylistAdapter!!.updateChanges(selectedPositionList)
+        } catch (e: java.lang.Exception) {
+        }
         selectedPositionList.clear()
         selectedAudioIdList.clear()
         selectedAudioList.clear()

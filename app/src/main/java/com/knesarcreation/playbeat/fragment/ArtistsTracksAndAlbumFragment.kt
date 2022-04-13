@@ -114,7 +114,7 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
         // progressBar!!.setIsCancelable(true)
         // progressBar!!.setCanceledOnOutsideTouch(true)
 
-        viewModel.artistsData.observe(viewLifecycleOwner, {
+        viewModel.artistsData.observe(viewLifecycleOwner) {
             convertGsonToAlbumModel(it)
 
             //binding?.rvAlbums?.setHasFixedSize(true)
@@ -182,7 +182,7 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
 
             getAudioAccordingAlbum(false)
 
-        })
+        }
 
         binding?.playAll?.setOnClickListener {
             onClickAudio(audioList[0], 0)
@@ -207,11 +207,11 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
 
         setTextSwitcherFactory()
 
-        viewModel.onBackPressed.observe(viewLifecycleOwner, {
+        viewModel.onBackPressed.observe(viewLifecycleOwner) {
             if (it != null) {
                 disableContextMenu()
             }
-        })
+        }
 
         return view
     }

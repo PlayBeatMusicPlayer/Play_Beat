@@ -18,7 +18,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -28,6 +27,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.knesarcreation.playbeat.R
@@ -42,7 +42,6 @@ import com.knesarcreation.playbeat.utils.SavedAppTheme
 import com.knesarcreation.playbeat.utils.StorageUtil
 import java.io.File
 import java.io.FileNotFoundException
-import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 class HistoryAudiosFragment : Fragment() {
@@ -175,7 +174,7 @@ class HistoryAudiosFragment : Fragment() {
     private fun shareAudios() {
         binding?.shareAudioIV?.setOnClickListener {
             val shareAlertdialog =
-                AlertDialog.Builder(activity as Context, R.style.CustomAlertDialog)
+                MaterialAlertDialogBuilder(activity as Context, R.style.CustomAlertDialog)
             val viewGroup: ViewGroup =
                 (activity as AppCompatActivity).findViewById(android.R.id.content)
             val customView =
@@ -397,7 +396,7 @@ class HistoryAudiosFragment : Fragment() {
             //Log.d("SongThatWillBeDelete", "deleteAudioFromDevice: path: $audioFile ")
 
             val alertDialog =
-                AlertDialog.Builder(activity as Context, R.style.CustomAlertDialog)
+                MaterialAlertDialogBuilder(activity as Context, R.style.CustomAlertDialog)
             val viewGroup: ViewGroup =
                 (activity as AppCompatActivity).findViewById(android.R.id.content)
             val customView =
@@ -953,7 +952,7 @@ class HistoryAudiosFragment : Fragment() {
                 1,
                 (context as AppCompatActivity).lifecycleScope
             )
-        }else{
+        } else {
             Snackbar.make(
                 (activity as AppCompatActivity).window.decorView,
                 "File doesn't exists", Snackbar.LENGTH_LONG

@@ -94,7 +94,7 @@
                     android:layout_marginEnd="10dp"
                     android:background="?selectableItemBackgroundBorderless"
                     android:contentDescription="@null"
-                    android:src="@drawable/ic_close" />
+                    android:src="@drawable/ic_close_grey" />
 
                 <TextSwitcher
                     android:id="@+id/selectedAudiosTS"
@@ -120,7 +120,7 @@
                     android:contentDescription="@null"
                     android:src="@drawable/ic_more_horizontal" />
 
-                <CheckBox
+                <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/selectAllAudios"
                     android:layout_width="26dp"
                     android:layout_height="24dp"
@@ -128,7 +128,8 @@
                     android:layout_marginTop="8dp"
                     android:layout_toStartOf="@id/moreOptionIV"
                     android:background="?selectableItemBackgroundBorderless"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    app:buttonTint="@color/grey" />
 
                 <!-- <ImageView
                      android:id="@+id/addToPlaylistIV"
@@ -153,10 +154,19 @@
             android:layout_marginTop="5dp"
             android:background="@android:color/transparent">
 
+            <FrameLayout
+                android:id="@+id/adView_container"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:visibility="gone" />
+
             <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                 android:id="@+id/swipeToRefresh"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_above="@id/adView_container">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvAllSongs"

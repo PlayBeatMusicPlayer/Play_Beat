@@ -1,28 +1,25 @@
 package com.knesarcreation.playbeat.activity
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
-import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat.animate
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.knesarcreation.playbeat.BuildConfig
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.utils.LoadAllAudios
 import com.knesarcreation.playbeat.utils.MakeStatusBarTransparent
 import com.knesarcreation.playbeat.utils.StorageUtil
-import java.util.*
 
 
 @SuppressLint("CustomSplashScreen")
@@ -38,9 +35,10 @@ class SplashScreenActivity : AppCompatActivity() {
         if (!hasFocus /*|| animationStarted*/) {
             return
         }
-       // animate()
+        // animate()
         super.onWindowFocusChanged(hasFocus)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -105,8 +103,11 @@ class SplashScreenActivity : AppCompatActivity() {
                     //loadAudio()
 
                 } else {
-                    val openSetting = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:com.knesarcreation.playbeat"))
-                    val permAlert = AlertDialog.Builder(this)
+                    val openSetting = Intent(
+                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.parse("package:com.knesarcreation.playbeat")
+                    )
+                    val permAlert = MaterialAlertDialogBuilder(this, R.style.CustomAlertDialog)
                     permAlert.setMessage("Storage permission is required to read Media Files. Please grant permission to proceed further.")
                     permAlert.setPositiveButton("Settings") { dialog, _ ->
                         //mPermRequest!!.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -133,7 +134,7 @@ class SplashScreenActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.R)
     private fun showPermissionAlert() {
-        val permAlert = AlertDialog.Builder(this)
+        val permAlert = MaterialAlertDialogBuilder(this, R.style.CustomAlertDialog)
         permAlert.setMessage("Play beat required external storage permission to manage audio files. Please grant permission to proceed further.")
         permAlert.setPositiveButton("Grant") { dialog, _ ->
             val intent = Intent(

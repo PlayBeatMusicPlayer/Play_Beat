@@ -153,7 +153,7 @@
                     android:layout_gravity="center"
                     android:layout_marginEnd="10dp"
                     android:contentDescription="@null"
-                    android:src="@drawable/ic_close" />
+                    android:src="@drawable/ic_close_grey" />
 
                 <TextSwitcher
                     android:id="@+id/selectedAudiosTS"
@@ -177,14 +177,15 @@
                     android:contentDescription="@null"
                     android:src="@drawable/ic_more_horizontal" />
 
-                <CheckBox
+                <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/selectAllAudios"
                     android:layout_width="26dp"
                     android:layout_height="24dp"
                     android:layout_marginStart="15dp"
                     android:layout_toStartOf="@id/moreOptionIV"
                     android:background="?selectableItemBackgroundBorderless"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    app:buttonTint="@color/grey" />
 
 
             </RelativeLayout>
@@ -257,6 +258,7 @@
                 android:focusable="true"
                 android:foreground="@drawable/gradient_background_top_shadow"
                 android:visibility="gone" />
+
         </RelativeLayout>
 
         <ImageView

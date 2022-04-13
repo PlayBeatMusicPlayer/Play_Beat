@@ -36,8 +36,8 @@
         <RelativeLayout
             android:id="@+id/rlAlbumArtContainer"
             android:layout_width="@dimen/album_art_width_small"
-            android:layout_centerVertical="true"
-            android:layout_height="@dimen/album_art_height_small">
+            android:layout_height="@dimen/album_art_height_small"
+            android:layout_centerVertical="true">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/album_art_iv"
@@ -62,12 +62,25 @@
                     android:src="@color/app_theme_color"
                     app:shapeAppearanceOverlay="@style/circular_15" />
 
-                <com.airbnb.lottie.LottieAnimationView
+                <eu.gsottbauer.equalizerview.EqualizerView
+                    android:id="@+id/equalizerView"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerInParent="true"
+                    app:barColor="@color/teal_200"
+                    app:barCount="3"
+                    app:barWidth="6dp"
+                    app:marginLeft="2dp"
+                    app:marginRight="2dp" />
+
+                <!--<com.airbnb.lottie.LottieAnimationView
                     android:id="@+id/currentPlayingAudioLottie"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_centerInParent="true"
-                    app:lottie_loop="true" />
+                    android:visibility="gone"
+                    app:lottie_loop="true" />-->
+
             </RelativeLayout>
 
         </RelativeLayout>

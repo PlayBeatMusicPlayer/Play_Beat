@@ -244,7 +244,8 @@
             android:paddingTop="5dp"
             android:paddingEnd="2dp"
             android:paddingBottom="5dp"
-            android:visibility="gone">
+            android:visibility="gone"
+            tools:ignore="RtlSymmetry">
 
             <ImageView
                 android:id="@+id/closeContextMenu"
@@ -277,14 +278,15 @@
                 android:contentDescription="@null"
                 android:src="@drawable/ic_more_white" />
 
-            <CheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/selectAllAudios"
                 android:layout_width="26dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="15dp"
                 android:layout_toStartOf="@id/moreOptionIV"
                 android:background="?selectableItemBackgroundBorderless"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                app:buttonTint="@color/grey" />
 
 
         </RelativeLayout>

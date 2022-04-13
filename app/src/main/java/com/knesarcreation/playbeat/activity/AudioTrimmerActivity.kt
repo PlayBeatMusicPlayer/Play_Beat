@@ -1,7 +1,6 @@
 package com.knesarcreation.playbeat.activity
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.ContentValues
 import android.content.Intent
@@ -22,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -97,7 +97,7 @@ class AudioTrimmerActivity : AppCompatActivity(), View.OnClickListener, MarkerVi
     private var reqWriteToSystemSetting: ActivityResultLauncher<Intent>? = null
     private lateinit var allSongModle: AllSongsModel
     private var radioBtn = ""
-    private lateinit var loadingDialog: AlertDialog
+    private lateinit var loadingDialog: androidx.appcompat.app.AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,7 +116,7 @@ class AudioTrimmerActivity : AppCompatActivity(), View.OnClickListener, MarkerVi
                 // writeAudioToSystemSetting()
             }
 
-        val progressDialogAlert = AlertDialog.Builder(this)
+        val progressDialogAlert = MaterialAlertDialogBuilder(this)
         val customProgressView = layoutInflater.inflate(R.layout.custom_progress_bar, null)
         progressDialogAlert.setView(customProgressView)
         loadingDialog = progressDialogAlert.create()
@@ -223,7 +223,7 @@ class AudioTrimmerActivity : AppCompatActivity(), View.OnClickListener, MarkerVi
             }
             onPlay(mStartPos)
         } else if (view === binding.trimAudio) {
-            val alertSaveTrimmedAudio = AlertDialog.Builder(this)
+            val alertSaveTrimmedAudio = MaterialAlertDialogBuilder(this, R.style.CustomAlertDialog)
             val customDialog = layoutInflater.inflate(R.layout.dialog_save_trim_audio, null)
             alertSaveTrimmedAudio.setView(customDialog)
 
@@ -964,7 +964,7 @@ class AudioTrimmerActivity : AppCompatActivity(), View.OnClickListener, MarkerVi
     @SuppressLint("ObsoleteSdkInt")
     private fun checkSystemWritePermission(
         etAudioName: TextInputEditText,
-        dialog: AlertDialog
+        dialog: androidx.appcompat.app.AlertDialog
     ): Boolean {
         var permAllowed = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -976,7 +976,7 @@ class AudioTrimmerActivity : AppCompatActivity(), View.OnClickListener, MarkerVi
             } else {
                 //Toast.makeText(mContext, "Write not allowed :-(", Toast.LENGTH_LONG).show()
                 val alertDialog =
-                    androidx.appcompat.app.AlertDialog.Builder(this, R.style.CustomAlertDialog)
+                    MaterialAlertDialogBuilder(this, R.style.CustomAlertDialog)
                 alertDialog.setMessage("Play Beat requires permission of WRITE SYSTEM SETTING in order to set your selected audio as default ringtone.\n\nAfter granting permission, try setting your ringtone again.")
                 alertDialog.setPositiveButton("Allow") { dialog, _ ->
                     permAllowed = true
@@ -995,7 +995,7 @@ class AudioTrimmerActivity : AppCompatActivity(), View.OnClickListener, MarkerVi
         return permAllowed
     }
 
-    private fun writeAudioToSystemSetting(etAudioName: TextInputEditText, dialog: AlertDialog) {
+    private fun writeAudioToSystemSetting(etAudioName: TextInputEditText, dialog: androidx.appcompat.app.AlertDialog) {
         if (etAudioName.text!!.isEmpty()) {
             etAudioName.error = "Please enter new name"
         } else {

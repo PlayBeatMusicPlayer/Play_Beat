@@ -104,23 +104,25 @@
                 android:layout_marginStart="@dimen/_9mdp"
                 android:orientation="horizontal">
 
-                <RadioButton
+                <com.google.android.material.radiobutton.MaterialRadioButton
                     android:id="@+id/ringtoneRB"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:padding="6dp"
                     android:text="@string/ringtone"
                     android:textColor="@color/white"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    app:buttonTint="@color/grey" />
 
-                <RadioButton
+                <com.google.android.material.radiobutton.MaterialRadioButton
                     android:id="@+id/alarmRB"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:padding="6dp"
                     android:text="@string/alarm"
                     android:textColor="@color/white"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    app:buttonTint="@color/grey" />
 
                 <!-- <RadioButton
                      android:layout_width="wrap_content"

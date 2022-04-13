@@ -87,9 +87,9 @@ class Repository(var application: Application) {
         }
     }
 
-    fun deleteSongs(lifecycleScope: LifecycleCoroutineScope) {
+   /* fun deleteSongs(lifecycleScope: LifecycleCoroutineScope) {
         lifecycleScope.launch(Dispatchers.IO) { allSongsDao.deleteSongs() }
-    }
+    }*/
 
     fun deleteOneSong(songId: Long, lifecycleScope: LifecycleCoroutineScope) {
         lifecycleScope.launch(Dispatchers.IO) { allSongsDao.deleteOneSong(songId) }

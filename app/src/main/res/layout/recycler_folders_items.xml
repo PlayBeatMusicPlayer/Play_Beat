@@ -26,6 +26,7 @@
         android:visibility="gone" />-->
 
     <RelativeLayout
+        android:id="@+id/folderViewContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="20dp"
@@ -39,10 +40,11 @@
             android:layout_height="@dimen/album_art_height_small"
             android:layout_centerVertical="true">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/folderIV"
                 android:layout_width="@dimen/album_art_width_small"
                 android:layout_height="@dimen/album_art_height_small"
+                android:background="@drawable/little_curved_all_edges"
                 android:contentDescription="@null"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_folder"
@@ -130,5 +132,11 @@
 
     </RelativeLayout>
 
+    <FrameLayout
+        android:id="@+id/adView_container"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@id/folderViewContainer"
+        android:visibility="gone" />
 
 </RelativeLayout>

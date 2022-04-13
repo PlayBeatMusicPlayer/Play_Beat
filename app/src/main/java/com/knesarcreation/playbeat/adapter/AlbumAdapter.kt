@@ -6,12 +6,12 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import com.airbnb.lottie.LottieAnimationView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.ernestoyaquello.dragdropswiperecyclerview.DragDropSwipeAdapter
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.database.AllSongsModel
+import eu.gsottbauer.equalizerview.EqualizerView
 import java.util.concurrent.CopyOnWriteArrayList
 
 class AlbumAdapter(
@@ -27,9 +27,12 @@ class AlbumAdapter(
         private val artistName: TextView = view.findViewById(R.id.artistNameTV)
         private val albumName: TextView = view.findViewById(R.id.albumNameTv)
         private val albumArtIV: ImageView = view.findViewById(R.id.album_art_iv)
+
         //val rlAudio: RelativeLayout = view.findViewById(R.id.rlCurrentPlayingAudio)
-        private val currentPlayingAudioLottie: LottieAnimationView =
-            view.findViewById(R.id.currentPlayingAudioLottie)
+        //private val currentPlayingAudioLottie: LottieAnimationView =
+        //  view.findViewById(R.id.currentPlayingAudioLottie)
+        private val equalizerView: EqualizerView = view.findViewById(R.id.equalizerView)
+
         private val rlCurrentPlayingLottie: RelativeLayout =
             view.findViewById(R.id.rlCurrentPlayingLottie)
 
@@ -41,12 +44,12 @@ class AlbumAdapter(
 
             val artUri = allSongModel.artUri
 
-            currentPlayingAudioLottie.setAnimation(R.raw.playing_audio_indicator)
+           // currentPlayingAudioLottie.setAnimation(R.raw.playing_audio_indicator)
             when (allSongModel.playingOrPause) {
                 1 /* 1 for play */ -> {
                     rlCurrentPlayingLottie.visibility = View.VISIBLE
                     //r.currentPlayingAudioIndicator.visibility = View.VISIBLE
-                    currentPlayingAudioLottie.playAnimation()
+                    equalizerView.animateBars()
                     songName.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
@@ -69,7 +72,7 @@ class AlbumAdapter(
                 0 /* 0 for pause*/ -> {
                     rlCurrentPlayingLottie.visibility = View.VISIBLE
                     //r.currentPlayingAudioIndicator.visibility = View.VISIBLE
-                    currentPlayingAudioLottie.pauseAnimation()
+                    equalizerView.stopBars()
                     songName.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
@@ -90,7 +93,7 @@ class AlbumAdapter(
                     )
                 }
                 -1 /*default*/ -> {
-                    currentPlayingAudioLottie.pauseAnimation()
+                    equalizerView.stopBars()
                     rlCurrentPlayingLottie.visibility = View.GONE
                     songName.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
                     artistName.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
@@ -101,7 +104,7 @@ class AlbumAdapter(
 
 
             Glide.with(albumArtIV).load(artUri)
-                .apply(RequestOptions.placeholderOf(R.drawable.audio_icon_placeholder).centerCrop())
+                .apply(RequestOptions.placeholderOf(R.drawable.music_note_icon).centerCrop())
                 .into(albumArtIV)
 
         }

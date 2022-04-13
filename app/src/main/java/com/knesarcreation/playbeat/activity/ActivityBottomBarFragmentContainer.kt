@@ -5,12 +5,19 @@ import android.content.*
 import android.content.IntentSender.SendIntentException
 import android.content.pm.PackageManager
 import android.database.CursorWindow
+import android.graphics.BitmapFactory
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.GradientDrawable
+import android.media.audiofx.BassBoost
+import android.media.audiofx.Equalizer
+import android.media.audiofx.PresetReverb
 import android.net.Uri
-import android.os.*
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.view.ViewAnimationUtils
 import android.widget.FrameLayout
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
@@ -27,7 +34,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
-import com.google.android.gms.cast.framework.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateInfo
@@ -39,7 +45,9 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.tasks.Task
+import com.google.gson.Gson
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.activity.equailizer.EqualizerControlActivity
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.ActivityBottomBarFragmentBinding
@@ -47,7 +55,6 @@ import com.knesarcreation.playbeat.fragment.*
 import com.knesarcreation.playbeat.utils.*
 import me.ibrahimsn.lib.OnItemSelectedListener
 import java.io.File
-import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 
@@ -75,7 +82,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private var handler = Handler(Looper.getMainLooper())
     private lateinit var viewModel: DataObservableClass
     private var queueAudioList = CopyOnWriteArrayList<AllSongsModel>()
-    private var isAlbumFragOpened = false
+    private var isAllAlbumFragOpened = false
     private var isArtistsFragOpened = false
     private var isPlaylstCategoryOpened = false
     private var isFolderFragOpened = false
@@ -88,6 +95,8 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private var shuffledList = CopyOnWriteArrayList<AllSongsModel>()
     private var isShuffled = false
     private var isPlayPauseClicked = false
+    private var isAllAlbumsFragmentNotOpendFromSearchFragment = false
+    private var isArtistTrackAndAlbumFragOpenedFromAllArtistFrag = false
 
     //private var mCastSession: CastSession? = null
     //private var mSessionManagerListener: SessionManagerListener<CastSession>? = null
@@ -122,6 +131,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         }
 
         mViewModelClass = ViewModelProvider(this)[ViewModelClass::class.java]
+
 
         MakeStatusBarTransparent().transparent(this)
         storage = StorageUtil(this)
@@ -192,7 +202,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 )
             bottomSheetMoreOptions.show(supportFragmentManager, "bottomSheetMoreOptions")
         }
-
     }
 
     private fun getAppUpdate() {
@@ -246,7 +255,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
 
             } else if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
                 //CHECK THIS if AppUpdateType.FLEXIBLE, otherwise you can skip
-                popupSnackbarForCompleteUpdate();
+                popupSnackbarForCompleteUpdate()
             } else {
                 Log.d("AppUpdate", "No Update available")
                 // Toast.makeText(this, "No update available", Toast.LENGTH_SHORT).show()
@@ -258,7 +267,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private fun popupSnackbarForCompleteUpdate() {
         val snackbar = Snackbar.make(
             findViewById(R.id.coordinatorLayout_main),
-            "New app is ready!",
+            "New app version is ready!",
             Snackbar.LENGTH_INDEFINITE
         )
         snackbar.setAction("Install") {
@@ -595,7 +604,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     (0.4 - slideOffset).toFloat()
                 binding.bottomSheet.rlNowPlayingBottomSheet.alpha = slideOffset
 
-                if (isPlaylstCategoryOpened || isAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag || isFolderFragOpened) {
+                if (isPlaylstCategoryOpened || isAllAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag || isFolderFragOpened) {
                     if (slideOffset >= 0.2f) {
                         binding.bottomSheet.nowPlayingBottomSheetContainer.animate()
                             .translationY(0f).duration = 200
@@ -607,6 +616,16 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 }
             }
         })
+
+        initializeAddMob()
+
+    }
+
+    private fun initializeAddMob() {
+        // initialize adMob inside the expandable Player
+
+        val adBanner = AdBanner(this, binding.bottomSheet.adViewContainer)
+        adBanner.initializeAddMob()
 
     }
 
@@ -916,7 +935,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         when (state) {
             FragmentState.HOME -> {
                 when {
-                    isAlbumFragOpened -> {
+                    isAllAlbumFragOpened -> {
                         transaction.hide(homeFragment)
                         transaction.hide(playlistsFragment)
                         transaction.hide(settingFragment)
@@ -1020,7 +1039,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(mostPlayedFragment)
                 transaction.hide(foldersSpecificSongsFrag)
 
-                isAlbumFragOpened = !isAlbumOpenedFromArtisFrag
+                isAllAlbumFragOpened = !isAlbumOpenedFromArtisFrag
                 isArtistsFragOpened = false
             }
             FragmentState.ARTIST_TRACK_ALBUM_FRAGMENT -> {
@@ -1038,7 +1057,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 transaction.hide(foldersSpecificSongsFrag)
 
                 isArtistsFragOpened = true
-                isAlbumFragOpened = false
+                isAllAlbumFragOpened = false
             }
             FragmentState.PLAYLIST_CATEGORY -> {
                 transaction.hide(homeFragment)
@@ -1167,20 +1186,27 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     super.onBackPressed()
                 }
             } else {
-                if (isAlbumFragOpened) {
-                    if (!playlistsFragment.isHidden || !settingFragment.isHidden) {
-                        setBottomBarFragmentState(FragmentState.ALBUM_FRAGMENT).commit()
-                        binding.bottomBar.itemActiveIndex = 0
+                if (isAllAlbumFragOpened) {
+                    /* if (!playlistsFragment.isHidden || !settingFragment.isHidden) {
+                         setBottomBarFragmentState(FragmentState.ALBUM_FRAGMENT).commit()
+                         binding.bottomBar.itemActiveIndex = 0
+                     } else {*/
+                    if (isContextMenuEnabled) {
+                        viewModel.onBackPressed.value = true
                     } else {
-                        if (isContextMenuEnabled) {
-                            viewModel.onBackPressed.value = true
-                        } else {
-                            animateBottomBarToVisible()
-                            isAlbumFragOpened = false
+                        animateBottomBarToVisible()
+                        isAllAlbumFragOpened = false
+                        if (isAllAlbumsFragmentNotOpendFromSearchFragment) {
+                            //opened from AlbumFramgnent
                             setBottomBarFragmentState(FragmentState.HOME).commit()
                             binding.bottomBar.itemActiveIndex = 0
+                        } else {
+                            //opend from search fragment
+                            setBottomBarFragmentState(FragmentState.SEARCH).commit()
+                            binding.bottomBar.itemActiveIndex = 2
                         }
                     }
+                    //}
                 } else if (isFolderFragOpened) {
                     /* if (!playlistsFragment.isHidden || !settingFragment.isHidden) {
                          setBottomBarFragmentState(FragmentState.ALBUM_FRAGMENT).commit()
@@ -1196,46 +1222,57 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     }
                     //}
                 } else if (isArtistsFragOpened || isAlbumOpenedFromArtisFrag) {
-                    if (!playlistsFragment.isHidden /* if open*/ || !settingFragment.isHidden /*if open*/) {
+                    /* if (!playlistsFragment.isHidden *//* if open*//* || !settingFragment.isHidden *//*if open*//*) {
                         setBottomBarFragmentState(FragmentState.ARTIST_TRACK_ALBUM_FRAGMENT).commit()
                         binding.bottomBar.itemActiveIndex = 0
+                    } else {*/
+                    if (isContextMenuEnabled) {
+                        viewModel.onBackPressed.value = true
                     } else {
-                        if (isContextMenuEnabled) {
-                            viewModel.onBackPressed.value = true
-                        } else {
-                            if (isArtistsFragOpened)
-                                animateBottomBarToVisible()
+                        if (isArtistsFragOpened)
+                            animateBottomBarToVisible()
 
-                            isArtistsFragOpened =
-                                isAlbumOpenedFromArtisFrag
-                            // if  isAlbumOpenedFromArtisFrag is open then
-                            // this value will be assign to this -> isArtistsFragOpened while on back pressed
+                        isArtistsFragOpened =
+                            isAlbumOpenedFromArtisFrag
+                        // if  isAlbumOpenedFromArtisFrag is open then
+                        // this value will be assign to this -> isArtistsFragOpened while on back pressed
 
+                        if (isArtistTrackAndAlbumFragOpenedFromAllArtistFrag) {
+                            //opened from AllArtistFrag
                             setBottomBarFragmentState(FragmentState.HOME).commit()
                             binding.bottomBar.itemActiveIndex = 0
-                            isAlbumOpenedFromArtisFrag = false
+                        } else if (!isArtistTrackAndAlbumFragOpenedFromAllArtistFrag && isAlbumOpenedFromArtisFrag) {
+                            setBottomBarFragmentState(FragmentState.ARTIST_TRACK_ALBUM_FRAGMENT).commit()
+                            binding.bottomBar.itemActiveIndex = 0
+                        } else {
+                            //opened from search fragment
+                            setBottomBarFragmentState(FragmentState.SEARCH).commit()
+                            binding.bottomBar.itemActiveIndex = 2
                         }
-
+                        isAlbumOpenedFromArtisFrag = false
                     }
+
+                    // }
                 } else if (isPlaylstCategoryOpened) {
-                    if (!playlistsFragment.isHidden /* if open*/ || !settingFragment.isHidden /*if open*/) {
+                    /* if (!playlistsFragment.isHidden *//* if open*//* || !settingFragment.isHidden *//*if open*//*) {
 
                         setBottomBarFragmentState(FragmentState.PLAYLIST_CATEGORY).commit()
                         binding.bottomBar.itemActiveIndex = 1
 
+                    } else {*/
+
+                    if (isContextMenuEnabled) {
+                        viewModel.onBackPressed.value = true
                     } else {
-                        if (isContextMenuEnabled) {
-                            viewModel.onBackPressed.value = true
-                        } else {
-                            animateBottomBarToVisible()
+                        animateBottomBarToVisible()
 
-                            isPlaylstCategoryOpened = false
-                            setBottomBarFragmentState(FragmentState.PLAYLIST).commit()
-                            binding.bottomBar.itemActiveIndex = 1
-                        }
-
-                        //isAlbumOpenedFromArtisFrag = false
+                        isPlaylstCategoryOpened = false
+                        setBottomBarFragmentState(FragmentState.PLAYLIST).commit()
+                        binding.bottomBar.itemActiveIndex = 1
                     }
+
+                    //isAlbumOpenedFromArtisFrag = false
+                    // }
                 } else {
                     setBottomBarFragmentState(FragmentState.HOME).commit()
                     binding.bottomBar.itemActiveIndex = 0
@@ -1254,8 +1291,12 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         isDestroyedActivity = true
     }
 
-    override fun openAlbum(album: String) {
+    override fun openAlbum(album: String, openedFromAlbumFrag: Boolean) {
         viewModel.albumData.value = album
+        //openedFromAlbumFrag == false
+        //then AllAlbumFragment Opened From Search fragment otherwise opened from AlbumFramgment
+        this.isAllAlbumsFragmentNotOpendFromSearchFragment = openedFromAlbumFrag
+        Log.d("ActivtyBottomFramContainer", "openAlbum: opne Album Clicked ")
         animateBottomBarToGone()
         setBottomBarFragmentState(FragmentState.ALBUM_FRAGMENT).commit()
     }
@@ -1266,7 +1307,12 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         setBottomBarFragmentState(FragmentState.FOLDER_SPECIFIC_AUDIO).commit()
     }
 
-    override fun onOpenArtistTrackAndAlbumFragment(artistsData: String) {
+    override fun onOpenArtistTrackAndAlbumFragment(
+        artistsData: String,
+        isArtistTrackAndAlbumFragOpenedFromAllArtistFrag: Boolean
+    ) {
+        this.isArtistTrackAndAlbumFragOpenedFromAllArtistFrag =
+            isArtistTrackAndAlbumFragOpenedFromAllArtistFrag
         viewModel.artistsData.value = artistsData
         animateBottomBarToGone()
         setBottomBarFragmentState(FragmentState.ARTIST_TRACK_ALBUM_FRAGMENT).commit()
@@ -1298,7 +1344,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     private fun animateMiniPlayerToGone() {
         binding.bottomSheet.rlMiniPlayerBottomsheet.visibility = View.GONE
         val bottomMarginOfFrag =
-            if (isPlaylstCategoryOpened || isAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag || isFolderFragOpened) {
+            if (isPlaylstCategoryOpened || isAllAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag || isFolderFragOpened) {
                 if (binding.bottomSheet.rlMiniPlayerBottomsheet.isVisible) {
                     60
                 } else {
@@ -1346,7 +1392,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 )
 
             val bottomMarginOfFrag =
-                if (isPlaylstCategoryOpened || isAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag || isFolderFragOpened) {
+                if (isPlaylstCategoryOpened || isAllAlbumFragOpened || isArtistsFragOpened || isAlbumOpenedFromArtisFrag || isFolderFragOpened) {
                     if (binding.bottomSheet.rlMiniPlayerBottomsheet.isVisible) {
                         60
                     } else {
@@ -1438,12 +1484,15 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     withCrossFade(
                         factory
                     )
-                )
-                    .into(binding.bottomSheet.nowPlayingAlbumArtIV)
-                Palette.from(albumArt).generate {
-                    val bottomSwatch = it?.darkMutedSwatch
-                    val topSwatch = it?.darkMutedSwatch
+                ).into(binding.bottomSheet.nowPlayingAlbumArtIV)
 
+                Palette.from(albumArt).generate {
+                    var bottomSwatch = it?.darkMutedSwatch
+                    var topSwatch = it?.darkMutedSwatch
+                    if (bottomSwatch == null || topSwatch == null) {
+                        bottomSwatch = it?.mutedSwatch
+                        topSwatch = it?.mutedSwatch
+                    }
                     if (bottomSwatch != null && topSwatch != null) {
                         binding.bottomSheet.albumArtBottomGradient.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_default)
                         binding.bottomSheet.bottomBackground.setBackgroundResource(R.drawable.app_theme_default_background)
@@ -1493,9 +1542,10 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                             .into(binding.bottomSheet.topBackground)*/
 //                        binding.bottomSheet.bottomBackground.background = gradientDrawableParent
 
-                    } else {
-                        defaultBackgroundOfExpandedPlayer()
-                    }
+                    } //else {
+                    // Toast.makeText(this, "Default", Toast.LENGTH_SHORT).show()
+                    // defaultBackgroundOfExpandedPlayer(factory)
+                    // }
 
                 }
 
@@ -1503,59 +1553,101 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 binding.bottomSheet.nowPlayingNoAlbumArt.visibility = View.VISIBLE
                 binding.bottomSheet.nowPlayingAlbumArtIV.visibility = View.GONE
 
-                // val originalBitmap = BitmapFactory.decodeResource(
-                //     resources,
-                //     R.drawable.music_note_icon
-                // )
+                defaultBackgroundOfExpandedPlayer(factory)
 
-                defaultBackgroundOfExpandedPlayer()
+                /*  val originalBitmap = BitmapFactory.decodeResource(
+                      resources,
+                      R.drawable.noti_large_default_icon
+                  )
 
-//                Palette.from(originalBitmap).generate {
-//                    val swatch = it?.dominantSwatch
-//                    if (swatch != null) {
-//                        binding.bottomSheet.albumArtBottomGradient.setBackgroundResource(R.drawable.gradient_background_bottom_shadow)
-//                        binding.bottomSheet.bottomBackground.setBackgroundResource(R.drawable.app_theme_background_drawable)
-//                        binding.bottomSheet.albumArtTopGradient.setBackgroundResource(R.drawable.gradient_background_top_shadow)
-//
-//                        val gradientDrawableBottomTop = GradientDrawable(
-//                            GradientDrawable.Orientation.BOTTOM_TOP,
-//                            intArrayOf(swatch.rgb, 0x00000000)
-//                        )
-//                        val gradientDrawableTopBottom = GradientDrawable(
-//                            GradientDrawable.Orientation.TOP_BOTTOM,
-//                            intArrayOf(swatch.rgb, swatch.population)
-//                        )
-//                        binding.bottomSheet.albumArtBottomGradient.background =
-//                            gradientDrawableBottomTop
-//                        binding.bottomSheet.albumArtTopGradient.background =
-//                            gradientDrawableTopBottom
-//
-//                         parent background
-//                        val gradientDrawableParent = GradientDrawable(
-//                            GradientDrawable.Orientation.BOTTOM_TOP,
-//                            intArrayOf(swatch.rgb, swatch.rgb)
-//                        )
-//                        binding.bottomSheet.bottomBackground.background = gradientDrawableParent
-//                    }
-//                }
+
+                  Palette.from(originalBitmap).generate {
+                      val bottomSwatch = it?.darkMutedSwatch
+                      val topSwatch = it?.darkMutedSwatch
+                      if (bottomSwatch != null && topSwatch != null) {
+                          binding.bottomSheet.albumArtBottomGradient.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_default)
+                          binding.bottomSheet.bottomBackground.setBackgroundResource(R.drawable.app_theme_default_background)
+                          //binding.bottomSheet.albumArtTopGradient.setBackgroundResource(R.drawable.gradient_background_top_shadow)
+
+                          val gradientDrawableBottomTop = GradientDrawable(
+                              GradientDrawable.Orientation.BOTTOM_TOP,
+                              intArrayOf(bottomSwatch.rgb, 0x00000000)
+                          )
+
+                          Glide.with(this).load(gradientDrawableBottomTop)
+                              .transition(withCrossFade(factory))
+                              .into(binding.bottomSheet.albumArtBottomGradient)
+
+
+                          val gradientDrawableParentBottom = GradientDrawable(
+                              GradientDrawable.Orientation.BOTTOM_TOP,
+                              intArrayOf(bottomSwatch.rgb, bottomSwatch.rgb)
+                          )
+
+                          Glide.with(this).load(gradientDrawableParentBottom)
+                              .transition(withCrossFade(factory))
+                              .into(binding.bottomSheet.bottomBackground)
+
+                      }
+                  }*/
             }
         }
     }
 
-    private fun defaultBackgroundOfExpandedPlayer() {
-        val factory = DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
+    private fun defaultBackgroundOfExpandedPlayer(factory: DrawableCrossFadeFactory) {
 
-        Glide.with(this).load(R.drawable.music_note_icon)
-            .transition(withCrossFade(factory))
-            .into(binding.bottomSheet.nowPlayingNoAlbumArt)
+        val originalBitmap = BitmapFactory.decodeResource(
+            resources,
+            R.drawable.play_beat_logo
+        )
 
-        Glide.with(this).load(R.drawable.purple_background_bottom_gradient)
-            .transition(withCrossFade(factory))
-            .into(binding.bottomSheet.albumArtBottomGradient)
+        Glide.with(this).load(R.drawable.play_beat_logo).transition(
+            withCrossFade(factory)
+        ).into(binding.bottomSheet.nowPlayingNoAlbumArt)
+        //defaultBackgroundOfExpandedPlayer()
 
-        Glide.with(this).load(R.drawable.purple_solid_background)
-            .transition(withCrossFade(factory))
-            .into(binding.bottomSheet.bottomBackground)
+        Palette.from(originalBitmap).generate {
+            val bottomSwatch = it?.darkMutedSwatch
+            val topSwatch = it?.darkMutedSwatch
+            if (bottomSwatch != null && topSwatch != null) {
+                binding.bottomSheet.albumArtBottomGradient.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_default)
+                binding.bottomSheet.bottomBackground.setBackgroundResource(R.drawable.app_theme_default_background)
+                //binding.bottomSheet.albumArtTopGradient.setBackgroundResource(R.drawable.gradient_background_top_shadow)
+
+                val gradientDrawableBottomTop = GradientDrawable(
+                    GradientDrawable.Orientation.BOTTOM_TOP,
+                    intArrayOf(bottomSwatch.rgb, 0x00000000)
+                )
+
+                Glide.with(this).load(gradientDrawableBottomTop)
+                    .transition(withCrossFade(factory))
+                    .into(binding.bottomSheet.albumArtBottomGradient)
+
+
+                val gradientDrawableParentBottom = GradientDrawable(
+                    GradientDrawable.Orientation.BOTTOM_TOP,
+                    intArrayOf(bottomSwatch.rgb, bottomSwatch.rgb)
+                )
+
+                Glide.with(this).load(gradientDrawableParentBottom)
+                    .transition(withCrossFade(factory))
+                    .into(binding.bottomSheet.bottomBackground)
+
+            }
+        }
+//        val factory = DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
+//
+//        Glide.with(this).load(R.drawable.music_note_icon)
+//            .transition(withCrossFade(factory))
+//            .into(binding.bottomSheet.nowPlayingNoAlbumArt)
+//
+//        Glide.with(this).load(R.drawable.purple_background_bottom_gradient)
+//            .transition(withCrossFade(factory))
+//            .into(binding.bottomSheet.albumArtBottomGradient)
+//
+//        Glide.with(this).load(R.drawable.purple_solid_background)
+//            .transition(withCrossFade(factory))
+//            .into(binding.bottomSheet.bottomBackground)
 
         /*  Glide.with(this).load(R.drawable.purple_background_top_gradient)
               .transition(withCrossFade(factory))
@@ -1808,6 +1900,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     if (AllSongFragment.musicService?.mediaPlayer != null) {
                         if (AllSongFragment.musicService?.mediaPlayer!!.isPlaying) {
                             binding.bottomSheet.playPauseMiniPlayer.setImageResource(R.drawable.ic_pause_audio)
+                            binding.bottomSheet.playPauseMiniPlayer.setImageResource(R.drawable.ic_pause_audio)
                         } else {
                             binding.bottomSheet.playPauseMiniPlayer.setImageResource(R.drawable.ic_play_audio)
                         }
@@ -1966,6 +2059,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 nowPlayingBottomSheetBehavior.isDraggable = false
             }
             //}
+
         }
     }
 

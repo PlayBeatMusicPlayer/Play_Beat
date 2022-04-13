@@ -2,13 +2,13 @@ package com.knesarcreation.playbeat.fragment
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
@@ -16,10 +16,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
+import com.google.gson.Gson
+import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.adapter.AllAlbumsAdapter
+import com.knesarcreation.playbeat.adapter.AllArtistsAdapter
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
-import com.knesarcreation.playbeat.database.AllSongsModel
-import com.knesarcreation.playbeat.database.QueueListModel
-import com.knesarcreation.playbeat.database.ViewModelClass
+import com.knesarcreation.playbeat.database.*
 import com.knesarcreation.playbeat.databinding.FragmentSearchBinding
 import com.knesarcreation.playbeat.utils.SavedAppTheme
 import com.knesarcreation.playbeat.utils.StorageUtil
@@ -30,12 +32,22 @@ class SearchFragment : Fragment() {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding
+    private var onAlbumItemClickListener: AllAlbumsFragment.OnAlbumItemClicked? = null
+    private var openArtistFragmentListener: AllArtistsFragment.OpenArtisFragment? = null
     private var audioList = CopyOnWriteArrayList<AllSongsModel>()
+    private var albumList = CopyOnWriteArrayList<AlbumModel>()
+    private var artistList = CopyOnWriteArrayList<ArtistsModel>()
     private var audioSearchList = ArrayList<AllSongsModel>()
+    private var albumSearchList = ArrayList<AlbumModel>()
+    private var artistSearchList = ArrayList<ArtistsModel>()
     private var allSongsAdapter: AllSongsAdapter? = null
+    private var allAlbumAdapter: AllAlbumsAdapter? = null
+    private var allArtistsAdapter: AllArtistsAdapter? = null
     private lateinit var storageUtil: StorageUtil
     private var currentPlayingAudioIndex = -1
     private lateinit var mViewModelClass: ViewModelClass
+    private var userInput = ""
+    //private var doClearSearchResult = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +59,11 @@ class SearchFragment : Fragment() {
         }
 
     }
+
+    /* private fun initializeAddMob() {
+         val adBanner = AdBanner(activity as Context, binding!!.adView_container)
+         adBanner.initializeAddMob()
+     }*/
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,24 +77,46 @@ class SearchFragment : Fragment() {
 
         binding?.noSearchResultTV?.visibility = View.GONE
         binding?.llNoSearchResult?.visibility = View.VISIBLE
+        binding?.rvSearchList?.visibility = View.GONE
+        binding?.llSearchResultCount?.visibility = View.GONE
+
+        handleSearchFilterButtons()
 
         storageUtil = StorageUtil(activity as Context)
         // val list = storageUtil.loadAudio()
         //audioList.addAll(list)
         currentPlayingAudioIndex = storageUtil.loadAudioIndex()
 
+
+        //initializeAddMob()
+
         observeAudioData()
+        observerAlbumsData()
+        observeAudioArtistData()
+
         binding?.searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = true
 
             override fun onQueryTextChange(newText: String?): Boolean {
+                // clear search result when navigate to next fragments
+                //doClearSearchResult = true
+
                 audioSearchList.clear()
+                albumSearchList.clear()
+                artistSearchList.clear()
                 if (newText != null) {
+                    // transition to start
+                    if (binding?.rvSearchList!!.scrollState == 0)
+                        binding?.motionLayoutSearchFrag?.jumpToState(R.id.start)
+
                     binding?.rvSearchList?.visibility = View.VISIBLE
+                    binding?.llSearchResultCount?.visibility = View.VISIBLE
                     binding?.llNoSearchResult?.visibility = View.GONE
                     binding?.noSearchResultTV?.visibility = View.VISIBLE
-                    val userInput = newText.lowercase()
+                    userInput = newText.lowercase()
                     audioSearchList.clear()
+                    albumSearchList.clear()
+                    artistSearchList.clear()
                     for (audio in audioList) {
                         if (audio.songName.lowercase().contains(userInput)) {
                             if (!audioSearchList.contains(audio)) {
@@ -85,29 +124,38 @@ class SearchFragment : Fragment() {
                             }
                         }
                     }
-                    allSongsAdapter = AllSongsAdapter(
-                        activity as Context,
-                        AllSongsAdapter.OnClickListener { allSongModel, position ->
-                            onClickAudio(allSongModel, position)
-                        },
-                        AllSongsAdapter.OnLongClickListener { _, _ ->
 
-                        },
-                        false
-                    )
-                    allSongsAdapter?.isSearching = true
-                    allSongsAdapter?.queryText = userInput
-                    binding?.rvSearchList?.adapter = allSongsAdapter
-                    allSongsAdapter?.submitList(audioSearchList.sortedBy { allSongsModel -> allSongsModel.songName })
+                    for (album in albumList) {
+                        if (album.albumName.lowercase().contains(userInput)) {
+                            if (!albumSearchList.contains(album)) {
+                                albumSearchList.add(album)
+                            }
+                        }
+                    }
+
+                    for (artist in artistList) {
+                        if (artist.artistName.lowercase().contains(userInput)) {
+                            if (!artistSearchList.contains(artist)) {
+                                artistSearchList.add(artist)
+                            }
+                        }
+                    }
+
+                    when {
+                        binding?.songsFilterButton?.isChecked!! -> {
+                            showSongSearchedResult()
+                        }
+                        binding?.albumsFilterButton?.isChecked!! -> {
+                            showAlbumSearchedResult()
+                        }
+                        binding?.artistsFilterButton?.isChecked!! -> {
+                            showArtistSearchedResult()
+                        }
+                    }
+
                 }
                 if (newText?.length == 0) {
-                    audioSearchList.clear()
-                    allSongsAdapter?.submitList(audioSearchList.sortedBy { allSongsModel -> allSongsModel.songName })
-                    binding?.rvSearchList?.visibility = View.GONE
-                    binding?.llNoSearchResult?.visibility = View.VISIBLE
-                    binding?.noSearchResultTV?.visibility = View.VISIBLE
-                }
-                if(audioSearchList.isEmpty()){
+                    clearSearchResult()
                     binding?.llNoSearchResult?.visibility = View.VISIBLE
                     binding?.noSearchResultTV?.visibility = View.VISIBLE
                 }
@@ -118,6 +166,198 @@ class SearchFragment : Fragment() {
         return view
     }
 
+    private fun handleSearchFilterButtons() {
+        binding?.allFilterButton?.visibility = View.GONE
+
+        //Default Songs filter btn will be checked
+        binding?.songsFilterButton!!.isChecked = true
+        binding?.songsFilterButton!!.strokeWidth = 0
+
+        /*binding?.allFilterButton?.setOnClickListener {
+            uncheckAllFilterButton()
+            binding?.allFilterButton!!.isChecked = true
+            binding?.allFilterButton!!.strokeWidth = 0
+        }*/
+
+        binding?.songsFilterButton?.setOnClickListener {
+            //binding?.motionLayoutSearchFrag?.transitionToStart()
+            binding?.motionLayoutSearchFrag?.jumpToState(R.id.start)
+
+            uncheckAllFilterButton()
+            clearSearchResult()
+            binding?.songsFilterButton!!.isChecked = true
+            binding?.songsFilterButton!!.strokeWidth = 0
+
+            if (userInput.trim() != "") {
+                showSongSearchedResult()
+            }
+        }
+
+        binding?.albumsFilterButton?.setOnClickListener {
+            //binding?.motionLayoutSearchFrag?.transitionToStart()
+            binding?.motionLayoutSearchFrag?.jumpToState(R.id.start)
+
+            uncheckAllFilterButton()
+            clearSearchResult()
+            binding?.albumsFilterButton!!.isChecked = true
+            binding?.albumsFilterButton!!.strokeWidth = 0
+
+            if (userInput.trim() != "") {
+                showAlbumSearchedResult()
+            }
+        }
+
+        binding?.artistsFilterButton?.setOnClickListener {
+            // binding?.motionLayoutSearchFrag?.transitionToStart()
+            binding?.motionLayoutSearchFrag?.jumpToState(R.id.start)
+
+            uncheckAllFilterButton()
+            clearSearchResult()
+            binding?.artistsFilterButton!!.isChecked = true
+            binding?.artistsFilterButton!!.strokeWidth = 0
+            if (userInput.trim() != "") {
+                showArtistSearchedResult()
+            }
+        }
+    }
+
+    private fun uncheckAllFilterButton() {
+        for (i in 0..4) {
+            binding?.allFilterButton!!.isChecked = false
+            binding?.allFilterButton!!.strokeColor = ColorStateList.valueOf(Color.GRAY)
+            binding?.allFilterButton!!.strokeWidth = 3
+
+            binding?.songsFilterButton!!.isChecked = false
+            binding?.songsFilterButton!!.strokeColor = ColorStateList.valueOf(Color.GRAY)
+            binding?.songsFilterButton!!.strokeWidth = 3
+
+            binding?.albumsFilterButton!!.isChecked = false
+            binding?.albumsFilterButton!!.strokeColor = ColorStateList.valueOf(Color.GRAY)
+            binding?.albumsFilterButton!!.strokeWidth = 3
+
+            binding?.artistsFilterButton!!.isChecked = false
+            binding?.artistsFilterButton!!.strokeColor = ColorStateList.valueOf(Color.GRAY)
+            binding?.artistsFilterButton!!.strokeWidth = 3
+        }
+    }
+
+    private fun showAlbumSearchedResult() {
+        binding?.iconIV!!.setImageResource(R.drawable.ic_album_teal)
+        binding?.titleTV!!.text = "${albumSearchList.size} Albums"
+
+        if (albumSearchList.size > 0) {
+            binding?.llSearchResultCount?.visibility = View.VISIBLE
+            binding?.rvSearchList?.visibility = View.VISIBLE
+            binding?.llNoSearchResult?.visibility = View.GONE
+            allAlbumAdapter = AllAlbumsAdapter(
+                activity as Context,
+                /* albumList,*/
+                object : AllAlbumsAdapter.OnAlbumClicked {
+                    override fun onClicked(albumModel: AlbumModel) {
+                        val gson = Gson()
+                        val album = gson.toJson(albumModel)
+                        // doClearSearchResult = false
+                        onAlbumItemClickListener?.openAlbum(album, false)
+                    }
+                })
+            binding?.rvSearchList!!.adapter = allAlbumAdapter
+            allAlbumAdapter?.queryText = userInput
+            allAlbumAdapter?.isSearching = true
+            allAlbumAdapter?.submitList(albumSearchList.sortedBy { albumModel -> albumModel.albumName })
+        } else {
+            clearSearchResult()
+            binding?.llNoSearchResult?.visibility = View.VISIBLE
+            binding?.noSearchResultTV?.visibility = View.VISIBLE
+        }
+    }
+
+    private fun showArtistSearchedResult() {
+        binding?.iconIV!!.setImageResource(R.drawable.ic_artist_teal)
+        binding?.titleTV!!.text = "${artistSearchList.size} Artists"
+        if (artistSearchList.size > 0) {
+            binding?.rvSearchList?.visibility = View.VISIBLE
+            binding?.llSearchResultCount?.visibility = View.VISIBLE
+            binding?.llNoSearchResult?.visibility = View.GONE
+            allArtistsAdapter = AllArtistsAdapter(
+                activity as Context,
+                object : AllArtistsAdapter.OnArtistClicked {
+                    override fun getArtistData(artistsModel: ArtistsModel) {
+                        val gson = Gson()
+                        val artistsData = gson.toJson(artistsModel)
+                        openArtistFragmentListener?.onOpenArtistTrackAndAlbumFragment(
+                            artistsData,
+                            false
+                        )
+                    }
+                }
+            )
+            allArtistsAdapter?.isSearching = true
+            allArtistsAdapter?.queryText = userInput
+            binding?.rvSearchList?.adapter = allArtistsAdapter
+            allArtistsAdapter?.submitList(artistSearchList.sortedBy { artistModel -> artistModel.artistName })
+        } else {
+            clearSearchResult()
+            binding?.llNoSearchResult?.visibility = View.VISIBLE
+            binding?.noSearchResultTV?.visibility = View.VISIBLE
+        }
+    }
+
+    private fun showSongSearchedResult() {
+        binding?.iconIV!!.setImageResource(R.drawable.music_note_icon_teal)
+        binding?.titleTV!!.text = "${audioSearchList.size} Songs"
+
+        if (audioSearchList.size > 0) {
+            //Toast.makeText(activity as Context, "${audioSearchList.size}", Toast.LENGTH_SHORT)
+            //  .show()
+            //Log.d("showSongSearchedResult", "showSongSearchedResult: ${audioSearchList.size}")
+            binding?.llSearchResultCount?.visibility = View.VISIBLE
+            binding?.rvSearchList?.visibility = View.VISIBLE
+            binding?.llNoSearchResult?.visibility = View.GONE
+            allSongsAdapter = AllSongsAdapter(
+                activity as Context,
+                AllSongsAdapter.OnClickListener { allSongModel, position ->
+                    onClickAudio(allSongModel, position)
+                },
+                AllSongsAdapter.OnLongClickListener { _, _ ->
+
+                },
+                false
+            )
+
+            allSongsAdapter?.isSearching = true
+            allSongsAdapter?.queryText = userInput
+            binding?.rvSearchList!!.adapter = allSongsAdapter
+            allSongsAdapter?.submitList(audioSearchList.sortedBy { allSongsModel -> allSongsModel.songName })
+        } else {
+            clearSearchResult()
+            binding?.llNoSearchResult?.visibility = View.VISIBLE
+            binding?.noSearchResultTV?.visibility = View.VISIBLE
+        }
+    }
+
+    private fun clearSearchResult() {
+        when {
+            binding?.songsFilterButton?.isChecked!! -> {
+                audioSearchList.clear()
+                allSongsAdapter?.submitList(audioSearchList.sortedBy { allSongsModel -> allSongsModel.songName })
+                binding?.rvSearchList?.visibility = View.GONE
+                binding?.llSearchResultCount?.visibility = View.GONE
+            }
+            binding?.albumsFilterButton?.isChecked!! -> {
+                albumSearchList.clear()
+                allAlbumAdapter?.submitList(albumSearchList.sortedBy { albumModel -> albumModel.albumName })
+                binding?.llSearchResultCount?.visibility = View.GONE
+                binding?.rvSearchList?.visibility = View.GONE
+            }
+            binding?.artistsFilterButton?.isChecked!! -> {
+                artistSearchList.clear()
+                allArtistsAdapter?.submitList(artistSearchList.sortedBy { artistModel -> artistModel.artistName })
+                binding?.llSearchResultCount?.visibility = View.GONE
+                binding?.rvSearchList?.visibility = View.GONE
+            }
+        }
+    }
+
     private fun observeAudioData() {
         mViewModelClass.getAllSong().observe(viewLifecycleOwner) {
             if (it != null) {
@@ -125,7 +365,11 @@ class SearchFragment : Fragment() {
                 val sortedList = it.sortedBy { allSongsModel -> allSongsModel.songName }
                 audioList.addAll(sortedList)
 
+                //newSearchList is a local variable just for here
                 val newSearchList = ArrayList<AllSongsModel>()
+                /** doing this operation to see the changes in recycler view at real time
+                1. make a new list
+                2. check search result audio present in audio list  if yes add it in newSearchList and submit the list*/
                 if (audioSearchList.isNotEmpty()) {
                     for (searchAudio in audioSearchList) {
                         for (audio in audioList) {
@@ -134,8 +378,35 @@ class SearchFragment : Fragment() {
                             }
                         }
                     }
+                    //updating audioSearchList: its a global variable so we need to update this list also
+                    audioSearchList.clear()
+                    audioSearchList.addAll(newSearchList)
+
+                    //submitting newSearchList for notifying adapter
+                    /** NOTE: if we pass same audioSearchList then adapter will not notify , so here i am making newSearch list
+                    and adding data to it from audioSearchList and submitting it to adapter */
                     allSongsAdapter?.submitList(newSearchList.sortedBy { allSongsModel -> allSongsModel.songName })
                 }
+            }
+        }
+    }
+
+    private fun observerAlbumsData() {
+        mViewModelClass.getAlbums().observe(viewLifecycleOwner) {
+            if (it != null) {
+                albumList.clear()
+                val sortedByAlbumName = it.sortedBy { albumModel -> albumModel.albumName }
+                albumList.addAll(sortedByAlbumName)
+            }
+        }
+    }
+
+    private fun observeAudioArtistData() {
+        mViewModelClass.getAllArtists().observe(viewLifecycleOwner) {
+            if (it != null) {
+                artistList.clear()
+                val sortedArtistList = it.sortedBy { artistsModel -> artistsModel.artistName }
+                artistList.addAll(sortedArtistList)
             }
         }
     }
@@ -231,26 +502,14 @@ class SearchFragment : Fragment() {
         (activity as Context).sendBroadcast(updatePlayer)*/
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        if (hidden) {
-            audioSearchList.clear()
-            allSongsAdapter?.submitList(audioSearchList.sortedBy { allSongsModel -> allSongsModel.songName })
-            binding?.rvSearchList?.visibility = View.GONE
-            //binding?.searchLottie?.visibility = View.VISIBLE
-            //binding?.searchView?.setIconifiedByDefault(false);
-//            binding?.searchView?.isFocusable = false
-//            binding?.searchView?.isIconified = false
-            //binding?.searchView?.isFocusedByDefault = false
-        } //else {
-//            binding?.searchView?.setIconifiedByDefault(false);
-        //binding?.searchView?.isFocusable = true
-//            binding?.searchView?.isIconified = false
-        //binding?.searchView?.requestFocusFromTouch()
-        // binding?.searchView?.isFocusedByDefault = true
-        //}
-    }
+    // @RequiresApi(Build.VERSION_CODES.O)
+    //  override fun onHiddenChanged(hidden: Boolean) {
+    //     super.onHiddenChanged(hidden)
+    //     if (hidden) {
+    //if (doClearSearchResult)
+    // clearSearchResult()
+    //}
+    //}
 
     override fun onResume() {
         super.onResume()
@@ -283,5 +542,15 @@ class SearchFragment : Fragment() {
             isSettingFrag = false,
 
             ).settingSavedBackgroundTheme()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        try {
+            onAlbumItemClickListener = context as AllAlbumsFragment.OnAlbumItemClicked
+            openArtistFragmentListener = context as AllArtistsFragment.OpenArtisFragment
+        } catch (e: ClassCastException) {
+            e.printStackTrace()
+        }
     }
 }

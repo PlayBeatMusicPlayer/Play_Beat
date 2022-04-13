@@ -14,16 +14,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.knesarcreation.playbeat.BuildConfig
 import com.knesarcreation.playbeat.R
-import com.knesarcreation.playbeat.activity.AppThemesActivity
 import com.knesarcreation.playbeat.databinding.FragmentSettingBinding
 import com.knesarcreation.playbeat.utils.LoadAllAudios
 import com.knesarcreation.playbeat.utils.SavedAppTheme
@@ -55,6 +55,8 @@ class SettingFragment : Fragment() {
         val view = binding!!.root
 
 
+        binding?.versionNameTV!!.text = "Version: ${BuildConfig.VERSION_NAME}"
+
         openLinkedIn()
 
         openGitHub()
@@ -70,15 +72,29 @@ class SettingFragment : Fragment() {
         openPlayBeatInstaPage()
 
         filterAudio()
+
+        openChangeLog()
+
         return view
 
 
     }
 
+    private fun openChangeLog() {
+        binding?.appChangeLog?.setOnClickListener {
+            val bottomSheetWhatsNew = BottomSheetWhatsNew()
+            bottomSheetWhatsNew.show(
+                (activity as AppCompatActivity).supportFragmentManager,
+                "bottomSheetWhatsNew"
+            )
+        }
+    }
+
     @SuppressLint("SetTextI18n")
     private fun filterAudio() {
         binding?.filterSongs?.setOnClickListener {
-            val showFilterDialog = AlertDialog.Builder(activity as Context)
+            val showFilterDialog =
+                MaterialAlertDialogBuilder(activity as Context, R.style.CustomAlertDialog)
             val customView = layoutInflater.inflate(R.layout.dialog_filter_songs, null)
             val sliderFilterAudio = customView.findViewById<Slider>(R.id.sliderfilterAudio)
             val cancelButton = customView.findViewById<MaterialButton>(R.id.cancelButton)
@@ -132,7 +148,7 @@ class SettingFragment : Fragment() {
                 mAudioThread.start()
                 dialog.dismiss()
 
-                val progressDialogAlert = android.app.AlertDialog.Builder(
+                val progressDialogAlert = MaterialAlertDialogBuilder(
                     activity as Context,
                     R.style.CustomAlertDialog
                 )
@@ -156,7 +172,12 @@ class SettingFragment : Fragment() {
 
     private fun openThemActivity() {
         binding?.themeTV!!.setOnClickListener {
-            startActivity(Intent(activity as Context, AppThemesActivity::class.java))
+            //startActivity(Intent(activity as Context, AppThemesActivity::class.java))
+            Toast.makeText(
+                activity as Context,
+                "For now App theme support disabled due to some incompatibility.",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 

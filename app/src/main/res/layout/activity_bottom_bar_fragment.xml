@@ -19,7 +19,6 @@
             android:layout_height="match_parent"
             android:layout_marginBottom="65dp" />
 
-
         <include
             android:id="@+id/bottomSheet"
             layout="@layout/bottom_sheet_now_playing" />

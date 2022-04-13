@@ -24,6 +24,18 @@ class StorageUtil(context: Context) {
     private var preferences: SharedPreferences? = null
     private val mContext: Context = context
 
+    fun saveAppOpenedInitially(value: Boolean) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putBoolean("appOpenedInitially", value)
+        editor.apply()
+    }
+
+    fun getIsAppOpenedInitially(): Boolean {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getBoolean("appOpenedInitially", true)
+    }
+
     fun storeAudio(arrayList: CopyOnWriteArrayList<AllSongsModel>?) {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         val editor = preferences!!.edit()

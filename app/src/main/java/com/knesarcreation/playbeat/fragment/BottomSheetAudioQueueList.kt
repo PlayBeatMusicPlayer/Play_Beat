@@ -403,7 +403,7 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
 
         binding?.rvUpNext?.swipeListener = onItemSwipeListener
 
-        mViewModelClass.getQueueAudio().observe(viewLifecycleOwner, {
+        mViewModelClass.getQueueAudio().observe(viewLifecycleOwner) {
             if (it != null) {
                 val loadAudio = storageUtil?.loadQueueAudio()
                 val list = CopyOnWriteArrayList<AllSongsModel>()
@@ -458,15 +458,16 @@ class BottomSheetAudioQueueList(var mContext: Context) : BottomSheetDialogFragme
 
                 if (AllSongFragment.musicService?.mediaPlayer != null) {
                     if (AllSongFragment.musicService?.mediaPlayer?.isPlaying!!) {
-                        binding?.currentPlayingAudioLottie?.playAnimation()
+                        //binding?.currentPlayingAudioLottie?.playAnimation()
+                        binding?.equalizerView!!.animateBars()
                     } else {
-                        binding?.currentPlayingAudioLottie?.pauseAnimation()
+                        binding?.equalizerView?.stopBars()
                     }
                 } else {
-                    binding?.currentPlayingAudioLottie?.pauseAnimation()
+                    binding?.equalizerView?.stopBars()
                 }
             }
-        })
+        }
 
     }
 

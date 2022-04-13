@@ -59,9 +59,9 @@ class ViewModelClass(mApplication: Application) : AndroidViewModel(mApplication)
         return repository.getAudioAccordingToFolders(folderId)
     }
 
-    fun deleteSongs(lifecycleScope: LifecycleCoroutineScope) {
+    /*fun deleteSongs(lifecycleScope: LifecycleCoroutineScope) {
         repository.deleteSongs(lifecycleScope)
-    }
+    }*/
 
     fun deleteOneSong(songId: Long, lifecycleScope: LifecycleCoroutineScope) {
         repository.deleteOneSong(songId, lifecycleScope)

@@ -372,7 +372,8 @@
                             android:layout_marginBottom="5dp"
                             android:layout_toEndOf="@id/txtAudioPlay"
                             android:backgroundTint="#DA3A3A"
-                            android:text="Reset" />
+                            android:text="Reset"
+                            android:textColor="@color/white" />
 
                         <TextView
                             android:id="@+id/txtAudioRecordTimeUpdate"

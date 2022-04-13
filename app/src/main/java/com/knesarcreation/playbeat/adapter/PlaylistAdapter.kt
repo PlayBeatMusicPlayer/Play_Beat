@@ -251,8 +251,8 @@ class PlaylistAdapter(
                     val playlistSongIds = convertStringToList(playlistModel.songIds)
                     val playlistAudiosList = getPlaylistAudios(playlistSongIds)
                     val sortedAudio = getSortedAudio(playlistModel, playlistAudiosList)
-                    Log.d("GetSortedAudio11", "bind: $sortedAudio")
-                    Toast.makeText(context, "${sortedAudio[0].songName}", Toast.LENGTH_SHORT).show()
+                    //Log.d("GetSortedAudio11", "bind: $sortedAudio")
+                    // Toast.makeText(context, "${sortedAudio[0].songName}", Toast.LENGTH_SHORT).show()
                     onClickAudio(sortedAudio[0], sortedAudio)
                 }
             }

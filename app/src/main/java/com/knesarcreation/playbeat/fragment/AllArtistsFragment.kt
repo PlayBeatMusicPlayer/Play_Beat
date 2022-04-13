@@ -45,7 +45,7 @@ class AllArtistsFragment : Fragment() {
     }
 
     private fun observeAudioArtistData() {
-        mViewModelClass.getAllArtists().observe(viewLifecycleOwner, {
+        mViewModelClass.getAllArtists().observe(viewLifecycleOwner) {
             if (it != null) {
                 if (it.isEmpty()) {
                     binding?.rvArtists!!.visibility = View.GONE
@@ -61,7 +61,7 @@ class AllArtistsFragment : Fragment() {
                 binding?.rvArtists!!.visibility = View.GONE
                 binding?.rlNoArtistPresent!!.visibility = View.VISIBLE
             }
-        })
+        }
     }
 
     private fun setUpRecyclerAdapter() {
@@ -71,15 +71,19 @@ class AllArtistsFragment : Fragment() {
                 override fun getArtistData(artistsModel: ArtistsModel) {
                     val gson = Gson()
                     val artistsData = gson.toJson(artistsModel)
-                    listener?.onOpenArtistTrackAndAlbumFragment(artistsData)
+                    listener?.onOpenArtistTrackAndAlbumFragment(artistsData,true)
                 }
             }
         )
+        allArtistsAdapter.isSearching = false
         binding?.rvArtists?.adapter = allArtistsAdapter
     }
 
     interface OpenArtisFragment {
-        fun onOpenArtistTrackAndAlbumFragment(artistsData: String)
+        fun onOpenArtistTrackAndAlbumFragment(
+            artistsData: String,
+            isArtistTrackAndAlbumFragOpenedFromAllArtistFrag: Boolean
+        )
     }
 
     override fun onAttach(context: Context) {

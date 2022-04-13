@@ -17,6 +17,7 @@ import com.knesarcreation.playbeat.adapter.PlaylistAdapter
 import com.knesarcreation.playbeat.database.PlaylistModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.FragmentPlaylistsBinding
+import com.knesarcreation.playbeat.utils.AdBanner
 import com.knesarcreation.playbeat.utils.SavedAppTheme
 import com.knesarcreation.playbeat.utils.StorageUtil
 
@@ -44,6 +45,11 @@ class PlaylistsFragment : Fragment() {
         }
     }
 
+    private fun initializeAddMob() {
+        val adBanner = AdBanner(activity as Context, binding!!.adViewContainer)
+        adBanner.initializeAddMob()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,6 +57,8 @@ class PlaylistsFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentPlaylistsBinding.inflate(inflater, container, false)
         val view = binding?.root
+
+        initializeAddMob()
 
         storage = StorageUtil(activity as Context)
         mViewModelClass = ViewModelProvider(this)[ViewModelClass::class.java]

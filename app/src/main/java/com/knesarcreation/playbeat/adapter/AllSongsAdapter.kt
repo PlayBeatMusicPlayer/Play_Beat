@@ -16,7 +16,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.airbnb.lottie.LottieAnimationView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
@@ -27,8 +26,8 @@ import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.QueueListModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.fragment.BottomSheetAudioMoreOptions
-import com.knesarcreation.playbeat.model.AudioArtBitmapModel
 import com.knesarcreation.playbeat.utils.StorageUtil
+import eu.gsottbauer.equalizerview.EqualizerView
 import java.util.concurrent.CopyOnWriteArrayList
 
 
@@ -59,8 +58,10 @@ class AllSongsAdapter(
         val moreIconIV: ImageView = view.findViewById(R.id.moreIcon)
         val rlAudio: RelativeLayout = view.findViewById(R.id.rlAudio)
         val selectedAudioFL: FrameLayout = view.findViewById(R.id.selectedAudioFL)
-        private val currentPlayingAudioLottie: LottieAnimationView =
-            view.findViewById(R.id.currentPlayingAudioLottie)
+
+        //private val currentPlayingAudioLottie: LottieAnimationView =
+        //  view.findViewById(R.id.currentPlayingAudioLottie)
+        private val equalizerView: EqualizerView = view.findViewById(R.id.equalizerView)
         private val rlCurrentPlayingLottie: RelativeLayout =
             view.findViewById(R.id.rlCurrentPlayingLottie)
         //private var loadingArtJob: Job? = null
@@ -74,10 +75,12 @@ class AllSongsAdapter(
             moreIconIV.visibility = View.VISIBLE
 
             if (isSearching) {
+                //highlight and show the song name
                 highlightSearchedAudioText(queryText, allSongModel)
             } else {
                 songName.text = allSongModel.songName
             }
+
             if (allSongModel.artistsName.length >= 28) {
                 val dropLastValue = allSongModel.artistsName.length - 25
                 artistName.text = "${allSongModel.artistsName.dropLast(dropLastValue)}..."
@@ -88,12 +91,13 @@ class AllSongsAdapter(
 
             //val artUri = allSongModel.artUri
 
-            currentPlayingAudioLottie.setAnimation(R.raw.playing_audio_indicator)
+            // currentPlayingAudioLottie.setAnimation(R.raw.playing_audio_indicator)
             when (allSongModel.playingOrPause) {
                 1 /* 1 for play */ -> {
                     rlCurrentPlayingLottie.visibility = View.VISIBLE
                     //r.currentPlayingAudioIndicator.visibility = View.VISIBLE
-                    currentPlayingAudioLottie.playAnimation()
+                    //currentPlayingAudioLottie.playAnimation()
+                    equalizerView.animateBars()
                     songName.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
@@ -116,7 +120,8 @@ class AllSongsAdapter(
                 0 /* 0 for pause*/ -> {
                     rlCurrentPlayingLottie.visibility = View.VISIBLE
                     //r.currentPlayingAudioIndicator.visibility = View.VISIBLE
-                    currentPlayingAudioLottie.pauseAnimation()
+                    // currentPlayingAudioLottie.pauseAnimation()
+                    equalizerView.stopBars()
                     songName.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
@@ -137,7 +142,8 @@ class AllSongsAdapter(
                     )
                 }
                 -1 /*default*/ -> {
-                    currentPlayingAudioLottie.pauseAnimation()
+                    // currentPlayingAudioLottie.pauseAnimation()
+                    equalizerView.stopBars()
                     rlCurrentPlayingLottie.visibility = View.GONE
                     songName.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
                     artistName.setTextColor(ContextCompat.getColor(itemView.context, R.color.grey))
@@ -146,7 +152,7 @@ class AllSongsAdapter(
                 }
             }
 
-            var audioArtBitmapModel: AudioArtBitmapModel? = null
+            //var audioArtBitmapModel: AudioArtBitmapModel? = null
             val factory = DrawableCrossFadeFactory.Builder(200)
             // try {
             //     audioArtBitmapModel =
@@ -220,11 +226,13 @@ class AllSongsAdapter(
         holder.rlAudio.setOnClickListener {
             if (isContextMenuEnabled) {
                 if (!isSearching) {
+                    // restricting to open context menu if view is in searching
                     allSongsModel.isChecked = !allSongsModel.isChecked
                     onLongClickListener.onLongClick(allSongsModel, holder.bindingAdapterPosition)
                     notifyItemHasChanged(holder.bindingAdapterPosition, allSongsModel)
                 }
             } else {
+                //play
                 onClickListener.onClick(allSongsModel, holder.bindingAdapterPosition)
             }
         }

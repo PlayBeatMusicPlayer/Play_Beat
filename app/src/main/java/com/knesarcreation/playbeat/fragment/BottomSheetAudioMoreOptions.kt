@@ -5,13 +5,10 @@ import android.app.PendingIntent
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.drawable.AnimatedVectorDrawable
-import android.graphics.drawable.ColorDrawable
 import android.media.MediaMetadataRetriever
 import android.media.MediaScannerConnection
 import android.media.RingtoneManager
-import android.media.audiofx.AudioEffect
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -27,7 +24,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -37,11 +33,13 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.activity.AudioTrimmerActivity
 import com.knesarcreation.playbeat.activity.TagEditorActivity
+import com.knesarcreation.playbeat.activity.equailizer.EqualizerControlActivity
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.QueueListModel
 import com.knesarcreation.playbeat.database.ViewModelClass
@@ -201,7 +199,7 @@ class BottomSheetAudioMoreOptions(
                 writeAudioToSystemSetting()
             } else {
                 //Toast.makeText(mContext, "Write not allowed :-(", Toast.LENGTH_LONG).show()
-                val alertDialog = AlertDialog.Builder(mContext)
+                val alertDialog = MaterialAlertDialogBuilder(mContext, R.style.CustomAlertDialog)
                 alertDialog.setMessage("Play Beat requires permission of WRITE SYSTEM SETTING in order to set your selected audio as default ringtone.\n\nAfter granting permission, try setting your ringtone again.")
                 alertDialog.setPositiveButton("Allow") { dialog, _ ->
                     permAllowed = true
@@ -229,7 +227,7 @@ class BottomSheetAudioMoreOptions(
     @SuppressLint("SetTextI18n")
     private fun writeAudioToSystemSetting() {
         //Insert it into the database
-        val alertDialog = AlertDialog.Builder(mContext)
+        val alertDialog = MaterialAlertDialogBuilder(mContext, R.style.CustomAlertDialog)
         val customView = layoutInflater.inflate(R.layout.custom_alert_dialog, null)
         alertDialog.setView(customView)
         val dialogTitleTV = customView.findViewById<TextView>(R.id.dialogTitleTV)
@@ -237,7 +235,7 @@ class BottomSheetAudioMoreOptions(
         val positiveBtn = customView.findViewById<MaterialButton>(R.id.positiveBtn)
         val cancelButton = customView.findViewById<MaterialButton>(R.id.cancelButton)
         val create = alertDialog.create()
-        create.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        //create.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         create.show()
         positiveBtn.text = "Set"
         dialogTitleTV.text = "Set as ringtone."
@@ -293,12 +291,34 @@ class BottomSheetAudioMoreOptions(
 
     private fun openSystemEqualizer() {
         binding?.llEqualizer?.setOnClickListener {
-            val intent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL)
-            if (intent.resolveActivity((mContext as AppCompatActivity).packageManager) != null) {
-                requestIntent!!.launch(intent)
+            /* val intent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL)
+             if (intent.resolveActivity((mContext as AppCompatActivity).packageManager) != null) {
+                 requestIntent!!.launch(intent)
+             } else {
+                 Toast.makeText(mContext, "No Equalizer found", Toast.LENGTH_SHORT).show()
+             }*/
+            /*if (AllSongFragment.musicService?.mediaPlayer != null) {
+                val audioSessionId = AllSongFragment.musicService?.mediaPlayer!!.audioSessionId
+                val fragment = DialogEqualizerFragment.newBuilder()
+                    .setAudioSessionId(audioSessionId)
+                    .themeColor(ContextCompat.getColor(activity as Context, R.color.colorPrimary))
+                    .textColor(ContextCompat.getColor(activity as Context, R.color.white))
+                    .accentAlpha(ContextCompat.getColor(activity as Context, R.color.teal_200))
+                    .darkColor(ContextCompat.getColor(activity as Context, R.color.blue))
+                    .setAccentColor(
+                        ContextCompat.getColor(
+                            activity as Context,
+                            R.color.colorAccent
+                        )
+                    )
+                    .build()
+                fragment.show((activity as AppCompatActivity).supportFragmentManager, "eq")
             } else {
-                Toast.makeText(mContext, "No Equalizer found", Toast.LENGTH_SHORT).show()
-            }
+                Toast.makeText(activity as Context, "Something went wrong.", Toast.LENGTH_SHORT)
+                    .show()
+            }*/
+
+            startActivity(Intent(activity as Context, EqualizerControlActivity::class.java))
             dismiss()
         }
     }
@@ -437,7 +457,7 @@ class BottomSheetAudioMoreOptions(
                 Log.d("SongThatWillBeDelete", "deleteAudioFromDevice: path: $audioFile ")
 
                 val alertDialog =
-                    AlertDialog.Builder(activity as Context, R.style.CustomAlertDialog)
+                    MaterialAlertDialogBuilder(activity as Context, R.style.CustomAlertDialog)
                 val viewGroup: ViewGroup =
                     (activity as AppCompatActivity).findViewById(android.R.id.content)
                 val customView =
@@ -554,7 +574,8 @@ class BottomSheetAudioMoreOptions(
     @SuppressLint("SetTextI18n")
     private fun showDetails() {
         binding?.llDetails?.setOnClickListener {
-            val alertDialog = AlertDialog.Builder(activity as Context, R.style.CustomAlertDialog)
+            val alertDialog =
+                MaterialAlertDialogBuilder(activity as Context, R.style.CustomAlertDialog)
             val viewGroup: ViewGroup =
                 (activity as AppCompatActivity).findViewById(android.R.id.content)
             val customView = layoutInflater.inflate(R.layout.dialog_audio_details, viewGroup, false)

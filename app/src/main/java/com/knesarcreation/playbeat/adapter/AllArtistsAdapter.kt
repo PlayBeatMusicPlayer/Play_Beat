@@ -1,6 +1,10 @@
 package com.knesarcreation.playbeat.adapter
 
 import android.content.Context
+import android.graphics.Color
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +21,9 @@ class AllArtistsAdapter(
     var listener: OnArtistClicked
 ) : ListAdapter<ArtistsModel, AllArtistsAdapter.ArtistsViewHolder>(DiffUtilArtistCallback())
 /*RecyclerView.Adapter<AllArtistsAdapter.ArtistsViewHolder>() */ {
+
+    var isSearching = false
+    var queryText = ""
 
     class ArtistsViewHolder(binding: RecyclerAllSongsItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -46,7 +53,15 @@ class AllArtistsAdapter(
 
     override fun onBindViewHolder(holder: ArtistsViewHolder, position: Int) {
         val artistsModel = getItem(position)
-        holder.artistName.text = artistsModel.artistName
+
+        if (isSearching) {
+            //highlight and show the album name
+            highlightSearchedArtistText(queryText, artistsModel, holder)
+        } else {
+            holder.artistName.text = artistsModel.artistName
+        }
+
+        //holder.artistName.text = artistsModel.artistName
         //holder.noOfTracks.text = "${artistsModel.noOfTracks} Tracks"
         // holder.noOfAlbums.text = "${artistsModel.noOfAlbums} Albums"
         holder.llArtistNameOrAlbumName.visibility = View.GONE
@@ -59,6 +74,33 @@ class AllArtistsAdapter(
             listener.getArtistData(artistsModel)
         }
 
+    }
+
+    private fun highlightSearchedArtistText(
+        queryText: String,
+        artistsModel: ArtistsModel?,
+        holder: ArtistsViewHolder
+    ) {
+
+        if (queryText.isNotEmpty()) {
+            val startPos = artistsModel!!.artistName.lowercase().indexOf(queryText)
+            val endPos = startPos + queryText.length
+
+            if (startPos != -1) {
+                val spannable = SpannableStringBuilder(artistsModel.artistName)
+                spannable.setSpan(
+                    ForegroundColorSpan(Color.CYAN),
+                    startPos,
+                    endPos,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                holder.artistName.text = spannable
+            } /*else {
+                holder.albumName.text = albumModel.albumName
+            }*/
+        } /*else {
+            holder.albumName.text = albumModel.albumName
+        }*/
     }
 
     class DiffUtilArtistCallback : DiffUtil.ItemCallback<ArtistsModel>() {

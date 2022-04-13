@@ -215,7 +215,7 @@ class AllAlbumsFragment : Fragment() {
     }
 
     private fun observerAlbumsData() {
-        mViewModelClass.getAlbums().observe(viewLifecycleOwner, {
+        mViewModelClass.getAlbums().observe(viewLifecycleOwner) {
             if (it != null) {
                 albumList.clear()
 
@@ -280,7 +280,7 @@ class AllAlbumsFragment : Fragment() {
                 binding?.rlAllAlbumContainer!!.visibility = View.GONE
                 binding?.rlNoAlbumPresent!!.visibility = View.VISIBLE
             }
-        })
+        }
     }
 
     private fun setUpRecyclerView() {
@@ -291,9 +291,10 @@ class AllAlbumsFragment : Fragment() {
                 override fun onClicked(albumModel: AlbumModel) {
                     val gson = Gson()
                     val album = gson.toJson(albumModel)
-                    listener?.openAlbum(album)
+                    listener?.openAlbum(album, true)
                 }
             })
+        allAlbumsAdapter.isSearching = false
         binding?.rvAlbums?.adapter = allAlbumsAdapter
 
         Log.d("albumListQuery", "loadAlbum: $albumList")
@@ -301,7 +302,7 @@ class AllAlbumsFragment : Fragment() {
     }
 
     interface OnAlbumItemClicked {
-        fun openAlbum(album: String)
+        fun openAlbum(album: String, openedFromAlbumFrag: Boolean)
     }
 
     override fun onAttach(context: Context) {

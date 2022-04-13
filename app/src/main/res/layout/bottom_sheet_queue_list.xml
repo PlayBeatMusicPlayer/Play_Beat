@@ -54,7 +54,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="15dp"
-                android:background="@drawable/curved_light_transparent_purple_bg"
+                android:background="@drawable/curved_light_transparent_default_bg"
                 android:elevation="10dp">
 
                 <ImageView
@@ -99,7 +99,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginBottom="5dp"
-                android:layout_toStartOf="@id/currentPlayingAudioLottie"
+                android:layout_toStartOf="@id/equalizerView"
                 android:layout_toEndOf="@id/album_art_iv"
                 android:ellipsize="end"
                 android:fontFamily="@font/segoe_ui"
@@ -115,7 +115,7 @@
                 android:layout_below="@id/songNameTV"
                 android:layout_marginStart="15dp"
                 android:layout_marginEnd="20dp"
-                android:layout_toStartOf="@id/currentPlayingAudioLottie"
+                android:layout_toStartOf="@id/equalizerView"
                 android:layout_toEndOf="@id/album_art_iv"
                 android:orientation="horizontal">
 
@@ -154,15 +154,26 @@
                     android:textStyle="normal" />
             </LinearLayout>
 
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/currentPlayingAudioLottie"
+            <!-- <com.airbnb.lottie.LottieAnimationView
+                 android:id="@+id/currentPlayingAudioLottie"
+                 android:layout_width="30dp"
+                 android:layout_height="30dp"
+                 android:layout_alignParentEnd="true"
+                 android:layout_centerInParent="true"
+                 app:lottie_autoPlay="true"
+                 app:lottie_loop="true"
+                 app:lottie_rawRes="@raw/playing_audio_indicator" />-->
+            <eu.gsottbauer.equalizerview.EqualizerView
+                android:id="@+id/equalizerView"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerInParent="true"
-                app:lottie_autoPlay="true"
-                app:lottie_loop="true"
-                app:lottie_rawRes="@raw/playing_audio_indicator" />
+                app:barColor="@color/teal_200"
+                app:barCount="3"
+                app:barWidth="6dp"
+                app:marginLeft="2dp"
+                app:marginRight="2dp" />
         </RelativeLayout>
 
         <View
@@ -230,7 +241,7 @@
         android:layout_width="0dp"
         android:layout_height="55dp"
         android:layout_gravity="bottom"
-        android:background="@color/queue_now_playing_background"
+        android:background="@color/app_theme_default_light"
         app:layout_constraintEnd_toEndOf="@+id/recyclerViewContainer"
         app:layout_constraintStart_toStartOf="@+id/recyclerViewContainer"
         app:layout_constraintTop_toTopOf="parent"

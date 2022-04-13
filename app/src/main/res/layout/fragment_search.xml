@@ -8,64 +8,243 @@
     android:background="@color/transparent"
     tools:context=".fragment.SearchFragment">
 
-
-    <LinearLayout
-        android:id="@+id/llNoSearchResult"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <ImageView
-            android:id="@+id/noSearchResult"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_gravity="center"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_no_serach_result" />
-
-        <TextView
-            android:id="@+id/noSearchResultTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:fontFamily="@font/segoe_ui"
-            android:text="@string/no_search_results"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/searchView"
+    <androidx.constraintlayout.motion.widget.MotionLayout
+        android:id="@+id/motionLayoutSearchFrag"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="45dp"
-        android:layout_marginEnd="20dp"
-        android:background="@drawable/search_view_background"
-        android:defaultFocusHighlightEnabled="true"
-        android:elevation="2dp"
+        android:layout_height="match_parent"
         android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:focusedByDefault="true"
-        android:screenReaderFocusable="true"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark"
-        android:touchscreenBlocksFocus="true"
-        app:iconifiedByDefault="false"
-        app:queryHint="Search your music"
-        app:searchIcon="@drawable/ic_search"
-        tools:targetApi="p" />
+        android:nestedScrollingEnabled="true"
+        app:layoutDescription="@xml/fragment_search_xml_motionlayoutsearchfrag_scene">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvSearchList"
+        <!--search filter buttons-->
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="45dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/search_view_background"
+            android:defaultFocusHighlightEnabled="true"
+            android:elevation="2dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:focusedByDefault="true"
+            android:screenReaderFocusable="true"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark"
+            android:touchscreenBlocksFocus="true"
+            app:iconifiedByDefault="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:queryHint="Search your music"
+            app:searchIcon="@drawable/ic_search"
+            tools:targetApi="p" />
+
+        <!--total search result count-->
+        <FrameLayout
+            android:id="@+id/frameLayoutSearchResultCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="110dp"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:id="@+id/llSearchResultCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@drawable/curved_light_transparent_teal_bg_and_stroke"
+                android:orientation="horizontal"
+                android:padding="10dp"
+                tools:ignore="UselessParent">
+
+                <ImageView
+                    android:id="@+id/iconIV"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:contentDescription="@null"
+                    tools:src="@drawable/music_note_icon_teal" />
+
+                <TextView
+                    android:id="@+id/titleTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:textColor="@color/teal_200"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    tools:text="100" />
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <!--  <LinearLayout
+              android:id="@+id/llSearchResultContainer"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="20dp"
+              android:orientation="vertical"
+              app:layout_constraintBottom_toBottomOf="parent"
+              app:layout_constraintEnd_toEndOf="parent"
+              app:layout_constraintStart_toStartOf="parent"
+              app:layout_constraintTop_toTopOf="parent">
+
+
+
+          </LinearLayout>-->
+
+        <RelativeLayout
+            android:id="@+id/relativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/_120mdp"
+            android:background="@android:color/transparent"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:id="@+id/llNoSearchResult"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:ignore="UseCompoundDrawables,UselessParent"
+                tools:layout_editor_absoluteY="453dp">
+
+                <ImageView
+                    android:id="@+id/noSearchResult"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_no_serach_result" />
+
+                <TextView
+                    android:id="@+id/noSearchResultTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="@font/segoe_ui"
+                    android:text="@string/no_search_results"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <FrameLayout
+            android:id="@+id/flSearchListContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSearchList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityTraversalBefore="@id/searchChipContainer"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="5"
+                tools:listitem="@layout/recycler_all_songs_item" />
+
+        </FrameLayout>
+
+
+        <HorizontalScrollView
+            android:id="@+id/searchChipContainer"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_below="@id/searchView"
+            android:layout_marginTop="92dp"
+            android:background="@drawable/gradient_background_top_shadow"
+            android:scrollbars="none"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteY="110dp">
+
+
+            <!--search filter-->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/allFilterButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="45dp"
+                    android:layout_marginStart="20dp"
+                    android:checkable="true"
+                    android:text="All"
+                    android:textColor="@color/white"
+                    android:visibility="gone"
+                    app:rippleColor="@color/ripple_search_chip" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/songsFilterButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="45dp"
+                    android:layout_marginStart="13dp"
+                    android:checkable="true"
+                    android:text="Songs"
+                    android:textColor="@color/white"
+                    app:rippleColor="@color/ripple_search_chip" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/albumsFilterButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="45dp"
+                    android:layout_marginStart="13dp"
+                    android:checkable="true"
+                    android:text="Albums"
+                    android:textColor="@color/white"
+                    app:rippleColor="@color/ripple_search_chip" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/artistsFilterButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="45dp"
+                    android:layout_marginStart="13dp"
+                    android:layout_marginEnd="20dp"
+                    android:checkable="true"
+                    android:text="Artist"
+                    android:textColor="@color/white"
+                    app:rippleColor="@color/ripple_search_chip" />
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+
+    </androidx.constraintlayout.motion.widget.MotionLayout>
+
+
+    <FrameLayout
+        android:id="@+id/adView_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/searchView"
-        android:layout_marginTop="20dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/recycler_all_songs_item" />
+        android:layout_height="45dp"
+        android:layout_alignParentBottom="true"
+        android:visibility="visible" />
 
 </RelativeLayout>

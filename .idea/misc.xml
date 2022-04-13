@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/k.nesar/.gradle/caches/transforms-3/195cd9e0d75f9c7f08fec0ea4cb4e469/transformed/jetified-AndroidEqualizer-2.2/res/drawable/custom_equalizer_thumb.xml" value="0.182" />
+        <entry key="..\:/Users/k.nesar/.gradle/caches/transforms-3/195cd9e0d75f9c7f08fec0ea4cb4e469/transformed/jetified-AndroidEqualizer-2.2/res/drawable/custom_thumb_src.xml" value="0.182" />
+        <entry key="..\:/Users/k.nesar/.gradle/caches/transforms-3/195cd9e0d75f9c7f08fec0ea4cb4e469/transformed/jetified-AndroidEqualizer-2.2/res/layout/spinner_item.xml" value="0.2484375" />
         <entry key="..\:/Users/k.nesar/.gradle/caches/transforms-3/753785d1402f35a4722f88d5355841a9/transformed/jetified-media2-1.0.0-alpha04/res/drawable-anydpi-v21/ic_music_note.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/.gradle/caches/transforms-3/753785d1402f35a4722f88d5355841a9/transformed/jetified-media2-1.0.0-alpha04/res/drawable-anydpi-v21/ic_pause.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/.gradle/caches/transforms-3/753785d1402f35a4722f88d5355841a9/transformed/jetified-media2-1.0.0-alpha04/res/drawable-anydpi-v21/ic_play.xml" value="0.26458333333333334" />
@@ -153,15 +156,22 @@
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/cursor.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/curved_all_edges.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/curved_all_edges_app_theme.xml" value="0.2351851851851852" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/curved_all_edges_stroke_teal_color.xml" value="0.239" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/curved_all_edges_teal_color.xml" value="0.2205" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/curved_all_edges_white.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/curved_light_transparent_bg.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/curved_light_transparent_default_bg.xml" value="0.2351851851851852" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/curved_light_transparent_purple_bg.xml" value="0.2351851851851852" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/curved_light_transparent_teal_bg_and_stroke.xml" value="0.202" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/curved_top_right_top_left_app_theme_color.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/custom_equalizer_thumb.xml" value="0.182" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/custom_equalizer_thumb_disabled.xml" value="0.214" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/custom_ripple.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/custom_thumb_src.xml" value="0.182" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/dialog_save_trim_audio.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/gradient_background_bottom_shadow.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/gradient_background_bottom_shadow_default.xml" value="0.2351851851851852" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/gradient_background_bottom_shadow_v1.xml" value="0.2295" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/gradient_background_bottom_shadow_v10.xml" value="0.2351851851851852" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/gradient_background_bottom_shadow_v11.xml" value="0.2351851851851852" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/gradient_background_bottom_shadow_v12.xml" value="0.2351851851851852" />
@@ -178,14 +188,23 @@
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_add_to_queue_black_24dp.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_album.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_album_black.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_album_teal.xml" value="0.202" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_arrow_upward.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_artist.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_artist_placeholder.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_artist_teal.xml" value="0.202" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_artists.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_back_arrow_ios.xml" value="0.2351851851851852" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_back_arrow_ios_black.xml" value="0.2351851851851852" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_baseline_history_24.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_bottom_bar_music_icon.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_check_circle.xml" value="0.202" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_check_circle_grey.xml" value="0.2205" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_check_circle_white.xml" value="0.202" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_close.xml" value="0.254" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_close_grey.xml" value="0.254" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_custom_thumb.xml" value="0.182" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_custom_thumb_disabled.xml" value="0.214" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_editor.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_editor_black.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_fav.xml" value="0.21197916666666666" />
@@ -194,6 +213,7 @@
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_folder.xml" value="0.1984375" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_forward.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_github.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_heart_broken_white.xml" value="0.182" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_heart_red_filled.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_instagram.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_last_added.xml" value="0.26458333333333334" />
@@ -204,6 +224,7 @@
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_music_album.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_music_note_round.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_noti_fav.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_noti_play_circle.xml" value="0.202" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_pink_outlined_heart.xml" value="0.18333333333333332" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_play_beat_cicular_logo.xml" value="0.2351851851851852" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_play_beat_logo.xml" value="0.26458333333333334" />
@@ -211,7 +232,10 @@
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_play_beat_logo_v2.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_play_beat_new_logo.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_play_list.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_play_white_circle.xml" value="0.202" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_playlist_play.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_queue_music.xml" value="0.202" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_save.xml" value="0.254" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_search.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_search_black.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/ic_share.xml" value="0.26458333333333334" />
@@ -239,6 +263,7 @@
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/mini_player_bg_9.xml" value="0.2351851851851852" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/mini_player_bg_default.xml" value="0.26458333333333334" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/music_note_icon.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/music_note_icon_teal.xml" value="0.202" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/play_beat_circular_logo.xml" value="0.2351851851851852" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/progress_bg.xml" value="0.1984375" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/drawable/purple_background_bottom_gradient.xml" value="0.1984375" />
@@ -261,27 +286,31 @@
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/activity_bottom_bar_fragment.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/activity_equalizer.xml" value="0.186328125" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/activity_home_page.xml" value="0.1671875" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/activity_on_boarding.xml" value="0.2484375" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/activity_splash_screen.xml" value="0.2" />
-        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/activity_tag_editor.xml" value="0.2" />
-        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/activity_trim.xml" value="0.4" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/activity_tag_editor.xml" value="0.2484375" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/activity_trim.xml" value="0.2484375" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/bottom_sheet_audio_more_option.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/bottom_sheet_choose_playlist.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/bottom_sheet_create_play_list.xml" value="0.4" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/bottom_sheet_multi_select_more_options.xml" value="0.4" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/bottom_sheet_now_playing.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/bottom_sheet_playlist_options_menu.xml" value="0.4" />
-        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/bottom_sheet_queue_list.xml" value="0.264" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/bottom_sheet_queue_list.xml" value="0.4" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/bottom_sheet_sleep_timer.xml" value="0.4" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/bottom_sheet_sorting_options.xml" value="0.6" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/bottom_sheet_whats_new.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/custom_alert_dialog.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/custom_progress_bar.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/dialog_audio_details.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/dialog_filter_songs.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/dialog_progress.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/dialog_save_trim_audio.xml" value="0.264" />
-        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/fragment_album_song.xml" value="0.264" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/equalizer_control_activity.xml" value="0.2484375" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/expanded_menu_item.xml" value="0.2484375" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/fragment_album_song.xml" value="0.2484375" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/fragment_all_albums.xml" value="0.2" />
-        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/fragment_all_song.xml" value="0.4" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/fragment_all_song.xml" value="0.6" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/fragment_artists.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/fragment_artists_tracks_and_album.xml" value="0.176" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/fragment_artists_tracks_and_album_v2.xml" value="0.264" />
@@ -291,16 +320,18 @@
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/fragment_history_audios.xml" value="0.2484375" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/fragment_last_added_audio.xml" value="0.2484375" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/fragment_play_list_audios.xml" value="0.2" />
-        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/fragment_playlists.xml" value="0.2" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/fragment_playlists.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/fragment_search.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/fragment_setting.xml" value="0.264" />
-        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/home_fragment.xml" value="0.176" />
-        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/recycler_all_songs_item.xml" value="0.186328125" />
-        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/recycler_folders_items.xml" value="0.2" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/home_fragment.xml" value="0.264" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/onboard_slider.xml" value="0.2484375" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/recycler_all_search_results.xml" value="0.264" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/recycler_all_songs_item.xml" value="0.536" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/recycler_folders_items.xml" value="0.264" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/recycler_grid_album_items.xml" value="0.2484375" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/recycler_horizontal_album_items.xml" value="0.4" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/recycler_playlist_items.xml" value="0.4" />
-        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/recycler_playlist_items_names.xml" value="0.4" />
+        <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/recycler_playlist_items_names.xml" value="0.2" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/recycler_queue_items.xml" value="0.22083333333333333" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/snackbar_normal_layout.xml" value="0.4" />
         <entry key="..\:/Users/k.nesar/AndroidStudioProjects/Play_Beat/app/src/main/res/layout/spinner_item.xml" value="0.186328125" />

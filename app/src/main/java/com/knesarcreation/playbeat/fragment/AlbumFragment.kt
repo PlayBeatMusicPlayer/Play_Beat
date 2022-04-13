@@ -20,7 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -31,6 +30,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.google.gson.Gson
@@ -181,7 +181,10 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
     private fun selectAllAudio() {
         binding?.selectAllAudios?.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                allSongsAdapter!!.selectAllAudios()
+                try{
+                    allSongsAdapter!!.selectAllAudios()
+                }catch (e:java.lang.Exception){ }
+
                 for ((position, audio) in albumAudioList.withIndex()) {
                     if (!selectedSongsIdList.contains(audio.songId)) {
                         selectedSongsIdList.add(audio.songId)
@@ -394,7 +397,7 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
             //Log.d("SongThatWillBeDelete", "deleteAudioFromDevice: path: $audioFile ")
 
             val alertDialog =
-                AlertDialog.Builder(activity as Context, R.style.CustomAlertDialog)
+                MaterialAlertDialogBuilder(activity as Context, R.style.CustomAlertDialog)
             val viewGroup: ViewGroup =
                 (activity as AppCompatActivity).findViewById(android.R.id.content)
             val customView =

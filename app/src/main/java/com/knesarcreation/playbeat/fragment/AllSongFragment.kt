@@ -16,12 +16,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
@@ -31,7 +31,6 @@ import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.FragmentAllSongBinding
 import com.knesarcreation.playbeat.service.PlayBeatMusicService
 import com.knesarcreation.playbeat.utils.*
-import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.concurrent.CopyOnWriteArrayList
@@ -83,12 +82,26 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
             ViewModelProvider(this)[DataObservableClass::class.java]
         } ?: throw Exception("Invalid Activity")
         //loadAudio()
+
+        if (storage.getIsAppOpenedInitially()) {
+            //if yes : app opened initially first time
+            //saving false to prefs becz app is now opened for the first time
+            storage.saveAppOpenedInitially(false)
+            val bottomSheetWhatsNew = BottomSheetWhatsNew()
+            bottomSheetWhatsNew.show(
+                (activity as AppCompatActivity).supportFragmentManager,
+                "bottomSheetWhatsNew"
+            )
+        }
+
         progressBar = CustomProgressDialog(activity as Context)
         progressBar.show()
         progressBar.setIsCancelable(true)
         progressBar.setCanceledOnOutsideTouch(false)
 
         startService()
+
+        initializeAddMob()
 
         //set up recycler view
         setUpAllSongRecyclerAdapter()
@@ -109,11 +122,11 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
 
         setTextSwitcherFactory()
 
-        viewModel.onBackPressed.observe(viewLifecycleOwner, {
+        viewModel.onBackPressed.observe(viewLifecycleOwner) {
             if (it != null) {
                 disableContextMenu()
             }
-        })
+        }
 
         binding?.swipeToRefresh?.setOnRefreshListener {
             binding?.swipeToRefresh?.isRefreshing = false
@@ -127,6 +140,22 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         }
 
         return view!!
+
+    }
+
+    private fun initializeAddMob() {
+
+        val adBanner = AdBanner(activity as Context, binding!!.adViewContainer)
+        adBanner.initializeAddMob()
+
+        //val id = Settings.Secure.getString(
+        //(activity as AppCompatActivity).contentResolver,
+        //Settings.Secure.ANDROID_ID
+        //)
+        //Toast.makeText(activity as Context, "$id", Toast.LENGTH_SHORT).show()
+
+        //RequestConfiguration.Builder().setTestDeviceIds()
+
 
     }
 
@@ -325,7 +354,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
             //Log.d("SongThatWillBeDelete", "deleteAudioFromDevice: path: $audioFile ")
 
             val alertDialog =
-                AlertDialog.Builder(activity as Context, R.style.CustomAlertDialog)
+                MaterialAlertDialogBuilder(activity as Context, R.style.CustomAlertDialog)
             val viewGroup: ViewGroup =
                 (activity as AppCompatActivity).findViewById(android.R.id.content)
             val customView =
@@ -1023,7 +1052,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         } else {
             //audioList = storage.loadAudio()
             audioIndexPos = storage.loadAudioIndex()
-            if(audioIndexPos == -1 ){
+            if (audioIndexPos == -1) {
                 audioIndexPos = 0
                 storage.storeAudioIndex(audioIndexPos)
             }
@@ -1113,7 +1142,7 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
 
     override fun onServiceDisconnected(p0: ComponentName?) {
         musicService = null
-        Toast.makeText(activity as Context, "null service", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(activity as Context, "null service", Toast.LENGTH_SHORT).show()
         //serviceBound = false
     }
 

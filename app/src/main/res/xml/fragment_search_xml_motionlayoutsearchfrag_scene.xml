@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        motion:constraintSetEnd="@+id/end"
+        motion:constraintSetStart="@id/start"
+        motion:layoutDuringTransition="honorRequest"
+        motion:motionInterpolator="linear">
+        <KeyFrameSet>
+
+        </KeyFrameSet>
+        <OnSwipe
+            motion:dragDirection="dragUp"
+            motion:dragScale="1"
+            motion:moveWhenScrollAtTop="true"
+            motion:onTouchUp="decelerate"
+            motion:touchAnchorId="@+id/flSearchListContainer"
+            motion:touchAnchorSide="bottom" />
+    </Transition>
+
+    <ConstraintSet android:id="@+id/start">
+        <Constraint
+            android:id="@+id/searchView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="44dp"
+            android:layout_marginEnd="20dp"
+            android:elevation="2dp"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toEndOf="@+id/parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@+id/frameLayoutSearchResultCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="170dp"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <!--<Constraint
+            android:id="@+id/searchChipContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="110dp"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />-->
+        <!--<Constraint
+            android:id="@+id/llNoSearchResult"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toStartOf="@+id/searchChipContainer"
+            motion:layout_constraintTop_toTopOf="parent" />-->
+        <!-- <Constraint
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:visibility="visible"
+             android:id="@+id/llNoSearchResult"
+             motion:layout_constraintBottom_toBottomOf="parent"
+             motion:layout_constraintEnd_toEndOf="parent"
+             motion:layout_constraintEnd_toStartOf="@+id/searchChipContainer"
+             motion:layout_constraintTop_toTopOf="parent" />-->
+        <!-- <Constraint
+             motion:layout_editor_absoluteY="305dp"
+             android:layout_height="120dp"
+             motion:layout_editor_absoluteX="146dp"
+             android:layout_width="120dp"
+             android:id="@+id/noSearchResult" />
+         <Constraint
+             motion:layout_editor_absoluteY="437dp"
+             android:layout_height="wrap_content"
+             motion:layout_editor_absoluteX="133dp"
+             android:layout_width="wrap_content"
+             android:id="@+id/noSearchResultTV" />-->
+
+        <Constraint
+            android:id="@+id/flSearchListContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="230dp"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+        <Constraint
+            android:id="@+id/flSearchListContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="110dp"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@+id/frameLayoutSearchResultCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:alpha="0"
+            android:visibility="invisible"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
+    </ConstraintSet>
+    <!--<Transition
+        motion:constraintSetEnd="@+id/start"
+        motion:constraintSetStart="@+id/end"
+        motion:layoutDuringTransition="honorRequest"
+        motion:motionInterpolator="linear">
+        <KeyFrameSet>
+
+            <KeyAttribute
+                android:translationY="60dp"
+                motion:framePosition="21"
+                motion:motionTarget="@+id/searchChipContainer" />
+        </KeyFrameSet>
+
+        <OnSwipe
+            motion:dragDirection="dragDown"
+            motion:dragScale="1"
+            motion:moveWhenScrollAtTop="true"
+            motion:onTouchUp="autoCompleteToEnd"
+            motion:touchAnchorId="@+id/rvSearchList"
+            motion:touchAnchorSide="bottom" />
+
+    </Transition>-->
+</MotionScene>

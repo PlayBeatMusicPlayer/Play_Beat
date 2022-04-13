@@ -5,7 +5,7 @@
     android:id="@+id/nowPlayingBottomSheetContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/app_theme_color"
+    android:background="#23242B"
     android:clickable="true"
     android:clipChildren="false"
     android:clipToPadding="false"
@@ -14,7 +14,7 @@
     app:behavior_hideable="false"
     app:behavior_peekHeight="55dp"
     app:layout_behavior="@string/bottom_sheet_behavior">
-
+<!--23242B-->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/rlParentNowPlaying"
         android:layout_width="match_parent"
@@ -26,7 +26,7 @@
             android:id="@+id/rl_mini_player_bottomsheet"
             android:layout_width="match_parent"
             android:layout_height="55dp"
-            android:background="@drawable/mini_player_bg_1"
+            android:background="@drawable/mini_player_bg_default"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -156,14 +156,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-           <!-- <ImageView
-                android:id="@+id/topBackground"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_above="@id/rlCoverArt"
-                android:background="@drawable/app_theme_default_background"
-                android:contentDescription="@null"
-                android:visibility="visible" />-->
+            <!-- <ImageView
+                 android:id="@+id/topBackground"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:layout_above="@id/rlCoverArt"
+                 android:background="@drawable/app_theme_default_background"
+                 android:contentDescription="@null"
+                 android:visibility="visible" />-->
 
             <ImageView
                 android:id="@+id/bottomBackground"
@@ -203,25 +203,26 @@
                     android:layout_width="@dimen/_200mdp"
                     android:layout_height="@dimen/_200mdp"
                     android:layout_centerInParent="true"
-                    android:background="@drawable/music_note_icon"
+                    android:background="@drawable/play_beat_logo"
                     android:contentDescription="@null"
-                    android:scaleType="centerCrop" />
+                    android:scaleType="centerCrop"
+                    android:visibility="visible" />
 
                 <ImageView
                     android:id="@+id/albumArtBottomGradient"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/_100mdp"
+                    android:layout_height="@dimen/_60mdp"
                     android:layout_alignParentBottom="true"
                     android:background="@drawable/gradient_background_bottom_shadow_default"
                     android:contentDescription="@null" />
 
-               <!-- <ImageView
-                    android:id="@+id/albumArtTopGradient"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/_50mdp"
-                    android:layout_alignParentTop="true"
-                    android:background="@drawable/gradient_background_top_shadow"
-                    android:contentDescription="@null" />-->
+                <!-- <ImageView
+                     android:id="@+id/albumArtTopGradient"
+                     android:layout_width="match_parent"
+                     android:layout_height="@dimen/_50mdp"
+                     android:layout_alignParentTop="true"
+                     android:background="@drawable/gradient_background_top_shadow"
+                     android:contentDescription="@null" />-->
                 <!-- <ImageView
                      android:id="@+id/albumArtTopGradient"
                      android:layout_width="match_parent"
@@ -278,7 +279,7 @@
             <RelativeLayout
                 android:id="@+id/rlAudioControl"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_190mdp"
+                android:layout_height="@dimen/_215mdp"
                 android:layout_above="@id/bottomView">
 
                 <LinearLayout
@@ -331,11 +332,11 @@
                     android:id="@+id/rlSeekBar"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40mdp"
-                    android:layout_above="@id/llPlayPauseBtn"
+                    android:layout_above="@id/adView_container"
                     android:layout_marginStart="@dimen/_7mdp"
                     android:layout_marginTop="@dimen/_5mdp"
                     android:layout_marginEnd="@dimen/_7mdp"
-                    android:layout_marginBottom="@dimen/_15mdp">
+                    android:layout_marginBottom="@dimen/_10mdp">
 
 
                     <SeekBar
@@ -404,6 +405,13 @@
 
                 </RelativeLayout>
 
+                <FrameLayout
+                    android:id="@+id/adView_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_above="@id/llPlayPauseBtn"
+                    android:layout_marginBottom="6dp"
+                    android:visibility="gone" />
 
                 <LinearLayout
                     android:id="@+id/llPlayPauseBtn"
@@ -444,7 +452,7 @@
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_gravity="center"
-                        android:background="@drawable/curved_all_edges_white">
+                        android:background="@drawable/curved_all_edges_white_oval">
 
                         <ImageView
                             android:id="@+id/play_pause_expanded_player"
@@ -531,7 +539,7 @@
                             android:layout_height="40dp"
                             android:gravity="center"
                             android:text="@string/sleep_time"
-                            android:textColor="@color/cyan"
+                            android:textColor="@color/teal_200"
                             android:textSize="12sp"
                             android:textStyle="bold"
                             android:visibility="gone" />

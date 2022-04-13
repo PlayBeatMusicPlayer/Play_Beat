@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="20dp"
+    android:background="@color/app_theme_color">
+
+    <TextView
+        android:id="@+id/greetingTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="45dp"
+        android:fontFamily="@font/caros_bold"
+        android:text="Welcome to Play Beat"
+        android:textColor="@color/white"
+        android:textSize="22sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/greetingTV"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="2dp"
+        android:fontFamily="@font/fredoka_regular"
+        android:text="Let the music speak!"
+        android:textColor="@color/white"
+        android:visibility="visible" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="300dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/curved_all_edges_stroke_teal_color">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/logoIV"
+            android:layout_width="140dp"
+            android:layout_height="298dp"
+            android:layout_centerInParent="true"
+            android:contentDescription="@null"
+            android:src="@drawable/equalizer_img"
+            app:shapeAppearanceOverlay="@style/circular_5" />
+    </RelativeLayout>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/flIndicator"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="45dp"
+        android:layout_marginBottom="30dp"
+        android:fontFamily="@font/fredoka_regular"
+        android:text="An offline audio player which has inbuilt Equalizer, Audio Cutter and Audio Tag Editor."
+        android:textAlignment="center"
+        android:textColor="@color/white" />
+
+    <FrameLayout
+        android:id="@+id/flIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>

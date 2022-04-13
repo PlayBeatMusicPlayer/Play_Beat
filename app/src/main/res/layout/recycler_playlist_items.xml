@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/app_theme_color"
     android:clickable="true"
     android:focusable="true">
 
@@ -33,12 +32,15 @@
                 android:src="@drawable/music_note_icon"
                 app:shapeAppearanceOverlay="@style/circular_15" />
 
-            <ImageView
+
+            <com.google.android.material.imageview.ShapeableImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:alpha="0.7"
+                android:background="@drawable/little_curved_all_edges"
                 android:contentDescription="@null"
-                android:src="@color/app_theme_color" />
+                android:src="@color/app_theme_color"
+                app:shapeAppearanceOverlay="@style/circular_15" />
 
             <ImageView
                 android:layout_width="20dp"

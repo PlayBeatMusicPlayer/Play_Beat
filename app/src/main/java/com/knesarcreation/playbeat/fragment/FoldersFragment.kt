@@ -41,9 +41,8 @@ class FoldersFragment : Fragment() {
 
     }
 
-
     private fun getAllFolders() {
-        mViewModelClass.getAllSong().observe(viewLifecycleOwner, {
+        mViewModelClass.getAllSong().observe(viewLifecycleOwner) {
             if (it != null) {
                 folderList.clear()
                 for (audioData in it) {
@@ -60,7 +59,7 @@ class FoldersFragment : Fragment() {
                         val audioFiles = gson.toJson(item)
                         listener?.folderOpen(audioFiles)
                     }
-                })
+                }, activity as Context)
                 binding!!.rvAllFolders.adapter = foldersAdapter
 
                 foldersAdapter!!.submitList(folderList)
@@ -73,7 +72,7 @@ class FoldersFragment : Fragment() {
                 }
 
             }
-        })
+        }
     }
 
     override fun onAttach(context: Context) {

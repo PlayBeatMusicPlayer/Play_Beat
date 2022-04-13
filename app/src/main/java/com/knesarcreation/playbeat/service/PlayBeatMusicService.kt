@@ -28,22 +28,28 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import com.google.android.material.button.MaterialButton
+import com.google.gson.Gson
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.activity.ActivityBottomBarFragmentContainer
+import com.knesarcreation.playbeat.activity.equailizer.EqualizerControlActivity
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.fragment.AllSongFragment
+import com.knesarcreation.playbeat.utils.*
 import com.knesarcreation.playbeat.utils.ApplicationChannel.Companion.CHANNEL_ID
-import com.knesarcreation.playbeat.utils.PlaybackStatus
-import com.knesarcreation.playbeat.utils.StorageUtil
-import com.knesarcreation.playbeat.utils.UriToBitmapConverter
 import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
 
 
 class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListener*/ {
+
+    //Equalizer
+    var mEqualizer: Equalizer? = null
+    var bassBoost: BassBoost? = null
+    var presetReverb: PresetReverb? = null
 
     // Binder given to clients
     private val iBinder = LocalBinder()
@@ -91,9 +97,6 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
         const val ACTION_FAVOURITE = "com.knesarcreation.playbeat.service.ACTION_FAVOURITE"
         const val ACTION_UN_FAVOURITE = "com.knesarcreation.playbeat.service.ACTION_UNFAVOURITE"
         const val OPEN_CONTENT = "com.knesarcreation.playbeat.service.OPEN_CONTENT"
-        var mEqualizer: Equalizer? = null
-        var bassBoost: BassBoost? = null
-        var presetReverb: PresetReverb? = null
     }
 
     fun updateNotification(isAudioPlaying: Boolean) {
@@ -177,6 +180,7 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
         }
 
         mediaPlayer?.setOnPreparedListener {
+
             playMedia()
             // Toast.makeText(this, "Played", Toast.LENGTH_SHORT).show()
         }
@@ -247,6 +251,15 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         try {
+            if (mediaPlayer != null) {
+                try {
+                    mEqualizer = Equalizer(1000, mediaPlayer!!.audioSessionId)
+                    bassBoost = BassBoost(1000, mediaPlayer!!.audioSessionId)
+                    presetReverb = PresetReverb(1000, mediaPlayer!!.audioSessionId)
+                } catch (e: Exception) {
+                    Log.d("Equalizer_failed_to_initialize", "onStartCommand: ${e.message} ")
+                }
+            }
             //Load data from SharedPreferences
             val storage = StorageUtil(applicationContext)
             audioList = storage.loadQueueAudio()
@@ -317,6 +330,8 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
             /** Update UI of [AllSongFragment] */
             val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
             sendBroadcast(updatePlayer)
+            Settings().applyEqualizer(applicationContext)
+
         }
     }
 
@@ -347,12 +362,8 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
             if (initAudioOnPressResumeBtn) {
                 initAudioOnPressResumeBtn = false
                 initMediaPlayer()
+                Settings().applyEqualizer(applicationContext)
             }
-            /* Toast.makeText(
-                 applicationContext,
-                 "initAudio: $initAudioOnPressResumeBtn",
-                 Toast.LENGTH_SHORT
-             ).show()*/
             mediaPlayer?.seekTo(resumePosition)
             mediaPlayer?.start()
 
@@ -424,6 +435,7 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
             //reset mediaPlayer
             mediaPlayer!!.reset()
             initMediaPlayer()
+            //Settings().applyEqualizer(applicationContext)
 
             /** Update UI of [AllSongFragment] */
             val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
@@ -473,6 +485,7 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
             //reset mediaPlayer
             mediaPlayer!!.reset()
             initMediaPlayer()
+            // Settings().applyEqualizer(applicationContext)
 
             /** Update UI of [AllSongFragment] */
             val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
@@ -726,32 +739,62 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
             0 -> {
                 // Play
                 playbackAction.action = ACTION_PLAY
-                return PendingIntent.getService(this, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE)
+                return PendingIntent.getService(
+                    this,
+                    actionNumber,
+                    playbackAction,
+                    PendingIntent.FLAG_IMMUTABLE
+                )
             }
             1 -> {
                 // Pause
                 playbackAction.action = ACTION_PAUSE
-                return PendingIntent.getService(this, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE)
+                return PendingIntent.getService(
+                    this,
+                    actionNumber,
+                    playbackAction,
+                    PendingIntent.FLAG_IMMUTABLE
+                )
             }
             2 -> {
                 // Next track
                 playbackAction.action = ACTION_NEXT
-                return PendingIntent.getService(this, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE)
+                return PendingIntent.getService(
+                    this,
+                    actionNumber,
+                    playbackAction,
+                    PendingIntent.FLAG_IMMUTABLE
+                )
             }
             3 -> {
                 // Previous track
                 playbackAction.action = ACTION_PREVIOUS
-                return PendingIntent.getService(this, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE)
+                return PendingIntent.getService(
+                    this,
+                    actionNumber,
+                    playbackAction,
+                    PendingIntent.FLAG_IMMUTABLE
+                )
             }
             4 -> {
                 //Favourite media
                 playbackAction.action = ACTION_FAVOURITE
-                return PendingIntent.getService(this, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE)
+                return PendingIntent.getService(
+                    this,
+                    actionNumber,
+                    playbackAction,
+                    PendingIntent.FLAG_IMMUTABLE
+                )
             }
             5 -> {
                 // un favourite media
                 playbackAction.action = ACTION_UN_FAVOURITE
-                return PendingIntent.getService(this, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE)
+                return PendingIntent.getService(
+                    this,
+                    actionNumber,
+                    playbackAction,
+                    PendingIntent.FLAG_IMMUTABLE
+                )
             }
             else -> {
             }
@@ -875,6 +918,8 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
                                     0f
                                 )*/
                                 updateNotification(false)
+                                //Log.d("skipToNextEarphone_PL", "onMediaButtonEvent: run ")
+
                             } else {
                                 pausedByManually = false
                                 resumeMedia()
@@ -884,6 +929,8 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
                                     1f
                                 )*/
                                 updateNotification(true)
+                                //Log.d("skipToNextEarphone_PA", "onMediaButtonEvent: run ")
+
                             }
                         }
                         return true
@@ -900,7 +947,7 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
                              1f
                          )*/
                         updateNotification(true)
-                        Log.d("skipToNextEarphone", "onMediaButtonEvent: run ")
+                        Log.d("skipToNextEarphone_NXT", "onMediaButtonEvent: run ")
                         return true
                     }
 
@@ -915,6 +962,8 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
                              1f
                          )*/
                         updateNotification(true)
+                        //Log.d("skipToNextEarphone_PRV", "onMediaButtonEvent: run ")
+
                         return true
                     }
                 }
@@ -950,8 +999,10 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
 
             override fun onSkipToNext() {
                 super.onSkipToNext()
+                resumePosition = 0
                 pausedByManually = false
                 skipToNext()
+                //Settings().applyEqualizer(applicationContext)
 
                 /* */
                 /** Update UI of [AllSongFragment] *//*
@@ -967,8 +1018,10 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
 
             override fun onSkipToPrevious() {
                 super.onSkipToPrevious()
+                resumePosition = 0
                 pausedByManually = false
                 skipToPrevious()
+                // Settings().applyEqualizer(applicationContext)
 
                 /** Update UI of [AllSongFragment] *//*
                 val updatePlayer = Intent(AllSongFragment.Broadcast_UPDATE_MINI_PLAYER)
@@ -1061,7 +1114,7 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
     }
 
     // Broad cast receivers .......................................................
-    private val playNewAudio: BroadcastReceiver = object : BroadcastReceiver() {
+    private val playNewAudioReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val storageUtil = StorageUtil(applicationContext)
 
@@ -1150,7 +1203,7 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
         //Register playNewMedia receiver
         val filter = IntentFilter(AllSongFragment.Broadcast_PLAY_NEW_AUDIO)
         try {
-            registerReceiver(playNewAudio, filter)
+            registerReceiver(playNewAudioReceiver, filter)
         } catch (e: Exception) {
             Log.d("unregisterReceiverExceptionPlayMedia", "registerPlayNewAudio: ${e.message}")
         }
@@ -1219,7 +1272,7 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
 
                     //unregister BroadcastReceivers
                     unregisterReceiver(becomingNoisyReceiver)
-                    unregisterReceiver(playNewAudio)
+                    unregisterReceiver(playNewAudioReceiver)
                     //unregisterReceiver(openContent)
 
                     if (sleepCountDownTimer != null) {
@@ -1361,4 +1414,5 @@ class PlayBeatMusicService : Service()/*, AudioManager.OnAudioFocusChangeListene
         val seconds = ((millis % 60000) / 1000)
         return if (seconds.toInt() == 60) "${(minutes.toInt() + 1)} : 00" else "${minutes.toInt()} : ${if (seconds < 10) "0" else ""}$seconds "
     }
+
 }
