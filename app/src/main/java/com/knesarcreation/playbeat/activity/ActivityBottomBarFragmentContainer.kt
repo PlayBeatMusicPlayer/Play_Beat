@@ -1,23 +1,22 @@
 package com.knesarcreation.playbeat.activity
 
 import android.annotation.SuppressLint
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.IntentSender.SendIntentException
 import android.content.pm.PackageManager
 import android.database.CursorWindow
 import android.graphics.BitmapFactory
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.GradientDrawable
-import android.media.audiofx.BassBoost
-import android.media.audiofx.Equalizer
-import android.media.audiofx.PresetReverb
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.view.ViewAnimationUtils
 import android.widget.FrameLayout
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
@@ -45,9 +44,8 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.tasks.Task
-import com.google.gson.Gson
+import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity
 import com.knesarcreation.playbeat.R
-import com.knesarcreation.playbeat.activity.equailizer.EqualizerControlActivity
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.ActivityBottomBarFragmentBinding
@@ -58,7 +56,7 @@ import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
 
 
-class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnection*/,
+class ActivityBottomBarFragmentContainer : CyaneaAppCompatActivity()/* AppCompatActivity()*//*, ServiceConnection*/,
     AllAlbumsFragment.OnAlbumItemClicked, AllArtistsFragment.OpenArtisFragment,
     ArtistsTracksAndAlbumFragment.OnArtistAlbumItemClicked,
     PlaylistsFragment.OnPlayListCategoryClicked,
@@ -2083,7 +2081,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     override fun onResume() {
         super.onResume()
         //Toast.makeText(this, "host activity", Toast.LENGTH_SHORT).show()
-        SavedAppTheme(
+       /* SavedAppTheme(
             this,
             null,
             null,
@@ -2110,7 +2108,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             isSearchFrag = false,
             settingFragBg = null,
             isSettingFrag = false
-        ).settingSavedBackgroundTheme()
+        ).settingSavedBackgroundTheme()*/
         /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
                 startActivity(Intent(this, SplashScreenActivity::class.java))

@@ -46,36 +46,36 @@ class SavedAppTheme(
     }
 
     fun settingSavedBackgroundTheme() {
-        when {
-            isHomeFrag -> homeFragBackground!!.setBackgroundResource(AppThemesList.backgroundsList[0])
-
-            isSettingFrag -> settingFragBg!!.setBackgroundResource(AppThemesList.backgroundsList[0])
-
-            isPlaylistFrag -> playlistBG!!.setBackgroundResource(AppThemesList.backgroundsList[0])
-
-            isSearchFrag -> searchFragBg!!.setBackgroundResource(AppThemesList.backgroundsList[0])
-
-            isHostActivity -> {
-                hostActivityBG!!.setBackgroundResource(AppThemesList.backgroundsList[0])
-                rlMiniPlayerBottomSheet!!.setBackgroundResource(R.drawable.mini_player_bg_default)
-                bottomBar!!.barBackgroundColor =
-                    ContextCompat.getColor(mContext, R.color.app_theme_color)
-            }
-            isTagEditor -> tagEditorsBG!!.setBackgroundResource(AppThemesList.backgroundsList[0])
-            isArtistFrag -> {
-                bottomShadowIVArtistFrag!!.setBackgroundResource(AppThemesList.backgroundsList[0])
-                parentViewArtistAndAlbumFrag!!.setBackgroundResource(AppThemesList.backgroundsList[0])
-                topViewIVArtistFrag!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_default)
-            }
-            isAlbumFrag -> {
-                bottomShadowIVAlbumFrag!!.setBackgroundResource(AppThemesList.backgroundsList[0])
-                topViewIV!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_default)
-            }
-            isPlaylistFragCategory -> {
-                bottomShadowIVPlaylist!!.setBackgroundResource(AppThemesList.backgroundsList[0])
-                topViewIVPlaylist!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_default)
-            }
-        }
+//        when {
+//            isHomeFrag -> homeFragBackground!!.setBackgroundResource(AppThemesList.backgroundsList[0])
+//
+//            isSettingFrag -> settingFragBg!!.setBackgroundResource(AppThemesList.backgroundsList[0])
+//
+//            isPlaylistFrag -> playlistBG!!.setBackgroundResource(AppThemesList.backgroundsList[0])
+//
+//            isSearchFrag -> searchFragBg!!.setBackgroundResource(AppThemesList.backgroundsList[0])
+//
+//            isHostActivity -> {r
+//                hostActivityBG!!.setBackgroundResource(AppThemesList.backgroundsList[0])
+//                rlMiniPlayerBottomSheet!!.setBackgroundResource(R.drawable.mini_player_bg_default)
+//                bottomBar!!.barBackgroundColor =
+//                    ContextCompat.getColor(mContext, R.color.app_theme_color)
+//            }
+//            isTagEditor -> tagEditorsBG!!.setBackgroundResource(AppThemesList.backgroundsList[0])
+//            isArtistFrag -> {
+//                bottomShadowIVArtistFrag!!.setBackgroundResource(AppThemesList.backgroundsList[0])
+//                parentViewArtistAndAlbumFrag!!.setBackgroundResource(AppThemesList.backgroundsList[0])
+//                topViewIVArtistFrag!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_default)
+//            }
+//            isAlbumFrag -> {
+//                bottomShadowIVAlbumFrag!!.setBackgroundResource(AppThemesList.backgroundsList[0])
+//                topViewIV!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_default)
+//            }
+//            isPlaylistFragCategory -> {
+//                bottomShadowIVPlaylist!!.setBackgroundResource(AppThemesList.backgroundsList[0])
+//                topViewIVPlaylist!!.setBackgroundResource(R.drawable.gradient_background_bottom_shadow_default)
+//            }
+//        }
 
         // when (sharedPrefs!!.getInt("background", 0)) {
         //     0 -> {

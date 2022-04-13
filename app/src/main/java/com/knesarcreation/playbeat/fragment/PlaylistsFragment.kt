@@ -247,7 +247,7 @@ class PlaylistsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        SavedAppTheme(
+       /* SavedAppTheme(
             activity as Context,
             null,
             null,
@@ -274,7 +274,7 @@ class PlaylistsFragment : Fragment() {
             isSearchFrag = false,
             settingFragBg = null,
             isSettingFrag = false
-        ).settingSavedBackgroundTheme()
+        ).settingSavedBackgroundTheme()*/
     }
 
     /* override fun onHiddenChanged(hidden: Boolean) {

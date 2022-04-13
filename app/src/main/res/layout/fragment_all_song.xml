@@ -42,7 +42,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:drawablePadding="5dp"
-                        android:textColor="@color/grey"
+                        android:textStyle="bold"
                         app:drawableStartCompat="@drawable/ic_sort"
                         tools:text="Name" />
 
@@ -65,7 +65,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="7dp"
                         android:layout_marginEnd="10dp"
-                        android:textColor="@color/grey"
+                        android:textStyle="bold"
                         tools:text="200 songs" />
 
                     <ImageView

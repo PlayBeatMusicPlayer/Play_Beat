@@ -1032,7 +1032,7 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
 
     override fun onResume() {
         super.onResume()
-        SavedAppTheme(
+       /* SavedAppTheme(
             activity as Context,
             null,
             null,
@@ -1059,7 +1059,7 @@ class AlbumFragment : Fragment()/*, AlbumAdapter.OnAlbumSongClicked*//*, Service
             isSearchFrag = false,
             settingFragBg = null,
             isSettingFrag = false
-        ).settingSavedBackgroundTheme()
+        ).settingSavedBackgroundTheme()*/
     }
 
 }

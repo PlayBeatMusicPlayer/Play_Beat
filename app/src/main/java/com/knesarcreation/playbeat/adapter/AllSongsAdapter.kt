@@ -101,19 +101,19 @@ class AllSongsAdapter(
                     songName.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
-                            R.color.teal_200
+                            R.color.cyanea_accent_reference
                         )
                     )
                     artistName.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
-                            R.color.teal_200
+                            R.color.cyanea_accent_reference
                         )
                     )
                     duration.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
-                            R.color.teal_200
+                            R.color.cyanea_accent_reference
                         )
                     )
                 }
@@ -125,19 +125,19 @@ class AllSongsAdapter(
                     songName.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
-                            R.color.teal_200
+                            R.color.cyanea_accent_reference
                         )
                     )
                     artistName.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
-                            R.color.teal_200
+                            R.color.cyanea_accent_reference
                         )
                     )
                     duration.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
-                            R.color.teal_200
+                            R.color.cyanea_accent_reference
                         )
                     )
                 }
@@ -145,9 +145,9 @@ class AllSongsAdapter(
                     // currentPlayingAudioLottie.pauseAnimation()
                     equalizerView.stopBars()
                     rlCurrentPlayingLottie.visibility = View.GONE
-                    songName.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
-                    artistName.setTextColor(ContextCompat.getColor(itemView.context, R.color.grey))
-                    duration.setTextColor(ContextCompat.getColor(itemView.context, R.color.grey))
+                    //songName.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
+                    //artistName.setTextColor(ContextCompat.getColor(itemView.context, R.color.grey))
+                    //duration.setTextColor(ContextCompat.getColor(itemView.context, R.color.grey))
                     //holder.currentPlayingAudioIndicator.visibility = View.GONE
                 }
             }

@@ -217,6 +217,7 @@
             android:layout_margin="20dp"
             android:contentDescription="@null"
             android:src="@drawable/ic_add"
+            android:backgroundTint="@color/cyanea_accent_reference"
             android:textAllCaps="false"
             android:textSize="17sp" />
 

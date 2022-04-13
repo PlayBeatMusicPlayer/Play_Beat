@@ -22,6 +22,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
+import com.jaredrummler.cyanea.prefs.CyaneaThemePickerActivity
 import com.knesarcreation.playbeat.BuildConfig
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.databinding.FragmentSettingBinding
@@ -126,7 +127,9 @@ class SettingFragment : Fragment() {
 
             var selectedDuration = duration.toFloat().roundToInt()
             sliderFilterAudio.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+                @SuppressLint("RestrictedApi")
                 override fun onStartTrackingTouch(slider: Slider) {}
+                @SuppressLint("RestrictedApi")
                 override fun onStopTrackingTouch(slider: Slider) {}
             })
 
@@ -173,11 +176,12 @@ class SettingFragment : Fragment() {
     private fun openThemActivity() {
         binding?.themeTV!!.setOnClickListener {
             //startActivity(Intent(activity as Context, AppThemesActivity::class.java))
-            Toast.makeText(
-                activity as Context,
-                "For now App theme support disabled due to some incompatibility.",
-                Toast.LENGTH_SHORT
-            ).show()
+            startActivity(Intent(activity as Context, CyaneaThemePickerActivity::class.java))
+           // Toast.makeText(
+           //     activity as Context,
+           //     "For now App theme support disabled due to some incompatibility.",
+           //     Toast.LENGTH_SHORT
+           // ).show()
         }
     }
 
@@ -308,7 +312,7 @@ class SettingFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        SavedAppTheme(
+        /*SavedAppTheme(
             activity as Context,
             null,
             null,
@@ -335,7 +339,7 @@ class SettingFragment : Fragment() {
             isSearchFrag = false,
             settingFragBg = binding!!.settingFragBg,
             isSettingFrag = true
-        ).settingSavedBackgroundTheme()
+        ).settingSavedBackgroundTheme()*/
     }
 
 }

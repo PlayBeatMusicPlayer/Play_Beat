@@ -513,7 +513,7 @@ class SearchFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        SavedAppTheme(
+       /* SavedAppTheme(
             activity as Context,
             null,
             null,
@@ -541,7 +541,7 @@ class SearchFragment : Fragment() {
             settingFragBg = null,
             isSettingFrag = false,
 
-            ).settingSavedBackgroundTheme()
+            ).settingSavedBackgroundTheme()*/
     }
 
     override fun onAttach(context: Context) {

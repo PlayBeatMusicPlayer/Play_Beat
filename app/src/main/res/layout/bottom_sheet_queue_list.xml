@@ -169,7 +169,7 @@
                 android:layout_height="30dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerInParent="true"
-                app:barColor="@color/teal_200"
+                app:barColor="@color/cyanea_accent_reference"
                 app:barCount="3"
                 app:barWidth="6dp"
                 app:marginLeft="2dp"

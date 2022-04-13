@@ -53,19 +53,19 @@ class AlbumAdapter(
                     songName.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
-                            R.color.teal_200
+                            R.color.cyanea_accent_reference
                         )
                     )
                     artistName.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
-                            R.color.teal_200
+                            R.color.cyanea_accent_reference
                         )
                     )
                     albumName.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
-                            R.color.teal_200
+                            R.color.cyanea_accent_reference
                         )
                     )
                 }
@@ -76,19 +76,19 @@ class AlbumAdapter(
                     songName.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
-                            R.color.teal_200
+                            R.color.cyanea_accent_reference
                         )
                     )
                     artistName.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
-                            R.color.teal_200
+                            R.color.cyanea_accent_reference
                         )
                     )
                     albumName.setTextColor(
                         ContextCompat.getColor(
                             itemView.context,
-                            R.color.teal_200
+                            R.color.cyanea_accent_reference
                         )
                     )
                 }

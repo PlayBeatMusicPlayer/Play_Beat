@@ -23,15 +23,13 @@
             app:tabGravity="fill"
             app:tabIndicator="@drawable/curved_light_transparent_default_bg"
             app:tabIndicatorAnimationMode="elastic"
-            app:tabIndicatorColor="#69696C"
             app:tabIndicatorFullWidth="true"
             app:tabIndicatorHeight="40dp"
             app:tabInlineLabel="true"
             app:tabMode="auto"
             app:tabPaddingTop="5dp"
             app:tabRippleColor="@color/transparent"
-            app:tabSelectedTextColor="@color/white"
-            app:tabTextColor="@color/white">
+            app:tabSelectedTextColor="@color/white">
 
         </com.google.android.material.tabs.TabLayout>
 

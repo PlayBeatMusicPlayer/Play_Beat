@@ -5,9 +5,14 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
+import android.view.View
 import androidx.annotation.RequiresApi
+import com.jaredrummler.cyanea.Cyanea
+import com.jaredrummler.cyanea.inflator.CyaneaViewProcessor
+import com.jaredrummler.cyanea.inflator.decor.CyaneaDecorator
+import com.jaredrummler.cyanea.inflator.decor.FontDecorator
 
-class ApplicationChannel : Application() {
+class ApplicationChannel : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provider {
 
     companion object {
         const val CHANNEL_NAME = "PlayBeat"
@@ -22,6 +27,8 @@ class ApplicationChannel : Application() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannels()
         }
+        Cyanea.init(this, resources)
+        Cyanea.loggingEnabled = true
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -36,4 +43,13 @@ class ApplicationChannel : Application() {
         notificationManager.createNotificationChannel(channel)
 
     }
+
+    override fun getViewProcessors(): Array<CyaneaViewProcessor<out View>> = arrayOf(
+        // Add a view processor to manipulate a view when inflated.
+    )
+
+    override fun getDecorators(): Array<CyaneaDecorator> = arrayOf(
+        // Add a decorator to apply custom attributes to any view
+        FontDecorator()
+    )
 }

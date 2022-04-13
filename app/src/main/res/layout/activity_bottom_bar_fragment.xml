@@ -33,7 +33,7 @@
         android:layout_marginBottom="-5dp"
         android:contextClickable="false"
         android:elevation="0dp"
-        app:backgroundColor="@color/bottom_bar_color_1"
+        app:backgroundColor="@color/cyanea_accent_reference"
         app:layout_anchorGravity="bottom"
         app:layout_dodgeInsetEdges="top"
         app:menu="@menu/bottom_bar_menu" />

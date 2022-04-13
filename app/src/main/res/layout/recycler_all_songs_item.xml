@@ -67,7 +67,7 @@
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_centerInParent="true"
-                    app:barColor="@color/teal_200"
+                    app:barColor="@color/cyanea_accent_reference"
                     app:barCount="3"
                     app:barWidth="6dp"
                     app:marginLeft="2dp"
@@ -104,7 +104,7 @@
                 android:ellipsize="end"
                 android:fontFamily="@font/segoe_ui"
                 android:maxLines="1"
-                android:textColor="@color/white"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
                 android:textSize="@dimen/text_size_normal"
                 android:textStyle="bold"
                 tools:text="Song Name" />
@@ -123,7 +123,6 @@
                     android:fontFamily="@font/segoe_ui"
                     android:maxLength="28"
                     android:maxLines="1"
-                    android:textColor="@color/grey"
                     android:textSize="@dimen/text_size_small"
                     android:textStyle="normal"
                     tools:text="Artist Name" />
@@ -145,7 +144,6 @@
                     android:ellipsize="end"
                     android:fontFamily="@font/segoe_ui"
                     android:maxLines="1"
-                    android:textColor="@color/grey"
                     android:textSize="@dimen/text_size_small"
                     android:textStyle="normal"
                     tools:text="Album Name" />

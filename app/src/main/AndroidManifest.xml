@@ -29,7 +29,7 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.PlayBeat"
+        android:theme="@style/Theme.Cyanea.Light.NoActionBar"
         tools:replace="android:allowBackup">
         <activity
             android:name=".activity.onBoarding.OnBoardingActivity"
@@ -41,17 +41,20 @@
 
         <activity
             android:name=".activity.AudioTrimmerActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Theme.Cyanea.Light.NoActionBar" />
         <activity
             android:name=".activity.AppThemesActivity"
             android:exported="true" />
         <activity
             android:name=".activity.TagEditorActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Theme.Cyanea.Light.NoActionBar" />
         <activity
             android:name=".activity.SplashScreenActivity"
             android:exported="true"
             android:screenOrientation="portrait"
+            android:theme="@style/Theme.Cyanea.Light.NoActionBar"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -64,11 +67,15 @@
             android:exported="true"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
+            android:theme="@style/Theme.Cyanea.Light.NoActionBar"
             android:windowSoftInputMode="adjustPan"
             tools:ignore="LockedOrientationActivity" />
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.equailizer.EqualizerControlActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Theme.Cyanea.Light.NoActionBar"
+            tools:ignore="LockedOrientationActivity" />
 
         <meta-data
             android:name="preloaded_fonts"

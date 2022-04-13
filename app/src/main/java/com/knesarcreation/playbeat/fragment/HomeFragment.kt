@@ -5,14 +5,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.transition.MaterialSharedAxis
+import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.ViewPagerAdapter
 import com.knesarcreation.playbeat.databinding.HomeFragmentBinding
 import com.knesarcreation.playbeat.utils.DataObservableClass
-import com.knesarcreation.playbeat.utils.SavedAppTheme
 import com.knesarcreation.playbeat.viewPager.CustomViewPager
 
 
@@ -57,7 +58,7 @@ class HomeFragment : Fragment()/*, AllSongFragment.OnContextMenuEnabled*/ {
         mViewPager.offscreenPageLimit = 4
         mViewPager.adapter = pagerAdapter
 
-        viewModel.isContextMenuEnabled.observe(viewLifecycleOwner, {
+        viewModel.isContextMenuEnabled.observe(viewLifecycleOwner) {
             if (it != null) {
 
                 mViewPager.disableScroll(it)
@@ -65,7 +66,13 @@ class HomeFragment : Fragment()/*, AllSongFragment.OnContextMenuEnabled*/ {
                     (mTabLayout.getChildAt(0) as ViewGroup).getChildAt(i).isEnabled = !it
 
             }
-        })
+        }
+        mTabLayout.setSelectedTabIndicatorColor(
+            ContextCompat.getColor(
+                activity as Context,
+                R.color.cyanea_accent_reference
+            )
+        )
 
 
         return view
@@ -79,34 +86,34 @@ class HomeFragment : Fragment()/*, AllSongFragment.OnContextMenuEnabled*/ {
 
     override fun onResume() {
         super.onResume()
-        SavedAppTheme(
-            activity as Context,
-            binding!!.homeFragBackground,
-            binding!!.tabLayout,
-            null,
-            isHomeFrag = true,
-            isHostActivity = false,
-            tagEditorsBG = null,
-            isTagEditor = false,
-            bottomBar = null,
-            rlMiniPlayerBottomSheet = null,
-            bottomShadowIVAlbumFrag = null,
-            isAlbumFrag = false,
-            topViewIV = null,
-            bottomShadowIVArtistFrag = null,
-            isArtistFrag = false,
-            topViewIVArtistFrag = null,
-            parentViewArtistAndAlbumFrag = null,
-            bottomShadowIVPlaylist = null,
-            isPlaylistFragCategory = false,
-            topViewIVPlaylist = null,
-            playlistBG = null,
-            isPlaylistFrag = false,
-            searchFragBg = null,
-            isSearchFrag = false,
-            settingFragBg = null,
-            isSettingFrag = false
-        ).settingSavedBackgroundTheme()
+        /* SavedAppTheme(
+             activity as Context,
+             binding!!.homeFragBackground,
+             binding!!.tabLayout,
+             null,
+             isHomeFrag = true,
+             isHostActivity = false,
+             tagEditorsBG = null,
+             isTagEditor = false,
+             bottomBar = null,
+             rlMiniPlayerBottomSheet = null,
+             bottomShadowIVAlbumFrag = null,
+             isAlbumFrag = false,
+             topViewIV = null,
+             bottomShadowIVArtistFrag = null,
+             isArtistFrag = false,
+             topViewIVArtistFrag = null,
+             parentViewArtistAndAlbumFrag = null,
+             bottomShadowIVPlaylist = null,
+             isPlaylistFragCategory = false,
+             topViewIVPlaylist = null,
+             playlistBG = null,
+             isPlaylistFrag = false,
+             searchFragBg = null,
+             isSearchFrag = false,
+             settingFragBg = null,
+             isSettingFrag = false
+         ).settingSavedBackgroundTheme()*/
     }
 
     /*  override fun disabledViews(longClickSelectionEnable: Boolean) {

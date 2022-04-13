@@ -92,19 +92,19 @@ class QueueListAdapter(
                         viewHolder.songName.setTextColor(
                             ContextCompat.getColor(
                                 context,
-                                R.color.teal_200
+                                R.color.cyanea_accent_reference
                             )
                         )
                         viewHolder.artistName.setTextColor(
                             ContextCompat.getColor(
                                 context,
-                                R.color.teal_200
+                                R.color.cyanea_accent_reference
                             )
                         )
                         viewHolder.albumName.setTextColor(
                             ContextCompat.getColor(
                                 context,
-                                R.color.teal_200
+                                R.color.cyanea_accent_reference
                             )
                         )
                     } else {
@@ -115,19 +115,19 @@ class QueueListAdapter(
                         viewHolder.songName.setTextColor(
                             ContextCompat.getColor(
                                 context,
-                                R.color.teal_200
+                                R.color.cyanea_accent_reference
                             )
                         )
                         viewHolder.artistName.setTextColor(
                             ContextCompat.getColor(
                                 context,
-                                R.color.teal_200
+                                R.color.cyanea_accent_reference
                             )
                         )
                         viewHolder.albumName.setTextColor(
                             ContextCompat.getColor(
                                 context,
-                                R.color.teal_200
+                                R.color.cyanea_accent_reference
                             )
                         )
                     }
@@ -138,14 +138,14 @@ class QueueListAdapter(
                 viewHolder.rlCurrentPlayingLottie.visibility = View.VISIBLE
                 //holder.currentPlayingAudioIndicator.visibility = View.VISIBLE
                 viewHolder.equalizerView.stopBars()
-                viewHolder.songName.setTextColor(ContextCompat.getColor(context, R.color.teal_200))
+                viewHolder.songName.setTextColor(ContextCompat.getColor(context, R.color.cyanea_accent_reference))
                 viewHolder.artistName.setTextColor(
                     ContextCompat.getColor(
                         context,
-                        R.color.teal_200
+                        R.color.cyanea_accent_reference
                     )
                 )
-                viewHolder.albumName.setTextColor(ContextCompat.getColor(context, R.color.teal_200))
+                viewHolder.albumName.setTextColor(ContextCompat.getColor(context, R.color.cyanea_accent_reference))
             }
             -1 /*default*/ -> {
                 viewHolder.equalizerView.stopBars()

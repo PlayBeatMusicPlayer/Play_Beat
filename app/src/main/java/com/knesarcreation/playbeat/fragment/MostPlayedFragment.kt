@@ -1034,7 +1034,7 @@ class MostPlayedFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        SavedAppTheme(
+      /*  SavedAppTheme(
             activity as Context,
             null,
             null,
@@ -1062,6 +1062,6 @@ class MostPlayedFragment : Fragment() {
             settingFragBg = null,
             isSettingFrag = false
 
-        ).settingSavedBackgroundTheme()
+        ).settingSavedBackgroundTheme()*/
     }
 }

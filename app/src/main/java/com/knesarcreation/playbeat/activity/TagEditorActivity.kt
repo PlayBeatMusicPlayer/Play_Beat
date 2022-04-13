@@ -439,7 +439,7 @@ class TagEditorActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        SavedAppTheme(
+       /* SavedAppTheme(
             this,
             null,
             null,
@@ -466,7 +466,7 @@ class TagEditorActivity : AppCompatActivity() {
             isSearchFrag = false,
             settingFragBg = null,
             isSettingFrag = false
-        ).settingSavedBackgroundTheme()
+        ).settingSavedBackgroundTheme()*/
     }
 
     /*private fun updateAlbumArtMediaStore(context: Context, id: Long, art: String?) {

@@ -27,7 +27,7 @@
         <item name="android:colorControlHighlight">#22FBFBFB</item>
         <item name="snackbarStyle">@style/Widget.App.Snackbar</item>
         <item name="snackbarButtonStyle">@style/Widget.App.SnackbarButton</item>
-        <item name="android:windowBackground">@drawable/splash_screen</item>
+<!--        <item name="android:windowBackground">@drawable/splash_screen</item>-->
 
         <!-- Customize your theme here. -->
     </style>

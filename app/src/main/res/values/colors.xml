@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Accent colors -->
+    <color name="cyanea_accent_reference">#ee9a9a</color>
+    <!-- Primary colors -->
+    <color name="cyanea_primary_reference">#0359AE</color>
+    <!-- Background colors -->
+    <color name="cyanea_background_light">#EBE5D9</color>
+    <color name="cyanea_background_light_darker">#D4D4D4</color>
+    <color name="cyanea_background_light_lighter">#EEE8DE</color>
+
     <color name="teal_200">#ee9a9a</color> <!--new #ee9a9a--> <!--old - FF03DAC5 -->
     <color name="teal_700">#ee9a9a</color> <!-- old FF018786-->
     <color name="black">#121111</color>
     <color name="black_V2">#6A333333</color>
-    <color name="grey">#BAB9B9</color>
+    <color name="grey">#959595</color>
     <color name="white">#FFFFFFFF</color>
     <color name="app_theme_color">#202125
     </color>  <!--363949--> <!--383C4E--> <!--new - #202125--> <!--default - 272A3A-->
@@ -13,7 +22,7 @@
     <color name="transparent">#00ffffff</color>
 
     <color name="bright_pink">#FF87DA</color>
-<!--    <color name="cyan">#03DCF8</color>-->
+    <!--    <color name="cyan">#03DCF8</color>-->
     <color name="dark_grey">#1b262c</color>
     <!-- <color name="light_grey">#F1EEEE</color>-->
     <color name="red">#E62525</color>
@@ -32,6 +41,7 @@
     <color name="light_transparent">#69696C</color>
     <color name="app_theme_default_light">#2D2E33</color> <!--new - 2D2E33--> <!--old 474953-->
     <color name="card_color">#535353</color>
+
     <color name="bottom_bar_color_1">#D0240B36</color>
     <color name="bottom_bar_color_2">#FF4B2B</color>
     <color name="bottom_bar_color_3">#00B4DB</color>

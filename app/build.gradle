@@ -131,11 +131,14 @@ dependencies {
     //splash screen library
     implementation 'androidx.core:core-splashscreen:1.0.0-beta02'
 
-    //Equailizer library
+    //Inbuilt Equalizer library
     implementation 'com.h6ah4i.android.widget.verticalseekbar:verticalseekbar:1.0.0'
 
     //Equalizer View for audio
     implementation "com.github.gsotti:EqualizerView:v0.2"
+
+    // Theme Engine...
+    implementation 'com.jaredrummler:cyanea:1.0.2'
 
     //implementation 'com.diogobernardino:williamchart:2.2'
     //implementation 'com.github.bullheadandplato:AndroidEqualizer:2.2'

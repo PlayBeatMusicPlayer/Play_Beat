@@ -1162,7 +1162,7 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
         return audioList
     }
 
-    override fun onResume() {
+   /* override fun onResume() {
         super.onResume()
         SavedAppTheme(
             activity as Context,
@@ -1192,5 +1192,5 @@ class ArtistsTracksAndAlbumFragment : Fragment()/*, AllSongsAdapter.OnClickSongI
             null,
             false
         ).settingSavedBackgroundTheme()
-    }
+    }*/
 }

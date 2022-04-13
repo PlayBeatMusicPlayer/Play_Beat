@@ -1190,7 +1190,7 @@ class FavouriteAudiosFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        SavedAppTheme(
+        /*SavedAppTheme(
             activity as Context,
             null,
             null,
@@ -1218,7 +1218,7 @@ class FavouriteAudiosFragment : Fragment() {
             settingFragBg = null,
             isSettingFrag = false
 
-        ).settingSavedBackgroundTheme()
+        ).settingSavedBackgroundTheme()*/
     }
 
 }
