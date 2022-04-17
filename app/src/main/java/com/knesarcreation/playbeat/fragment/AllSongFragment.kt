@@ -31,6 +31,8 @@ import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.FragmentAllSongBinding
 import com.knesarcreation.playbeat.service.PlayBeatMusicService
 import com.knesarcreation.playbeat.utils.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.concurrent.CopyOnWriteArrayList
@@ -83,16 +85,17 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
         } ?: throw Exception("Invalid Activity")
         //loadAudio()
 
-        if (storage.getIsAppOpenedInitially()) {
+
+       /* if (!storage.getIsAppOnBoardShowed()) {
             //if yes : app opened initially first time
             //saving false to prefs becz app is now opened for the first time
-            storage.saveAppOpenedInitially(false)
+            storage.saveAppOnBoardingShowed(true)
             val bottomSheetWhatsNew = BottomSheetWhatsNew()
             bottomSheetWhatsNew.show(
                 (activity as AppCompatActivity).supportFragmentManager,
                 "bottomSheetWhatsNew"
             )
-        }
+        }*/
 
         progressBar = CustomProgressDialog(activity as Context)
         progressBar.show()
@@ -133,7 +136,9 @@ class AllSongFragment : Fragment(), ServiceConnection/*, AllSongsAdapter.OnClick
             val mAudioThread: Thread = object : Thread() {
                 override fun run() {
                     super.run()
-                    LoadAllAudios(activity as Context, false).loadAudio(false)
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        LoadAllAudios(activity as Context, false).loadAudio(false)
+                    }
                 }
             }
             mAudioThread.start()

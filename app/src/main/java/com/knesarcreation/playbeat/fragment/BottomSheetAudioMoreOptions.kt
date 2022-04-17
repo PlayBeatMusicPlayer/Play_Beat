@@ -291,33 +291,6 @@ class BottomSheetAudioMoreOptions(
 
     private fun openSystemEqualizer() {
         binding?.llEqualizer?.setOnClickListener {
-            /* val intent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL)
-             if (intent.resolveActivity((mContext as AppCompatActivity).packageManager) != null) {
-                 requestIntent!!.launch(intent)
-             } else {
-                 Toast.makeText(mContext, "No Equalizer found", Toast.LENGTH_SHORT).show()
-             }*/
-            /*if (AllSongFragment.musicService?.mediaPlayer != null) {
-                val audioSessionId = AllSongFragment.musicService?.mediaPlayer!!.audioSessionId
-                val fragment = DialogEqualizerFragment.newBuilder()
-                    .setAudioSessionId(audioSessionId)
-                    .themeColor(ContextCompat.getColor(activity as Context, R.color.colorPrimary))
-                    .textColor(ContextCompat.getColor(activity as Context, R.color.white))
-                    .accentAlpha(ContextCompat.getColor(activity as Context, R.color.teal_200))
-                    .darkColor(ContextCompat.getColor(activity as Context, R.color.blue))
-                    .setAccentColor(
-                        ContextCompat.getColor(
-                            activity as Context,
-                            R.color.colorAccent
-                        )
-                    )
-                    .build()
-                fragment.show((activity as AppCompatActivity).supportFragmentManager, "eq")
-            } else {
-                Toast.makeText(activity as Context, "Something went wrong.", Toast.LENGTH_SHORT)
-                    .show()
-            }*/
-
             startActivity(Intent(activity as Context, EqualizerControlActivity::class.java))
             dismiss()
         }

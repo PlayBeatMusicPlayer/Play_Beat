@@ -11,17 +11,15 @@
           </Key>
         </deviceKey>
       </Target>
-    </runningDeviceTargetsSelectedWithDialog>
-    <targetsSelectedWithDialog>
       <Target>
-        <type value="QUICK_BOOT_TARGET" />
+        <type value="RUNNING_DEVICE_TARGET" />
         <deviceKey>
           <Key>
-            <type value="VIRTUAL_DEVICE_PATH" />
-            <value value="C:\Users\k.nesar\.android\avd\Nexus_4_xhdpi.avd" />
+            <type value="SERIAL_NUMBER" />
+            <value value="420043d6d0036300" />
           </Key>
         </deviceKey>
       </Target>
-    </targetsSelectedWithDialog>
+    </runningDeviceTargetsSelectedWithDialog>
   </component>
 </project>

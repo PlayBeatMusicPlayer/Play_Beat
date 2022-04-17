@@ -1,28 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/app_theme_color"
     tools:context=".activity.onBoarding.OnBoardingActivity">
 
-
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/sliderPager"
+    <RelativeLayout
+        android:id="@+id/rlLoadAudioScreen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/flBottomIndicator" />
+        android:visibility="gone">
 
-    <FrameLayout
-        android:id="@+id/flBottomIndicator"
+        <TextView
+            android:id="@+id/waitTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="55dp"
+            android:fontFamily="@font/caros_bold"
+            android:text="Please wait..."
+            android:textColor="@color/white"
+            android:textSize="22sp" />
+
+        <TextView
+            android:id="@+id/headingDesTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/waitTV"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="3dp"
+            android:fontFamily="@font/fredoka_regular"
+            android:text="App is loading your all audios."
+            android:textColor="@color/grey"
+            android:visibility="visible" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottieLoadAudio"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_centerInParent="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/load_audio" />
+
+
+        <TextView
+            android:id="@+id/scanningTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="55dp"
+            android:layout_marginBottom="80dp"
+            android:fontFamily="@font/fredoka_regular"
+            android:text="@string/scanning"
+            android:textColor="@color/white"
+            android:textSize="22sp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rlOnboard"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:layout_height="match_parent"
+        android:visibility="visible">
 
-        <RelativeLayout
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/sliderPager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_above="@id/flBottomIndicator"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp" />
 
-        </RelativeLayout>
-    </FrameLayout>
+        <FrameLayout
+            android:id="@+id/flBottomIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+                    android:id="@+id/dots_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="20dp"
+                    app:dotsColor="@color/white"
+                    app:dotsCornerRadius="8dp"
+                    app:dotsSize="14dp"
+                    app:dotsSpacing="4dp"
+                    app:dotsWidthFactor="2.5"
+                    app:progressMode="true"
+                    app:selectedDotColor="@color/teal_200" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/nextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:fontFamily="@font/caros_bold"
+                    android:letterSpacing="0.1"
+                    android:text="NEXT"
+                    android:textColor="@color/teal_200"
+                    android:textSize="19sp"
+                    android:textStyle="bold" />
+
+
+            </RelativeLayout>
+
+        </FrameLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/skipBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            android:fontFamily="@font/caros_bold"
+            android:letterSpacing="0.1"
+            android:text="SKIP"
+            android:textColor="@color/teal_200"
+            android:textSize="19sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
 </RelativeLayout>

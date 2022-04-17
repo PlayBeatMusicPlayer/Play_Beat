@@ -7,60 +7,64 @@
     android:background="@color/app_theme_color">
 
     <TextView
-        android:id="@+id/greetingTV"
+        android:id="@+id/headingTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="45dp"
+        android:layout_marginTop="55dp"
         android:fontFamily="@font/caros_bold"
-        android:text="Welcome to Play Beat"
+        android:text="@string/welcome_to_play_beat"
         android:textColor="@color/white"
         android:textSize="22sp" />
 
     <TextView
+        android:id="@+id/headingDesTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/greetingTV"
+        android:layout_below="@id/headingTV"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="2dp"
         android:fontFamily="@font/fredoka_regular"
         android:text="Let the music speak!"
-        android:textColor="@color/white"
+        android:textColor="@color/grey"
         android:visibility="visible" />
 
     <RelativeLayout
+        android:id="@+id/rlBorder"
         android:layout_width="wrap_content"
-        android:layout_height="300dp"
+        android:layout_height="@dimen/_230mdp"
         android:layout_centerInParent="true"
-        android:background="@drawable/curved_all_edges_stroke_teal_color">
+        android:background="@null">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/logoIV"
-            android:layout_width="140dp"
-            android:layout_height="298dp"
+            android:layout_width="@dimen/_115mdp"
+            android:layout_height="@dimen/_225mdp"
             android:layout_centerInParent="true"
+            android:layout_marginStart="1dp"
+            android:layout_marginEnd="1dp"
             android:contentDescription="@null"
-            android:src="@drawable/equalizer_img"
+            android:src="@drawable/play_beat_logo"
             app:shapeAppearanceOverlay="@style/circular_5" />
+
     </RelativeLayout>
 
 
     <TextView
+        android:id="@+id/desTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/flIndicator"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:layout_marginStart="5dp"
         android:layout_marginTop="45dp"
+        android:layout_marginEnd="5dp"
         android:layout_marginBottom="30dp"
         android:fontFamily="@font/fredoka_regular"
         android:text="An offline audio player which has inbuilt Equalizer, Audio Cutter and Audio Tag Editor."
         android:textAlignment="center"
-        android:textColor="@color/white" />
+        android:textColor="@color/white"
+        android:textSize="@dimen/_13font_mdp" />
 
-    <FrameLayout
-        android:id="@+id/flIndicator"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:layout_alignParentBottom="true" />
 
 </RelativeLayout>

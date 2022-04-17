@@ -1,23 +1,22 @@
 package com.knesarcreation.playbeat.activity
 
 import android.annotation.SuppressLint
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.IntentSender.SendIntentException
 import android.content.pm.PackageManager
 import android.database.CursorWindow
 import android.graphics.BitmapFactory
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.GradientDrawable
-import android.media.audiofx.BassBoost
-import android.media.audiofx.Equalizer
-import android.media.audiofx.PresetReverb
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.view.ViewAnimationUtils
 import android.widget.FrameLayout
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
@@ -45,9 +44,7 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.tasks.Task
-import com.google.gson.Gson
 import com.knesarcreation.playbeat.R
-import com.knesarcreation.playbeat.activity.equailizer.EqualizerControlActivity
 import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.ActivityBottomBarFragmentBinding
@@ -136,6 +133,26 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         MakeStatusBarTransparent().transparent(this)
         storage = StorageUtil(this)
 
+
+        val application =
+            application as? ApplicationChannel
+        if (application == null) {
+            Log.e(
+                "LOG_TAG_APP_OPEN_AD",
+                "Failed to cast application to MyApplication."
+            )
+            return
+        }
+
+        // Show the app open ad.
+        application.showAdIfAvailable(
+            this,
+            object : ApplicationChannel.OnShowAdCompleteListener {
+                override fun onShowAdComplete() {
+
+                }
+            })
+
         getAppUpdate()
         //setupCastListener()
         // setting cast context
@@ -202,6 +219,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 )
             bottomSheetMoreOptions.show(supportFragmentManager, "bottomSheetMoreOptions")
         }
+
     }
 
     private fun getAppUpdate() {
@@ -216,12 +234,25 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                     } else if (state.installStatus() == InstallStatus.INSTALLED) {
                         if (appUpdateManager != null) {
                             appUpdateManager!!.unregisterListener(this)
+                            //app updated show the changelog
+//                            if (storage.getIsAppOpenedInitially()) {
+//                                //if yes : app opened initially first time
+//                                //saving false to prefs becz app is now opened for the first time
+//                                finishAffinity()
+//                                startActivity(
+//                                    Intent(
+//                                        this@ActivityBottomBarFragmentContainer,
+//                                        OnBoardingActivity::class.java
+//                                    )
+//                                )
+//
+//                            }
                         }
                     } else {
-                        Log.i(
+                        /*Log.i(
                             "appUpdateManager",
                             "InstallStateUpdatedListener: state: " + state.installStatus()
-                        )
+                        )*/
                     }
                 }
             }
@@ -259,7 +290,26 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             } else {
                 Log.d("AppUpdate", "No Update available")
                 // Toast.makeText(this, "No update available", Toast.LENGTH_SHORT).show()
-
+//                if (storage.getIsAppOpenedInitially()) {
+//                    //if yes : app opened initially first time
+//                    //saving false to prefs becz app is now opened for the first time
+//                    storage.saveAppOpenedInitially(false)
+//                    val bottomSheetWhatsNew = BottomSheetWhatsNew()
+//                    bottomSheetWhatsNew.show(
+//                        supportFragmentManager,
+//                        "bottomSheetWhatsNew"
+//                    )
+//                }
+                if (!storage.getIsAppOnBoardShowed()) {
+                    //if yes : app opened initially first time
+                    //saving false to prefs becz app is now opened for the first time
+                    storage.saveAppOnBoardingShowed(true)
+                    val bottomSheetWhatsNew = BottomSheetWhatsNew()
+                    bottomSheetWhatsNew.show(
+                        supportFragmentManager,
+                        "bottomSheetWhatsNew"
+                    )
+                }
             }
         }
     }
@@ -272,6 +322,8 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
         )
         snackbar.setAction("Install") {
             if (appUpdateManager != null) {
+                // saving true to show the whats new sheet
+                storage.saveAppOpenedInitially(true)
                 appUpdateManager!!.completeUpdate()
             }
         }
@@ -584,6 +636,7 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 this@ActivityBottomBarFragmentContainer.newState = newState
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    initializeAddMob()
                     binding.bottomBar.visibility = View.GONE
                     binding.bottomSheet.rlMiniPlayerBottomsheet.visibility = View.GONE
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -616,9 +669,6 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 }
             }
         })
-
-        initializeAddMob()
-
     }
 
     private fun initializeAddMob() {
@@ -1183,7 +1233,10 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
                 if (isContextMenuEnabled) {
                     viewModel.onBackPressed.value = true
                 } else {
-                    super.onBackPressed()
+                    // Move the task containing the MainActivity to the back of the activity stack, instead of
+                    // destroying it. Therefore, MainActivity will be shown when the user switches back to the app.
+                    moveTaskToBack(true)
+                    //super.onBackPressed()
                 }
             } else {
                 if (isAllAlbumFragOpened) {
@@ -2083,6 +2136,11 @@ class ActivityBottomBarFragmentContainer : AppCompatActivity()/*, ServiceConnect
     override fun onResume() {
         super.onResume()
         //Toast.makeText(this, "host activity", Toast.LENGTH_SHORT).show()
+
+        if (binding.bottomSheet.rlMiniPlayerBottomsheet.alpha == 1F) {
+            nowPlayingBottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+
         SavedAppTheme(
             this,
             null,

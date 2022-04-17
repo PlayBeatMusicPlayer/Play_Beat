@@ -23,6 +23,7 @@ import com.knesarcreation.playbeat.adapter.AllArtistsAdapter
 import com.knesarcreation.playbeat.adapter.AllSongsAdapter
 import com.knesarcreation.playbeat.database.*
 import com.knesarcreation.playbeat.databinding.FragmentSearchBinding
+import com.knesarcreation.playbeat.utils.AdBanner
 import com.knesarcreation.playbeat.utils.SavedAppTheme
 import com.knesarcreation.playbeat.utils.StorageUtil
 import java.io.File
@@ -60,10 +61,10 @@ class SearchFragment : Fragment() {
 
     }
 
-    /* private fun initializeAddMob() {
-         val adBanner = AdBanner(activity as Context, binding!!.adView_container)
-         adBanner.initializeAddMob()
-     }*/
+    private fun initializeAddMob() {
+        val adBanner = AdBanner(activity as Context, binding!!.adViewContainer)
+        adBanner.initializeAddMob()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -88,7 +89,7 @@ class SearchFragment : Fragment() {
         currentPlayingAudioIndex = storageUtil.loadAudioIndex()
 
 
-        //initializeAddMob()
+        initializeAddMob()
 
         observeAudioData()
         observerAlbumsData()

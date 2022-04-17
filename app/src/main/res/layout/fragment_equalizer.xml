@@ -11,7 +11,7 @@
         android:id="@+id/equalizer_action_container"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:background="@android:color/transparent">
 
         <ImageView
@@ -100,7 +100,7 @@
             android:id="@+id/equalizerContainer"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:layout_weight="6"
             android:baselineAligned="false"
             android:orientation="horizontal"
@@ -158,9 +158,9 @@
                     android:id="@+id/textView1"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
+                    android:layout_marginTop="4dp"
                     android:layout_weight="1"
                     android:textSize="15sp"
-                    android:layout_marginTop="4dp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -211,9 +211,9 @@
                     android:id="@+id/textView2"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
+                    android:layout_marginTop="4dp"
                     android:layout_weight="1"
                     android:textSize="15sp"
-                    android:layout_marginTop="4dp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -264,9 +264,9 @@
                     android:id="@+id/textView3"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
+                    android:layout_marginTop="4dp"
                     android:layout_weight="1"
                     android:textSize="15sp"
-                    android:layout_marginTop="4dp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -317,9 +317,9 @@
                     android:id="@+id/textView4"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
+                    android:layout_marginTop="4dp"
                     android:layout_weight="1"
                     android:textSize="15sp"
-                    android:layout_marginTop="4dp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -335,8 +335,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:textSize="15sp"
                     android:gravity="center"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <View
@@ -370,9 +370,9 @@
                     android:id="@+id/textView5"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
+                    android:layout_marginTop="4dp"
                     android:layout_weight="1"
                     android:textSize="15sp"
-                    android:layout_marginTop="4dp"
                     android:textStyle="bold" />
 
             </LinearLayout>
@@ -387,20 +387,61 @@
             android:background="@android:color/transparent"
             android:orientation="horizontal">
 
-            <com.knesarcreation.playbeat.activity.equailizer.AnalogController
-                android:id="@+id/controllerBass"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_margin="10dp"
                 android:layout_weight="1"
-                tools:ignore="NestedWeights" />
+                android:orientation="vertical"
+                tools:ignore="NestedWeights">
 
-            <com.knesarcreation.playbeat.activity.equailizer.AnalogController
-                android:id="@+id/controller3D"
+                <com.knesarcreation.playbeat.activity.equailizer.AnalogController
+                    android:id="@+id/controllerBass"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    tools:ignore="NestedWeights" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/caros_bold"
+                    android:text="@string/bass_boost"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_13font_mdp" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:orientation="vertical"
+                tools:ignore="NestedWeights">
+
+                <com.knesarcreation.playbeat.activity.equailizer.AnalogController
+                    android:id="@+id/controller3D"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    tools:ignore="NestedWeights" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/caros_bold"
+                    android:text="@string/surround_sound"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_13font_mdp" />
+            </LinearLayout>
+
+
         </LinearLayout>
     </LinearLayout>
 

@@ -21,10 +21,7 @@ import com.google.gson.reflect.TypeToken
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.database.*
 import com.knesarcreation.playbeat.databinding.ActivityTagEditorBinding
-import com.knesarcreation.playbeat.utils.GetRealPathOfUri
-import com.knesarcreation.playbeat.utils.MakeStatusBarTransparent
-import com.knesarcreation.playbeat.utils.SavedAppTheme
-import com.knesarcreation.playbeat.utils.StorageUtil
+import com.knesarcreation.playbeat.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jaudiotagger.audio.AudioFileIO
@@ -50,6 +47,7 @@ class TagEditorActivity : AppCompatActivity() {
     private var newAlbumArtUri: Uri? = null
     private lateinit var allSongsModel: AllSongsModel
     private var albumData: AlbumModel? = null
+    private var storage = StorageUtil(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +61,11 @@ class TagEditorActivity : AppCompatActivity() {
 
         binding.arrowBackIV.setOnClickListener {
             onBackPressed()
+        }
+
+        if (storage.getShouldWeShowInterstitialAdOnTagActivity()) {
+            InterstitialAdHelper(this, this, 2).loadAd()
+            //storage.showInterstitialAddForTrimActivity(false)
         }
 
         allSongsModel = convertStringToAudioModel(audioModel)

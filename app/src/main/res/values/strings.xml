@@ -7,6 +7,8 @@
 
     <string name="banner_ad_test_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="banner_ad_id">ca-app-pub-3285111861884715/7459974421</string>
+    <string name="app_open_ad_id">ca-app-pub-3285111861884715/3286635550</string>
+    <string name="interstitial_ad_id">ca-app-pub-3285111861884715/7699743038</string>
     <string name="abMobId">ca-app-pub-3285111861884715~9865757868</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -84,5 +86,27 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="select_preset">Select preset</string>
     <string name="equalizer">Equalizer</string>
+    <string name="welcome_to_play_beat">Welcome to Play Beat</string>
+    <string name="scanning">Scanning...</string>
+    <string name="beta">Beta</string>
+    <string name="bass_boost">Bass boost</string>
+    <string name="surround_sound">Surround sound</string>
+    <string name="ad_attribution">AD</string>
+
+    <!--version 4.2.3 changelogs-->
+    <!--<string-array name="changelogs_4.2.3">
+        <string name="no1">New Material Design 3 support added.</string>
+        <string name="no2">Power full search filter added. Now search results will also show albums and artists whose query matched with album or artists.</string>
+        <string name="no3">Expanded now playing UI improved.</string>
+        <string name="no4">Themes support are disabled for some bugs.</string>
+        <string name="no5">Fixed some known bugs on playlist page.</string>
+        <string name="no6">Fixed: App was crashing on some devices while playing audio.</string>
+        <string name="no7">From now onwards there will be minor ads on UI.</string>
+    </string-array>-->
+
+    <!--version 4.3.0 changelogs-->
+    <string name="no1">In-built Equalizer added.You can find equalizer in about section or in more option of audio</string>
+    <string name="no2">UI Improvements. Default accent color and app background improved.</string>
+    <string name="no3">Themes support are still disabled due to some bugs.It will be enabled soon.</string>
 
 </resources>

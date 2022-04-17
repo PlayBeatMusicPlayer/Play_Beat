@@ -161,8 +161,8 @@ class EqualizerFragment : Fragment() {
         //dataset = LineSet()
         bassController = view.findViewById(R.id.controllerBass)
         reverbController = view.findViewById(R.id.controller3D)
-        bassController!!.label = "Bass boost"
-        reverbController!!.label = "Surround sound"
+        bassController!!.label = ""
+        reverbController!!.label = ""
         bassController!!.circlePaint2!!.color = themeColor
         bassController!!.linePaint!!.color = themeColor
         bassController!!.invalidate()

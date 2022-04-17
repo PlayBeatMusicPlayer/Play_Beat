@@ -36,6 +36,66 @@ class StorageUtil(context: Context) {
         return preferences!!.getBoolean("appOpenedInitially", true)
     }
 
+    fun saveAppOnBoardingShowed(value: Boolean) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putBoolean("appOnBoard", value)
+        editor.apply()
+    }
+
+    fun getIsAppOnBoardShowed(): Boolean {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getBoolean("appOnBoard", false)
+    }
+
+    /*fun shouldWeShowInterstitialAd(value: Boolean) {
+         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+         val editor = preferences!!.edit()
+         editor.putBoolean("InterstitialAdHelper", value)
+         editor.apply()
+     }
+
+     fun getShouldWeShowInterstitialAd(): Boolean {
+         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+         return preferences!!.getBoolean("InterstitialAdHelper", true)
+     }*/
+
+    fun shouldInterstitialAddForEQActivity(value: Boolean) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putBoolean("InterstitialAdHelperEQ", value)
+        editor.apply()
+    }
+
+    fun getShouldWeShowInterstitialAdOnEQActivity(): Boolean {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getBoolean("InterstitialAdHelperEQ", true)
+    }
+
+    fun showInterstitialAddForTrimActivity(value: Boolean) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putBoolean("InterstitialAdHelperTrim", value)
+        editor.apply()
+    }
+
+    fun getShouldWeShowInterstitialAdOnTrimActivity(): Boolean {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getBoolean("InterstitialAdHelperTrim", true)
+    }
+
+    fun showInterstitialAddForTagActivity(value: Boolean) {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        val editor = preferences!!.edit()
+        editor.putBoolean("InterstitialAdHelperTag", value)
+        editor.apply()
+    }
+
+    fun getShouldWeShowInterstitialAdOnTagActivity(): Boolean {
+        preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
+        return preferences!!.getBoolean("InterstitialAdHelperTag", true)
+    }
+
     fun storeAudio(arrayList: CopyOnWriteArrayList<AllSongsModel>?) {
         preferences = mContext.getSharedPreferences(STORAGE, AppCompatActivity.MODE_PRIVATE)
         val editor = preferences!!.edit()

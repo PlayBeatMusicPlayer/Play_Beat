@@ -34,6 +34,7 @@ import com.knesarcreation.playbeat.database.AllSongsModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.databinding.ActivityTrimBinding
 import com.knesarcreation.playbeat.fragment.AllSongFragment
+import com.knesarcreation.playbeat.utils.InterstitialAdHelper
 import com.knesarcreation.playbeat.utils.MakeStatusBarTransparent
 import com.knesarcreation.playbeat.utils.StorageUtil
 import com.knesarcreation.playbeat.utils.Utility
@@ -98,6 +99,7 @@ class AudioTrimmerActivity : AppCompatActivity(), View.OnClickListener, MarkerVi
     private lateinit var allSongModle: AllSongsModel
     private var radioBtn = ""
     private lateinit var loadingDialog: androidx.appcompat.app.AlertDialog
+    private var storage = StorageUtil(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -190,6 +192,10 @@ class AudioTrimmerActivity : AppCompatActivity(), View.OnClickListener, MarkerVi
         loadFromFile(allSongModle.data)
 
 
+        if (storage.getShouldWeShowInterstitialAdOnTrimActivity()) {
+            InterstitialAdHelper(this, this, 1).loadAd()
+            //storage.showInterstitialAddForTrimActivity(false)
+        }
     }
 
 
@@ -995,7 +1001,10 @@ class AudioTrimmerActivity : AppCompatActivity(), View.OnClickListener, MarkerVi
         return permAllowed
     }
 
-    private fun writeAudioToSystemSetting(etAudioName: TextInputEditText, dialog: androidx.appcompat.app.AlertDialog) {
+    private fun writeAudioToSystemSetting(
+        etAudioName: TextInputEditText,
+        dialog: androidx.appcompat.app.AlertDialog
+    ) {
         if (etAudioName.text!!.isEmpty()) {
             etAudioName.error = "Please enter new name"
         } else {

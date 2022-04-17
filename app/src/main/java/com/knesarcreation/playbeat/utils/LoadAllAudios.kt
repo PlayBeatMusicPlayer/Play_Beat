@@ -19,11 +19,12 @@ import com.knesarcreation.playbeat.database.ArtistsModel
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.fragment.AllSongFragment
 import com.knesarcreation.playbeat.model.FolderModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
 
 class LoadAllAudios(var context: Context, val fromSplash: Boolean) {
     private var albumList = ArrayList<AlbumModel>()
@@ -76,7 +77,9 @@ class LoadAllAudios(var context: Context, val fromSplash: Boolean) {
             sortOrder
         )
 
-        queryAudio(query, isFilteredAudio)
+        (context as AppCompatActivity).lifecycleScope.launch(Dispatchers.IO) {
+            queryAudio(query, isFilteredAudio)
+        }
     }
 
     private fun queryAudio(query: Cursor?, isFilteredAudio: Boolean) {

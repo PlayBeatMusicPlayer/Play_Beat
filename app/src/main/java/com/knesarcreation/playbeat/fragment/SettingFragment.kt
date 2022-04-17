@@ -24,6 +24,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.knesarcreation.playbeat.BuildConfig
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.activity.equailizer.EqualizerControlActivity
 import com.knesarcreation.playbeat.databinding.FragmentSettingBinding
 import com.knesarcreation.playbeat.utils.LoadAllAudios
 import com.knesarcreation.playbeat.utils.SavedAppTheme
@@ -75,9 +76,17 @@ class SettingFragment : Fragment() {
 
         openChangeLog()
 
+        openEqualizer()
+
         return view
 
 
+    }
+
+    private fun openEqualizer() {
+        binding!!.llEqualizer.setOnClickListener {
+            startActivity(Intent(activity as Context, EqualizerControlActivity::class.java))
+        }
     }
 
     private fun openChangeLog() {
@@ -126,7 +135,9 @@ class SettingFragment : Fragment() {
 
             var selectedDuration = duration.toFloat().roundToInt()
             sliderFilterAudio.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+                @SuppressLint("RestrictedApi")
                 override fun onStartTrackingTouch(slider: Slider) {}
+                @SuppressLint("RestrictedApi")
                 override fun onStopTrackingTouch(slider: Slider) {}
             })
 

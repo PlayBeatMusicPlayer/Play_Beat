@@ -14,7 +14,7 @@
     app:behavior_hideable="false"
     app:behavior_peekHeight="55dp"
     app:layout_behavior="@string/bottom_sheet_behavior">
-<!--23242B-->
+    <!--23242B-->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/rlParentNowPlaying"
         android:layout_width="match_parent"
@@ -200,8 +200,8 @@
 
                 <ImageView
                     android:id="@+id/nowPlayingNoAlbumArt"
-                    android:layout_width="@dimen/_200mdp"
-                    android:layout_height="@dimen/_200mdp"
+                    android:layout_width="@dimen/_150mdp"
+                    android:layout_height="@dimen/_150mdp"
                     android:layout_centerInParent="true"
                     android:background="@drawable/play_beat_logo"
                     android:contentDescription="@null"

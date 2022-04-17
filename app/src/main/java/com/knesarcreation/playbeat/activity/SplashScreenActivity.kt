@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.knesarcreation.playbeat.BuildConfig
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.activity.onBoarding.OnBoardingActivity
 import com.knesarcreation.playbeat.database.ViewModelClass
 import com.knesarcreation.playbeat.utils.LoadAllAudios
 import com.knesarcreation.playbeat.utils.MakeStatusBarTransparent
@@ -99,7 +100,13 @@ class SplashScreenActivity : AppCompatActivity() {
             registerForActivityResult(ActivityResultContracts.RequestPermission()) {
                 if (it) {
                     // do stuff if permission granted
-                    LoadAllAudios(this, true).loadAudio(false)
+                    if (!storage.getIsAppOnBoardShowed()) {
+                        startActivity(Intent(this, OnBoardingActivity::class.java))
+                        finish()
+                    } else {
+                        LoadAllAudios(this, true).loadAudio(false)
+                    }
+
                     //loadAudio()
 
                 } else {

@@ -57,8 +57,8 @@
             android:layout_marginTop="15dp"
             android:drawablePadding="10dp"
             android:fontFamily="@font/roboto"
-            android:gravity="center"
-            android:text="New Material Design 3 support added."
+            android:text="@string/no1"
+            android:textAlignment="textStart"
             android:textColor="@color/grey"
             android:textSize="13sp"
             app:drawableStartCompat="@drawable/ic_check_circle_grey" />
@@ -69,7 +69,7 @@
             android:layout_marginTop="8dp"
             android:drawablePadding="10dp"
             android:fontFamily="@font/roboto"
-            android:text="Power full search filter added. Now search results will also show albums and artists whose query matched with album or artists."
+            android:text="@string/no2"
             android:textColor="@color/grey"
             android:textSize="13sp"
             app:drawableStartCompat="@drawable/ic_check_circle_grey" />
@@ -80,8 +80,20 @@
             android:layout_marginTop="15dp"
             android:drawablePadding="10dp"
             android:fontFamily="@font/roboto"
+            android:text="@string/no3"
+            android:textAlignment="textStart"
+            android:textColor="@color/grey"
+            android:textSize="13sp"
+            app:drawableStartCompat="@drawable/ic_check_circle_grey" />
+
+        <!--<TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:drawablePadding="10dp"
+            android:fontFamily="@font/roboto"
             android:gravity="center"
-            android:text="Expanded now playing UI improved."
+            android:text="@string/no4"
             android:textColor="@color/grey"
             android:textSize="13sp"
             app:drawableStartCompat="@drawable/ic_check_circle_grey" />
@@ -93,7 +105,18 @@
             android:drawablePadding="10dp"
             android:fontFamily="@font/roboto"
             android:gravity="center"
-            android:text="Themes support are disabled for some bugs."
+            android:text="@string/no5"
+            android:textColor="@color/grey"
+            android:textSize="13sp"
+            app:drawableStartCompat="@drawable/ic_check_circle_grey" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:drawablePadding="10dp"
+            android:fontFamily="@font/roboto"
+            android:text="@string/no6"
             android:textColor="@color/grey"
             android:textSize="13sp"
             app:drawableStartCompat="@drawable/ic_check_circle_grey" />
@@ -105,33 +128,10 @@
             android:drawablePadding="10dp"
             android:fontFamily="@font/roboto"
             android:gravity="center"
-            android:text="Fixed some known bugs on playlist page."
+            android:text="@string/no7"
             android:textColor="@color/grey"
             android:textSize="13sp"
-            app:drawableStartCompat="@drawable/ic_check_circle_grey" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:drawablePadding="10dp"
-            android:fontFamily="@font/roboto"
-            android:text="Fixed: App was crashing on some devices while playing audio."
-            android:textColor="@color/grey"
-            android:textSize="13sp"
-            app:drawableStartCompat="@drawable/ic_check_circle_grey" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:drawablePadding="10dp"
-            android:fontFamily="@font/roboto"
-            android:gravity="center"
-            android:text="From now onwards there will be minor ads on UI."
-            android:textColor="@color/grey"
-            android:textSize="13sp"
-            app:drawableStartCompat="@drawable/ic_check_circle_grey" />
+            app:drawableStartCompat="@drawable/ic_check_circle_grey" />-->
 
     </LinearLayout>
 

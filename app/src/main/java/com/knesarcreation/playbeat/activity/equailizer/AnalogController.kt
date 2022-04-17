@@ -59,7 +59,7 @@ class AnalogController : View {
         textPaint = Paint()
         textPaint!!.color = Color.WHITE
         textPaint!!.style = Paint.Style.FILL
-        textPaint!!.textSize = 43f
+        textPaint!!.textSize = 33f
         textPaint!!.isFakeBoldText = true
         textPaint!!.textAlign = Paint.Align.CENTER
         circlePaint = Paint()

@@ -4,18 +4,27 @@ import android.graphics.Color
 import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.ads.MobileAds
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.fragment.AllSongFragment
+import com.knesarcreation.playbeat.utils.InterstitialAdHelper
 import com.knesarcreation.playbeat.utils.Settings
+import com.knesarcreation.playbeat.utils.StorageUtil
 
 
 class EqualizerControlActivity : AppCompatActivity() {
     private var mediaPlayer: MediaPlayer? = null
     private var sessionId: Int = 0
     private val equalizerSetting = Settings()
+    private var storage = StorageUtil(this)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.equalizer_control_activity)
+
+        // Initialize the Mobile Ads SDK.
+        MobileAds.initialize(this) {}
+
         equalizerSetting.loadEqualizerSettings(this)
         if (AllSongFragment.musicService!!.mediaPlayer != null) {
             mediaPlayer = AllSongFragment.musicService!!.mediaPlayer
@@ -30,62 +39,25 @@ class EqualizerControlActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.eqFrame, equalizerFragment)
             .commit()
-    }
 
-    /* private fun showInDialog() {
-         val sessionId = mediaPlayer!!.audioSessionId
-         if (sessionId > 0) {
-             val fragment: DialogEqualizerFragment = DialogEqualizerFragment.newBuilder()
-                 .setAudioSessionId(sessionId)
-                 .title("Equalizer")
-                 .themeColor(ContextCompat.getColor(this, R.color.teal_200))
-                 .textColor(ContextCompat.getColor(this, R.color.white))
-                 .accentAlpha(ContextCompat.getColor(this, R.color.teal_200))
-                 .darkColor(ContextCompat.getColor(this, R.color.colorPrimary))
-                 .setAccentColor(ContextCompat.getColor(this, R.color.colorAccent))
-                 .build()
-             fragment.show(supportFragmentManager, "eq")
-         }
-     }*/
+
+        if (storage.getShouldWeShowInterstitialAdOnEQActivity()) {
+            InterstitialAdHelper(this, this, 0).loadAd()
+            //storage.shouldInterstitialAddForEQActivity(false)
+        }
+
+
+    }
 
     override fun onStop() {
         super.onStop()
         equalizerSetting.saveEqualizerSettings(this)
     }
 
-    /*override fun onPause() {
-        try {
-            mediaPlayer!!.pause()
-        } catch (ex: Exception) {
-            //ignore
-        }
-        super.onPause()
-    }*/
-
-    /*override fun onResume() {
-        super.onResume()
-        try {
-            Handler().postDelayed({ mediaPlayer!!.start() }, 2000)
-        } catch (ex: Exception) {
-            //ignore
-        }
-    }*/
-
-    /*override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        return true
-    }*/
-
-    /*override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.itemEqDialog) {
-            showInDialog()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }*/
-
 
     companion object {
         const val PREF_KEY = "equalizer"
+        const val AD_UNIT_ID = "ca-app-pub-3285111861884715/7699743038"
+        const val AD_UNIT_ID_TEST = "ca-app-pub-3940256099942544/1033173712"
     }
 }

@@ -64,7 +64,7 @@ class PlaylistsFragment : Fragment() {
         mViewModelClass = ViewModelProvider(this)[ViewModelClass::class.java]
 
         binding?.favButton?.setOnClickListener {
-            binding?.fabCreatePlaylist!!.animate().alpha(0.0f).duration = 300
+            //binding?.fabCreatePlaylist!!.animate().alpha(0.0f).duration = 300
             listener?.playlistCategory("fav", 0)
         }
 
