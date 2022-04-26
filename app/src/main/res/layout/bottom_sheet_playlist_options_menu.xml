@@ -4,11 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/curved_top_right_top_left_app_theme_color"
     android:orientation="vertical">
 
     <RelativeLayout
-        android:id="@+id/songDetailsContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -19,22 +17,31 @@
 
         <RelativeLayout
             android:id="@+id/rlPlaylistArtContainer"
-            android:layout_width="50dp"
-            android:layout_height="50dp">
+            android:layout_width="45dp"
+            android:layout_height="45dp">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/playlistArtIV"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@drawable/little_curved_all_edges"
-                android:scaleType="centerCrop"
-                android:src="@drawable/music_note_icon"
-                app:shapeAppearanceOverlay="@style/circular_15" />
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/imageTextContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                app:cardCornerRadius="10dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/playlistArtIV"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/ic_queue_music"
+                    tools:visibility="visible" />
+
+            </com.google.android.material.card.MaterialCardView>
 
 
         </RelativeLayout>
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/playlistNameTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -46,7 +53,6 @@
             android:ellipsize="end"
             android:fontFamily="@font/segoe_ui"
             android:maxLines="1"
-            android:textColor="@color/white"
             android:textSize="15sp"
             android:textStyle="bold"
             tools:text="Playlist name" />
@@ -60,7 +66,7 @@
             android:layout_toEndOf="@id/rlPlaylistArtContainer"
             android:orientation="horizontal">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/totalAudioTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -68,44 +74,11 @@
                 android:fontFamily="@font/segoe_ui"
                 android:maxLength="28"
                 android:maxLines="1"
-                android:textColor="@color/grey"
                 android:textSize="13sp"
                 android:textStyle="normal"
                 tools:text="0 Song" />
 
-            <!--<View
-                android:id="@+id/sepratorView"
-                android:layout_width="2.5dp"
-                android:layout_height="2.5dp"
-                android:layout_gravity="center"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"
-                android:background="@color/grey" />
-
-            <TextView
-                android:id="@+id/albumNameTv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
-                android:ellipsize="end"
-                android:fontFamily="@font/segoe_ui"
-                android:maxLines="1"
-                android:textColor="@color/grey"
-                android:textSize="13sp"
-                android:textStyle="normal"
-                tools:text="Album Name" />-->
         </LinearLayout>
-
-        <!-- <ImageView
-             android:id="@+id/likedAudioIV"
-             android:layout_width="50dp"
-             android:layout_height="50dp"
-             android:layout_alignParentEnd="true"
-             android:layout_centerInParent="true"
-             android:contentDescription="@null"
-             android:src="@drawable/liked_audio"
-             android:visibility="visible" />-->
-
 
     </RelativeLayout>
 
@@ -115,8 +88,9 @@
         android:layout_height="0.3dp"
         android:layout_marginTop="5dp"
         android:alpha="0.5"
-        android:background="@color/grey" />
+        android:background="@color/md_grey_400" />
 
+    <!-- grp one -->
     <LinearLayout
         android:id="@+id/llPlayPlaylist"
         android:layout_width="match_parent"
@@ -132,9 +106,9 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="18dp"
             android:contentDescription="@null"
-            android:src="@drawable/ic_playlist_play" />
+            android:src="@drawable/ic_play_arrow" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -142,9 +116,7 @@
             android:layout_gravity="center_vertical"
             android:layout_marginStart="11dp"
             android:layout_marginEnd="15dp"
-            android:text="@string/play"
-            android:textColor="@color/white" />
-
+            android:text="@string/action_play" />
     </LinearLayout>
 
     <LinearLayout
@@ -170,11 +142,21 @@
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:text="@string/play_next"
-            android:textColor="@color/white" />
-
+            android:text="@string/action_play_next" />
     </LinearLayout>
+    <!---->
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp"
+        android:layout_marginStart="55dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:alpha="0.5"
+        android:background="@color/md_grey_400" />
+
+
+    <!--grp two-->
     <LinearLayout
         android:id="@+id/llAddToQueue"
         android:layout_width="match_parent"
@@ -198,9 +180,7 @@
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:text="@string/add_to_playing_queue"
-            android:textColor="@color/white" />
-
+            android:text="@string/action_add_to_playing_queue" />
     </LinearLayout>
 
     <LinearLayout
@@ -226,11 +206,22 @@
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:text="@string/add_to_playlist"
-            android:textColor="@color/white" />
-
+            android:text="@string/action_add_to_playlist" />
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp"
+        android:layout_marginStart="55dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:alpha="0.5"
+        android:background="@color/md_grey_400" />
+
+    <!---->
+
+
+    <!--grp 3-->
     <LinearLayout
         android:id="@+id/llRename"
         android:layout_width="match_parent"
@@ -254,9 +245,7 @@
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:text="@string/rename"
-            android:textColor="@color/white" />
-
+            android:text="@string/action_rename" />
     </LinearLayout>
 
     <LinearLayout
@@ -264,7 +253,6 @@
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:layout_gravity="center_vertical"
-        android:layout_marginBottom="20dp"
         android:background="?selectableItemBackground"
         android:orientation="horizontal"
         tools:ignore="UseCompoundDrawables">
@@ -283,9 +271,34 @@
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:text="@string/delete_playlist"
-            android:textColor="@color/white" />
+            android:text="@string/delete_playlist_title" />
+    </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/llSaveAsFile"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="20dp"
+        android:background="?selectableItemBackground"
+        android:orientation="horizontal"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="20dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_save" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:text="@string/save_playlist_title" />
     </LinearLayout>
 
     <!-- <LinearLayout

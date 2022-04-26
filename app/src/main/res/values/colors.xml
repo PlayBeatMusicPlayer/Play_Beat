@@ -1,73 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="teal_200">#ee9a9a</color> <!--new #ee9a9a--> <!--old - FF03DAC5 -->
-    <color name="teal_700">#ee9a9a</color> <!-- old FF018786-->
-    <color name="black">#121111</color>
-    <color name="black_V2">#6A333333</color>
-    <color name="grey">#BAB9B9</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="app_theme_color">#202125
-    </color>  <!--363949--> <!--383C4E--> <!--new - #202125--> <!--default - 272A3A-->
-    <color name="search_widget_bg">#313443</color>
-    <!--2B2727--> <!--3A3C46-->
-    <color name="transparent">#00ffffff</color>
 
-    <color name="bright_pink">#FF87DA</color>
-<!--    <color name="cyan">#03DCF8</color>-->
-    <color name="dark_grey">#1b262c</color>
-    <!-- <color name="light_grey">#F1EEEE</color>-->
-    <color name="red">#E62525</color>
-    <color name="bright_red">#ff414d</color>
-    <color name="blue">#B44527A0</color>
-    <!--50D55D-->
-    <color name="light_green">#AFF3B2</color>
-    <color name="light_cyan">#4A03DAC5</color>
-    <color name="ripple_cyan">#4AB7FFF8</color>
-    <color name="ripple_search_chip">#FAC5C5</color>
-    <color name="yellow">#FFD740</color>
-    <!--FFBF00--> <!--F1A11A-->
-    <!--<color name="dark_purple">#110117</color>-->
-    <color name="semi_transparent">#41FFFFFF</color>
-    <color name="rippleColor">#22FBFBFB</color>
-    <color name="light_transparent">#69696C</color>
-    <color name="app_theme_default_light">#2D2E33</color> <!--new - 2D2E33--> <!--old 474953-->
-    <color name="card_color">#535353</color>
-    <color name="bottom_bar_color_1">#D0240B36</color>
-    <color name="bottom_bar_color_2">#FF4B2B</color>
-    <color name="bottom_bar_color_3">#00B4DB</color>
-    <color name="bottom_bar_color_4">#333333</color>
-    <color name="bottom_bar_color_5">#355C7D</color>
-    <color name="bottom_bar_color_6">#0f0c29</color>
-    <color name="bottom_bar_color_7">#23074d</color>
-    <color name="bottom_bar_color_8">#3C3B3F</color>
-    <color name="bottom_bar_color_9">#000046</color>
-    <color name="bottom_bar_color_10">#243B55</color>
-    <color name="bottom_bar_color_11">#1D4350</color>
-    <color name="bottom_bar_color_12">#000000</color>
+    <color name="window_color">@color/md_white_1000</color>
+    <color name="window_color_light">@color/md_white_1000</color>
+    <color name="window_color_dark">@android:color/black</color>
 
-    <color name="theme_start_color_1">#c31432</color>
-    <color name="theme_start_color_2">#FF416C</color>
-    <color name="theme_start_color_3">#0083B0</color>
-    <color name="theme_start_color_4">#dd1818</color>
-    <color name="theme_start_color_5">#C06C84</color>
-    <color name="theme_start_color_6">#0f0c29</color>
-    <color name="theme_start_color_7">#cc5333</color>
-    <color name="theme_start_color_8">#605C3C</color>
-    <color name="theme_start_color_9">#1CB5E0</color>
-    <color name="theme_start_color_10">#141E30</color>
-    <color name="theme_start_color_11">#A43931</color>
-    <color name="theme_start_color_12">#434343</color>
+    <color name="twenty_percent_black_overlay">#34000000</color>
+    <color name="app_shortcut_default_foreground">#607d8b</color>
+    <color name="app_shortcut_default_background">#f5f5f5</color>
+    <color name="md_indigo_A400">#3D5AFE</color>
+    <color name="dark_color">#202124</color>
+    <color name="black_color">#202124</color>
 
-    <color name="colorGridLine">#00ed1b24</color>
-    <color name="colorSelectionBorder">#9c41bc</color>
+    <color name="darkColorPrimary">#202124</color>
+    <color name="darkColorSurface">#202124</color>
+
+    <color name="darkerColorSurface">#353535</color>
+    <color name="lighterColorSurface">#dddddd</color>
+
+    <color name="blackColorSurface">#000000</color>
+
+    <color name="transparent">#00000000</color>
+    <color name="semi_transparent">#20000000</color>
+    <!-- card colors -->
+    <color name="card_background">#ffffff</color>
+    <color name="card_shadow_1">#d4d4d4</color>
+    <color name="card_shadow_2">#dddddd</color>
+
+    <color name="progress_gray">#FFD8D8D8</color>
+    <color name="default_blue_light">#ff33b5e5</color>
+
+    <color name="bottomSheetColorLight">#FFFFFF</color>
+    <color name="bottomSheetColorDark">#202020</color>
+    <color name="bottomSheetColorBlack">#000000</color>
+
+    <color name="bottomSheetColor">#FFFFFF</color>
+    <color name="widget_md3_bg_color">@color/lighterColorSurface</color>
+    <color name="widget_circle_button_color">@color/md_indigo_A400</color>
+    <color name="widget_md3_button_bg_color">@color/lighterColorSurface</color>
+    <color name="shadow_color">@color/md_white_1000</color>
+    <color name="md_shadow_color">#181c1f</color>
+    <color name="textColor">@color/black_color</color>
     <color name="colorWaveformBg">#E6182245</color>
-    <color name="colorPlaybackIndicator">#b2253571</color>
-    <color name="colorTimeCode">#dd253571</color>
-    <color name="colorTimeCodeShadow">#aa253571</color>
-    <color name="waveformSelected">#adb5cc</color>
-    <color name="waveformUnselected">#adb5cc</color>
-    <color name="waveformUnselectedBackground">#e8e6e7</color>
+    <color name="colorGridLine">#00ed1b24</color>
+    <color name="black_V2">#6A333333</color>
+    <color name="setting_border_color">@color/lighterColorSurface</color>
 
-    <color name="shrine_pink_900">#442c2e</color>
-    <color name="shrine_pink_100">#FEDBD0</color>
 </resources>

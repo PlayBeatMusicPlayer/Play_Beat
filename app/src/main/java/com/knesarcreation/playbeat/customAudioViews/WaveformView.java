@@ -1,25 +1,9 @@
-/*
- * Copyright (C) 2008 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package com.knesarcreation.playbeat.customAudioViews;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -115,10 +99,10 @@ public class WaveformView extends View {
         mGridPaint.setColor(res.getColor(R.color.colorGridLine));
         mSelectedLinePaint = new Paint();
         mSelectedLinePaint.setAntiAlias(false);
-        mSelectedLinePaint.setColor(res.getColor(R.color.blue));
+        mSelectedLinePaint.setColor(res.getColor(R.color.m3_accent_color));
         mUnselectedLinePaint = new Paint();
         mUnselectedLinePaint.setAntiAlias(false);
-        mUnselectedLinePaint.setColor(res.getColor(R.color.blue));
+        mUnselectedLinePaint.setColor(res.getColor(R.color.m3_accent_color));
         mUnselectedBkgndLinePaint = new Paint();
         mUnselectedBkgndLinePaint.setAntiAlias(false);
         mUnselectedBkgndLinePaint.setColor(res.getColor(R.color.black_V2));
@@ -126,16 +110,16 @@ public class WaveformView extends View {
         mBorderLinePaint.setAntiAlias(true);
         mBorderLinePaint.setStrokeWidth(12);
      //   mBorderLinePaint.setPathEffect(new DashPathEffect(new float[]{3.0f, 2.0f}, 0.0f));
-        mBorderLinePaint.setColor(res.getColor(R.color.white));
+        mBorderLinePaint.setColor(res.getColor(R.color.md_grey_400));
         mPlaybackLinePaint = new Paint();
         mPlaybackLinePaint.setAntiAlias(false);
         mPlaybackLinePaint.setStrokeWidth(3f);
-        mPlaybackLinePaint.setColor(res.getColor(R.color.white));
+        mPlaybackLinePaint.setColor(res.getColor(R.color.md_grey_400));
         mTimecodePaint = new Paint();
         mTimecodePaint.setTextSize(12);
         mTimecodePaint.setAntiAlias(true);
-        mTimecodePaint.setColor(res.getColor(R.color.black));
-        mTimecodePaint.setShadowLayer(2, 1, 1, res.getColor(R.color.black));
+        mTimecodePaint.setColor(res.getColor(R.color.md_grey_400));
+        mTimecodePaint.setShadowLayer(2, 1, 1, res.getColor(R.color.black_color));
 
         mGestureDetector = new GestureDetector(
                 context,

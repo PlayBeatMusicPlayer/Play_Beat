@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.equailizer.EqualizerControlActivity">
+    android:background="?attr/colorSurface"
+    tools:context=".equailizer.EqualizerControlActivity">
 
     <FrameLayout
         android:id="@+id/eqFrame"

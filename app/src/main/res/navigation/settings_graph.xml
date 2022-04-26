@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/mainSettingFrag">
+
+    <fragment
+        android:id="@+id/mainSettingFrag"
+        android:name="com.knesarcreation.playbeat.fragments.settings.MainSettingsFragment"
+        android:label="Settings"
+        tools:layout="@layout/fragment_main_settings">
+
+        <action
+            android:id="@+id/action_mainSettingsFragment_to_themeSettingsFragment2"
+            app:destination="@id/playBeatSettingPref"
+            />
+
+
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/playBeatSettingPref"
+        android:name="com.knesarcreation.playbeat.fragments.settings.PlayBeatSettingPref"
+        android:label="Look &amp; Feel" />
+
+
+</navigation>

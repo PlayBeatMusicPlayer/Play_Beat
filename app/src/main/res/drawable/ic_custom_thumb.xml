@@ -3,16 +3,19 @@
     android:height="31.6dp"
     android:viewportWidth="65.2"
     android:viewportHeight="31.6">
+
     <path
-        android:fillColor="@color/app_theme_color"
+        android:fillColor="?attr/backgroundColor"
         android:pathData="M65.2,10L65.2,21.6A10,10 0,0 1,55.2 31.6L10,31.6A10,10 0,0 1,0 21.6L0,10A10,10 0,0 1,10 0L55.2,0A10,10 0,0 1,65.2 10z" />
+
     <path
         android:pathData="M65.05,10L65.05,21.6A9.85,9.85 0,0 1,55.2 31.45L10,31.45A9.85,9.85 0,0 1,0.15 21.6L0.15,10A9.85,9.85 0,0 1,10 0.15L55.2,0.15A9.85,9.85 45,0 1,65.05 10z"
         android:strokeWidth="0.5"
-        android:strokeColor="#858587
+        android:strokeColor="?attr/colorControlNormal" />
+    <!--858587-->
 
-" />
     <path
-        android:fillColor="@color/teal_200"
+        android:fillColor="?attr/colorControlNormal"
         android:pathData="M22.2,15.1L22.2,16.9A0.1,0.1 0,0 1,22.1 17L7.3,17A0.1,0.1 0,0 1,7.2 16.9L7.2,15.1A0.1,0.1 0,0 1,7.3 15L22.1,15A0.1,0.1 0,0 1,22.2 15.1z" />
+
 </vector>

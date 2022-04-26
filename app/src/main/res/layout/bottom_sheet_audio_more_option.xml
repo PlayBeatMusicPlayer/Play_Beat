@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/curved_top_right_top_left_app_theme_color"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -19,22 +18,31 @@
 
         <RelativeLayout
             android:id="@+id/rlAlbumArtContainer"
-            android:layout_width="50dp"
-            android:layout_height="50dp">
+            android:layout_width="45dp"
+            android:layout_height="45dp">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/album_art_iv"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@drawable/little_curved_all_edges"
-                android:scaleType="centerCrop"
-                android:src="@drawable/music_note_icon"
-                app:shapeAppearanceOverlay="@style/circular_15" />
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/imageTextContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                app:cardCornerRadius="10dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/image"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:layout_gravity="center_vertical"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/ic_file_music"
+                    tools:visibility="visible" />
+
+            </com.google.android.material.card.MaterialCardView>
 
 
         </RelativeLayout>
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/songNameTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -47,7 +55,6 @@
             android:ellipsize="end"
             android:fontFamily="@font/segoe_ui"
             android:maxLines="1"
-            android:textColor="@color/white"
             android:textSize="15sp"
             android:textStyle="bold"
             tools:text="Song Name" />
@@ -62,7 +69,7 @@
             android:layout_toEndOf="@id/rlAlbumArtContainer"
             android:orientation="horizontal">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/artistNameTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -70,7 +77,6 @@
                 android:fontFamily="@font/segoe_ui"
                 android:maxLength="28"
                 android:maxLines="1"
-                android:textColor="@color/grey"
                 android:textSize="13sp"
                 android:textStyle="normal"
                 tools:text="Artist Name" />
@@ -82,9 +88,9 @@
                 android:layout_gravity="center"
                 android:layout_marginStart="5dp"
                 android:layout_marginEnd="5dp"
-                android:background="@color/grey" />
+                android:background="@color/md_grey_400" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/albumNameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -92,7 +98,6 @@
                 android:ellipsize="end"
                 android:fontFamily="@font/segoe_ui"
                 android:maxLines="1"
-                android:textColor="@color/grey"
                 android:textSize="13sp"
                 android:textStyle="normal"
                 tools:text="Album Name" />
@@ -100,12 +105,13 @@
 
         <ImageView
             android:id="@+id/likedAudioIV"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_alignParentEnd="true"
-            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="10dp"
             android:contentDescription="@null"
-            android:src="@drawable/liked_audio"
+            android:src="@drawable/ic_favorite"
             android:visibility="visible" />
 
 
@@ -117,7 +123,7 @@
         android:layout_height="0.3dp"
         android:layout_marginTop="5dp"
         android:alpha="0.5"
-        android:background="@color/grey" />
+        android:background="@color/md_grey_400" />
 
     <LinearLayout
         android:id="@+id/llEqualizer"
@@ -138,22 +144,14 @@
             android:contentDescription="@null"
             android:src="@drawable/ic_equalizer" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="2dp"
-            android:text="@string/equalizer"
-            android:textColor="@color/white" />
+            android:text="@string/equalizer" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/beta"
-            android:textColor="@color/teal_200"
-            android:textSize="10sp" />
 
     </LinearLayout>
 
@@ -175,17 +173,17 @@
             android:contentDescription="@null"
             android:src="@drawable/ic_save" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:text="Save playing queue"
-            android:textColor="@color/white" />
+            android:text="Save playing queue" />
 
     </LinearLayout>
 
+    <!--grp one-->
     <LinearLayout
         android:id="@+id/llPlayNext"
         android:layout_width="match_parent"
@@ -204,16 +202,70 @@
             android:contentDescription="@null"
             android:src="@drawable/ic_skip_next_24" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="12dp"
             android:layout_marginEnd="15dp"
-            android:text="@string/play_next"
-            android:textColor="@color/white" />
+            android:text="@string/action_play_next" />
 
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llRemoveFromPlayingQueue"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_gravity="center_vertical"
+        android:background="?selectableItemBackground"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="20dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_playlist_remove" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:text="@string/action_remove_from_playing_queue" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llRemoveFromPlaylist"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_gravity="center_vertical"
+        android:background="?selectableItemBackground"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="20dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_playlist_remove" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:text="@string/action_remove_from_playlist" />
+    </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/llAddToQueue"
@@ -232,15 +284,13 @@
             android:contentDescription="@null"
             android:src="@drawable/ic_add_to_queue_24dp" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:text="@string/add_to_playing_queue"
-            android:textColor="@color/white" />
-
+            android:text="@string/action_add_to_playing_queue" />
     </LinearLayout>
 
     <LinearLayout
@@ -260,17 +310,91 @@
             android:contentDescription="@null"
             android:src="@drawable/ic_play_list" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:text="@string/add_to_playlist"
-            android:textColor="@color/white" />
+            android:text="@string/action_add_to_playlist" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp"
+        android:layout_marginStart="55dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:alpha="0.5"
+        android:background="@color/md_grey_400" />
+    <!---->
+
+    <!--grp two-->
+    <LinearLayout
+        android:id="@+id/llGoToAlbum"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_gravity="center_vertical"
+        android:background="?selectableItemBackground"
+        android:orientation="horizontal"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="20dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_album" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:text="@string/action_go_to_album" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llGoToArtist"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_gravity="center_vertical"
+        android:background="?selectableItemBackground"
+        android:orientation="horizontal"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="20dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_artist" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:text="@string/action_go_to_artist" />
 
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp"
+        android:layout_marginStart="55dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:alpha="0.5"
+        android:background="@color/md_grey_400" />
+
+    <!---->
+
+    <!--grp three-->
     <LinearLayout
         android:id="@+id/llTagEditor"
         android:layout_width="match_parent"
@@ -288,72 +412,13 @@
             android:contentDescription="@null"
             android:src="@drawable/ic_editor" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:text="@string/tag_editor"
-            android:textColor="@color/white" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/llDetails"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables">
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_info" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/details"
-            android:textColor="@color/white" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/llShare"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables">
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:rotationY="180"
-            android:src="@drawable/ic_share" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/share"
-            android:textColor="@color/white" />
-
+            android:text="@string/action_tag_editor" />
     </LinearLayout>
 
     <LinearLayout
@@ -372,17 +437,15 @@
             android:layout_marginStart="20dp"
             android:contentDescription="@null"
             android:rotationY="180"
-            android:src="@drawable/ic_trim_white" />
+            android:src="@drawable/ic_trim" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:text="@string/trim_audio"
-            android:textColor="@color/white" />
-
+            android:text="@string/action_trim_audio" />
     </LinearLayout>
 
     <LinearLayout
@@ -403,25 +466,34 @@
             android:rotationY="180"
             android:src="@drawable/ic_bell" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:text="@string/set_as_ringtone"
-            android:textColor="@color/white" />
-
+            android:text="@string/action_set_as_ringtone" />
     </LinearLayout>
 
-    <!--<LinearLayout
-        android:id="@+id/llDeleteFromPlaylist"
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp"
+        android:layout_marginStart="55dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:alpha="0.5"
+        android:background="@color/md_grey_400" />
+
+    <!---->
+
+
+    <LinearLayout
+        android:id="@+id/llAddToBlacklist"
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:layout_gravity="center_vertical"
         android:background="?selectableItemBackground"
         android:orientation="horizontal"
-        android:visibility="gone"
         tools:ignore="UseCompoundDrawables">
 
         <ImageView
@@ -430,18 +502,69 @@
             android:layout_gravity="center_vertical"
             android:layout_marginStart="20dp"
             android:contentDescription="@null"
-            android:src="@drawable/ic_delete" />
+            android:src="@drawable/ic_block_24" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:text="Delete from playlist"
-            android:textColor="@color/white" />
+            android:text="@string/action_add_to_blacklist" />
+    </LinearLayout>
 
-    </LinearLayout>-->
+    <LinearLayout
+        android:id="@+id/llDetails"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_gravity="center_vertical"
+        android:background="?selectableItemBackground"
+        android:orientation="horizontal"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="20dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_info" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:text="@string/action_details" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llSharee"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_gravity="center_vertical"
+        android:background="?selectableItemBackground"
+        android:orientation="horizontal"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="20dp"
+            android:contentDescription="@null"
+            android:rotationY="180"
+            android:src="@drawable/ic_share" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:text="@string/action_share" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/llDeleteFromDevice"
@@ -461,15 +584,42 @@
             android:contentDescription="@null"
             android:src="@drawable/ic_delete" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:text="@string/delete_from_device"
-            android:textColor="@color/white" />
-
+            android:text="@string/action_delete_from_device" />
     </LinearLayout>
+
+    <!--<LinearLayout
+    android:id="@+id/llDeleteFromPlaylist"
+    android:layout_width="match_parent"
+    android:layout_height="45dp"
+    android:layout_gravity="center_vertical"
+    android:background="?selectableItemBackground"
+    android:orientation="horizontal"
+    android:visibility="gone"
+    tools:ignore="UseCompoundDrawables">
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="20dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_delete" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:text="Delete from playlist"
+        android:textColor="@color/white" />
+
+</LinearLayout>-->
 
 </LinearLayout>

@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory
+        android:layout="@layout/preference_category_title"
+        android:title="@string/pref_header_general">
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEListPreference
+            android:defaultValue="auto"
+            android:entries="@array/pref_general_theme_list_titles"
+            android:entryValues="@array/pref_general_theme_list_values"
+            android:key="general_theme"
+            android:layout="@layout/list_item_view"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_title_general_theme"
+            app:icon="@drawable/ic_color_lens" />
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:dependency="material_you"
+            android:key="black_theme"
+            android:layout="@layout/list_item_view_switch_no_title"
+            android:title="@string/black_theme_name" />
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:defaultValue="@bool/md3_enabled"
+            android:disableDependentsState="true"
+            android:key="material_you"
+            android:layout="@layout/list_item_view_switch_no_title"
+            android:title="@string/pref_title_md3"
+            app:isPreferenceVisible="@bool/md3_available" />
+
+
+    </com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory>
+
+    <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory
+        android:key="category_color"
+        android:layout="@layout/preference_category_title_with_border"
+        android:title="@string/colors">
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:defaultValue="@bool/wallpaper_accent_enabled"
+            android:key="wallpaper_accent"
+            android:layout="@layout/list_item_view_switch"
+            android:summary="@string/pref_summary_wallpaper_accent"
+            android:title="@string/pref_title_wallpaper_accent"
+            app:isPreferenceVisible="@bool/wallpaper_accent_visible" />
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEColorPreference
+            android:dependency="material_you"
+            android:key="accent_color"
+            android:layout="@layout/list_item_color_view"
+            android:persistent="false"
+            android:summary="@string/accent_color_desc"
+            android:title="@string/accent_color"
+            app:icon="@drawable/ic_colorize" />
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:defaultValue="false"
+            android:dependency="material_you"
+            android:key="desaturated_color"
+            android:layout="@layout/list_item_view_switch"
+            android:summary="@string/pref_summary_desaturated_color"
+            android:title="@string/pref_title_desaturated_color" />
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:defaultValue="false"
+            android:key="adaptive_color_app"
+            android:layout="@layout/list_item_view_switch"
+            android:summary="@string/pref_summary_colored_app"
+            android:title="@string/pref_title_colored_app" />
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:defaultValue="false"
+            android:dependency="material_you"
+            android:key="should_color_app_shortcuts"
+            android:layout="@layout/list_item_view_switch"
+            android:summary="@string/pref_summary_colored_app_shortcuts"
+            android:title="@string/pref_title_app_shortcuts" />
+    </com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory>
+
+    <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory
+        android:key="category_color"
+        android:layout="@layout/preference_category_title_with_border"
+        android:title="Now playing styles">
+        <!--now playing theme-->
+        <com.knesarcreation.playbeat.preferences.NowPlayingScreenPreference
+            android:key="now_playing_screen_id"
+            android:layout="@layout/list_item_view"
+            android:title="@string/pref_title_now_playing_screen_appearance"
+            app:icon="@drawable/ic_play_circle_filled" />
+
+
+        <!-- <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+             android:defaultValue="false"
+             android:key="snowfall"
+             android:layout="@layout/list_item_view_switch_no_title"
+             android:title="@string/pref_snow_fall_title" />-->
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEListPreference
+            android:defaultValue="0"
+            android:entries="@array/pref_lyrics_type_entries"
+            android:entryValues="@array/pref_lyrics_type_values"
+            android:key="lyrics_type"
+            android:layout="@layout/list_item_view"
+            android:title="@string/pref_title_lyrics_type" />
+
+        <!-- <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+             android:defaultValue="false"
+             android:key="screen_on_lyrics"
+             android:layout="@layout/list_item_view_switch"
+             android:summary="@string/pref_keep_screen_on_summary"
+             android:title="@string/pref_title_lyrics_screen_on" />-->
+
+        <!-- <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+             android:defaultValue="false"
+             android:key="circle_play_button"
+             android:layout="@layout/list_item_view_switch_no_title"
+             android:title="@string/pref_title_circle_button" />-->
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:defaultValue="true"
+            android:key="swipe_anywhere_now_playing"
+            android:layout="@layout/list_item_view_switch"
+            android:summary="@string/pref_summary_swipe_anywhere_now_playing"
+            android:title="@string/pref_title_swipe_anywhere_now_playing" />
+
+
+    </com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory>
+
+    <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory
+        android:layout="@layout/preference_category_title_with_border"
+        android:title="@string/pref_header_album">
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEListPreference
+            android:defaultValue="0"
+            android:entries="@array/pref_album_cover_transform_entries"
+            android:entryValues="@array/pref_album_cover_transform_values"
+            android:key="album_cover_transform"
+            android:layout="@layout/list_item_view"
+            android:title="@string/pref_title_album_cover_transform" />
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:layout="@layout/list_item_view_switch"
+            app:defaultValue="false"
+            app:icon="@drawable/ic_view_carousel"
+            app:key="carousel_effect"
+            app:summary="@string/pref_summary_carousel_effect"
+            app:title="@string/pref_title_toggle_carousel_effect" />
+    </com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory>
+
+    <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory
+        android:layout="@layout/preference_category_title_with_border"
+        android:title="@string/pref_header_controls">
+
+        <!--<com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:layout="@layout/list_item_view_switch"
+            app:defaultValue="false"
+            app:icon="@drawable/ic_play_arrow"
+            app:key="toggle_add_controls"
+            app:summary="@string/pref_summary_extra_controls"
+            app:title="@string/pref_title_extra_controls" />-->
+        <!--
+                <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+                    android:layout="@layout/list_item_view_switch"
+                    app:defaultValue="false"
+                    app:icon="@drawable/ic_volume_up"
+                    app:key="toggle_volume"
+                    app:summary="@string/pref_summary_toggle_volume"
+                    app:title="@string/pref_title_toggle_volume" />-->
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:layout="@layout/list_item_view_switch"
+            app:defaultValue="false"
+            app:icon="@drawable/ic_expand_less"
+            app:key="expand_now_playing_panel"
+            app:summary="@string/pref_summary_expand_now_playing_panel"
+            app:title="@string/pref_title_expand_now_playing_panel" />
+
+        <!--  <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESeekBarPreference
+              android:defaultValue="12"
+              android:key="new_blur_amount"
+              android:layout="@layout/list_item_view_seekbar"
+              android:max="25"
+              android:summary="@string/pref_blur_amount_summary"
+              android:title="@string/pref_blur_amount_title"
+              app:ateKey_pref_unit="px"
+              app:icon="@drawable/ic_blur_on"
+              app:showSeekBarValue="true" />-->
+    </com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory>
+
+    <!--audio-->
+    <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory
+        android:layout="@layout/preference_category_title_with_border"
+        android:title="Audio">
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:defaultValue="true"
+            android:key="audio_ducking"
+            android:layout="@layout/list_item_view_switch"
+            android:summary="@string/pref_summary_audio_ducking"
+            android:title="@string/pref_title_audio_ducking"
+            app:icon="@drawable/ic_volume_down" />
+
+        <com.knesarcreation.playbeat.preferences.DurationPreference
+            android:defaultValue="0"
+            android:key="audio_fade_duration"
+            android:layout="@layout/list_item_view"
+            android:summary="@string/pref_summary_audio_fade"
+            android:title="@string/pref_title_audio_fade" />
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESeekBarPreference
+            android:defaultValue="0"
+            android:key="cross_fade_duration"
+            android:layout="@layout/list_item_view_seekbar"
+            android:max="12"
+            android:summary="@string/pref_summary_cross_fade"
+            android:title="@string/pref_title_cross_fade"
+            app:ateKey_pref_unit="s"
+            app:showSeekBarValue="true" />
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:defaultValue="false"
+            android:key="gapless_playback"
+            android:layout="@layout/list_item_view_switch"
+            android:summary="@string/pref_summary_gapless_playback"
+            android:title="@string/pref_title_gapless_playback" />
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreference
+            android:key="equalizer"
+            android:layout="@layout/list_item_view_no_title"
+            android:title="@string/equalizer"
+            app:icon="@drawable/ic_equalizer" />
+
+        <!-- <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+             android:defaultValue="false"
+             android:key="toggle_headset"
+             android:layout="@layout/list_item_view_switch"
+             android:summary="@string/pref_summary_toggle_headset"
+             android:title="@string/pref_title_toggle_toggle_headset"
+             app:icon="@drawable/ic_play_arrow" />-->
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:defaultValue="false"
+            android:key="toggle_shuffle"
+            android:layout="@layout/list_item_view_switch"
+            android:summary="@string/pref_summary_toggle_shuffle"
+            android:title="@string/pref_title_toggle_toggle_shuffle"
+            app:icon="@drawable/ic_shuffle" />
+        <com.knesarcreation.playbeat.preferences.BlacklistPreference
+            android:key="blacklist"
+            android:layout="@layout/list_item_view"
+            android:summary="@string/pref_summary_blacklist"
+            android:title="@string/pref_header_blacklist"
+            app:icon="@drawable/ic_music_note_off" />
+
+    </com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory>
+
+    <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory
+        android:layout="@layout/preference_category_title_with_border"
+        app:title="@string/home">
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:defaultValue="false"
+            android:key="pause_history"
+            android:layout="@layout/list_item_view_switch"
+            android:summary="@string/pref_summary_pause_history"
+            android:title="@string/pref_title_pause_history" />
+
+    </com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory>
+
+    <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory
+        android:layout="@layout/preference_category_title_with_border"
+        android:title="@string/pref_header_library">
+
+        <com.knesarcreation.playbeat.preferences.LibraryPreference
+            android:key="library_categories"
+            android:layout="@layout/list_item_view"
+            android:summary="@string/pref_summary_library_categories"
+            android:title="@string/library_categories"
+            app:icon="@drawable/ic_library_music" />
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:defaultValue="false"
+            android:key="remember_last_tab"
+            android:layout="@layout/list_item_view_switch"
+            android:summary="@string/pref_summary_remember_tab"
+            android:title="@string/pref_title_remember_tab" />
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEListPreference
+            android:defaultValue="0"
+            android:entries="@array/pref_tab_text_mode_titles"
+            android:entryValues="@array/pref_tab_text_mode_values"
+            android:key="tab_text_mode"
+            android:layout="@layout/list_item_view"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_title_tab_text_mode" />
+
+    </com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory>
+
+
+    <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory
+        android:layout="@layout/preference_category_title_with_border"
+        android:title="MetaData">
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:defaultValue="true"
+            android:key="ignore_media_store_artwork"
+            android:layout="@layout/list_item_view_switch"
+            android:summary="@string/pref_summary_ignore_media_store_artwork"
+            android:title="@string/pref_title_ignore_media_store_artwork"
+            app:icon="@drawable/ic_image" />
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEListPreference
+            android:defaultValue="always"
+            android:entries="@array/pref_auto_download_images_titles"
+            android:entryValues="@array/pref_auto_download_images_values"
+            android:key="auto_download_images_policy"
+            android:layout="@layout/list_item_view"
+            android:title="@string/pref_title_auto_download_artist_images" />
+    </com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory>
+
+
+    <!-- <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+         android:defaultValue="false"
+         android:key="whitelist_music"
+         android:layout="@layout/list_item_view_switch"
+         android:summary="@string/pref_summary_whitelist"
+         android:title="@string/pref_title_whitelist" />-->
+
+    <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory
+        android:layout="@layout/preference_category_title_with_border"
+        android:title="@string/pref_header_playlists">
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEListPreference
+            android:defaultValue="past_three_months"
+            android:entries="@array/pref_playlists_last_added_interval_titles"
+            android:entryValues="@array/pref_playlists_last_added_interval_values"
+            android:key="last_added_interval"
+            android:layout="@layout/list_item_view"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_title_last_added_interval"
+            app:icon="@drawable/ic_playlist_add" />
+
+    </com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory>
+
+    <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory
+        android:layout="@layout/preference_category_title_with_border"
+        android:title="@string/pref_header_advanced">
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESeekBarPreference
+            android:defaultValue="30"
+            android:key="filter_song"
+            android:layout="@layout/list_item_view_seekbar"
+            android:max="60"
+            android:summary="@string/pref_filter_song_summary"
+            android:title="@string/pref_filter_song_title"
+            app:icon="@drawable/ic_filter_song"
+            app:showSeekBarValue="true" />
+
+        <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+            android:defaultValue="false"
+            android:key="pause_on_zero_volume"
+            android:layout="@layout/list_item_view_switch"
+            android:summary="@string/pref_keep_pause_on_zero_volume_summary"
+            android:title="@string/pref_keep_pause_on_zero_volume_title"
+            app:icon="@drawable/ic_pause" />
+
+
+    </com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory>
+
+
+</androidx.preference.PreferenceScreen>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="window_color">@android:color/black</color>
+
+    <color name="bottomSheetColor">#202020</color>
+    <color name="widget_md3_bg_color">@color/darkerColorSurface</color>
+
+    <color name="shadow_color">@color/dark_color</color>
+    <color name="md_shadow_color">#181c1f</color>
+    <color name="textColor">@color/md_white_1000</color>
+    <color name="colorWaveformBg">#E6182245</color>
+    <color name="setting_border_color">#202020</color>
+
+</resources>

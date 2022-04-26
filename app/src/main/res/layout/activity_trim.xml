@@ -2,20 +2,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:fitsSystemWindows="true"
     android:layout_height="match_parent"
-    android:background="@drawable/app_theme_default_background"
+    android:background="?attr/colorSurface"
     android:orientation="vertical">
     <!--212230-->
 
     <LinearLayout
+        android:fitsSystemWindows="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
         <RelativeLayout
+            android:fitsSystemWindows="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="45dp"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <!-- <TextView
@@ -36,7 +39,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="20dp"
                 android:contentDescription="@null"
-                android:src="@drawable/ic_back_arrow_ios" />
+                android:src="@drawable/ic_arrow_back" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -45,7 +48,6 @@
                 android:layout_toEndOf="@id/arrowBackIV"
                 android:padding="@dimen/_5mdp"
                 android:text="Trim Audio"
-                android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -70,7 +72,6 @@
                 android:background="?selectableItemBackgroundBorderless"
                 android:padding="@dimen/_5mdp"
                 android:text="Save"
-                android:textColor="@color/white"
                 android:textSize="17sp"
                 android:textStyle="bold" />
 
@@ -125,7 +126,6 @@
                         android:layout_marginStart="@dimen/_35mdp"
                         android:background="@drawable/curved_light_transparent_default_bg"
                         android:padding="@dimen/_5mdp"
-                        android:textColor="@color/grey"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:visibility="gone"
@@ -151,7 +151,6 @@
                         android:layout_marginStart="25dp"
                         android:background="@drawable/curved_light_transparent_default_bg"
                         android:padding="@dimen/_5mdp"
-                        android:textColor="@color/grey"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         tools:text="00.01" />
@@ -171,7 +170,6 @@
                             android:layout_gravity="center"
                             android:layout_marginTop="@dimen/_25mdp"
                             android:text="@string/loading"
-                            android:textColor="@color/white"
                             android:textSize="17sp"
                             android:textStyle="bold" />
 
@@ -182,32 +180,10 @@
                             android:layout_gravity="center"
                             android:layout_marginTop="@dimen/_5mdp"
                             android:text="0 %"
-                            android:textColor="@color/white"
                             android:textSize="17sp"
                             android:textStyle="bold" />
 
-                        <!-- <com.skydoves.progressview.ProgressView
-                             android:id="@+id/progressView"
-                             android:layout_width="match_parent"
-                             android:layout_height="20dp"
-                             android:layout_marginStart="@dimen/_20mdp"
-                             android:layout_marginTop="@dimen/_15mdp"
-                             android:layout_marginEnd="@dimen/_20mdp"
-                             app:progressView_colorBackground="@color/white"
-                             app:progressView_colorGradientEnd="@color/blue"
-                             app:progressView_colorGradientStart="@color/bright_pink"
-                             app:progressView_colorProgress="@color/blue"
-                             app:progressView_labelColorInner="@color/white"
-                             app:progressView_labelColorOuter="@color/black"
-                             app:progressView_labelSize="13sp"
-                             app:progressView_labelSpace="10dp"
-                             app:progressView_labelTypeface="bold"
-                             app:progressView_max="100"
-                             app:progressView_min="0"
-                             app:progressView_padding="1dp"
-                             app:progressView_progress="40"
-                             app:progressView_progressFromPrevious="true"
-                             app:progressView_radius="12dp" />-->
+
                     </LinearLayout>
                 </RelativeLayout>
 
@@ -229,7 +205,6 @@
                         android:marqueeRepeatLimit="marquee_forever"
                         android:singleLine="true"
                         android:text="Audio name"
-                        android:textColor="@color/white"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -274,7 +249,6 @@
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center"
                                     android:layout_marginStart="10dp"
-                                    android:textColor="@color/white"
                                     android:textSize="@dimen/_12font_mdp"
                                     android:textStyle="bold"
                                     tools:text="00.00" />
@@ -326,7 +300,6 @@
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center"
                                     android:layout_marginStart="10dp"
-                                    android:textColor="@color/white"
                                     android:textSize="@dimen/_12font_mdp"
                                     android:textStyle="bold"
                                     tools:text="00.00" />
@@ -358,8 +331,8 @@
                             android:layout_gravity="center"
                             android:layout_marginTop="20dp"
                             android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="@string/playpauseiv"
-                            android:src="@drawable/ic_play" />
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_play_arrow" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/reset_audio"
@@ -372,8 +345,7 @@
                             android:layout_marginBottom="5dp"
                             android:layout_toEndOf="@id/txtAudioPlay"
                             android:backgroundTint="#DA3A3A"
-                            android:text="Reset"
-                            android:textColor="@color/white" />
+                            android:text="Reset" />
 
                         <TextView
                             android:id="@+id/txtAudioRecordTimeUpdate"
@@ -384,7 +356,7 @@
                             android:layout_marginBottom="5dp"
                             android:layout_toStartOf="@id/txtAudioPlay"
                             android:text="Total: 00:00:00"
-                            android:textColor="@color/teal_200"
+                            android:textColor="@color/m3_accent_color"
                             android:textStyle="bold" />
 
                         <!--4BFF87DA-->

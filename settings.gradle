@@ -8,4 +8,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Play Beat"
-include ':app'
+include ':app', ':appthemehelper'
