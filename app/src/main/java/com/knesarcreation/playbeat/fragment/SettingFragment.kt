@@ -279,16 +279,6 @@ class SettingFragment : Fragment() {
                 startActivity(openLinkedIn)
             }
 
-            /* val packageManager = (activity as AppCompatActivity).packageManager
-             val list =
-                 packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
-             if (list.isEmpty()) {
-                 intent =
-                     Intent(
-                         Intent.ACTION_VIEW,
-                         Uri.parse("https://www.linkedin.com/in/kaunainesar")
-                     )
-             }*/
         }
     }
 
@@ -305,15 +295,6 @@ class SettingFragment : Fragment() {
                     Intent(Intent.ACTION_VIEW, Uri.parse("https://www.instagram.com/play_beat01/"))
                 startActivity(openPlayBeatInsta)
             }
-            /* val packageManager = (activity as AppCompatActivity).packageManager
-             val list = packageManager.queryIntentActivities(
-                 openPlayBeatInsta,
-                 PackageManager.MATCH_DEFAULT_ONLY
-             )
-             if (list.isEmpty()) {
-                 openPlayBeatInsta =
-                     Intent(Intent.ACTION_VIEW, Uri.parse("https://www.instagram.com/play_beat01/"))
-             }*/
         }
     }
 

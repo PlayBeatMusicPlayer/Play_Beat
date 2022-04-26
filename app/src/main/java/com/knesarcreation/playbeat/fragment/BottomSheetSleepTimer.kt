@@ -9,8 +9,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.knesarcreation.playbeat.R
-import com.knesarcreation.playbeat.databinding.BottomSheetSleepTimerBinding
 import com.knesarcreation.playbeat.database.AllSongsModel
+import com.knesarcreation.playbeat.databinding.BottomSheetSleepTimerBinding
 import com.knesarcreation.playbeat.utils.StorageUtil
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -230,20 +230,20 @@ class BottomSheetSleepTimer(
                 //if (AllSongFragment.musicService?.mediaPlayer != null) {
                 audioList = storageUtil?.loadQueueAudio()!!
                 audioIndex = storageUtil?.loadAudioIndex()!!
-                    sleepTimeInMillis = audioList[audioIndex].duration.toLong()
-                        /*AllSongFragment.musicService?.mediaPlayer?.duration?.toLong()!!*/
+                sleepTimeInMillis = audioList[audioIndex].duration.toLong()
+                /*AllSongFragment.musicService?.mediaPlayer?.duration?.toLong()!!*/
 
-                    if (!AllSongFragment.musicService?.isSleepTimeRunning!!) {
-                        AllSongFragment.musicService?.startSleepTimeCountDown(
-                            binding?.countingTimeTV!!,
-                            binding?.rlEndSleepTimer,
-                            binding?.endOfAudioTimeBtn,
-                            sleepTimeInMillis,
-                            sleepTimeIV,
-                            sleepTimerTV
-                        )
-                    }
-               // }
+                if (!AllSongFragment.musicService?.isSleepTimeRunning!!) {
+                    AllSongFragment.musicService?.startSleepTimeCountDown(
+                        binding?.countingTimeTV!!,
+                        binding?.rlEndSleepTimer,
+                        binding?.endOfAudioTimeBtn,
+                        sleepTimeInMillis,
+                        sleepTimeIV,
+                        sleepTimerTV
+                    )
+                }
+                // }
             }
             dismiss()
         }

@@ -132,7 +132,7 @@ dependencies {
     //splash screen library
     implementation 'androidx.core:core-splashscreen:1.0.0-beta02'
 
-    //Equailizer library
+    //vertical seekbar
     implementation 'com.h6ah4i.android.widget.verticalseekbar:verticalseekbar:1.0.0'
 
     //Equalizer View for audio
