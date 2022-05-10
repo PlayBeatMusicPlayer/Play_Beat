@@ -1,41 +1,47 @@
-package com.knesarcreation.playbeat.activities
+package com.knesarcreation.playbeat.fragments.bottomSheets
 
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
-import androidx.core.widget.NestedScrollView
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.knesarcreation.appthemehelper.ThemeStore.Companion.accentColor
-import com.knesarcreation.appthemehelper.util.ATHUtil.isWindowBackgroundDark
-import com.knesarcreation.appthemehelper.util.ColorUtil.isColorLight
-import com.knesarcreation.appthemehelper.util.ColorUtil.lightenColor
-import com.knesarcreation.appthemehelper.util.MaterialValueHelper.getPrimaryTextColor
-import com.knesarcreation.appthemehelper.util.ToolbarContentTintHelper
-import com.knesarcreation.playbeat.Constants
-import com.knesarcreation.playbeat.activities.base.AbsThemeActivity
-import com.knesarcreation.playbeat.databinding.ActivityWhatsNewBinding
-import com.knesarcreation.playbeat.extensions.accentColor
+import com.knesarcreation.appthemehelper.util.ATHUtil
+import com.knesarcreation.appthemehelper.util.ColorUtil
+import com.knesarcreation.appthemehelper.util.MaterialValueHelper
+import com.knesarcreation.playbeat.databinding.BottomSheetWhatsNewBinding
 import com.knesarcreation.playbeat.extensions.drawAboveSystemBars
-import com.knesarcreation.playbeat.extensions.setTaskDescriptionColorAuto
 import com.knesarcreation.playbeat.extensions.surfaceColor
-import com.knesarcreation.playbeat.util.PlayBeatUtil
 import com.knesarcreation.playbeat.util.PreferenceUtil.lastVersion
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-class WhatsNewActivity : AbsThemeActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val binding = ActivityWhatsNewBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        setTaskDescriptionColorAuto()
-        binding.toolbar.setNavigationOnClickListener { onBackPressed() }
-        ToolbarContentTintHelper.colorBackButton(binding.toolbar)
+class BottomSheetWhatsNew : BottomSheetDialogFragment() {
+    private var _binding: BottomSheetWhatsNewBinding? = null
+    private val binding get() = _binding!!
+    private var mCtx: Context? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        this.mCtx = context
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+
+        _binding = BottomSheetWhatsNewBinding.inflate(inflater, container, false)
+
         try {
             val buf = StringBuilder()
-            val json = assets.open("play_beat-changelog.html")
+            val json = mCtx?.assets?.open("play_beat-changelog.html")
             BufferedReader(InputStreamReader(json, StandardCharsets.UTF_8)).use { br ->
                 var str: String?
                 while (br.readLine().also { str = it } != null) {
@@ -44,19 +50,21 @@ class WhatsNewActivity : AbsThemeActivity() {
             }
 
             // Inject color values for WebView body background and links
-            val isDark = isWindowBackgroundDark(this)
-            val accentColor = accentColor(this)
+            val isDark = ATHUtil.isWindowBackgroundDark(mCtx!!)
+            val accentColor = accentColor(mCtx!!)
             val backgroundColor = colorToCSS(
                 surfaceColor(Color.parseColor(if (isDark) "#424242" else "#ffffff"))
             )
-            val contentColor = colorToCSS(Color.parseColor(if (isDark) "#ffffff" else "#000000"))
-            val textColor = colorToCSS(Color.parseColor(if (isDark) "#60FFFFFF" else "#80000000"))
-            val accentColorString = colorToCSS(accentColor(this))
+            val contentColor =
+                colorToCSS(Color.parseColor(if (isDark) "#ffffff" else "#000000"))
+            val textColor =
+                colorToCSS(Color.parseColor(if (isDark) "#60FFFFFF" else "#80000000"))
+            val accentColorString = colorToCSS(accentColor(mCtx!!))
             val cardBackgroundColor =
                 colorToCSS(Color.parseColor(if (isDark) "#353535" else "#ffffff"))
             val accentTextColor = colorToCSS(
-                getPrimaryTextColor(
-                    this, isColorLight(accentColor)
+                MaterialValueHelper.getPrimaryTextColor(
+                    mCtx!!, ColorUtil.isColorLight(accentColor)
                 )
             )
             val changeLog = buf.toString()
@@ -64,11 +72,11 @@ class WhatsNewActivity : AbsThemeActivity() {
                     "{style-placeholder}",
                     "body { background-color: $backgroundColor; color: $contentColor; } li {color: $textColor;} h3 {color: $accentColorString;} .tag {background-color: $accentColorString; color: $accentTextColor; } div{background-color: $cardBackgroundColor;}"
                 )
-                .replace("{link-color}", colorToCSS(accentColor(this)))
+                .replace("{link-color}", colorToCSS(accentColor(mCtx!!)))
                 .replace(
                     "{link-color-active}",
                     colorToCSS(
-                        lightenColor(accentColor(this))
+                        ColorUtil.lightenColor(accentColor(mCtx!!))
                     )
                 )
             binding.webView.loadData(changeLog, "text/html", "UTF-8")
@@ -77,24 +85,12 @@ class WhatsNewActivity : AbsThemeActivity() {
                 "<h1>Unable to load</h1><p>" + e.localizedMessage + "</p>", "text/html", "UTF-8"
             )
         }
-        setChangelogRead(this)
-        /*binding.tgFab.setOnClickListener {
-            PlayBeatUtil.openUrl(
-                this,
-                Constants.TELEGRAM_CHANGE_LOG
-            )
-        }*/
-       // binding.tgFab.accentColor()
-       // binding.tgFab.shrink()
-        /*binding.container.setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, oldScrollY: Int ->
-            val dy = scrollY - oldScrollY
-            if (dy > 0) {
-                binding.tgFab.shrink()
-            } else if (dy < 0) {
-                binding.tgFab.extend()
-            }
-        }*/
+
+        setChangelogRead(mCtx!!)
+
         binding.webView.drawAboveSystemBars()
+
+        return binding.root
     }
 
     companion object {
@@ -119,4 +115,5 @@ class WhatsNewActivity : AbsThemeActivity() {
             }
         }
     }
+
 }

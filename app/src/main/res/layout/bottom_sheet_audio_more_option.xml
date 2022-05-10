@@ -125,473 +125,487 @@
         android:alpha="0.5"
         android:background="@color/md_grey_400" />
 
-    <LinearLayout
-        android:id="@+id/llEqualizer"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginTop="15dp"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        tools:ignore="UseCompoundDrawables">
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
 
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_equalizer" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="2dp"
-            android:text="@string/equalizer" />
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/llEqualizer"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="15dp"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_equalizer" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="2dp"
+                    android:text="@string/equalizer" />
 
 
-    </LinearLayout>
+            </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/llSavePlayingQueue"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        tools:ignore="UseCompoundDrawables">
+            <LinearLayout
+                android:id="@+id/llSavePlayingQueue"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                tools:ignore="UseCompoundDrawables">
 
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_save" />
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_save" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="Save playing queue" />
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:text="Save playing queue" />
 
-    </LinearLayout>
+            </LinearLayout>
 
-    <!--grp one-->
-    <LinearLayout
-        android:id="@+id/llPlayNext"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginTop="15dp"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables">
+            <!--grp one-->
+            <LinearLayout
+                android:id="@+id/llPlayNext"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="15dp"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_skip_next_24" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_skip_next_24" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/action_play_next" />
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="15dp"
+                    android:text="@string/action_play_next" />
 
-    </LinearLayout>
+            </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/llRemoveFromPlayingQueue"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        tools:ignore="UseCompoundDrawables">
+            <LinearLayout
+                android:id="@+id/llRemoveFromPlayingQueue"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                tools:ignore="UseCompoundDrawables">
 
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_playlist_remove" />
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_playlist_remove" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/action_remove_from_playing_queue" />
-    </LinearLayout>
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:text="@string/action_remove_from_playing_queue" />
+            </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/llRemoveFromPlaylist"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        tools:ignore="UseCompoundDrawables">
+            <LinearLayout
+                android:id="@+id/llRemoveFromPlaylist"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                tools:ignore="UseCompoundDrawables">
 
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_playlist_remove" />
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_playlist_remove" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/action_remove_from_playlist" />
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:id="@+id/llAddToQueue"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables">
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_add_to_queue_24dp" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/action_add_to_playing_queue" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/llAddToPlaylist"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables">
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_play_list" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/action_add_to_playlist" />
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.3dp"
-        android:layout_marginStart="55dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:alpha="0.5"
-        android:background="@color/md_grey_400" />
-    <!---->
-
-    <!--grp two-->
-    <LinearLayout
-        android:id="@+id/llGoToAlbum"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables">
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_album" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/action_go_to_album" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/llGoToArtist"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables">
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_artist" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/action_go_to_artist" />
-
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.3dp"
-        android:layout_marginStart="55dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:alpha="0.5"
-        android:background="@color/md_grey_400" />
-
-    <!---->
-
-    <!--grp three-->
-    <LinearLayout
-        android:id="@+id/llTagEditor"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables">
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_editor" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/action_tag_editor" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/llTrimAudio"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables">
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:rotationY="180"
-            android:src="@drawable/ic_trim" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/action_trim_audio" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/llSetAsRingtone"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables">
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:rotationY="180"
-            android:src="@drawable/ic_bell" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/action_set_as_ringtone" />
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.3dp"
-        android:layout_marginStart="55dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:alpha="0.5"
-        android:background="@color/md_grey_400" />
-
-    <!---->
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:text="@string/action_remove_from_playlist" />
+            </LinearLayout>
 
 
-    <LinearLayout
-        android:id="@+id/llAddToBlacklist"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables">
+            <LinearLayout
+                android:id="@+id/llAddToQueue"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
 
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_block_24" />
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_add_to_queue_24dp" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/action_add_to_blacklist" />
-    </LinearLayout>
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:text="@string/action_add_to_playing_queue" />
+            </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/llDetails"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables">
+            <LinearLayout
+                android:id="@+id/llAddToPlaylist"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
 
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_info" />
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_play_list" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/action_details" />
-    </LinearLayout>
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:text="@string/action_add_to_playlist" />
+            </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/llSharee"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.3dp"
+                android:layout_marginStart="55dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:alpha="0.5"
+                android:background="@color/md_grey_400" />
+            <!---->
 
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:rotationY="180"
-            android:src="@drawable/ic_share" />
+            <!--grp two-->
+            <LinearLayout
+                android:id="@+id/llGoToAlbum"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/action_share" />
-    </LinearLayout>
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_album" />
 
-    <LinearLayout
-        android:id="@+id/llDeleteFromDevice"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginBottom="20dp"
-        android:background="?selectableItemBackground"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables">
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:text="@string/action_go_to_album" />
+            </LinearLayout>
 
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_delete" />
+            <LinearLayout
+                android:id="@+id/llGoToArtist"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="@string/action_delete_from_device" />
-    </LinearLayout>
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_artist" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:text="@string/action_go_to_artist" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.3dp"
+                android:layout_marginStart="55dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:alpha="0.5"
+                android:background="@color/md_grey_400" />
+
+            <!---->
+
+            <!--grp three-->
+            <LinearLayout
+                android:id="@+id/llTagEditor"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_editor" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:text="@string/action_tag_editor" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llTrimAudio"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:rotationY="180"
+                    android:src="@drawable/ic_trim" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:text="@string/action_trim_audio" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llSetAsRingtone"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:rotationY="180"
+                    android:src="@drawable/ic_bell" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:text="@string/action_set_as_ringtone" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.3dp"
+                android:layout_marginStart="55dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:alpha="0.5"
+                android:background="@color/md_grey_400" />
+
+            <!---->
+
+
+            <LinearLayout
+                android:id="@+id/llAddToBlacklist"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_block_24" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:text="@string/action_add_to_blacklist" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llDetails"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_info" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:text="@string/action_details" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llSharee"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:rotationY="180"
+                    android:src="@drawable/ic_share" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:text="@string/action_share" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llDeleteFromDevice"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginBottom="20dp"
+                android:background="?selectableItemBackground"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_delete" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:text="@string/action_delete_from_device" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
 
     <!--<LinearLayout
     android:id="@+id/llDeleteFromPlaylist"

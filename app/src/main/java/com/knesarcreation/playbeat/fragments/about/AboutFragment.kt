@@ -77,7 +77,7 @@ class AboutFragment : Fragment(R.layout.fragment_about), View.OnClickListener {
             R.id.appGithub -> openUrl(Constants.GITHUB_PROJECT)
             R.id.appRate -> openUrl(Constants.RATE_ON_GOOGLE_PLAY)
             R.id.appShare -> shareApp()
-            R.id.changelog -> NavigationUtil.gotoWhatNews(requireActivity())
+            R.id.changelog -> NavigationUtil.gotoWhatNews(childFragmentManager)
             R.id.openSource -> NavigationUtil.goToOpenSource(requireActivity())
         }
     }

@@ -1,6 +1,7 @@
 package com.knesarcreation.playbeat.fragments.other
 
 import android.content.SharedPreferences
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
@@ -15,6 +16,7 @@ import com.knesarcreation.playbeat.fragments.NowPlayingScreen
 import com.knesarcreation.playbeat.fragments.base.AbsMusicServiceFragment
 import com.knesarcreation.playbeat.fragments.base.AbsPlayerFragment
 import com.knesarcreation.playbeat.fragments.base.goToLyrics
+import com.knesarcreation.playbeat.glide.*
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote
 import com.knesarcreation.playbeat.helper.MusicProgressViewUpdateHelper
 import com.knesarcreation.playbeat.model.lyrics.AbsSynchronizedLyrics
@@ -32,10 +34,12 @@ class CoverLyricsFragment : AbsMusicServiceFragment(R.layout.fragment_cover_lyri
     private var progressViewUpdateHelper: MusicProgressViewUpdateHelper? = null
     private var _binding: FragmentCoverLyricsBinding? = null
     private val binding get() = _binding!!
+    private var lastRequest: GlideRequest<Drawable>? = null
 
     private val lyricsLayout: FrameLayout get() = binding.playerLyrics
     private val lyricsLine1: TextView get() = binding.playerLyricsLine1
     private val lyricsLine2: TextView get() = binding.playerLyricsLine2
+    private val lyricsLine3: TextView get() = binding.playerLyricsLine3
 
     private var lyrics: Lyrics? = null
 
@@ -62,6 +66,7 @@ class CoverLyricsFragment : AbsMusicServiceFragment(R.layout.fragment_cover_lyri
                 progressViewUpdateHelper?.start()
                 binding.root.isVisible = true
                 updateLyrics()
+                // updateBlur()
             } else {
                 progressViewUpdateHelper?.stop()
                 binding.root.isVisible = false
@@ -73,6 +78,7 @@ class CoverLyricsFragment : AbsMusicServiceFragment(R.layout.fragment_cover_lyri
         super.onPlayingMetaChanged()
         if (PreferenceUtil.showLyrics) {
             updateLyrics()
+            //updateBlur()
         }
     }
 
@@ -80,6 +86,7 @@ class CoverLyricsFragment : AbsMusicServiceFragment(R.layout.fragment_cover_lyri
         super.onServiceConnected()
         if (PreferenceUtil.showLyrics) {
             updateLyrics()
+            //updateBlur()
         }
     }
 
@@ -123,9 +130,12 @@ class CoverLyricsFragment : AbsMusicServiceFragment(R.layout.fragment_cover_lyri
         val oldLine = lyricsLine2.text.toString()
         val line = synchronizedLyrics.getLine(progress)
 
+        val nextLine = synchronizedLyrics.getLine(progress + 2000)
+
         if (oldLine != line || oldLine.isEmpty()) {
             lyricsLine1.text = oldLine
             lyricsLine2.text = line
+            lyricsLine3.text = oldLine
 
             lyricsLine1.isVisible = true
             lyricsLine2.isVisible = true
@@ -141,13 +151,19 @@ class CoverLyricsFragment : AbsMusicServiceFragment(R.layout.fragment_cover_lyri
 
             lyricsLine1.alpha = 1f
             lyricsLine1.translationY = 0f
-            lyricsLine1.animate().alpha(0f).translationY(-h).duration =
+            lyricsLine1.animate().alpha(0f).translationY(h).duration =
                 AbsPlayerFragment.VISIBILITY_ANIM_DURATION
 
             lyricsLine2.alpha = 0f
-            lyricsLine2.translationY = h
+            lyricsLine2.translationY = -h
             lyricsLine2.animate().alpha(1f).translationY(0f).duration =
                 AbsPlayerFragment.VISIBILITY_ANIM_DURATION
+
+            lyricsLine3.alpha = 0f
+            lyricsLine3.animate().alpha(0.7f).duration =
+                AbsPlayerFragment.VISIBILITY_ANIM_DURATION
+
+
         }
     }
 
@@ -164,6 +180,22 @@ class CoverLyricsFragment : AbsMusicServiceFragment(R.layout.fragment_cover_lyri
                 lyricsLine2.text = null
             }
     }
+
+    /* private fun updateBlur() {
+         GlideApp.with(this)
+             .load(PlayBeatGlideExtension.getSongModel(MusicPlayerRemote.currentSong))
+             .simpleSongCoverOptions(MusicPlayerRemote.currentSong)
+             .transform(
+                 BlurTransformation.Builder(requireContext()).blurRadius(10f)
+                     .build()
+             ).thumbnail(lastRequest)
+             .error(GlideApp.with(this).load(ColorDrawable(Color.DKGRAY)).fitCenter())
+             .also {
+                 lastRequest = it.clone()
+                 it.crossfadeListener()
+                     .into(binding.colorBackground)
+             }
+     }*/
 
     override fun onResume() {
         super.onResume()

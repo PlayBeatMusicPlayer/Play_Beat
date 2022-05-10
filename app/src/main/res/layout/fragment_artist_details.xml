@@ -126,7 +126,7 @@
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/artistCoverContainer"
+                app:layout_constraintBaseline_toTopOf="parent"
                 tools:ignore="MissingPrefix"
                 tools:text="@tools:sample/full_names" />
 

@@ -39,7 +39,7 @@
     <color name="widget_circle_button_color">@color/md_indigo_A400</color>
     <color name="widget_md3_button_bg_color">@color/lighterColorSurface</color>
     <color name="shadow_color">@color/md_white_1000</color>
-    <color name="md_shadow_color">#181c1f</color>
+    <color name="md_shadow_color">@color/md_white_1000</color>
     <color name="textColor">@color/black_color</color>
     <color name="colorWaveformBg">#E6182245</color>
     <color name="colorGridLine">#00ed1b24</color>

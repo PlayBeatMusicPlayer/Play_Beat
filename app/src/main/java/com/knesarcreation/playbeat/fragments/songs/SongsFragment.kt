@@ -13,6 +13,7 @@ import com.afollestad.materialcab.attached.destroy
 import com.afollestad.materialcab.attached.isActive
 import com.afollestad.materialcab.createCab
 import com.google.android.gms.cast.framework.CastButtonFactory
+import com.google.android.play.core.appupdate.AppUpdateManager
 import com.knesarcreation.playbeat.BuildConfig
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.song.SongAdapter
@@ -32,6 +33,8 @@ import com.knesarcreation.playbeat.util.PreferenceUtil
 
 class SongsFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, GridLayoutManager>(),
     ICabHolder, IPlaybackStateChanged {
+
+    private var appUpdateManager: AppUpdateManager? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -58,7 +61,7 @@ class SongsFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, GridLay
         }
 
         if (BuildConfig.VERSION_CODE > PreferenceUtil.lastVersion && !BuildConfig.DEBUG) {
-            NavigationUtil.gotoWhatNews(activity as AppCompatActivity)
+            NavigationUtil.gotoWhatNews(childFragmentManager)
         }
 
     }

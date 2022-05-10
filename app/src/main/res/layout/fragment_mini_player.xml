@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="56dp"
+    android:layout_height="wrap_content"
     android:clickable="true"
     android:focusable="true"
     tools:ignore="UnusedAttribute">
@@ -11,7 +11,15 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:trackCornerRadius="16dp"
+            tools:progress="50" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -56,11 +64,11 @@
                     android:id="@+id/sleepTimeTextTV"
                     android:layout_width="13dp"
                     android:layout_height="13dp"
-                    android:visibility="gone"
-                    tools:visibility="visible"
-                    android:layout_marginTop="10dp"
                     android:layout_gravity="center_horizontal"
-                    android:src="@drawable/ic_sleep_time" />
+                    android:layout_marginTop="10dp"
+                    android:src="@drawable/ic_sleep_time"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/sleepTimeTV"
@@ -73,9 +81,9 @@
                     android:freezesText="true"
                     android:includeFontPadding="false"
                     android:marqueeRepeatLimit="marquee_forever"
+                    android:maxLines="1"
                     android:scrollHorizontally="true"
                     android:text="99:58"
-                    android:maxLines="1"
                     android:textAlignment="center"
                     android:textAppearance="@style/TextViewNormal"
                     android:textColor="?android:attr/textColorPrimary"
@@ -117,14 +125,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical">
-
-                <com.google.android.material.progressindicator.CircularProgressIndicator
-                    android:id="@+id/progressBar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    app:trackCornerRadius="16dp"
-                    tools:progress="10" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/miniPlayerPlayPauseButton"

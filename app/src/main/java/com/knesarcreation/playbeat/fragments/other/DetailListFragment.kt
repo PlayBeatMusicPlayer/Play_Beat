@@ -76,15 +76,23 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_playlist_de
         when (App.getContext().generalThemeValue) {
             ThemeMode.LIGHT -> binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_ligth)
 
-            ThemeMode.DARK -> binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_dark)
+            ThemeMode.DARK -> {
+                if (PreferenceUtil.materialYou) {
+                    binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_material_you)
+                } else {
+                    binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_dark)
+                }
+            }
 
-            ThemeMode.BLACK -> binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_just_black)
+            ThemeMode.BLACK -> binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_just_black) /*inhnaces dark*/
 
-            ThemeMode.AUTO -> binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_follow_system)
-        }
-
-        if (PreferenceUtil.materialYou) {
-            binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_material_you)
+            ThemeMode.AUTO -> {
+                if (PreferenceUtil.materialYou) {
+                    binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_material_you)
+                } else {
+                    binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_follow_system)
+                }
+            }
         }
 
         binding.progressIndicator.hide()

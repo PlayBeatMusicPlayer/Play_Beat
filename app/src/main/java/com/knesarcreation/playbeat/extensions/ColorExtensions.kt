@@ -22,6 +22,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputLayout
 import com.knesarcreation.appthemehelper.ThemeStore
@@ -205,6 +206,13 @@ fun TextInputLayout.accentColor() {
 }
 
 fun CircularProgressIndicator.accentColor() {
+    if (materialYou) return
+    val color = ThemeStore.accentColor(context)
+    setIndicatorColor(color)
+    trackColor = ColorUtil.withAlpha(color, 0.2f)
+}
+
+fun LinearProgressIndicator.accentColor() {
     if (materialYou) return
     val color = ThemeStore.accentColor(context)
     setIndicatorColor(color)

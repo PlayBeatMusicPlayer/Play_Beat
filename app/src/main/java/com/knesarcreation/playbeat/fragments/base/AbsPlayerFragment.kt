@@ -87,7 +87,12 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMainActivityFragme
                 return true
             }
             R.id.action_share -> {
-                SongShareDialog.create(song).show(childFragmentManager, "SHARE_SONG")
+                startActivity(Intent.createChooser(song.let {
+                    MusicUtil.createShareSongFileIntent(
+                        it,
+                        requireContext()
+                    )
+                }, null))
                 return true
             }
 

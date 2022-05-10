@@ -5,15 +5,8 @@ import android.provider.BaseColumns
 import android.provider.MediaStore
 
 object Constants {
-    const val RATE_ON_GOOGLE_PLAY =
-        "https://play.google.com/store/apps/details?id=com.knesarcreation.playbeat"
-    const val WEBSITE = "https://retromusic.app"
-    const val GITHUB_PROJECT = "https://github.com/RetroMusicPlayer/RetroMusicPlayer"
-    const val TELEGRAM_CHANGE_LOG = "https://t.me/retromusiclog"
-    const val APP_INSTAGRAM_LINK = "https://www.instagram.com/retromusicapp/"
-    const val APP_TELEGRAM_LINK = "https://t.me/retromusicapp/"
-    const val APP_TWITTER_LINK = "https://twitter.com/retromusicapp"
-    const val PINTEREST = "https://in.pinterest.com/retromusicapp/"
+    const val RATE_ON_GOOGLE_PLAY = "https://play.google.com/store/apps/details?id=com.knesarcreation.playbeat"
+    const val GITHUB_PROJECT = "https://github.com/PlayBeatMusicPlayer/Play_Beat"
 
     const val IS_MUSIC =
         MediaStore.Audio.AudioColumns.IS_MUSIC + "=1" + " AND " + MediaStore.Audio.AudioColumns.TITLE + " != ''"

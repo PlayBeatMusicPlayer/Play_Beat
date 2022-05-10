@@ -265,11 +265,11 @@
 
     <style name="Theme.AppWidget" parent="Theme.PlayBeat.FollowSystem" />
 
-    <style name="EqualizerSwitch" parent="Theme.AppCompat.Light">
+    <!--<style name="EqualizerSwitch" parent="Theme.AppCompat.Light">
         <item name="colorControlActivated">@color/m3_accent_color</item>
         <item name="colorSwitchThumbNormal">@color/md_white_1000</item>
         <item name="android:colorForeground">@color/md_grey_600</item>
-    </style>
+    </style>-->
 
     <style name="changeBackgroundColor" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
         <item name="colorSurface">@color/md_grey_700</item>

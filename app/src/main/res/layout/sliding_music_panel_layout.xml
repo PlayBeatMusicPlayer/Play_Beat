@@ -56,6 +56,7 @@
         android:minHeight="@dimen/bottom_nav_height"
         app:itemHorizontalTranslationEnabled="false"
         app:itemPaddingBottom="8dp"
+        app:labelVisibilityMode="selected"
         app:itemPaddingTop="8dp"
         app:menu="@menu/bottom_navigation_main" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

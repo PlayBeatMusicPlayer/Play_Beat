@@ -16,19 +16,17 @@ import android.view.ViewGroup
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.color.DynamicColors
 import com.google.android.material.textfield.TextInputLayout
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.equailizer.AnalogController.onProgressChangedListener
+import com.knesarcreation.playbeat.extensions.accentColor
+import com.knesarcreation.playbeat.extensions.applyToolbar
 import com.knesarcreation.playbeat.extensions.generalThemeValue
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote.musicService
-import com.knesarcreation.playbeat.util.PreferenceUtil
-import com.knesarcreation.playbeat.util.theme.ThemeManager
 import com.knesarcreation.playbeat.util.theme.ThemeMode
 
 class EqualizerFragment : Fragment() {
@@ -43,7 +41,6 @@ class EqualizerFragment : Fragment() {
     private var y = 0
 
     //var spinnerDropDownIcon: ImageView? = null
-    private var fragTitle: TextView? = null
     private var mLinearLayout: LinearLayout? = null
     private var seekBarFinal = arrayOfNulls<SeekBar>(5)
     private var bassController: AnalogController? = null
@@ -141,13 +138,11 @@ class EqualizerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val toolbar: MaterialToolbar = view.findViewById(R.id.playerToolbar)
-        (context as AppCompatActivity).onSupportNavigateUp()
-
+        applyToolbar(toolbar)
         toolbar.setNavigationOnClickListener {
             (context as AppCompatActivity).onBackPressed()
         }
 
-        fragTitle = view.findViewById(R.id.equalizer_fragment_title)
         equalizerSwitch = view.findViewById(R.id.equalizer_switch)
         equalizerSwitch!!.isChecked = Settings.isEqualizerEnabled
         equalizerSwitch!!.setOnCheckedChangeListener { _, isChecked ->
@@ -166,6 +161,7 @@ class EqualizerFragment : Fragment() {
             //saving changes in equalizer
             equalizerSetting.saveEqualizerSettings(ctx!!)
         }
+
         //spinnerDropDownIcon = view.findViewById(R.id.spinner_dropdown_icon)
         //spinnerDropDownIcon!!.setOnClickListener {  }
         presetSpinner = view.findViewById(R.id.equalizer_preset_spinner)
@@ -497,14 +493,10 @@ class EqualizerFragment : Fragment() {
             reverbController!!.circlePaint2!!.color = circlePaintColor
             reverbController!!.linePaint!!.color = linePaint
         } else {
-            bassController!!.circlePaint2!!.color =
-                ContextCompat.getColor(ctx!!, R.color.m3_accent_color)
-            bassController!!.linePaint!!.color =
-                ContextCompat.getColor(ctx!!, R.color.m3_accent_color)
-            reverbController!!.circlePaint2!!.color =
-                ContextCompat.getColor(ctx!!, R.color.m3_accent_color)
-            reverbController!!.linePaint!!.color =
-                ContextCompat.getColor(ctx!!, R.color.m3_accent_color)
+            bassController!!.circlePaint2!!.color = accentColor()
+            bassController!!.linePaint!!.color = accentColor()
+            reverbController!!.circlePaint2!!.color = accentColor()
+            reverbController!!.linePaint!!.color = accentColor()
         }
     }
 

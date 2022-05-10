@@ -9,13 +9,6 @@ import java.io.File
 
 
 object Share {
-    fun shareStoryToSocial(context: Context, uri: Uri) {
-        val feedIntent = Intent(Intent.ACTION_SEND)
-        feedIntent.type = "image/*"
-        feedIntent.putExtra(Intent.EXTRA_STREAM, uri)
-        context.startActivity(feedIntent, null)
-    }
-
     fun shareFile(context: Context, file: File) {
         val attachmentUri = FileProvider.getUriForFile(
             context,

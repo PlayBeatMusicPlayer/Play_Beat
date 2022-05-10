@@ -89,7 +89,7 @@ abstract class AbsArtistDetailsFragment : AbsMainActivityFragment(R.layout.fragm
         mainActivity.addMusicServiceEventListener(detailsViewModel)
         mainActivity.setSupportActionBar(binding.toolbar)
         binding.toolbar.title = null
-        binding.collapsingToolbar!!.transitionName = (artistId ?: artistName).toString()
+        binding.collapsingToolbar.transitionName = (artistId ?: artistName).toString()
         this.mView = view
         postponeEnterTransition()
         detailsViewModel.getArtist().observe(viewLifecycleOwner) {
@@ -100,17 +100,25 @@ abstract class AbsArtistDetailsFragment : AbsMainActivityFragment(R.layout.fragm
         }
 
         when (App.getContext().generalThemeValue) {
-            ThemeMode.LIGHT -> binding.shadowUp!!.setImageResource(R.drawable.shadow_up_artist_ligth)
+            ThemeMode.LIGHT -> binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_ligth)
 
-            ThemeMode.DARK -> binding.shadowUp!!.setImageResource(R.drawable.shadow_up_artist_dark)
+            ThemeMode.DARK -> {
+                if (PreferenceUtil.materialYou) {
+                    binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_material_you)
+                } else {
+                    binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_dark)
+                }
+            }
 
-            ThemeMode.BLACK -> binding.shadowUp!!.setImageResource(R.drawable.shadow_up_artist_just_black)
+            ThemeMode.BLACK -> binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_just_black)
 
-            ThemeMode.AUTO -> binding.shadowUp!!.setImageResource(R.drawable.shadow_up_artist_follow_system)
-        }
-
-        if (PreferenceUtil.materialYou) {
-            binding.shadowUp!!.setImageResource(R.drawable.shadow_up_artist_material_you)
+            ThemeMode.AUTO -> {
+                if (PreferenceUtil.materialYou) {
+                    binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_material_you)
+                } else {
+                    binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_follow_system)
+                }
+            }
         }
 
         setupRecyclerView()
@@ -166,7 +174,7 @@ abstract class AbsArtistDetailsFragment : AbsMainActivityFragment(R.layout.fragm
         if (PlayBeatUtil.isAllowedToDownloadMetadata(requireContext())) {
             loadBiography(artist.name)
         }
-        binding.collapsingToolbar!!.title = artist.name
+        binding.collapsingToolbar.title = artist.name
         /* view.findViewById<com.knesarcreation.playbeat.views.BaselineGridTextView>(R.id.artistTitle).text =
              artist.name*/
         view.findViewById<com.knesarcreation.playbeat.views.BaselineGridTextView>(R.id.text).text =

@@ -1,9 +1,13 @@
 package com.knesarcreation.playbeat.fragments.base
 
+import android.content.Context
+import android.content.IntentSender
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.annotation.NonNull
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.core.view.doOnPreDraw
@@ -12,7 +16,17 @@ import androidx.core.view.updateLayoutParams
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialFadeThrough
+import com.google.android.play.core.appupdate.AppUpdateInfo
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.install.InstallState
+import com.google.android.play.core.install.InstallStateUpdatedListener
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.InstallStatus
+import com.google.android.play.core.install.model.UpdateAvailability
+import com.google.android.play.core.tasks.Task
 import com.knesarcreation.appthemehelper.common.ATHToolbarActivity
 import com.knesarcreation.appthemehelper.util.ToolbarContentTintHelper
 import com.knesarcreation.playbeat.*
@@ -21,6 +35,7 @@ import com.knesarcreation.playbeat.dialogs.CreatePlaylistDialog
 import com.knesarcreation.playbeat.dialogs.ImportPlaylistDialog
 import com.knesarcreation.playbeat.extensions.accentColor
 import com.knesarcreation.playbeat.extensions.dip
+import com.knesarcreation.playbeat.extensions.showToast
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote
 import com.knesarcreation.playbeat.interfaces.IScrollHelper
 import com.knesarcreation.playbeat.util.PreferenceUtil
@@ -33,12 +48,102 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
     AbsMainActivityFragment(R.layout.fragment_main_recycler), IScrollHelper {
 
     private var _binding: FragmentMainRecyclerBinding? = null
+    private var appUpdateManager: AppUpdateManager? = null
     val binding get() = _binding!!
     protected var adapter: A? = null
     protected var layoutManager: LM? = null
     val shuffleButton get() = binding.shuffleButton
     abstract val isShuffleVisible: Boolean
+    private var installStateUpdatedListener: InstallStateUpdatedListener? = null
+    private val RC_APP_UPDATE = 11
 
+
+    private fun getAppUpdate() {
+        appUpdateManager = AppUpdateManagerFactory.create(activity as Context)
+
+        installStateUpdatedListener =
+            object : InstallStateUpdatedListener {
+                override fun onStateUpdate(state: InstallState) {
+                    if (state.installStatus() == InstallStatus.DOWNLOADED) {
+                        //CHECK THIS if AppUpdateType.FLEXIBLE, otherwise you can skip
+                        popupSnackbarForCompleteUpdate()
+                    } else if (state.installStatus() == InstallStatus.INSTALLED) {
+                        if (appUpdateManager != null) {
+                            appUpdateManager!!.unregisterListener(this)
+                            //app updated show the changelog
+//                            if (storage.getIsAppOpenedInitially()) {
+//                                //if yes : app opened initially first time
+//                                //saving false to prefs becz app is now opened for the first time
+//                                finishAffinity()
+//                                startActivity(
+//                                    Intent(
+//                                        this@ActivityBottomBarFragmentContainer,
+//                                        OnBoardingActivity::class.java
+//                                    )
+//                                )
+//
+//                            }
+                        }
+                    } else {
+                        /*Log.i(
+                            "appUpdateManager",
+                            "InstallStateUpdatedListener: state: " + state.installStatus()
+                        )*/
+                    }
+                }
+            }
+
+        appUpdateManager!!.registerListener(installStateUpdatedListener!!)
+        checkUpdate()
+    }
+
+    private fun checkUpdate() {
+        // Returns an intent object that you use to check for an update.
+        val appUpdateInfoTask: Task<AppUpdateInfo> = appUpdateManager!!.appUpdateInfo
+        // Checks that the platform will allow the specified type of update.
+        Log.d("AppUpdate", "Checking for updates")
+        appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
+            ) {
+                // Request the update.
+                Log.d("AppUpdate", "Update available")
+                // Toast.makeText(this, "Update available", Toast.LENGTH_SHORT).show()
+                try {
+                    appUpdateManager!!.startUpdateFlowForResult(
+                        appUpdateInfo,
+                        AppUpdateType.FLEXIBLE /*AppUpdateType.IMMEDIATE*/,
+                        activity as AppCompatActivity,
+                        RC_APP_UPDATE
+                    )
+                } catch (e: IntentSender.SendIntentException) {
+                    e.printStackTrace()
+                }
+
+            } else if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
+                //CHECK THIS if AppUpdateType.FLEXIBLE, otherwise you can skip
+                popupSnackbarForCompleteUpdate()
+            } else {
+                Log.d("AppUpdate", "No Update available")
+            }
+        }
+    }
+
+    private fun popupSnackbarForCompleteUpdate() {
+        val snackbar = Snackbar.make(
+            binding.coordinatorLayoutMainRecycler,
+            "New app version is ready!",
+            Snackbar.LENGTH_INDEFINITE
+        )
+        snackbar.setAction("Install") {
+            if (appUpdateManager != null) {
+                appUpdateManager!!.completeUpdate()
+            }
+        }
+        snackbar.setActionTextColor(accentColor())
+        snackbar.anchorView = binding.shuffleButton
+        snackbar.show()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -53,6 +158,9 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
         initAdapter()
         setUpRecyclerView()
         setupToolbar()
+
+        getAppUpdate()
+
         binding.shuffleButton.fitsSystemWindows = PreferenceUtil.isFullScreenMode
         // Add listeners when shuffle is visible
         if (isShuffleVisible) {
@@ -249,8 +357,15 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
                 childFragmentManager,
                 "ShowCreatePlaylistDialog"
             )
+            R.id.action_about -> findNavController().navigate(R.id.action_about)
         }
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onStop() {
+        super.onStop()
+        if (appUpdateManager != null) {
+            appUpdateManager!!.unregisterListener(installStateUpdatedListener!!)
+        }
+    }
 }

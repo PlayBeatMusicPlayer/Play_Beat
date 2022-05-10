@@ -64,7 +64,7 @@ class PermissionActivity : AbsMusicServiceActivity() {
         val color = ThemeStore.accentColor(this)
         val hexColor = String.format("#%06X", 0xFFFFFF and color)
         val appName =
-            "Hello there! <br>Welcome to <b>Play <span  style='color:$hexColor';>Beat</span></b>"
+            "Please grant required permissions to Play <span  style='color:$hexColor';>Beat</span></b> "
                 .parseAsHtml()
         binding.appNameText.text = appName
     }

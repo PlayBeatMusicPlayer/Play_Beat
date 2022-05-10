@@ -6,10 +6,12 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.media.audiofx.AudioEffect
 import android.widget.Toast
+import androidx.fragment.app.FragmentManager
 import com.knesarcreation.playbeat.R
-import com.knesarcreation.playbeat.activities.*
+import com.knesarcreation.playbeat.activities.LicenseActivity
 import com.knesarcreation.playbeat.activities.bugreport.BugReportActivity
 import com.knesarcreation.playbeat.equailizer.EqualizerControlActivity
+import com.knesarcreation.playbeat.fragments.bottomSheets.BottomSheetWhatsNew
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote.audioSessionId
 
 object NavigationUtil {
@@ -25,17 +27,9 @@ object NavigationUtil {
         )
     }
 
-    /* fun goToSupportDevelopment(activity: Activity) {
-         activity.startActivity(
-             Intent(activity, SupportDevelopmentActivity::class.java), null
-         )
-     }*/
 
-
-    fun gotoWhatNews(activity: Activity) {
-        activity.startActivity(
-            Intent(activity, WhatsNewActivity::class.java), null
-        )
+    fun gotoWhatNews(childFragmentManager: FragmentManager) {
+        BottomSheetWhatsNew().show(childFragmentManager, "bottomSheetWhatsNew")
     }
 
     fun openEqualizer(activity: Activity) {

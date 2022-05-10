@@ -8,6 +8,18 @@
     android:fitsSystemWindows="true"
     android:transitionGroup="true">
 
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarOutsideCollapsing"
+        style="@style/Toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_scrollFlags="scroll|enterAlways"
+        app:navigationIcon="@drawable/ic_keyboard_backspace_black"
+        app:title="@null"
+        app:titleTextAppearance="@style/ToolbarTextAppearanceNormal"
+        tools:visibility="visible" />
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -83,18 +95,6 @@
                 android:visibility="gone" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbarOutsideCollapsing"
-            style="@style/Toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:navigationIcon="@drawable/ic_keyboard_backspace_black"
-            app:title="@null"
-            app:titleTextAppearance="@style/ToolbarTextAppearanceNormal" />
-
-
     </com.google.android.material.appbar.AppBarLayout>
 
     <com.knesarcreation.playbeat.views.insets.InsetsRecyclerView
@@ -124,7 +124,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:text="@string/empty_text_emoji"
-            android:textAppearance="@style/TextViewHeadline3" />
+            android:textAppearance="@style/TextViewHeadline3"
+            android:visibility="gone" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/emptyText"

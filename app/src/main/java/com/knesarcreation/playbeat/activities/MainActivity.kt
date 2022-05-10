@@ -23,6 +23,7 @@ import com.knesarcreation.playbeat.service.MusicService
 import com.knesarcreation.playbeat.util.AppRater
 import com.knesarcreation.playbeat.util.NavigationUtil
 import com.knesarcreation.playbeat.util.PreferenceUtil
+import com.knesarcreation.playbeat.util.theme.ThemeManager
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get

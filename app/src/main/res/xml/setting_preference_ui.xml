@@ -287,7 +287,7 @@
             android:title="@string/pref_title_remember_tab" />
 
         <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEListPreference
-            android:defaultValue="0"
+            android:defaultValue="2"
             android:entries="@array/pref_tab_text_mode_titles"
             android:entryValues="@array/pref_tab_text_mode_values"
             android:key="tab_text_mode"

@@ -1,41 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/playerLyrics"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="center"
+    android:layout_height="wrap_content"
     android:alpha="0"
-    android:background="@drawable/lyrics_mask"
     android:clipToPadding="false"
     android:elevation="20dp"
-    android:padding="16dp"
     android:visibility="gone"
     tools:alpha="1"
     tools:visibility="visible">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/player_lyrics_line1"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:gravity="center"
-        android:shadowColor="@color/md_black_1000"
-        android:shadowRadius="4"
-        android:textAppearance="@style/TextViewHeadline5"
-        android:textColor="@color/md_white_1000"
-        android:visibility="gone"
-        tools:visibility="visible" />
+        android:layout_height="match_parent"
+        android:background="@drawable/lyrics_mask">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/player_lyrics_line2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:gravity="center"
-        android:shadowColor="@color/md_black_1000"
-        android:shadowRadius="4"
-        android:textAppearance="@style/TextViewHeadline5"
-        android:textColor="@color/md_white_1000"
-        tools:text="@tools:sample/full_names[5]" />
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/player_lyrics_line1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="18dp"
+            android:layout_marginTop="20dp"
+            android:shadowColor="@color/md_black_1000"
+            android:shadowRadius="4"
+            android:textColor="@color/md_white_1000"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@tools:sample/full_names[5]"
+            tools:visibility="visible" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/player_lyrics_line2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="18dp"
+            android:shadowColor="@color/md_black_1000"
+            android:shadowRadius="4"
+            android:layout_marginTop="20dp"
+            android:textColor="@color/md_white_1000"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@tools:sample/full_names[5]" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/player_lyrics_line3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/player_lyrics_line2"
+            android:layout_marginStart="18dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="18dp"
+            android:alpha="0.7"
+            android:shadowColor="@color/black_color"
+            android:shadowRadius="4"
+            android:textColor="@color/md_grey_200"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/player_lyrics_line2"
+            tools:text="@tools:sample/full_names[5]" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </FrameLayout>

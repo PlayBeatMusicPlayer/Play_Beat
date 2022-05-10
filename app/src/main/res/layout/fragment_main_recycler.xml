@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/coordinatorLayout_main_recycler"
     android:fitsSystemWindows="true">
 
     <!-- <com.knesarcreation.playbeat.views.TopAppBarLayout
@@ -85,6 +86,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:text="@string/empty_text_emoji"
+            android:visibility="gone"
             android:textAppearance="@style/TextViewHeadline3" />
 
         <com.google.android.material.textview.MaterialTextView
