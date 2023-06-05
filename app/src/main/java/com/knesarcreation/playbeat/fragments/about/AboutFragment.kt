@@ -113,17 +113,17 @@ class AboutFragment : Fragment(R.layout.fragment_about), View.OnClickListener {
     }
 
     private fun openPlayBeatInstaPage() {
-        binding.aboutContent.cardApp?.openPlayBeatInstaPage?.setOnClickListener {
-            var openPlayBeatInsta: Intent
+        binding.aboutContent.cardApp?.openPlayBeatDiscordChannel?.setOnClickListener {
+            var openPlayBeatDiscordChannel: Intent
             try {
-                openPlayBeatInsta =
-                    Intent(Intent.ACTION_VIEW, Uri.parse("https://www.instagram.com/play_beat01/"))
-                openPlayBeatInsta.setPackage("com.instagram.android")
-                startActivity(openPlayBeatInsta)
+                openPlayBeatDiscordChannel =
+                    Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.gg/qRuzNky6yQ"))
+                openPlayBeatDiscordChannel.setPackage("com.discord")
+                startActivity(openPlayBeatDiscordChannel)
             } catch (e: Exception) {
-                openPlayBeatInsta =
-                    Intent(Intent.ACTION_VIEW, Uri.parse("https://www.instagram.com/play_beat01/"))
-                startActivity(openPlayBeatInsta)
+                openPlayBeatDiscordChannel =
+                    Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.gg/qRuzNky6yQ"))
+                startActivity(openPlayBeatDiscordChannel)
             }
         }
     }

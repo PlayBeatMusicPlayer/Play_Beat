@@ -40,9 +40,9 @@ class SettingsActivity : AbsThemeActivity(), ColorCallback, OnThemeChangedListen
     private fun setupToolbar() {
         applyToolbar(binding.toolbar)
         binding.collapsingToolbarLayout.title = getString(R.string.setting)
-          binding.toolbar.setNavigationOnClickListener {
-              finish()
-          }
+        binding.toolbar.setNavigationOnClickListener {
+            finish()
+        }
     }
 
     override fun invoke(dialog: MaterialDialog, color: Int) {

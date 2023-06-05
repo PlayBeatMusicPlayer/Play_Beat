@@ -11,10 +11,7 @@ import androidx.navigation.findNavController
 import com.google.android.material.button.MaterialButton
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter
 import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange
-import com.knesarcreation.playbeat.App
-import com.knesarcreation.playbeat.EXTRA_ALBUM_ID
-import com.knesarcreation.playbeat.EXTRA_ARTIST_ID
-import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.*
 import com.knesarcreation.playbeat.activities.tageditor.AbsTagEditorActivity
 import com.knesarcreation.playbeat.activities.tageditor.SongTagEditorActivity
 import com.knesarcreation.playbeat.db.PlaylistEntity
@@ -29,6 +26,7 @@ import com.knesarcreation.playbeat.extensions.accentOutlineColor
 import com.knesarcreation.playbeat.fragments.LibraryViewModel
 import com.knesarcreation.playbeat.fragments.ReloadType
 import com.knesarcreation.playbeat.fragments.bottomSheets.BottomSheetAudioMoreOptions
+import com.knesarcreation.playbeat.fragments.playlists.mInterstitialAdHelper
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote
 import com.knesarcreation.playbeat.interfaces.ICabHolder
 import com.knesarcreation.playbeat.interfaces.IPaletteColorHolder
@@ -86,13 +84,25 @@ class OrderablePlaylistSongAdapter(
             val viewHolder = holder as ViewHolder
             viewHolder.playAction?.let {
                 it.setOnClickListener {
-                    MusicPlayerRemote.openQueue(dataSet, 0, true)
+                    mInterstitialAdHelper?.showInterstitial(
+                        INTERSTITIAL_PLAYLIST_DETAILS_PLAY_SHUFFLE,
+                        PLAY_BUTTON,
+                        dataSet,
+                        0
+                    )
+                    //MusicPlayerRemote.openQueue(dataSet, 0, true)
                 }
                 it.accentOutlineColor()
             }
             viewHolder.shuffleAction?.let {
                 it.setOnClickListener {
-                    MusicPlayerRemote.openAndShuffleQueue(dataSet, true)
+                    mInterstitialAdHelper?.showInterstitial(
+                        INTERSTITIAL_PLAYLIST_DETAILS_PLAY_SHUFFLE,
+                        SHUFFLE_BUTTON,
+                        dataSet,
+                        0
+                    )
+                    // MusicPlayerRemote.openAndShuffleQueue(dataSet, true)
                 }
                 it.accentColor()
             }
@@ -164,7 +174,8 @@ class OrderablePlaylistSongAdapter(
                 val bottomSheetAudioMoreOption = BottomSheetAudioMoreOptions(
                     2,
                     song,
-                    activity /*playlist song*/)
+                    activity /*playlist song*/
+                )
                 bottomSheetAudioMoreOption.show(
                     activity.supportFragmentManager,
                     "bottomSheetAudioMoreOption"
@@ -219,7 +230,8 @@ class OrderablePlaylistSongAdapter(
                         }
 
                         override fun tagEditor() {
-                            val tagEditorIntent = Intent(activity, SongTagEditorActivity::class.java)
+                            val tagEditorIntent =
+                                Intent(activity, SongTagEditorActivity::class.java)
                             tagEditorIntent.putExtra(AbsTagEditorActivity.EXTRA_ID, song.id)
                             if (activity is IPaletteColorHolder)
                                 tagEditorIntent.putExtra(

@@ -76,7 +76,7 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_playing_q
         )
         //Log.d("MusicPlayerRemote111", "setUpRecyclerView:${MusicPlayerRemote.position} ")
         //Toast.makeText(activity as Context, MusicPlayerRemote.position, Toast.LENGTH_SHORT)
-          //  .show()
+        //  .show()
         wrappedAdapter = recyclerViewDragDropManager?.createWrappedAdapter(playingQueueAdapter!!)
         wrappedAdapter = wrappedAdapter?.let { recyclerViewSwipeManager?.createWrappedAdapter(it) }
 

@@ -219,6 +219,11 @@ fun LinearProgressIndicator.accentColor() {
     trackColor = ColorUtil.withAlpha(color, 0.2f)
 }
 
+fun LinearProgressIndicator.applyColor(color: Int) {
+    setIndicatorColor(color)
+    trackColor = ColorUtil.withAlpha(color, 0.2f)
+}
+
 fun CircularProgressIndicator.applyColor(color: Int) {
     setIndicatorColor(color)
     trackColor = ColorUtil.withAlpha(color, 0.2f)

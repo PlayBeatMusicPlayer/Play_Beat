@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.fragments.genres
 
 import android.os.Bundle

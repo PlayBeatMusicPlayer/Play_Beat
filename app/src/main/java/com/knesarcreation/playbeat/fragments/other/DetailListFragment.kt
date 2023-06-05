@@ -1,6 +1,8 @@
 package com.knesarcreation.playbeat.fragments.other
 
+import android.annotation.SuppressLint
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -22,6 +24,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.knesarcreation.playbeat.*
 import com.knesarcreation.playbeat.adapter.song.ShuffleButtonSongAdapter
+import com.knesarcreation.playbeat.ads.InterstitialAdHelperClass
+import com.knesarcreation.playbeat.ads.NativeAdHelper
 import com.knesarcreation.playbeat.databinding.FragmentPlaylistDetailBinding
 import com.knesarcreation.playbeat.db.toSong
 import com.knesarcreation.playbeat.extensions.dipToPix
@@ -38,7 +42,10 @@ import com.knesarcreation.playbeat.util.PlayBeatColorUtil
 import com.knesarcreation.playbeat.util.PlayBeatUtil
 import com.knesarcreation.playbeat.util.PreferenceUtil
 import com.knesarcreation.playbeat.util.theme.ThemeMode
+import com.knesarcreation.playbeat.views.DrawableGradient
 
+@SuppressLint("StaticFieldLeak")
+var mInterstitialAdHelper: InterstitialAdHelperClass? = null
 
 class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_playlist_detail),
     ICabHolder {
@@ -47,10 +54,17 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_playlist_de
     private val binding get() = _binding!!
     private var showClearHistoryOption = false
     private var priviousToolbarTitle = ""
+    private var adapterDataObserver: AdapterDataObserver? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (mInterstitialAdHelper != null)
+            mInterstitialAdHelper = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -73,6 +87,13 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_playlist_de
 
         mainActivity.setSupportActionBar(binding.toolbar)
 
+        binding.nativeLayout.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_DETAILS_LIST
+            )
+        }
+
         when (App.getContext().generalThemeValue) {
             ThemeMode.LIGHT -> binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_ligth)
 
@@ -88,7 +109,17 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_playlist_de
 
             ThemeMode.AUTO -> {
                 if (PreferenceUtil.materialYou) {
-                    binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_material_you)
+                    val drawableGradient = DrawableGradient(
+                        GradientDrawable.Orientation.BOTTOM_TOP,
+                        intArrayOf(
+                            surfaceColor(),
+                            Color.TRANSPARENT
+                        ),
+                        0
+                    )
+//                    binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_material_you)
+                    binding.shadowUp.background = drawableGradient
+
                 } else {
                     binding.shadowUp.setImageResource(R.drawable.shadow_up_artist_follow_system)
                 }
@@ -106,13 +137,21 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_playlist_de
             TOP_PLAYED_PLAYLIST -> topPlayed()
         }
 
-        binding.recyclerView.adapter?.registerAdapterDataObserver(object : AdapterDataObserver() {
+        adapterDataObserver = object : AdapterDataObserver() {
             override fun onChanged() {
                 super.onChanged()
-                val height = dipToPix(52f)
-                binding.recyclerView.updatePadding(bottom = height.toInt())
+                try {
+                    val height = dipToPix(52f)
+                    binding.recyclerView.updatePadding(bottom = height.toInt())
+                } catch (e: Exception) {
+                    //print stack trace
+                }
+
             }
-        })
+        }
+        adapterDataObserver?.let { it ->
+            binding.recyclerView.adapter?.registerAdapterDataObserver(it)
+        }
         /*binding.appBarLayout.statusBarForeground =
             MaterialShapeDrawable.createWithElevationOverlay(requireContext())*/
         postponeEnterTransition()
@@ -125,7 +164,11 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_playlist_de
         }
 
         binding.playlistDetailsMore.visibility = View.GONE
+
+        mInterstitialAdHelper = InterstitialAdHelperClass(requireContext())
+        mInterstitialAdHelper?.loadInterstitialAd(INTERSTITIAL_DETAILS_FRAGMENT_PLAY_SHUFFLE)
     }
+
 
     private fun lastAddedSongs() {
         // binding.toolbar.setTitle(R.string.last_added)
@@ -339,6 +382,10 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_playlist_de
 
     override fun onDestroyView() {
         super.onDestroyView()
+        if (adapterDataObserver != null)
+            adapterDataObserver?.let { it ->
+                binding.recyclerView.adapter?.unregisterAdapterDataObserver(it)
+            }
         _binding = null
     }
 
@@ -423,4 +470,5 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_playlist_de
         }
         return false
     }
+
 }

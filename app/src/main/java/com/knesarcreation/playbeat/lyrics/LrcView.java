@@ -556,9 +556,9 @@ public class LrcView extends View {
                         ((mLrcEntryList.get(i - 1).getHeight() + mLrcEntryList.get(i).getHeight()) >> 1)
                                 + mDividerHeight;
             }
-           // if (BuildConfig.DEBUG) {
-                // mLrcPaint.setTypeface(ResourcesCompat.getFont(getContext(), R.font.sans));
-           // }
+            // if (BuildConfig.DEBUG) {
+            // mLrcPaint.setTypeface(ResourcesCompat.getFont(getContext(), R.font.sans));
+            // }
             if (i == mCurrentLine) {
                 mLrcPaint.setTextSize(mCurrentTextSize);
                 mLrcPaint.setColor(mCurrentTextColor);

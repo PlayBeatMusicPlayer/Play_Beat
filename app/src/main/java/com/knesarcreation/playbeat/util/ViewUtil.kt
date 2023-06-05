@@ -16,7 +16,7 @@ import com.knesarcreation.appthemehelper.util.MaterialValueHelper
 
 object ViewUtil {
 
-    const val RETRO_MUSIC_ANIM_TIME = 1000
+    const val PLAY_BEAT_MUSIC_ANIM_TIME = 1000
 
     fun setProgressDrawable(progressSlider: SeekBar, newColor: Int, thumbTint: Boolean = false) {
 

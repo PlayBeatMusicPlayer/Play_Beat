@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.appshortcuts
 
 import android.content.Context

@@ -2,12 +2,12 @@ package com.knesarcreation.playbeat.adapter.song
 
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.core.view.marginTop
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.button.MaterialButton
-import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.*
 import com.knesarcreation.playbeat.extensions.accentColor
 import com.knesarcreation.playbeat.extensions.accentOutlineColor
+import com.knesarcreation.playbeat.fragments.other.mInterstitialAdHelper
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote
 import com.knesarcreation.playbeat.interfaces.ICabHolder
 import com.knesarcreation.playbeat.model.Song
@@ -35,13 +35,24 @@ class ShuffleButtonSongAdapter(
             val viewHolder = holder as ViewHolder
             viewHolder.playAction?.let {
                 it.setOnClickListener {
-                    MusicPlayerRemote.openQueue(dataSet, 0, true)
+                    mInterstitialAdHelper?.showInterstitial(
+                        INTERSTITIAL_DETAILS_FRAGMENT_PLAY_SHUFFLE,
+                        PLAY_BUTTON,
+                        dataSet,
+                        0
+                    )
+                    // MusicPlayerRemote.openQueue(dataSet, 0, true)
                 }
                 it.accentOutlineColor()
             }
             viewHolder.shuffleAction?.let {
                 it.setOnClickListener {
-                    MusicPlayerRemote.openAndShuffleQueue(dataSet, true)
+                    mInterstitialAdHelper?.showInterstitial(
+                        INTERSTITIAL_DETAILS_FRAGMENT_PLAY_SHUFFLE,
+                        SHUFFLE_BUTTON,
+                        dataSet, 0
+                    )
+                    // MusicPlayerRemote.openAndShuffleQueue(dataSet, true)
                 }
                 it.accentColor()
             }

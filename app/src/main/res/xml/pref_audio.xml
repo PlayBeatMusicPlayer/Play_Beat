@@ -40,13 +40,13 @@
         android:title="@string/equalizer"
         app:icon="@drawable/ic_equalizer" />
 
-   <!-- <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
-        android:defaultValue="false"
-        android:key="toggle_headset"
-        android:layout="@layout/list_item_view_switch"
-        android:summary="@string/pref_summary_toggle_headset"
-        android:title="@string/pref_title_toggle_toggle_headset"
-        app:icon="@drawable/ic_play_arrow" />-->
+    <!-- <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+         android:defaultValue="false"
+         android:key="toggle_headset"
+         android:layout="@layout/list_item_view_switch"
+         android:summary="@string/pref_summary_toggle_headset"
+         android:title="@string/pref_title_toggle_toggle_headset"
+         app:icon="@drawable/ic_play_arrow" />-->
 
     <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
         android:defaultValue="false"
@@ -56,11 +56,11 @@
         android:title="@string/pref_title_toggle_toggle_shuffle"
         app:icon="@drawable/ic_shuffle" />
 
-   <!-- <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
-        android:defaultValue="false"
-        android:key="bluetooth_playback"
-        android:layout="@layout/list_item_view_switch"
-        android:summary="@string/pref_summary_bluetooth_playback"
-        android:title="@string/pref_title_bluetooth_playback" />-->
+    <!-- <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+         android:defaultValue="false"
+         android:key="bluetooth_playback"
+         android:layout="@layout/list_item_view_switch"
+         android:summary="@string/pref_summary_bluetooth_playback"
+         android:title="@string/pref_title_bluetooth_playback" />-->
 
 </androidx.preference.PreferenceScreen>

@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.util;
 
 import android.content.Context

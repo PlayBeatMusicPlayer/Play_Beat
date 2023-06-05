@@ -15,9 +15,11 @@ import androidx.annotation.LayoutRes
 import androidx.core.view.isVisible
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
-import com.knesarcreation.playbeat.fragments.other.VolumeFragment
+import com.knesarcreation.playbeat.INTERSTITIAL_NEXT_BACK_AND_SWIPE_ANYWHERE_SONG
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.ads.InterstitialAdHelperClass
 import com.knesarcreation.playbeat.fragments.MusicSeekSkipTouchListener
+import com.knesarcreation.playbeat.fragments.other.VolumeFragment
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote
 import com.knesarcreation.playbeat.helper.MusicProgressViewUpdateHelper
 import com.knesarcreation.playbeat.misc.SimpleOnSeekbarChangeListener
@@ -29,6 +31,9 @@ import com.knesarcreation.playbeat.util.color.MediaNotificationProcessor
 /**
  * Created by hemanths on 24/09/17.
  */
+
+@SuppressLint("StaticFieldLeak")
+var mInterstitialAdHelperClass: InterstitialAdHelperClass? = null
 
 abstract class AbsPlayerControlsFragment(@LayoutRes layout: Int) : AbsMusicServiceFragment(layout),
     MusicProgressViewUpdateHelper.Callback {
@@ -108,6 +113,11 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layout: Int) : AbsMusicServi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mInterstitialAdHelperClass = InterstitialAdHelperClass(requireContext())
+        //mInterstitialAdHelperClass?.loadInterstitialAd(
+        //    INTERSTITIAL_NEXT_BACK_AND_SWIPE_ANYWHERE_SONG
+        // )
+
         progressViewUpdateHelper = MusicProgressViewUpdateHelper(this)
     }
 
@@ -226,5 +236,11 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layout: Int) : AbsMusicServi
 
     companion object {
         const val SLIDER_ANIMATION_TIME: Long = 400
+    }
+
+    override fun onDestroy() {
+        if (mInterstitialAdHelperClass != null)
+            mInterstitialAdHelperClass = null
+        super.onDestroy()
     }
 }

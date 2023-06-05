@@ -18,7 +18,9 @@ import com.bumptech.glide.request.target.ImageViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.knesarcreation.appthemehelper.util.MaterialValueHelper
+import com.knesarcreation.playbeat.INTERSTITIAL_TAG_EDITOR
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.ads.InterstitialAdHelperClass
 import com.knesarcreation.playbeat.databinding.ActivitySongTagEditorBinding
 import com.knesarcreation.playbeat.extensions.appHandleColor
 import com.knesarcreation.playbeat.extensions.defaultFooterColor
@@ -45,6 +47,7 @@ class SongTagEditorActivity : AbsTagEditorActivity<ActivitySongTagEditorBinding>
 
     private var albumArtBitmap: Bitmap? = null
     private var deleteAlbumArt: Boolean = false
+    private var mInterstitialAdHelperClass: InterstitialAdHelperClass? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +55,15 @@ class SongTagEditorActivity : AbsTagEditorActivity<ActivitySongTagEditorBinding>
         setSupportActionBar(binding.toolbar)
         binding.appBarLayout?.statusBarForeground =
             MaterialShapeDrawable.createWithElevationOverlay(this)
+
+        mInterstitialAdHelperClass = InterstitialAdHelperClass(this)
+        mInterstitialAdHelperClass?.loadInterstitialAd(INTERSTITIAL_TAG_EDITOR)
+
+    }
+
+    override fun onBackPressed() {
+        mInterstitialAdHelperClass?.showInterstitial(INTERSTITIAL_TAG_EDITOR)
+        super.onBackPressed()
     }
 
     @SuppressLint("ClickableViewAccessibility")

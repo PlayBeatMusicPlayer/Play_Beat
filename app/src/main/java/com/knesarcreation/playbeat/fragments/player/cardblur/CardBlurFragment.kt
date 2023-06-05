@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.fragments.player.cardblur
 
 import android.content.SharedPreferences
@@ -9,6 +8,7 @@ import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.preference.PreferenceManager
 import com.knesarcreation.appthemehelper.util.ToolbarContentTintHelper
+import com.knesarcreation.playbeat.NATIVE_AD_NOW_PLAYING
 import com.knesarcreation.playbeat.NEW_BLUR_AMOUNT
 import com.knesarcreation.playbeat.fragments.player.normal.PlayerFragment
 import com.knesarcreation.playbeat.fragments.base.AbsPlayerFragment
@@ -19,6 +19,7 @@ import com.knesarcreation.playbeat.model.Song
 import com.knesarcreation.playbeat.util.PreferenceUtil.blurAmount
 import com.knesarcreation.playbeat.util.color.MediaNotificationProcessor
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.ads.NativeAdHelper
 import com.knesarcreation.playbeat.databinding.FragmentCardBlurPlayerBinding
 import com.knesarcreation.playbeat.extensions.drawAboveSystemBars
 import com.knesarcreation.playbeat.glide.BlurTransformation
@@ -44,6 +45,12 @@ class CardBlurFragment : AbsPlayerFragment(R.layout.fragment_card_blur_player),
     }
 
     override fun onHide() {
+        binding.adFrame.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_AD_NOW_PLAYING
+            )
+        }
         playbackControlsFragment.hide()
         onBackPressed()
     }
@@ -83,6 +90,13 @@ class CardBlurFragment : AbsPlayerFragment(R.layout.fragment_card_blur_player),
         setUpSubFragments()
         setUpPlayerToolbar()
         binding.cardContainer?.drawAboveSystemBars()
+        binding.adFrame.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_AD_NOW_PLAYING
+            )
+        }
+
     }
 
     private fun setUpSubFragments() {

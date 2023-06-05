@@ -1,5 +1,6 @@
 package com.knesarcreation.playbeat.fragments.songs
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -15,8 +16,10 @@ import com.afollestad.materialcab.createCab
 import com.google.android.gms.cast.framework.CastButtonFactory
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.knesarcreation.playbeat.BuildConfig
+import com.knesarcreation.playbeat.INTERSTITIAL_SHUFFLE_BUTTON
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.song.SongAdapter
+import com.knesarcreation.playbeat.ads.InterstitialAdHelperClass
 import com.knesarcreation.playbeat.extensions.surfaceColor
 import com.knesarcreation.playbeat.fragments.GridStyle
 import com.knesarcreation.playbeat.fragments.ReloadType
@@ -31,6 +34,9 @@ import com.knesarcreation.playbeat.util.PlayBeatColorUtil
 import com.knesarcreation.playbeat.util.PlayBeatUtil
 import com.knesarcreation.playbeat.util.PreferenceUtil
 
+@SuppressLint("StaticFieldLeak")
+var mInterstitialAdHelperClass: InterstitialAdHelperClass? = null
+
 class SongsFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, GridLayoutManager>(),
     ICabHolder, IPlaybackStateChanged {
 
@@ -43,6 +49,12 @@ class SongsFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, GridLay
         } catch (e: ClassCastException) {
             e.printStackTrace()
         }
+    }
+
+    override fun onDestroy() {
+        if (mInterstitialAdHelperClass != null)
+            mInterstitialAdHelperClass = null
+        super.onDestroy()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -64,6 +76,8 @@ class SongsFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, GridLay
             NavigationUtil.gotoWhatNews(childFragmentManager)
         }
 
+        mInterstitialAdHelperClass = InterstitialAdHelperClass(requireContext())
+        mInterstitialAdHelperClass?.loadInterstitialAd(INTERSTITIAL_SHUFFLE_BUTTON)
     }
 
     override val titleRes: Int
@@ -143,7 +157,7 @@ class SongsFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, GridLay
         if (PlayBeatUtil.isLandscape()) {
             gridSizeItem.setTitle(R.string.action_grid_size_land)
         }
-        setUpGridSizeMenu(gridSizeItem.subMenu)
+        gridSizeItem.subMenu?.let { setUpGridSizeMenu(it) }
         /*val layoutItem = menu.findItem(R.id.action_layout_type)
         setupLayoutMenu(layoutItem.subMenu)
         setUpSortOrderMenu(menu.findItem(R.id.action_sort_order).subMenu)*/

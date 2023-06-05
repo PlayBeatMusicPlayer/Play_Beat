@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="android:windowSplashScreenBackground">#202125</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/avd_play_beat_logo_v3</item>
+        <item name="windowSplashScreenAnimationDuration">1500</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+</resources>

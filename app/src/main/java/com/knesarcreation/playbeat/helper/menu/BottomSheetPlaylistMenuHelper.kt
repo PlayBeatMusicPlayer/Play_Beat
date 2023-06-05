@@ -49,7 +49,10 @@ class BottomSheetPlaylistMenuHelper(private var context: Context) : KoinComponen
                         val playlists = get<RealRepository>().fetchPlaylists()
                         withContext(Dispatchers.Main) {
                             AddToPlaylistDialog.create(playlists, playlistWithSongs.songs.toSongs())
-                                .show((context as AppCompatActivity).supportFragmentManager, "ADD_PLAYLIST")
+                                .show(
+                                    (context as AppCompatActivity).supportFragmentManager,
+                                    "ADD_PLAYLIST"
+                                )
                         }
                     }
                     bottomSheetPlaylistMoreOption.dismiss()
@@ -57,13 +60,19 @@ class BottomSheetPlaylistMenuHelper(private var context: Context) : KoinComponen
 
                 override fun rename() {
                     RenamePlaylistDialog.create(playlistWithSongs.playlistEntity)
-                        .show((context as AppCompatActivity).supportFragmentManager, "RENAME_PLAYLIST")
+                        .show(
+                            (context as AppCompatActivity).supportFragmentManager,
+                            "RENAME_PLAYLIST"
+                        )
                     bottomSheetPlaylistMoreOption.dismiss()
                 }
 
                 override fun deletePlaylist() {
                     DeletePlaylistDialog.create(playlistWithSongs.playlistEntity)
-                        .show((context as AppCompatActivity).supportFragmentManager, "DELETE_PLAYLIST")
+                        .show(
+                            (context as AppCompatActivity).supportFragmentManager,
+                            "DELETE_PLAYLIST"
+                        )
                     bottomSheetPlaylistMoreOption.dismiss()
                 }
 

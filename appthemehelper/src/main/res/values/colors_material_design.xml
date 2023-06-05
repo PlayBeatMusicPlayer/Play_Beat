@@ -18,7 +18,8 @@
     <color name="md_deep_purple_700">#AA2F2F</color>
     <color name="md_deep_purple_800">#AC2A2A</color>
     <color name="md_deep_purple_500">#A53737</color>
-    <color name="md_deep_purple_A200">#ee9a9a</color>
+<!--    <color name="md_deep_purple_A200">#ee9a9a</color>-->
+    <color name="md_deep_purple_A200">#007fa4</color>
 
 
     <color name="md_blue_500">#2196F3</color>

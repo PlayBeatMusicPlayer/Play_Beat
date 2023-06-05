@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentActivity
 import com.knesarcreation.playbeat.interfaces.ICabHolder
 import com.knesarcreation.playbeat.model.Song
 import com.knesarcreation.playbeat.util.MusicUtil
+import java.util.logging.Handler
 
 class SimpleSongAdapter(
     context: FragmentActivity,
@@ -32,6 +33,6 @@ class SimpleSongAdapter(
     }
 
     override fun getItemCount(): Int {
-        return dataSet.size
+        return if (dataSet.size > 5) 5 else dataSet.size
     }
 }

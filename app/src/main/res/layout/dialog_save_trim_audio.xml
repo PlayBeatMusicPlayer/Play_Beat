@@ -132,6 +132,7 @@
                 android:layout_weight="1"
                 android:text="@string/cancel_current_timer"
                 app:strokeWidth="0.8dp" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/saveAudio"
                 android:layout_width="wrap_content"

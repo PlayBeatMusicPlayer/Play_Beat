@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.fragments.other
 
 import android.annotation.SuppressLint

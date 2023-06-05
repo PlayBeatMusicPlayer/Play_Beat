@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.appwidgets.base
 
 import android.app.PendingIntent

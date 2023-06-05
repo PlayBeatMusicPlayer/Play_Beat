@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.appwidgets
 
 import android.appwidget.AppWidgetManager

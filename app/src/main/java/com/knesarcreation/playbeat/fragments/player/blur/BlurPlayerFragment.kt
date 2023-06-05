@@ -9,8 +9,10 @@ import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.preference.PreferenceManager
 import com.knesarcreation.appthemehelper.util.ToolbarContentTintHelper
+import com.knesarcreation.playbeat.NATIVE_AD_NOW_PLAYING
 import com.knesarcreation.playbeat.NEW_BLUR_AMOUNT
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.ads.NativeAdHelper
 import com.knesarcreation.playbeat.databinding.FragmentBlurBinding
 import com.knesarcreation.playbeat.extensions.drawAboveSystemBars
 import com.knesarcreation.playbeat.fragments.base.AbsPlayerFragment
@@ -45,6 +47,14 @@ class BlurPlayerFragment : AbsPlayerFragment(R.layout.fragment_blur),
         setUpSubFragments()
         setUpPlayerToolbar()
         binding.playerToolbar.drawAboveSystemBars()
+
+        binding.adFrame?.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_AD_NOW_PLAYING
+            )
+        }
+
     }
 
     private fun setUpSubFragments() {
@@ -85,6 +95,12 @@ class BlurPlayerFragment : AbsPlayerFragment(R.layout.fragment_blur),
     }
 
     override fun onHide() {
+        binding.adFrame?.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_AD_NOW_PLAYING
+            )
+        }
     }
 
     override fun onBackPressed(): Boolean {

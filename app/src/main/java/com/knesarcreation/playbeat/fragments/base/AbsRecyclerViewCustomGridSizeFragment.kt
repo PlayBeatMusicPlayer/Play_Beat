@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.fragments.base
 
 import androidx.core.view.isVisible

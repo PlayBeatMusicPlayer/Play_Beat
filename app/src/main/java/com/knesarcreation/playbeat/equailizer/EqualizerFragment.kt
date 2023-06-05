@@ -19,14 +19,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.THEME_REWARD
 import com.knesarcreation.playbeat.equailizer.AnalogController.onProgressChangedListener
 import com.knesarcreation.playbeat.extensions.accentColor
 import com.knesarcreation.playbeat.extensions.applyToolbar
 import com.knesarcreation.playbeat.extensions.generalThemeValue
+import com.knesarcreation.playbeat.extensions.showToast
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote.musicService
+import com.knesarcreation.playbeat.interfaces.IOnWatchRewardAdClick
+import com.knesarcreation.playbeat.network.ConnectionManagerHelper
 import com.knesarcreation.playbeat.util.theme.ThemeMode
 
 class EqualizerFragment : Fragment() {
@@ -46,7 +57,7 @@ class EqualizerFragment : Fragment() {
     private var bassController: AnalogController? = null
     private var reverbController: AnalogController? = null
     private var presetSpinner: AutoCompleteTextView? = null
-    private var chooseBranchMenu: TextInputLayout? = null
+    private var choosePresetMenu: TextInputLayout? = null
     private var equalizerBlocker: FrameLayout? = null
     private var ctx: Context? = null
     private val equalizerSetting = Settings()
@@ -57,6 +68,10 @@ class EqualizerFragment : Fragment() {
     // lateinit var points: FloatArray
     private var numberOfFrequencyBands: Short = 0
     private var audioSesionId = 0
+    var mRewardedAd: RewardedAd? = null
+    var isAdLoaded = false
+    var adWatchRewardAdClick: IOnWatchRewardAdClick? = null
+    private lateinit var connectionManagerHelper: ConnectionManagerHelper
 
     override fun onResume() {
         super.onResume()
@@ -65,9 +80,20 @@ class EqualizerFragment : Fragment() {
         }
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        connectionManagerHelper = ConnectionManagerHelper(requireContext())
+        val isConnected = connectionManagerHelper.checkConnection()
+        if (isConnected) {
+            try {
+                loadRewardedAd()
+            } catch (e: java.lang.Exception) {
+                Log.d("RewardedAdLoadCallback", "onAdFailedToLoad: ")
+            }
+        }
+
+
         Settings.isEditing = true
         if (arguments != null && requireArguments().containsKey(ARG_AUDIO_SESSIOIN_ID)) {
             audioSesionId = requireArguments().getInt(ARG_AUDIO_SESSIOIN_ID)
@@ -125,6 +151,11 @@ class EqualizerFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         ctx = context
+        try {
+            adWatchRewardAdClick = context as IOnWatchRewardAdClick
+        } catch (e: java.lang.Exception) {
+            Log.d("ClassCastException", "onAttach: ${e.message}")
+        }
     }
 
     override fun onCreateView(
@@ -132,6 +163,45 @@ class EqualizerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_equalizer, container, false)
+    }
+
+    private fun loadRewardedAd() {
+        isAdLoaded = false
+        if (mRewardedAd == null) {
+            // mIsLoading = true
+            val adRequest = AdRequest.Builder().build()
+
+            RewardedAd.load(
+                requireContext(),
+                THEME_REWARD,
+                adRequest,
+                object : RewardedAdLoadCallback() {
+                    override fun onAdFailedToLoad(adError: LoadAdError) {
+                        Log.d("onAdFailedToLoad", adError.message)
+                        // mIsLoading = false
+                        mRewardedAd = null
+                        isAdLoaded = false
+                        try {
+                            connectionManagerHelper = ConnectionManagerHelper(requireContext())
+                            val isConnected = connectionManagerHelper.checkConnection()
+                            if (isConnected) {
+
+                                loadRewardedAd()
+                            }
+                        } catch (e: java.lang.Exception) {
+                            Log.d("RewardedAdLoadCallback", "onAdFailedToLoad: ")
+                        }
+                    }
+
+                    override fun onAdLoaded(rewardedAd: RewardedAd) {
+                        Log.d("onAdLoaded", "Ad was loaded.")
+                        mRewardedAd = rewardedAd
+                        isAdLoaded = true
+                        // mIsLoading = false
+                    }
+                }
+            )
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -146,26 +216,84 @@ class EqualizerFragment : Fragment() {
         equalizerSwitch = view.findViewById(R.id.equalizer_switch)
         equalizerSwitch!!.isChecked = Settings.isEqualizerEnabled
         equalizerSwitch!!.setOnCheckedChangeListener { _, isChecked ->
-            if (musicService != null) {
-                musicService!!.mEqualizer!!.enabled = isChecked
-                musicService!!.bassBoost!!.enabled = isChecked
-                musicService!!.presetReverb!!.enabled = isChecked
 
-                updateUI(isChecked)
+            // loadRewardedAd()
+            Log.d("userHasRewardGotOnce", "onViewCreated: $userHasRewardGotOnce")
+            if (!userHasRewardGotOnce && isChecked) {
+                val showRewardAd =
+                    MaterialAlertDialogBuilder(requireContext())
+                showRewardAd.setTitle("Watch an Ad.")
+                showRewardAd.setMessage("Watch an ad to enable the equalizer.")
+                showRewardAd.setPositiveButton("Watch") { dialog, _ ->
+                    //load reward ad...
+                    connectionManagerHelper = ConnectionManagerHelper(requireContext())
+                    val isConnected = connectionManagerHelper.checkConnection()
+                    if (isConnected) {
+                        if (isAdLoaded) {
+                            showRewardedVideo(isChecked)
+                        } else {
+                            showToast("No ads loaded, try again.")
+                            //equalizerSwitch!!.isChecked = false
+                            loadRewardedAd()
 
+                            if (musicService != null) {
+                                musicService!!.mEqualizer!!.enabled = isChecked
+                                musicService!!.bassBoost!!.enabled = isChecked
+                                musicService!!.presetReverb!!.enabled = isChecked
+
+                                updateUI(isChecked)
+
+                            }
+
+                            Settings.isEqualizerEnabled = isChecked
+                            Settings.equalizerModel!!.isEqualizerEnabled = isChecked
+
+                            //saving changes in equalizer
+                            equalizerSetting.saveEqualizerSettings(ctx!!)
+
+                            userHasRewardGotOnce = true
+
+                            Log.d("UserEarnedreward", "User earned the reward.")
+
+                        }
+                    } else {
+                        equalizerSwitch!!.isChecked = false
+                        connectionManagerHelper.showSnackBar(isConnected)
+                    }
+
+                    dialog.dismiss()
+                }
+                showRewardAd.setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.dismiss()
+                    equalizerSwitch!!.isChecked = false
+                }
+                showRewardAd.setCancelable(false)
+                showRewardAd.show()
+            } else {
+                //already user watched an ad once.
+                if (musicService != null) {
+                    musicService!!.mEqualizer!!.enabled = isChecked
+                    musicService!!.bassBoost!!.enabled = isChecked
+                    musicService!!.presetReverb!!.enabled = isChecked
+
+                    updateUI(isChecked)
+
+                }
+
+                Settings.isEqualizerEnabled = isChecked
+                Settings.equalizerModel!!.isEqualizerEnabled = isChecked
+
+                //saving changes in equalizer
+                equalizerSetting.saveEqualizerSettings(ctx!!)
             }
 
-            Settings.isEqualizerEnabled = isChecked
-            Settings.equalizerModel!!.isEqualizerEnabled = isChecked
 
-            //saving changes in equalizer
-            equalizerSetting.saveEqualizerSettings(ctx!!)
         }
 
         //spinnerDropDownIcon = view.findViewById(R.id.spinner_dropdown_icon)
         //spinnerDropDownIcon!!.setOnClickListener {  }
         presetSpinner = view.findViewById(R.id.equalizer_preset_spinner)
-        chooseBranchMenu = view.findViewById(R.id.chooseBranchMenu)
+        choosePresetMenu = view.findViewById(R.id.choosePresetMenu)
         presetSpinner!!.performClick()
         equalizerBlocker = view.findViewById(R.id.equalizerBlocker)
         //chart = view.findViewById(R.id.lineChart)
@@ -272,8 +400,8 @@ class EqualizerFragment : Fragment() {
             numberOfFrequencyBands = 5
             // points = FloatArray(numberOfFrequencyBands.toInt())
 
-            val lowerEqualizerBandLevel = musicService!!.mEqualizer!!.bandLevelRange[0]
-            val upperEqualizerBandLevel = musicService!!.mEqualizer!!.bandLevelRange[1]
+            val lowerEqualizerBandLevel = musicService?.mEqualizer?.bandLevelRange?.get(0)
+            val upperEqualizerBandLevel = musicService?.mEqualizer?.bandLevelRange?.get(1)
 
             //frequency bands
             for (i in 0 until numberOfFrequencyBands) {
@@ -357,7 +485,9 @@ class EqualizerFragment : Fragment() {
                 //seekBar.thumb.colorFilter = PorterDuffColorFilter(themeColor, PorterDuff.Mode.SRC_IN)
                 seekBar.id = i
                 //            seekBar.setLayoutParams(layoutParams);
-                seekBar.max = upperEqualizerBandLevel - lowerEqualizerBandLevel
+                if (upperEqualizerBandLevel != null) {
+                    seekBar.max = upperEqualizerBandLevel - lowerEqualizerBandLevel!!
+                }
                 frequencyHeaderTV.text = frequencyHeaderTextView.text
                 upperrAndLowerEQBandLevel.text = lowerAndUpperEqualizerBandLevelTextView.text
                 //frequencyHeaderTV.setTextColor(Color.WHITE)
@@ -374,13 +504,13 @@ class EqualizerFragment : Fragment() {
                 if (Settings.isEqualizerReloaded) {
                     // points[i] = (Settings.seekbarpos[i] - lowerEqualizerBandLevel).toFloat()
                     // dataset!!.addPoint(frequencyHeaderTextView.text.toString(), points[i])
-                    seekBar.progress = Settings.seekbarpos[i] - lowerEqualizerBandLevel
+                    seekBar.progress = Settings.seekbarpos[i] - lowerEqualizerBandLevel!!
                 } else {
                     // points[i] =
                     //(AllSongFragment.musicService!!.mEqualizer!!.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel).toFloat()
                     // dataset!!.addPoint(frequencyHeaderTextView.text.toString(), points[i])
                     seekBar.progress =
-                        musicService!!.mEqualizer!!.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel
+                        musicService!!.mEqualizer!!.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel!!
                     //Settings.seekbarpos[i] =
                     //    AllSongFragment.musicService!!.mEqualizer!!.getBandLevel(equalizerBandIndex)
                     //        .toInt()
@@ -454,9 +584,64 @@ class EqualizerFragment : Fragment() {
         }
     }
 
+    private fun showRewardedVideo(isChecked: Boolean) {
+        if (mRewardedAd != null) {
+            mRewardedAd?.fullScreenContentCallback =
+                object : FullScreenContentCallback() {
+
+                    override fun onAdDismissedFullScreenContent() {
+                        Log.d("onAdDismissedFullScreenContent", "Ad was dismissed.")
+                        // Don't forget to set the ad reference to null so you
+                        // don't show the ad a second time.
+                        if (!userHasRewardGotOnce
+                        ) {
+                            //user did not watch full ad
+                            equalizerSwitch!!.isChecked = false
+                            loadRewardedAd()
+                        }
+                        mRewardedAd = null
+                    }
+
+                    override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                        Log.d("onAdFailedToShowFullScreenContent", "Ad failed to show.")
+                        // Don't forget to set the ad reference to null so you
+                        // don't show the ad a second time.
+                        mRewardedAd = null
+                    }
+
+                    override fun onAdShowedFullScreenContent() {
+                        Log.d("onAdShowedFullScreenContent", "Ad showed fullscreen content.")
+                        // Called when ad is dismissed.
+                    }
+                }
+
+            mRewardedAd?.show(requireActivity()) {
+
+                if (musicService != null) {
+                    musicService!!.mEqualizer!!.enabled = isChecked
+                    musicService!!.bassBoost!!.enabled = isChecked
+                    musicService!!.presetReverb!!.enabled = isChecked
+
+                    updateUI(isChecked)
+
+                }
+
+                Settings.isEqualizerEnabled = isChecked
+                Settings.equalizerModel!!.isEqualizerEnabled = isChecked
+
+                //saving changes in equalizer
+                equalizerSetting.saveEqualizerSettings(ctx!!)
+
+                userHasRewardGotOnce = true
+
+                Log.d("UserEarnedreward", "User earned the reward.")
+            }
+        }
+    }
+
     private fun updateUI(isChecked: Boolean) {
         presetSpinner!!.isEnabled = isChecked
-        chooseBranchMenu!!.isEnabled = isChecked
+        choosePresetMenu!!.isEnabled = isChecked
         for (i in 0 until musicService!!.mEqualizer!!.numberOfBands) {
             seekBarFinal[i]!!.isEnabled = isChecked
 
@@ -529,11 +714,14 @@ class EqualizerFragment : Fragment() {
                         musicService!!.mEqualizer!!.usePreset((position - 1).toShort())
                         Settings.presetPos = position
                         val lowerEqualizerBandLevel =
-                            musicService!!.mEqualizer!!.bandLevelRange[0]
+                            musicService?.mEqualizer?.bandLevelRange?.get(0)
 
                         for (i in 0 until numberOfFreqBands) {
                             seekBarFinal[i]!!.progress =
-                                musicService!!.mEqualizer!!.getBandLevel(i.toShort()) - lowerEqualizerBandLevel
+                                lowerEqualizerBandLevel?.let {
+                                    musicService?.mEqualizer?.getBandLevel(i.toShort())
+                                        ?.minus(it)
+                                } ?: 0
                             //points[i] =
                             //  (AllSongFragment.musicService!!.mEqualizer!!.getBandLevel(i.toShort()) - lowerEqualizerBandLevel).toFloat()
                             // Settings.seekbarpos[i] =
@@ -552,12 +740,12 @@ class EqualizerFragment : Fragment() {
                         Settings.isEqualizerReloaded = true
 
                         val lowerEqualizerBandLevel =
-                            musicService!!.mEqualizer!!.bandLevelRange[0]
+                            musicService?.mEqualizer?.bandLevelRange?.get(0)
 
                         for (bandIdx in 0 until numberOfFreqBands) {
                             Log.d(
                                 "seekProgress..",
-                                "equalizeSound:${Settings.equalizerModel!!.seekbarpos[bandIdx] - lowerEqualizerBandLevel} "
+                                "equalizeSound:${(Settings.equalizerModel?.seekbarpos?.get(bandIdx) ?: 0) - lowerEqualizerBandLevel!!} "
                             )
 
                             seekBarFinal[bandIdx]!!.progress =
@@ -607,6 +795,7 @@ class EqualizerFragment : Fragment() {
         const val ARG_AUDIO_SESSIOIN_ID = "audio_session_id"
         var themeColor = Color.parseColor("#FF03DAC5")
         var showBackButton = true
+        var userHasRewardGotOnce = false
         fun newInstance(audioSessionId: Int): EqualizerFragment {
             val args = Bundle()
             args.putInt(ARG_AUDIO_SESSIOIN_ID, audioSessionId)

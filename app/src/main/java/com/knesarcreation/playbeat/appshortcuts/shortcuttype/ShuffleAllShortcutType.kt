@@ -1,4 +1,3 @@
-
 import android.annotation.TargetApi
 import android.content.Context
 import android.content.pm.ShortcutInfo
@@ -15,7 +14,12 @@ class ShuffleAllShortcutType(context: Context) : BaseShortcutType(context) {
         get() = ShortcutInfo.Builder(context, id)
             .setShortLabel(context.getString(R.string.app_shortcut_shuffle_all_short))
             .setLongLabel(context.getString(R.string.app_shortcut_shuffle_all_long))
-            .setIcon(AppShortcutIconGenerator.generateThemedIcon(context, R.drawable.ic_app_shortcut_shuffle_all))
+            .setIcon(
+                AppShortcutIconGenerator.generateThemedIcon(
+                    context,
+                    R.drawable.ic_app_shortcut_shuffle_all
+                )
+            )
             .setIntent(getPlaySongsIntent(AppShortcutLauncherActivity.SHORTCUT_TYPE_SHUFFLE_ALL))
             .build()
 

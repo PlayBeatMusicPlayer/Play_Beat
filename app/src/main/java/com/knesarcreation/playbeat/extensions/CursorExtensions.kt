@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.extensions
 
 import android.database.Cursor

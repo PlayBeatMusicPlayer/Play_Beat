@@ -4,13 +4,15 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.Toolbar
-import com.knesarcreation.playbeat.fragments.player.normal.PlayerFragment
 import com.knesarcreation.appthemehelper.util.ToolbarContentTintHelper
+import com.knesarcreation.playbeat.NATIVE_AD_NOW_PLAYING
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.ads.NativeAdHelper
 import com.knesarcreation.playbeat.databinding.FragmentCardPlayerBinding
 import com.knesarcreation.playbeat.extensions.drawAboveSystemBars
 import com.knesarcreation.playbeat.fragments.base.AbsPlayerFragment
 import com.knesarcreation.playbeat.fragments.player.PlayerAlbumCoverFragment
+import com.knesarcreation.playbeat.fragments.player.normal.PlayerFragment
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote
 import com.knesarcreation.playbeat.model.Song
 import com.knesarcreation.playbeat.util.color.MediaNotificationProcessor
@@ -35,6 +37,12 @@ class CardFragment : AbsPlayerFragment(R.layout.fragment_card_player) {
 
     override fun onHide() {
         playbackControlsFragment.hide()
+        binding.adFrame?.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_AD_NOW_PLAYING
+            )
+        }
         onBackPressed()
     }
 
@@ -70,6 +78,14 @@ class CardFragment : AbsPlayerFragment(R.layout.fragment_card_player) {
         setUpSubFragments()
         setUpPlayerToolbar()
         (binding.playbackControlsFragment.parent as View).drawAboveSystemBars()
+
+        binding.adFrame.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_AD_NOW_PLAYING
+            )
+        }
+
     }
 
     private fun setUpSubFragments() {

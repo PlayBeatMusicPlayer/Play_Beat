@@ -64,10 +64,10 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMainActivityFragme
     ): Boolean {
         val song = MusicPlayerRemote.currentSong
         when (item.itemId) {
-            R.id.action_playback_speed -> {
-                PlaybackSpeedDialog.newInstance().show(childFragmentManager, "PLAYBACK_SETTINGS")
-                return true
-            }
+            /* R.id.action_playback_speed -> {
+                 PlaybackSpeedDialog.newInstance().show(childFragmentManager, "PLAYBACK_SETTINGS")
+                 return true
+             }*/
             R.id.action_toggle_lyrics -> {
                 PreferenceUtil.showLyrics = !PreferenceUtil.showLyrics
                 showLyricsIcon(item)
@@ -129,20 +129,20 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMainActivityFragme
                 SongDetailDialog.create(song).show(childFragmentManager, "SONG_DETAIL")
                 return true
             }
-            R.id.action_go_to_album -> {
-                //Hide Bottom Bar First, else Bottom Sheet doesn't collapse fully
-                mainActivity.setBottomNavVisibility(false)
-                mainActivity.collapsePanel()
-                requireActivity().findNavController(R.id.fragment_container).navigate(
-                    R.id.albumDetailsFragment,
-                    bundleOf(EXTRA_ALBUM_ID to song.albumId)
-                )
-                return true
-            }
-            R.id.action_go_to_artist -> {
+            /* R.id.action_go_to_album -> {
+                 //Hide Bottom Bar First, else Bottom Sheet doesn't collapse fully
+                 mainActivity.setBottomNavVisibility(false)
+                 mainActivity.collapsePanel()
+                 requireActivity().findNavController(R.id.fragment_container).navigate(
+                     R.id.albumDetailsFragment,
+                     bundleOf(EXTRA_ALBUM_ID to song.albumId)
+                 )
+                 return true
+             }*/
+            /*R.id.action_go_to_artist -> {
                 goToArtist(requireActivity())
                 return true
-            }
+            }*/
             R.id.now_playing -> {
                 requireActivity().findNavController(R.id.fragment_container).navigate(
                     R.id.playing_queue_fragment,
@@ -314,8 +314,8 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMainActivityFragme
             context,
             object : GestureDetector.SimpleOnGestureListener() {
                 override fun onScroll(
-                    e1: MotionEvent?,
-                    e2: MotionEvent?,
+                    e1: MotionEvent,
+                    e2: MotionEvent,
                     distanceX: Float,
                     distanceY: Float
                 ): Boolean {
@@ -333,7 +333,7 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMainActivityFragme
             })
 
         @SuppressLint("ClickableViewAccessibility")
-        override fun onTouch(v: View, event: MotionEvent?): Boolean {
+        override fun onTouch(v: View, event: MotionEvent): Boolean {
             viewPager?.dispatchTouchEvent(event)
             return flingPlayBackController.onTouchEvent(event)
         }

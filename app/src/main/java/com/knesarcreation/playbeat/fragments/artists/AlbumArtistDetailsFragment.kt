@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.fragments.artists
 
 import androidx.navigation.fragment.navArgs

@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.core.animation.doOnEnd
 import androidx.core.view.isVisible
@@ -12,17 +13,21 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.viewpager.widget.ViewPager
 import com.knesarcreation.appthemehelper.util.MaterialValueHelper
+import com.knesarcreation.playbeat.INTERSTITIAL_NEXT_BACK_AND_SWIPE_ANYWHERE_SONG
 import com.knesarcreation.playbeat.LYRICS_TYPE
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.SHOW_LYRICS
 import com.knesarcreation.playbeat.adapter.album.AlbumCoverPagerAdapter
 import com.knesarcreation.playbeat.adapter.album.AlbumCoverPagerAdapter.AlbumCoverFragment
+import com.knesarcreation.playbeat.ads.InterstitialAdHelperClass
+import com.knesarcreation.playbeat.ads.NEXT_ADS_SHOW_TIME
 import com.knesarcreation.playbeat.databinding.FragmentPlayerAlbumCoverBinding
 import com.knesarcreation.playbeat.extensions.isColorLight
 import com.knesarcreation.playbeat.extensions.surfaceColor
 import com.knesarcreation.playbeat.fragments.NowPlayingScreen.*
 import com.knesarcreation.playbeat.fragments.base.AbsMusicServiceFragment
 import com.knesarcreation.playbeat.fragments.base.goToLyrics
+import com.knesarcreation.playbeat.fragments.base.mInterstitialAdHelperClass
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote
 import com.knesarcreation.playbeat.helper.MusicProgressViewUpdateHelper
 import com.knesarcreation.playbeat.lyrics.CoverLrcView
@@ -254,7 +259,29 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(R.layout.fragment_playe
             )
         }
         if (position != MusicPlayerRemote.position) {
+            Log.d("OnPageSelected", "onPageSelected: $position ")
+//            if ((System.currentTimeMillis() - InterstitialAdHelperClass.prevSeenAdsTime) / 1000 >= NEXT_ADS_SHOW_TIME) {
+//                if (
+//                    mInterstitialAdHelperClass /*initialized in AbsPlayerFragment*/ != null) {
+//                    /**
+//                     * here mInterstitialAdHelperClass is initialized in all [AbsPlayerControlsFragment] which extends in all player fragment except the [GradientPlayerFragment]
+//                     *  so it will be null when [GradientPlayerFragment] fragment is added on view.*/
+//                    mInterstitialAdHelperClass?.showInterstitial(
+//                        INTERSTITIAL_NEXT_BACK_AND_SWIPE_ANYWHERE_SONG,
+//                        position
+//                    )
+//                } else {
+//                    // for gradientFragmentPlayer : if mInterstitialAd is null then this code will run
+//                    /** here mInterstitialAdHelperClass is initialized in [GradientPlayerFragment] so it will not be null,
+//                     *  when [GradientPlayerFragment] fragment is added on view.*/
+//                    com.knesarcreation.playbeat.fragments.player.gradient.mInterstitialAdHelperClass?.showInterstitial(
+//                        INTERSTITIAL_NEXT_BACK_AND_SWIPE_ANYWHERE_SONG,
+//                        position
+//                    )
+//                }
+//            } else {
             MusicPlayerRemote.playSongAt(position)
+//            }
         }
     }
 

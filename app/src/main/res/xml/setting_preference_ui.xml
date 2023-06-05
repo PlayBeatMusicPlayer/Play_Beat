@@ -56,7 +56,7 @@
             app:icon="@drawable/ic_colorize" />
 
         <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:dependency="material_you"
             android:key="desaturated_color"
             android:layout="@layout/list_item_view_switch"
@@ -64,7 +64,7 @@
             android:title="@string/pref_title_desaturated_color" />
 
         <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="adaptive_color_app"
             android:layout="@layout/list_item_view_switch"
             android:summary="@string/pref_summary_colored_app"

@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.interfaces
 
 import android.view.View

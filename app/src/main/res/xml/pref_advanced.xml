@@ -9,12 +9,12 @@
         android:title="@string/pref_header_blacklist"
         app:icon="@drawable/ic_music_note_off" />
 
-   <!-- <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
-        android:defaultValue="false"
-        android:key="whitelist_music"
-        android:layout="@layout/list_item_view_switch"
-        android:summary="@string/pref_summary_whitelist"
-        android:title="@string/pref_title_whitelist" />-->
+    <!-- <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATESwitchPreference
+         android:defaultValue="false"
+         android:key="whitelist_music"
+         android:layout="@layout/list_item_view_switch"
+         android:summary="@string/pref_summary_whitelist"
+         android:title="@string/pref_title_whitelist" />-->
 
     <com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEPreferenceCategory
         android:layout="@layout/preference_category_title"

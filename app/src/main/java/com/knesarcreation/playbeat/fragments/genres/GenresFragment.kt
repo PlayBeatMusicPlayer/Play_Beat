@@ -6,6 +6,7 @@ import android.view.MenuInflater
 import android.view.View
 import androidx.activity.addCallback
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,6 +37,8 @@ GenresFragment : AbsRecyclerViewFragment<GenreAdapter, LinearLayoutManager>(),
             requireActivity().onBackPressed()
         }
         binding.playlistContainer.playlistViewContainer.visibility = View.GONE
+        binding.nativeLayout.isVisible = true
+        binding.nativeShimmer.isVisible = true
     }
 
     override fun createLayoutManager(): LinearLayoutManager {

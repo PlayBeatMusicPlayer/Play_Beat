@@ -1,6 +1,7 @@
 package com.knesarcreation.playbeat.fragments.settings
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.media.audiofx.AudioEffect
@@ -32,6 +33,8 @@ class PlayBeatSettingPref : AbsSettingsFragment(),
     SharedPreferences.OnSharedPreferenceChangeListener {
     private val libraryViewModel by sharedViewModel<LibraryViewModel>()
 
+    private var mContext: Context? = null
+
     @SuppressLint("CheckResult")
     override fun invalidateSettings() {
         val generalTheme: Preference? = findPreference(GENERAL_THEME)
@@ -52,24 +55,27 @@ class PlayBeatSettingPref : AbsSettingsFragment(),
         }
 
         val accentColorPref: ATEColorPreference? = findPreference(ACCENT_COLOR)
-        val accentColor = ThemeStore.accentColor(requireContext())
-        accentColorPref?.setColor(accentColor, ColorUtil.darkenColor(accentColor))
-        accentColorPref?.setOnPreferenceClickListener {
-            materialDialog().show {
-                colorChooser(
-                    initialSelection = accentColor,
-                    showAlphaSelector = false,
-                    colors = ACCENT_COLORS,
-                    subColors = ACCENT_COLORS_SUB, allowCustomArgb = true
-                ) { _, color ->
-                    ThemeStore.editTheme(requireContext()).accentColor(color).commit()
-                    if (VersionUtils.hasNougatMR())
-                        DynamicShortcutManager(requireContext()).updateDynamicShortcuts()
-                    restartActivity()
+        if (mContext != null) {
+            val accentColor = ThemeStore.accentColor(mContext!!)
+            accentColorPref?.setColor(accentColor, ColorUtil.darkenColor(accentColor))
+            accentColorPref?.setOnPreferenceClickListener {
+                materialDialog().show {
+                    colorChooser(
+                        initialSelection = accentColor,
+                        showAlphaSelector = false,
+                        colors = ACCENT_COLORS,
+                        subColors = ACCENT_COLORS_SUB, allowCustomArgb = true
+                    ) { _, color ->
+                        ThemeStore.editTheme(requireContext()).accentColor(color).commit()
+                        if (VersionUtils.hasNougatMR())
+                            DynamicShortcutManager(requireContext()).updateDynamicShortcuts()
+                        restartActivity()
+                    }
                 }
+                return@setOnPreferenceClickListener true
             }
-            return@setOnPreferenceClickListener true
         }
+
         val blackTheme: ATESwitchPreference? = findPreference(BLACK_THEME)
         blackTheme?.setOnPreferenceChangeListener { _, _ ->
             ThemeStore.markChanged(requireContext())
@@ -145,12 +151,12 @@ class PlayBeatSettingPref : AbsSettingsFragment(),
         }
 
         val findPreference: Preference? = findPreference(EQUALIZER)
-        if (!hasEqualizer()) {
+        /*if (!hasEqualizer()) {
             findPreference?.isEnabled = false
             findPreference?.summary = resources.getString(R.string.no_equalizer)
         } else {
             findPreference?.isEnabled = true
-        }
+        }*/
         findPreference?.setOnPreferenceClickListener {
             NavigationUtil.openEqualizer(requireActivity())
             true
@@ -210,8 +216,11 @@ class PlayBeatSettingPref : AbsSettingsFragment(),
             NOW_PLAYING_SCREEN_ID -> updateNowPlayingScreenSummary()
             ALBUM_COVER_STYLE -> updateAlbumCoverStyleSummary()
             CIRCULAR_ALBUM_ART, CAROUSEL_EFFECT -> invalidateSettings()
-
         }
+    }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mContext = context
     }
 }

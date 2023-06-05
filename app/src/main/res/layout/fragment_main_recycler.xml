@@ -2,9 +2,9 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorLayout_main_recycler"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/coordinatorLayout_main_recycler"
     android:fitsSystemWindows="true">
 
     <!-- <com.knesarcreation.playbeat.views.TopAppBarLayout
@@ -46,7 +46,6 @@
                     android:textStyle="bold" />
             </androidx.appcompat.widget.Toolbar>
 
-
         </FrameLayout>
 
         <include
@@ -56,6 +55,30 @@
             android:layout_height="wrap_content"
             android:visibility="visible"
             app:layout_scrollFlags="scroll|enterAlways" />
+
+        <FrameLayout
+            android:id="@+id/native_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/actionFavourite"
+            tools:layout="@layout/native_layout_small" />
+
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/native_shimmer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/actionFavourite"
+            tools:visibility="visible">
+
+            <include layout="@layout/native_shimmer_small" />
+
+        </com.facebook.shimmer.ShimmerFrameLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -86,8 +109,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:text="@string/empty_text_emoji"
-            android:visibility="gone"
-            android:textAppearance="@style/TextViewHeadline3" />
+            android:textAppearance="@style/TextViewHeadline3"
+            android:visibility="gone" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/emptyText"
@@ -100,6 +123,33 @@
             tools:visibility="visible" />
     </LinearLayout>
 
+    <RelativeLayout
+        android:id="@+id/rl_play_quiz_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="70dp">
+
+        <ImageView
+            android:id="@+id/quiz_icon_close_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_cancel" />
+
+        <ImageView
+            android:id="@+id/play_quiz_img"
+            android:layout_width="@dimen/_60mdp"
+            android:layout_height="@dimen/_80mdp"
+            android:layout_marginTop="10dp"
+            android:contentDescription="@null"
+            android:src="@drawable/icon_play_quiz_01" />
+
+    </RelativeLayout>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/shuffle_button"
         style="@style/Widget.Material3.FloatingActionButton.Primary"
@@ -109,4 +159,5 @@
         android:layout_marginHorizontal="16dp"
         android:contentDescription="@string/shuffle"
         app:srcCompat="@drawable/ic_shuffle" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

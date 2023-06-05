@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.fragments.player.full
 
 import android.content.res.ColorStateList
@@ -7,7 +6,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import com.knesarcreation.appthemehelper.util.ToolbarContentTintHelper
+import com.knesarcreation.playbeat.NATIVE_AD_NOW_PLAYING
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.ads.NativeAdHelper
 import com.knesarcreation.playbeat.databinding.FragmentFullBinding
 import com.knesarcreation.playbeat.extensions.drawAboveSystemBars
 import com.knesarcreation.playbeat.extensions.hide
@@ -50,6 +51,13 @@ class FullPlayerFragment : AbsPlayerFragment(R.layout.fragment_full) {
         setupArtist()
         binding.nextSong.isSelected = true
         binding.playbackControlsFragment.drawAboveSystemBars()
+        binding.adFrame.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_AD_NOW_PLAYING
+            )
+        }
+
     }
 
     private fun setupArtist() {
@@ -69,6 +77,12 @@ class FullPlayerFragment : AbsPlayerFragment(R.layout.fragment_full) {
     }
 
     override fun onHide() {
+        binding.adFrame.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_AD_NOW_PLAYING
+            )
+        }
     }
 
     override fun onBackPressed(): Boolean {

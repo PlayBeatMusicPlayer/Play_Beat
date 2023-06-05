@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources>
     <string name="cast_app_id">73164B24</string>
+    <string name="default_notification_channel_id">PlayBeatPushNotification</string>
     <string name="about_album_label">About %s</string>
     <string name="about_settings_summary">Team, social links</string>
     <string name="accent_color">Accent color</string>
@@ -546,4 +547,6 @@
     <string name="alarm">Alarm</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="show_all">Show all</string>
+    <string name="ad">Ad</string>
 </resources>

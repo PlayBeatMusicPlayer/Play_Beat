@@ -23,7 +23,13 @@ object FileUtils {
      * @return the file
      * @throws IOException
      */
-    fun createFile(context: Context, directoryName: String, fileName: String, body: String, fileType: String): File {
+    fun createFile(
+        context: Context,
+        directoryName: String,
+        fileName: String,
+        body: String,
+        fileType: String
+    ): File {
         val root = createDirectory(context, directoryName)
         val filePath = "$root/$fileName$fileType"
         val file = File(filePath)

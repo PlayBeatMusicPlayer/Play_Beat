@@ -19,11 +19,11 @@
         android:name="com.knesarcreation.playbeat.fragments.songs.SongsFragment"
         tools:layout="@layout/fragment_main_activity_recycler_view" />
 
-    <fragment
-        android:id="@+id/action_genre"
-        android:name="com.knesarcreation.playbeat.fragments.genres.GenresFragment"
-        tools:layout="@layout/fragment_main_activity_recycler_view" />
-
+    <!-- <fragment
+         android:id="@+id/action_genre"
+         android:name="com.knesarcreation.playbeat.fragments.genres.GenresFragment"
+         tools:layout="@layout/fragment_main_activity_recycler_view" />
+ -->
     <fragment
         android:id="@+id/action_playlist"
         android:name="com.knesarcreation.playbeat.fragments.playlists.PlaylistsFragment"
@@ -39,11 +39,11 @@
         android:name="com.knesarcreation.playbeat.fragments.about.AboutFragment"
         tools:layout="@layout/fragment_about" />
 
-   <!-- <fragment
-        android:id="@+id/action_home"
-        android:name="com.knesarcreation.playbeat.fragments.home.HomeFragment"
-        android:label=""
-        tools:layout="@layout/fragment_banner_home" />-->
+    <!-- <fragment
+         android:id="@+id/action_home"
+         android:name="com.knesarcreation.playbeat.fragments.home.HomeFragment"
+         android:label=""
+         tools:layout="@layout/fragment_banner_home" />-->
 
 
 </navigation>

@@ -33,11 +33,12 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import java.io.File
 
-class BottomSheetSongMenuHelper(private var activity: FragmentActivity, private var mode: Int) : KoinComponent {
+class BottomSheetSongMenuHelper(private var activity: FragmentActivity, private var mode: Int) :
+    KoinComponent {
 
     fun handleMenuClick(song: Song, layoutPosition: Int) {
         val libraryViewModel = activity.getViewModel() as LibraryViewModel
-        val bottomSheetAudioMoreOption = BottomSheetAudioMoreOptions(mode,song,activity)
+        val bottomSheetAudioMoreOption = BottomSheetAudioMoreOptions(mode, song, activity)
         bottomSheetAudioMoreOption.show(
             activity.supportFragmentManager,
             "bottomSheetAudioMoreOption"

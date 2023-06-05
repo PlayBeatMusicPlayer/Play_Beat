@@ -22,7 +22,9 @@ import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.transition.MaterialFadeThrough
 import com.knesarcreation.appthemehelper.ThemeStore
+import com.knesarcreation.playbeat.NATIVE_SEARCH
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.ads.NativeAdHelper
 import com.knesarcreation.playbeat.databinding.FragmentSearchBinding
 import com.knesarcreation.playbeat.extensions.accentColor
 import com.knesarcreation.playbeat.extensions.dipToPix
@@ -60,7 +62,9 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         libraryViewModel.clearSearchResult()
         setupRecyclerView()
 
-       // binding.voiceSearch.setOnClickListener { startMicSearch() }
+        binding.nativeLayout.let { NativeAdHelper(requireContext()).refreshAd(it, NATIVE_SEARCH) }
+
+        // binding.voiceSearch.setOnClickListener { startMicSearch() }
         binding.clearText.setOnClickListener {
             binding.searchView.clearText()
             searchAdapter.swapDataSet(listOf())

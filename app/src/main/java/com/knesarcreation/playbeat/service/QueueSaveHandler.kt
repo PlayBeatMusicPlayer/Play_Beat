@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.service
 
 import android.os.Handler

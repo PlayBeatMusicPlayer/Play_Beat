@@ -1,14 +1,17 @@
-
 package com.knesarcreation.playbeat.fragments
 
 import android.animation.ValueAnimator
 import android.widget.Toast
 import androidx.core.animation.doOnEnd
 import androidx.lifecycle.*
-import com.knesarcreation.playbeat.db.*
-import com.knesarcreation.playbeat.fragments.search.Filter
 import com.knesarcreation.playbeat.*
+import com.knesarcreation.playbeat.activities.MainActivity
+import com.knesarcreation.playbeat.ads.InterstitialAdHelperClass
+import com.knesarcreation.playbeat.ads.NEXT_ADS_SHOW_TIME
+import com.knesarcreation.playbeat.db.*
 import com.knesarcreation.playbeat.fragments.ReloadType.*
+import com.knesarcreation.playbeat.fragments.search.Filter
+import com.knesarcreation.playbeat.fragments.songs.mInterstitialAdHelperClass
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote
 import com.knesarcreation.playbeat.interfaces.IMusicServiceEventListener
 import com.knesarcreation.playbeat.model.*
@@ -191,11 +194,20 @@ class LibraryViewModel(
     }
 
     fun shuffleSongs() = viewModelScope.launch(IO) {
-        val songs = repository.allSongs()
-        MusicPlayerRemote.openAndShuffleQueue(
-            songs,
-            true
-        )
+        if ((System.currentTimeMillis() - InterstitialAdHelperClass.prevSeenAdsTime) / 1000 >= NEXT_ADS_SHOW_TIME) {
+            mInterstitialAdHelperClass?.showInterstitial(
+                INTERSTITIAL_SHUFFLE_BUTTON,
+                SHUFFLE_BUTTON,
+                repository.allSongs(),
+                0
+            )
+        } else {
+            val songs = repository.allSongs()
+            MusicPlayerRemote.openAndShuffleQueue(
+                songs,
+                true
+            )
+        }
     }
 
     fun renameRoomPlaylist(playListId: Long, name: String) = viewModelScope.launch(IO) {

@@ -10,13 +10,14 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import androidx.preference.PreferenceManager
 import com.knesarcreation.appthemehelper.util.ToolbarContentTintHelper
+import com.knesarcreation.playbeat.NATIVE_AD_PLAYER
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.SNOWFALL
+import com.knesarcreation.playbeat.ads.NativeAdHelper
 import com.knesarcreation.playbeat.databinding.FragmentPlayerBinding
 import com.knesarcreation.playbeat.extensions.colorControlNormal
 import com.knesarcreation.playbeat.extensions.drawAboveSystemBars
 import com.knesarcreation.playbeat.extensions.isColorLight
-import com.knesarcreation.playbeat.fragments.player.normal.PlayerPlaybackControlsFragment
 import com.knesarcreation.playbeat.extensions.surfaceColor
 import com.knesarcreation.playbeat.fragments.base.AbsPlayerFragment
 import com.knesarcreation.playbeat.fragments.player.PlayerAlbumCoverFragment
@@ -63,7 +64,7 @@ class PlayerFragment : AbsPlayerFragment(R.layout.fragment_player),
                 binding.colorGradientBackground.background = drawable
             }
         }
-        valueAnimator?.setDuration(ViewUtil.RETRO_MUSIC_ANIM_TIME.toLong())?.start()
+        valueAnimator?.setDuration(ViewUtil.PLAY_BEAT_MUSIC_ANIM_TIME.toLong())?.start()
     }
 
     override fun onShow() {
@@ -71,6 +72,7 @@ class PlayerFragment : AbsPlayerFragment(R.layout.fragment_player),
     }
 
     override fun onHide() {
+        NativeAdHelper(requireContext()).refreshAd(binding.adFrame, NATIVE_AD_PLAYER)
         controlsFragment.hide()
         onBackPressed()
     }
@@ -94,6 +96,8 @@ class PlayerFragment : AbsPlayerFragment(R.layout.fragment_player),
 
         if (PreferenceUtil.isAdaptiveColor) {
             colorize(color.backgroundColor)
+        } else {
+            colorize(surfaceColor())
         }
     }
 
@@ -118,6 +122,8 @@ class PlayerFragment : AbsPlayerFragment(R.layout.fragment_player),
         PreferenceManager.getDefaultSharedPreferences(requireContext())
             .registerOnSharedPreferenceChangeListener(this)
         playerToolbar().drawAboveSystemBars()
+
+        NativeAdHelper(requireContext()).refreshAd(binding.adFrame, NATIVE_AD_PLAYER)
     }
 
     override fun onDestroyView() {

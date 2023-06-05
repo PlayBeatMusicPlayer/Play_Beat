@@ -47,6 +47,15 @@
                     android:contentDescription="@null"
                     android:src="@drawable/shadow_up_artist_follow_system" />
 
+                <FrameLayout
+                    android:id="@+id/native_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_margin="30dp"
+                    android:layout_marginBottom="10dp"
+                    tools:layout="@layout/native_layout_small" />
+
             </RelativeLayout>
 
             <com.google.android.material.appbar.MaterialToolbar
@@ -124,9 +133,9 @@
                 android:textColor="?android:attr/textColorPrimary"
                 android:textStyle="bold"
                 android:visibility="gone"
+                app:layout_constraintBaseline_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBaseline_toTopOf="parent"
                 tools:ignore="MissingPrefix"
                 tools:text="@tools:sample/full_names" />
 
@@ -154,7 +163,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/text" />
 
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
+
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

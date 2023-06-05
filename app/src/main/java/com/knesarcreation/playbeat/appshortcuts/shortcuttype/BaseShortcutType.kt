@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.appshortcuts.shortcuttype
 
 import android.annotation.TargetApi

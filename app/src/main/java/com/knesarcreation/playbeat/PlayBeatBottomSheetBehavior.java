@@ -13,26 +13,27 @@ import org.jetbrains.annotations.NotNull;
 
 public class PlayBeatBottomSheetBehavior<V extends View> extends BottomSheetBehavior<V> {
 
-  private static final String TAG = "RetroBottomSheetBehavior";
+    private static final String TAG = "RetroBottomSheetBehavior";
 
-  private boolean allowDragging = true;
+    private boolean allowDragging = true;
 
-  public PlayBeatBottomSheetBehavior() {}
-
-  public PlayBeatBottomSheetBehavior(Context context, AttributeSet attrs) {
-    super(context, attrs);
-  }
-
-  public void setAllowDragging(boolean allowDragging) {
-    this.allowDragging = allowDragging;
-  }
-
-  @Override
-  public boolean onInterceptTouchEvent(
-      @NotNull CoordinatorLayout parent, @NotNull V child, @NotNull MotionEvent event) {
-    if (!allowDragging) {
-      return false;
+    public PlayBeatBottomSheetBehavior() {
     }
-    return super.onInterceptTouchEvent(parent, child, event);
-  }
+
+    public PlayBeatBottomSheetBehavior(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public void setAllowDragging(boolean allowDragging) {
+        this.allowDragging = allowDragging;
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(
+            @NotNull CoordinatorLayout parent, @NotNull V child, @NotNull MotionEvent event) {
+        if (!allowDragging) {
+            return false;
+        }
+        return super.onInterceptTouchEvent(parent, child, event);
+    }
 }

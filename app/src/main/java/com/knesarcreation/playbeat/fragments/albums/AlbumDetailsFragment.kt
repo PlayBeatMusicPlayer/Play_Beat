@@ -27,14 +27,13 @@ import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.knesarcreation.appthemehelper.common.ATHToolbarActivity.getToolbarBackgroundColor
 import com.knesarcreation.appthemehelper.util.ToolbarContentTintHelper
-import com.knesarcreation.playbeat.EXTRA_ALBUM_ID
-import com.knesarcreation.playbeat.EXTRA_ARTIST_ID
-import com.knesarcreation.playbeat.EXTRA_ARTIST_NAME
-import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.*
 import com.knesarcreation.playbeat.activities.tageditor.AbsTagEditorActivity
 import com.knesarcreation.playbeat.activities.tageditor.AlbumTagEditorActivity
 import com.knesarcreation.playbeat.adapter.album.HorizontalAlbumAdapter
 import com.knesarcreation.playbeat.adapter.song.SimpleSongAdapter
+import com.knesarcreation.playbeat.ads.InterstitialAdHelperClass
+import com.knesarcreation.playbeat.ads.NativeAdHelper
 import com.knesarcreation.playbeat.databinding.FragmentAlbumDetailsBinding
 import com.knesarcreation.playbeat.dialogs.AddToPlaylistDialog
 import com.knesarcreation.playbeat.dialogs.DeleteSongsDialog
@@ -71,6 +70,7 @@ import java.text.Collator
 class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_details),
     IAlbumClickListener, ICabHolder {
 
+    private var mInterstitialAdHelper: InterstitialAdHelperClass? = null
     private var _binding: FragmentAlbumDetailsBinding? = null
     private val binding get() = _binding!!
 
@@ -86,6 +86,7 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
     private val savedSortOrder: String
         get() = PreferenceUtil.albumDetailSongSortOrder
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedElementEnterTransition = MaterialContainerTransform().apply {
@@ -94,6 +95,11 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
             setAllContainerColors(surfaceColor())
             setPathMotion(MaterialArcMotion())
         }
+
+        mInterstitialAdHelper = InterstitialAdHelperClass(requireContext())
+        mInterstitialAdHelper?.loadInterstitialAd(
+            INTERSTITIAL_ALBUM_DETAILS_PLAY_SHUFFLE
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -104,8 +110,9 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
         mainActivity.setSupportActionBar(binding.toolbar)
 
         binding.toolbar.title = " "
-        binding.albumCoverContainer.setTransitionName(arguments.extraAlbumId.toString())
+        binding.albumCoverContainer.transitionName = arguments.extraAlbumId.toString()
         postponeEnterTransition()
+        // var notify = true
         detailsViewModel.getAlbum().observe(viewLifecycleOwner) {
             requireView().doOnPreDraw {
                 startPostponedEnterTransition()
@@ -113,10 +120,18 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
             albumArtistExists = !it.albumArtist.isNullOrEmpty()
             showAlbum(it, view)
             if (albumArtistExists) {
-                binding.artistImage.setTransitionName(album.albumArtist)
+                binding.artistImage.transitionName = album.albumArtist
             } else {
-                binding.artistImage.setTransitionName(album.artistId.toString())
+                binding.artistImage.transitionName = album.artistId.toString()
             }
+            //Log.d("SongData", "onViewCreated:$it ")
+        }
+
+        binding.nativeLayout.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_ALBUM_DETAILS
+            )
         }
 
         setupRecyclerView()
@@ -141,13 +156,32 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
 
         }
         binding.fragmentAlbumContent.playAction.setOnClickListener {
-            MusicPlayerRemote.openQueue(album.songs, 0, true)
+            mInterstitialAdHelper?.showInterstitial(
+                INTERSTITIAL_ALBUM_DETAILS_PLAY_SHUFFLE,
+                PLAY_BUTTON,
+                album.songs,
+                0
+            )
+            // MusicPlayerRemote.openQueue(album.songs, 0, true)
         }
         binding.fragmentAlbumContent.shuffleAction.setOnClickListener {
-            MusicPlayerRemote.openAndShuffleQueue(
-                album.songs,
-                true
+            mInterstitialAdHelper?.showInterstitial(
+                INTERSTITIAL_ALBUM_DETAILS_PLAY_SHUFFLE,
+                SHUFFLE_BUTTON,
+                album.songs, 0
             )
+            //  MusicPlayerRemote.openAndShuffleQueue(album.songs, true)
+        }
+
+        // open more songs fragment
+        binding.fragmentAlbumContent.moreSongs.apply {
+            setOnClickListener {
+                findNavController().navigate(
+                    R.id.moreAlbumSongsFragment,
+                    bundleOf(EXTRA_ALBUM_ID to album.id),
+                    null,
+                )
+            }
         }
 
         binding.fragmentAlbumContent.aboutAlbumText.setOnClickListener {
@@ -164,12 +198,14 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
                 requireActivity().onBackPressed()
             }
         }
-        binding.appBarLayout?.statusBarForeground =
+        binding.appBarLayout.statusBarForeground =
             MaterialShapeDrawable.createWithElevationOverlay(requireContext())
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        if (mInterstitialAdHelper != null)
+            mInterstitialAdHelper = null
         serviceActivity?.removeMusicServiceEventListener(detailsViewModel)
     }
 
@@ -221,6 +257,14 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
         }
         loadAlbumCover(album)
         simpleSongAdapter.swapDataSet(album.songs)
+
+        //hide and show the more_songs view if songs are less and more
+        if (album.songs.size > 5) {
+            binding.fragmentAlbumContent.moreSongs.show()
+        } else {
+            binding.fragmentAlbumContent.moreSongs.hide()
+        }
+
         if (albumArtistExists) {
             detailsViewModel.getAlbumArtist(album.albumArtist.toString())
                 .observe(viewLifecycleOwner) {
@@ -341,7 +385,7 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_album_detail, menu)
         val sortOrder = menu.findItem(R.id.action_sort_order)
-        setUpSortOrderMenu(sortOrder.subMenu)
+        sortOrder.subMenu?.let { setUpSortOrderMenu(it) }
         ToolbarContentTintHelper.handleOnCreateOptionsMenu(
             requireContext(),
             binding.toolbar,
@@ -480,4 +524,5 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
         super.onDestroyView()
         _binding = null
     }
+
 }

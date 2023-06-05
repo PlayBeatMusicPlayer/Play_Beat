@@ -53,9 +53,9 @@ public class PlaylistsUtil {
                         // playlist
                         context.getContentResolver().notifyChange(Uri.parse("content://media"), null);
                         Toast.makeText(
-                                context,
-                                context.getResources().getString(R.string.created_playlist_x, name),
-                                Toast.LENGTH_SHORT)
+                                        context,
+                                        context.getResources().getString(R.string.created_playlist_x, name),
+                                        Toast.LENGTH_SHORT)
                                 .show();
                         id = Integer.parseInt(uri.getLastPathSegment());
                     }
@@ -74,9 +74,9 @@ public class PlaylistsUtil {
         }
         if (id == -1) {
             Toast.makeText(
-                    context,
-                    context.getResources().getString(R.string.could_not_create_playlist),
-                    Toast.LENGTH_SHORT)
+                            context,
+                            context.getResources().getString(R.string.could_not_create_playlist),
+                            Toast.LENGTH_SHORT)
                     .show();
         }
         return id;
@@ -145,14 +145,14 @@ public class PlaylistsUtil {
 
             if (showToastOnFinish) {
                 Toast.makeText(
-                        context,
-                        context
-                                .getResources()
-                                .getString(
-                                        R.string.inserted_x_songs_into_playlist_x,
-                                        numInserted,
-                                        getNameForPlaylist(context, playlistId)),
-                        Toast.LENGTH_SHORT)
+                                context,
+                                context
+                                        .getResources()
+                                        .getString(
+                                                R.string.inserted_x_songs_into_playlist_x,
+                                                numInserted,
+                                                getNameForPlaylist(context, playlistId)),
+                                Toast.LENGTH_SHORT)
                         .show();
             }
         } catch (SecurityException exception) {

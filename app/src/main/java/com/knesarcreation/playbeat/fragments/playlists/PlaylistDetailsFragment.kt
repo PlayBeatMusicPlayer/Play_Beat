@@ -1,5 +1,6 @@
 package com.knesarcreation.playbeat.fragments.playlists
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.View
@@ -19,8 +20,12 @@ import com.h6ah4i.android.widget.advrecyclerview.animator.DraggableItemAnimator
 import com.h6ah4i.android.widget.advrecyclerview.animator.GeneralItemAnimator
 import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager
 import com.knesarcreation.playbeat.App
+import com.knesarcreation.playbeat.INTERSTITIAL_PLAYLIST_DETAILS_PLAY_SHUFFLE
+import com.knesarcreation.playbeat.NATIVE_PLAYLIST_DETAILS
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.song.OrderablePlaylistSongAdapter
+import com.knesarcreation.playbeat.ads.InterstitialAdHelperClass
+import com.knesarcreation.playbeat.ads.NativeAdHelper
 import com.knesarcreation.playbeat.databinding.FragmentPlaylistDetailBinding
 import com.knesarcreation.playbeat.db.PlaylistWithSongs
 import com.knesarcreation.playbeat.db.toSongs
@@ -41,6 +46,8 @@ import com.knesarcreation.playbeat.util.theme.ThemeMode
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
+@SuppressLint("StaticFieldLeak")
+var mInterstitialAdHelper: InterstitialAdHelperClass? = null
 
 class PlaylistDetailsFragment : AbsMainActivityFragment(R.layout.fragment_playlist_detail),
     ICabHolder {
@@ -77,6 +84,14 @@ class PlaylistDetailsFragment : AbsMainActivityFragment(R.layout.fragment_playli
             }
         }
         postponeEnterTransition()
+
+        binding.nativeLayout.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_PLAYLIST_DETAILS
+            )
+        }
+
         requireView().doOnPreDraw { startPostponedEnterTransition() }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             if (!handleBackPress()) {
@@ -110,6 +125,12 @@ class PlaylistDetailsFragment : AbsMainActivityFragment(R.layout.fragment_playli
         binding.playlistDetailsMore.setOnClickListener {
             BottomSheetPlaylistMenuHelper(activity as Context).handleMenuClick(playlist)
         }
+
+        mInterstitialAdHelper = InterstitialAdHelperClass(requireContext())
+        mInterstitialAdHelper?.loadInterstitialAd(
+            INTERSTITIAL_PLAYLIST_DETAILS_PLAY_SHUFFLE
+        )
+
         /*binding.appBarLayout.statusBarForeground =
             MaterialShapeDrawable.createWithElevationOverlay(requireContext())*/
     }
@@ -147,10 +168,10 @@ class PlaylistDetailsFragment : AbsMainActivityFragment(R.layout.fragment_playli
         })
     }
 
-   /* override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_playlist_detail, menu)
-    }*/
+    /* override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+         super.onCreateOptionsMenu(menu, inflater)
+         inflater.inflate(R.menu.menu_playlist_detail, menu)
+     }*/
 
     /*override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return PlaylistMenuHelper.handleMenuClick(requireActivity(), playlist, item)
@@ -173,6 +194,8 @@ class PlaylistDetailsFragment : AbsMainActivityFragment(R.layout.fragment_playli
 
     override fun onDestroy() {
         super.onDestroy()
+        if (mInterstitialAdHelper != null)
+            mInterstitialAdHelper = null
         _binding = null
     }
 

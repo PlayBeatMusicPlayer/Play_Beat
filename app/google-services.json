@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "651050599765",
+    "project_id": "play-beat--music-player",
+    "storage_bucket": "play-beat--music-player.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:651050599765:android:313575aab2e273daaf9bdc",
+        "android_client_info": {
+          "package_name": "com.knesarcreation.playbeat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "651050599765-f5ideec2mta361ajt1rofqguus0efobk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.knesarcreation.playbeat",
+            "certificate_hash": "10e8c5395f54d31857db2f1b630ca02fba7beb2f"
+          }
+        },
+        {
+          "client_id": "651050599765-76gls3kqljl5mglhp4cjoetg3pdr5a8o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRk9kAIYDzWVTZfnwUBtoOx_IAMXs74mQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "651050599765-76gls3kqljl5mglhp4cjoetg3pdr5a8o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

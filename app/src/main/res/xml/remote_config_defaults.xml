@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<defaults>
+<!--    <entry>-->
+<!--        <key>INTERSTITIAL_HISTORY</key>-->
+<!--        <value>1</value>-->
+<!--    </entry>-->
+<!--    <entry>-->
+<!--        <key>INTERSTITIAL_DOWNLOAD</key>-->
+<!--        <value>1</value>-->
+<!--    </entry>-->
+<!--    <entry>-->
+<!--        <key>INTERSTITIAL_WHATSAPP</key>-->
+<!--        <value>1</value>-->
+<!--    </entry>-->
+<!--    <entry>-->
+<!--        <key>REWARD_DOWNLOAD_HD_VIDEO</key>-->
+<!--        <value>1</value>-->
+<!--    </entry>-->
+<!--    <entry>-->
+<!--        <key>OPEN_AD</key>-->
+<!--        <value>1</value>-->
+<!--    </entry>-->
+<!--    <entry>-->
+<!--        <key>NATIVE_HISTORY_AD</key>-->
+<!--        <value>1</value>-->
+<!--    </entry>-->
+<!--    <entry>-->
+<!--        <key>NATIVE_HOME_AD</key>-->
+<!--        <value>1</value>-->
+<!--    </entry>-->
+<!--    <entry>-->
+<!--        <key>NATIVE_EXIT_AD</key>-->
+<!--        <value>1</value>-->
+<!--    </entry>-->
+<!--    <entry>-->
+<!--        <key>NATIVE_LOADING_DIALOG</key>-->
+<!--        <value>1</value>-->
+<!--    </entry>-->
+<!--    <entry>-->
+<!--        <key>policy_violate_text</key>-->
+<!--        <value>0</value>-->
+<!--    </entry>-->
+    <entry>
+        <key>atMeGamesBanner</key>
+        <value>0</value>
+    </entry>
+</defaults>

@@ -3,6 +3,8 @@ package com.knesarcreation.playbeat.fragments.other
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.text.SpannableStringBuilder
@@ -15,21 +17,24 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.text.toSpannable
 import androidx.core.view.isVisible
 import com.google.android.material.textview.MaterialTextView
+import com.knesarcreation.appthemehelper.ThemeStore
 import com.knesarcreation.playbeat.App
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.databinding.FragmentMiniPlayerBinding
 import com.knesarcreation.playbeat.dialogs.SleepTimerDialog
 import com.knesarcreation.playbeat.extensions.*
 import com.knesarcreation.playbeat.fragments.base.AbsMusicServiceFragment
-import com.knesarcreation.playbeat.fragments.songs.SongsFragment
 import com.knesarcreation.playbeat.glide.GlideApp
+import com.knesarcreation.playbeat.glide.PlayBeatColoredTarget
 import com.knesarcreation.playbeat.glide.PlayBeatGlideExtension
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote
 import com.knesarcreation.playbeat.helper.MusicProgressViewUpdateHelper
 import com.knesarcreation.playbeat.interfaces.IPlaybackStateChanged
 import com.knesarcreation.playbeat.util.PlayBeatUtil
 import com.knesarcreation.playbeat.util.PreferenceUtil
+import com.knesarcreation.playbeat.util.color.MediaNotificationProcessor
 import com.knesarcreation.playbeat.util.theme.ThemeMode
+import java.lang.StringBuilder
 import kotlin.math.abs
 
 open class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_player),
@@ -37,6 +42,7 @@ open class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_p
     SleepTimerDialog.ISleepTimerCallback {
 
     private var sleepCountDownTimer: CountDownTimer? = null
+    private var colorFinal = 0
 
     override fun onSleepTimerStart() {
         binding.shadowIV.visibility = View.VISIBLE
@@ -69,6 +75,7 @@ open class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_p
 
     companion object {
         var iPlaybackStateChanged: IPlaybackStateChanged? = null
+
         @JvmStatic
         fun newInstance(): MiniPlayerFragment {
             return MiniPlayerFragment()
@@ -175,15 +182,15 @@ open class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_p
 
         val song = MusicPlayerRemote.currentSong
 
-        val builder = SpannableStringBuilder()
+        val builder = StringBuilder()
 
-        val title = song.title.toSpannable()
-        title.setSpan(ForegroundColorSpan(textColorPrimary()), 0, title.length, 0)
+        /*val title = song.title.toSpannable()
+        title.setSpan(ForegroundColorSpan(colorFinal), 0, title.length, 0)
 
         val text = song.artistName.toSpannable()
-        text.setSpan(ForegroundColorSpan(textColorSecondary()), 0, text.length, 0)
+        text.setSpan(ForegroundColorSpan(colorFinal), 0, text.length, 0)*/
 
-        builder.append(title).append(" • ").append(text)
+        builder.append(song.title).append(" • ").append(song.artistName)
 
         binding.miniPlayerTitle.isSelected = true
         binding.miniPlayerTitle.text = builder
@@ -196,11 +203,41 @@ open class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_p
 
     private fun updateSongCover() {
         val song = MusicPlayerRemote.currentSong
-        GlideApp.with(requireContext())
+        /*GlideApp.with(requireContext())
             .load(PlayBeatGlideExtension.getSongModel(song))
             .transition(PlayBeatGlideExtension.getDefaultTransition())
             .songCoverOptions(song)
-            .into(binding.image)
+            .into(binding.image)*/
+        GlideApp.with(this)
+            .asBitmapPalette()
+            .songCoverOptions(song)
+            //.checkIgnoreMediaStore()
+            .load(PlayBeatGlideExtension.getSongModel(song))
+            .dontAnimate()
+            .into(object : PlayBeatColoredTarget(binding.image) {
+                override fun onColorReady(colors: MediaNotificationProcessor) {
+                    /*setColor(colors)*/
+                    val drawable = GradientDrawable(
+                        GradientDrawable.Orientation.TL_BR,
+                        intArrayOf(
+                            colors.backgroundColor,
+                            colors.backgroundColor
+                        )
+                    )
+                    drawable.cornerRadius = 20f
+
+                    binding.miniPlayerBg.background = drawable
+
+                    colorFinal = if (PreferenceUtil.isAdaptiveColor) {
+                        colors.primaryTextColor
+                    } else {
+                        ThemeStore.accentColor(requireContext())
+                    }.ripAlpha()
+                    binding.progressBar.applyColor(colorFinal)
+                    binding.miniPlayerTitle.setTextColor(colorFinal)
+                    binding.miniPlayerPlayPauseButton.setColorFilter(colorFinal)
+                }
+            })
     }
 
     override fun onServiceConnected() {

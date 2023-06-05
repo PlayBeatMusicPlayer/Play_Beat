@@ -70,6 +70,26 @@
     </fragment>
 
     <fragment
+        android:id="@+id/moreArtistSongsFragment"
+        android:name="com.knesarcreation.playbeat.fragments.other.MoreArtistSongsDetailsFragment"
+        android:label=""
+        tools:layout="@layout/fragment_more_songs">
+        <argument
+            android:name="extra_artist_id"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/moreAlbumSongsFragment"
+        android:name="com.knesarcreation.playbeat.fragments.other.MoreAlbumSongsDetailsFragment"
+        android:label=""
+        tools:layout="@layout/fragment_more_songs">
+        <argument
+            android:name="extra_album_id"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
         android:id="@+id/action_search"
         android:name="com.knesarcreation.playbeat.fragments.search.SearchFragment"
         android:label="SearchFragment"
@@ -101,11 +121,11 @@
         android:name="com.knesarcreation.playbeat.fragments.songs.SongsFragment"
         tools:layout="@layout/fragment_main_activity_recycler_view" />
 
-    <fragment
-        android:id="@+id/action_genre"
-        android:name="com.knesarcreation.playbeat.fragments.genres.GenresFragment"
-        tools:layout="@layout/fragment_main_activity_recycler_view" />
-
+    <!-- <fragment
+         android:id="@+id/action_genre"
+         android:name="com.knesarcreation.playbeat.fragments.genres.GenresFragment"
+         tools:layout="@layout/fragment_main_activity_recycler_view" />
+ -->
     <fragment
         android:id="@+id/action_playlist"
         android:name="com.knesarcreation.playbeat.fragments.playlists.PlaylistsFragment"
@@ -127,10 +147,10 @@
         android:label=""
         tools:layout="@layout/fragment_banner_home" />-->
 
-   <!-- <fragment
-        android:id="@+id/user_info_fragment"
-        android:name="code.name.monkey.retromusic.fragments.other.UserInfoFragment" />
--->
+    <!-- <fragment
+         android:id="@+id/user_info_fragment"
+         android:name="code.name.monkey.retromusic.fragments.other.UserInfoFragment" />
+ -->
     <fragment
         android:id="@+id/playing_queue_fragment"
         android:name="com.knesarcreation.playbeat.fragments.queue.PlayingQueueFragment" />

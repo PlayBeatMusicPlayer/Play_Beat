@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.network.conversion
 
 import okhttp3.MediaType.Companion.toMediaTypeOrNull

@@ -13,12 +13,12 @@
 
         <ImageView
             android:id="@+id/logoIV"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginStart="45dp"
             android:contentDescription="@null"
-            android:src="@drawable/ic_play_beat_splash" />
+            android:src="@drawable/play_beat_vector" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -44,12 +44,12 @@
                 tools:text="4.3.3" />
 
             <ImageView
-                android:id="@+id/openPlayBeatInstaPage"
+                android:id="@+id/openPlayBeatDiscordChannel"
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
-                android:src="@drawable/ic_instagram"
+                android:src="@drawable/ic_discord"
                 android:contentDescription="@null" />
 
 

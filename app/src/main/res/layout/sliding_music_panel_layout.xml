@@ -36,6 +36,10 @@
             android:name="com.knesarcreation.playbeat.fragments.other.MiniPlayerFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_10mdp"
+            android:layout_marginTop="@dimen/_5mdp"
+            android:layout_marginEnd="@dimen/_10mdp"
+            android:layout_marginBottom="@dimen/_5mdp"
             tools:layout="@layout/fragment_mini_player" />
 
         <ViewStub
@@ -56,7 +60,7 @@
         android:minHeight="@dimen/bottom_nav_height"
         app:itemHorizontalTranslationEnabled="false"
         app:itemPaddingBottom="8dp"
-        app:labelVisibilityMode="selected"
         app:itemPaddingTop="8dp"
+        app:labelVisibilityMode="selected"
         app:menu="@menu/bottom_navigation_main" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

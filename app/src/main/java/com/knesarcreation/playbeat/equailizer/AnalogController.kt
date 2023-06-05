@@ -118,7 +118,7 @@ class AnalogController : View {
     }
 
     override fun onTouchEvent(e: MotionEvent): Boolean {
-        if(isEnabled) {
+        if (isEnabled) {
             mListener!!.onProgressChanged((deg - 2).toInt())
             if (e.action == MotionEvent.ACTION_DOWN) {
                 val dx = e.x - midx

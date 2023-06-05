@@ -49,7 +49,7 @@ object AppRater {
 
         // Wait at least n days before opening
         if (launchCount >= LAUNCHES_UNTIL_PROMPT) {
-            if (System.currentTimeMillis() >= dateFirstLaunch + DAYS_UNTIL_PROMPT * 24 * 60 * 60 * 1000) {
+            if (System.currentTimeMillis() >= dateFirstLaunch + DAYS_UNTIL_PROMPT * 24 * 60 * 60 * 1000/*one day*/) {
                 //showRateDialog(context, editor)
                 showPlayStoreReviewDialog(context, editor)
             }

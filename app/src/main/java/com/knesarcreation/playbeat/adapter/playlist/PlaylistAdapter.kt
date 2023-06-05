@@ -88,10 +88,10 @@ class PlaylistAdapter(
         holder.menu?.isGone = isChecked(playlist)
         GlideApp.with(activity)
             .load(
-                if (itemLayoutRes == R.layout.item_list) {
-                    holder.image?.setPadding(activity.dipToPix(8F).toInt())
-                    R.drawable.ic_playlist_play
-                } else PlaylistPreview(playlist)
+                /* if (itemLayoutRes == R.layout.item_list) {
+                     holder.image?.setPadding(activity.dipToPix(8F).toInt())
+                     R.drawable.ic_playlist_play
+                 } else*/ PlaylistPreview(playlist)
             )
             .playlistOptions()
             .into(holder.image!!)
@@ -136,7 +136,7 @@ class PlaylistAdapter(
                     PlaylistMenuHelper.handleMenuClick(activity, dataSet[layoutPosition], item)
                 }
                 popupMenu.show()*/
-                BottomSheetPlaylistMenuHelper(activity).handleMenuClick( dataSet[layoutPosition])
+                BottomSheetPlaylistMenuHelper(activity).handleMenuClick(dataSet[layoutPosition])
             }
 
             imageTextContainer?.apply {

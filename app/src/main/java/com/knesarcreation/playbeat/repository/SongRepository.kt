@@ -90,12 +90,12 @@ class RealSongRepository(private val context: Context) : SongRepository {
             SortOrder.SongSortOrder.COMPOSER_DESC -> {
                 songs.sortedWith { s1, s2 -> collator.compare(s2.composer, s1.composer) }
             }
-           /* SortOrder.SongSortOrder.SONG_DATE_MODIFIED_ASC -> {
-                songs.sortedWith { s1, s2 -> collator.compare(s1.dateModified, s2.dateModified) }
-            }
-            SortOrder.SongSortOrder.SONG_DATE_MODIFIED_DESC -> {
-                songs.sortedWith { s1, s2 -> collator.compare(s2.dateModified, s1.dateModified) }
-            }*/
+            /* SortOrder.SongSortOrder.SONG_DATE_MODIFIED_ASC -> {
+                 songs.sortedWith { s1, s2 -> collator.compare(s1.dateModified, s2.dateModified) }
+             }
+             SortOrder.SongSortOrder.SONG_DATE_MODIFIED_DESC -> {
+                 songs.sortedWith { s1, s2 -> collator.compare(s2.dateModified, s1.dateModified) }
+             }*/
 
             else -> songs
         }

@@ -18,6 +18,20 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:layout="@layout/fragment_album_full_cover" />
 
+    <FrameLayout
+        android:id="@+id/ad_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_30mdp"
+        android:layout_marginTop="@dimen/_100mdp"
+        android:layout_marginEnd="@dimen/_30mdp"
+        android:layout_marginBottom="@dimen/_30mdp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.6"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/statusBarContainer"
+        tools:layout="@layout/ad_native" />
+
     <View
         android:id="@+id/mask"
         android:layout_width="match_parent"

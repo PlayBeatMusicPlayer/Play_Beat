@@ -1,5 +1,3 @@
-
-
 package com.knesarcreation.playbeat.network
 
 import com.knesarcreation.playbeat.network.model.LastFmAlbum

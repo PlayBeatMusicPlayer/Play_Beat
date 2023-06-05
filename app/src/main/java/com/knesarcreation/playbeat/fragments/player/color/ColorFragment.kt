@@ -6,16 +6,18 @@ import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.core.animation.doOnEnd
 import com.knesarcreation.appthemehelper.util.ToolbarContentTintHelper
+import com.knesarcreation.playbeat.NATIVE_AD_NOW_PLAYING
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.ads.NativeAdHelper
 import com.knesarcreation.playbeat.databinding.FragmentColorPlayerBinding
 import com.knesarcreation.playbeat.extensions.colorControlNormal
 import com.knesarcreation.playbeat.extensions.drawAboveSystemBars
-import com.knesarcreation.playbeat.fragments.player.color.ColorPlaybackControlsFragment
 import com.knesarcreation.playbeat.fragments.base.AbsPlayerFragment
 import com.knesarcreation.playbeat.fragments.player.PlayerAlbumCoverFragment
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote
 import com.knesarcreation.playbeat.model.Song
 import com.knesarcreation.playbeat.util.color.MediaNotificationProcessor
+import java.lang.Exception
 
 class ColorFragment : AbsPlayerFragment(R.layout.fragment_color_player) {
 
@@ -24,10 +26,10 @@ class ColorFragment : AbsPlayerFragment(R.layout.fragment_color_player) {
     private lateinit var playbackControlsFragment: ColorPlaybackControlsFragment
     private var valueAnimator: ValueAnimator? = null
     private var _binding: FragmentColorPlayerBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding
 
-    override fun playerToolbar(): Toolbar {
-        return binding.playerToolbar
+    override fun playerToolbar(): Toolbar? {
+        return binding?.playerToolbar
     }
 
     override val paletteColor: Int
@@ -39,20 +41,25 @@ class ColorFragment : AbsPlayerFragment(R.layout.fragment_color_player) {
         playbackControlsFragment.setColor(color)
         navigationColor = color.backgroundColor
 
-        binding.colorGradientBackground.setBackgroundColor(color.backgroundColor)
-        val animator =
-            playbackControlsFragment.createRevealAnimator(binding.colorGradientBackground)
-        animator.doOnEnd {
-            _binding?.root?.setBackgroundColor(color.backgroundColor)
+        try {
+            binding?.colorGradientBackground?.setBackgroundColor(color.backgroundColor)
+            val animator =
+                binding?.let { playbackControlsFragment.createRevealAnimator(it.colorGradientBackground) }
+            animator?.doOnEnd {
+                _binding?.root?.setBackgroundColor(color.backgroundColor)
+            }
+            animator?.start()
+            binding?.playerToolbar?.post {
+                ToolbarContentTintHelper.colorizeToolbar(
+                    binding?.playerToolbar,
+                    color.secondaryTextColor,
+                    requireActivity()
+                )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        animator.start()
-        binding.playerToolbar.post {
-            ToolbarContentTintHelper.colorizeToolbar(
-                binding.playerToolbar,
-                color.secondaryTextColor,
-                requireActivity()
-            )
-        }
+
     }
 
     override fun onFavoriteToggled() {
@@ -64,6 +71,13 @@ class ColorFragment : AbsPlayerFragment(R.layout.fragment_color_player) {
     }
 
     override fun onHide() {
+        binding?.adFrame.let {
+            it?.let { it1 ->
+                NativeAdHelper(requireContext()).refreshAd(
+                    it1, NATIVE_AD_NOW_PLAYING
+                )
+            }
+        }
         playbackControlsFragment.hide()
         onBackPressed()
     }
@@ -100,7 +114,13 @@ class ColorFragment : AbsPlayerFragment(R.layout.fragment_color_player) {
         val playerAlbumCoverFragment =
             childFragmentManager.findFragmentById(R.id.playerAlbumCoverFragment) as PlayerAlbumCoverFragment
         playerAlbumCoverFragment.setCallbacks(this)
-        playerToolbar().drawAboveSystemBars()
+        playerToolbar()?.drawAboveSystemBars()
+        binding?.adFrame.let {
+            if (it != null) {
+                NativeAdHelper(requireContext()).refreshAd(it, NATIVE_AD_NOW_PLAYING)
+            }
+        }
+
     }
 
     private fun setUpSubFragments() {
@@ -109,7 +129,7 @@ class ColorFragment : AbsPlayerFragment(R.layout.fragment_color_player) {
     }
 
     private fun setUpPlayerToolbar() {
-        binding.playerToolbar.apply {
+        binding?.playerToolbar?.apply {
             inflateMenu(R.menu.menu_player)
             setNavigationOnClickListener { requireActivity().onBackPressed() }
             setOnMenuItemClickListener(this@ColorFragment)

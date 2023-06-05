@@ -29,9 +29,13 @@ import com.h6ah4i.android.widget.advrecyclerview.touchguard.RecyclerViewTouchAct
 import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils
 import com.knesarcreation.appthemehelper.util.ColorUtil
 import com.knesarcreation.appthemehelper.util.VersionUtils
+import com.knesarcreation.playbeat.INTERSTITIAL_NEXT_BACK_AND_SWIPE_ANYWHERE_SONG
+import com.knesarcreation.playbeat.NATIVE_AD_NOW_PLAYING
 import com.knesarcreation.playbeat.PlayBeatBottomSheetBehavior
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.adapter.song.PlayingQueueAdapter
+import com.knesarcreation.playbeat.ads.InterstitialAdHelperClass
+import com.knesarcreation.playbeat.ads.NativeAdHelper
 import com.knesarcreation.playbeat.databinding.FragmentGradientPlayerBinding
 import com.knesarcreation.playbeat.extensions.*
 import com.knesarcreation.playbeat.fragments.MusicSeekSkipTouchListener
@@ -52,6 +56,9 @@ import com.knesarcreation.playbeat.util.color.MediaNotificationProcessor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+@SuppressLint("StaticFieldLeak")
+var mInterstitialAdHelperClass: InterstitialAdHelperClass? = null
 
 class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_player),
     MusicProgressViewUpdateHelper.Callback,
@@ -126,6 +133,12 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        mInterstitialAdHelperClass = InterstitialAdHelperClass(requireContext())
+        // mInterstitialAdHelperClass?.loadInterstitialAd(
+        //INTERSTITIAL_NEXT_BACK_AND_SWIPE_ANYWHERE_SONG
+        //)
+
         progressViewUpdateHelper = MusicProgressViewUpdateHelper(this)
     }
 
@@ -153,6 +166,14 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
             insets
         }
         binding.playbackControlsFragment.root.drawAboveSystemBars()
+
+        binding.adFrame.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_AD_NOW_PLAYING
+            )
+        }
+
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -188,6 +209,12 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
     }
 
     override fun onHide() {
+        binding.adFrame.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_AD_NOW_PLAYING
+            )
+        }
     }
 
     override fun onBackPressed(): Boolean {
@@ -522,6 +549,8 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
 
         WrapperAdapterUtils.releaseAll(wrappedAdapter)
         _binding = null
+        if (mInterstitialAdHelperClass != null)
+            mInterstitialAdHelperClass = null
     }
 
     private fun updateQueuePosition() {

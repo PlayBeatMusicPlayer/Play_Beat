@@ -1,11 +1,12 @@
-
 package com.knesarcreation.playbeat.fragments.player.fit
 
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import com.knesarcreation.appthemehelper.util.ToolbarContentTintHelper
+import com.knesarcreation.playbeat.NATIVE_AD_NOW_PLAYING
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.ads.NativeAdHelper
 import com.knesarcreation.playbeat.databinding.FragmentFitBinding
 import com.knesarcreation.playbeat.extensions.colorControlNormal
 import com.knesarcreation.playbeat.extensions.drawAboveSystemBars
@@ -34,6 +35,12 @@ class FitFragment : AbsPlayerFragment(R.layout.fragment_fit) {
     }
 
     override fun onHide() {
+        binding.adFrame.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_AD_NOW_PLAYING
+            )
+        }
         playbackControlsFragment.hide()
         onBackPressed()
     }
@@ -74,6 +81,12 @@ class FitFragment : AbsPlayerFragment(R.layout.fragment_fit) {
         setUpSubFragments()
         setUpPlayerToolbar()
         playerToolbar().drawAboveSystemBars()
+        binding.adFrame.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_AD_NOW_PLAYING
+            )
+        }
     }
 
     private fun setUpSubFragments() {

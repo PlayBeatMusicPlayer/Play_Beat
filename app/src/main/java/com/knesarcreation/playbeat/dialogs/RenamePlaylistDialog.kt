@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.dialogs
 
 import android.app.Dialog

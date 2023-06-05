@@ -15,11 +15,13 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.findNavController
 import com.knesarcreation.appthemehelper.ThemeStore
-import com.knesarcreation.playbeat.App
-import com.knesarcreation.playbeat.EXTRA_ALBUM_ID
-import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.*
+import com.knesarcreation.playbeat.activities.MainActivity
+import com.knesarcreation.playbeat.activities.mInterstitialAdHelper
 import com.knesarcreation.playbeat.adapter.base.AbsMultiSelectAdapter
 import com.knesarcreation.playbeat.adapter.base.MediaEntryViewHolder
+import com.knesarcreation.playbeat.ads.InterstitialAdHelperClass
+import com.knesarcreation.playbeat.ads.NEXT_ADS_SHOW_TIME
 import com.knesarcreation.playbeat.extensions.generalThemeValue
 import com.knesarcreation.playbeat.fragments.songs.SongsFragment
 import com.knesarcreation.playbeat.glide.GlideApp
@@ -86,7 +88,7 @@ open class SongAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val song = dataSet[position]
 
-        showEqualizer(holder, song)
+        showEqualizerView(holder, song)
 
         val isChecked = isChecked(song)
         holder.itemView.isActivated = isChecked
@@ -201,7 +203,16 @@ open class SongAdapter(
             if (isInQuickSelectMode) {
                 toggleChecked(layoutPosition)
             } else {
+//                if ((System.currentTimeMillis() - InterstitialAdHelperClass.prevSeenAdsTime) / 1000 >= NEXT_ADS_SHOW_TIME) {
+//                    mInterstitialAdHelper?.showInterstitial(
+//                        INTERSTITIAL_SONG_CLICK,
+//                        SONG_CLICK,
+//                        dataSet, layoutPosition
+//                    )
+//                } else {
                 MusicPlayerRemote.openQueue(dataSet, layoutPosition, true)
+                // }
+                //MusicPlayerRemote.openQueue(dataSet, layoutPosition, true)
                 Handler(Looper.myLooper()!!).postDelayed({
                     notifyDataSetChanged()
                 }, 500)
@@ -213,20 +224,22 @@ open class SongAdapter(
         }
     }
 
-    private fun showEqualizer(holder: ViewHolder, song: Song) {
+    private fun showEqualizerView(holder: ViewHolder, song: Song) {
         var playingSongId = -1L
         if (MusicPlayerRemote.playingQueue.isNotEmpty()) {
             playingSongId = MusicPlayerRemote.playingQueue[MusicPlayerRemote.position].id
         }
 
         holder.equalizerView?.setBarColor(ThemeStore.accentColor(activity))
+        holder.equalizerView?.setRunInBatterySafeMode(true)
 
         if (song.id == playingSongId) {
             Handler(Looper.myLooper()!!).postDelayed({
                 holder.rlCurrentPlayingLottie?.visibility = View.VISIBLE
                 if (MusicPlayerRemote.musicService!!.playback!!.isPlaying) {
-                    //Log.d("SongsDetails", "onBindViewHolder:${song.title} ")
+
                     holder.equalizerView?.animateBars()
+
                 } else
                     holder.equalizerView?.stopBars()
 

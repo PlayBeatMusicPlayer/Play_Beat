@@ -11,5 +11,6 @@
     <color name="textColor">@color/md_white_1000</color>
     <color name="colorWaveformBg">#E6182245</color>
     <color name="setting_border_color">#202020</color>
+    <color name="dark_grey">#555555</color>
 
 </resources>

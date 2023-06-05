@@ -2,13 +2,19 @@ package com.knesarcreation.playbeat.fragments.base
 
 import android.content.Context
 import android.content.IntentSender
+import android.content.SharedPreferences
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.util.Log
 import android.view.*
 import androidx.annotation.NonNull
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.os.bundleOf
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.isVisible
@@ -30,18 +36,21 @@ import com.google.android.play.core.tasks.Task
 import com.knesarcreation.appthemehelper.common.ATHToolbarActivity
 import com.knesarcreation.appthemehelper.util.ToolbarContentTintHelper
 import com.knesarcreation.playbeat.*
+import com.knesarcreation.playbeat.adapter.SliderAdapter
+import com.knesarcreation.playbeat.ads.NewNativeAdHelper
 import com.knesarcreation.playbeat.databinding.FragmentMainRecyclerBinding
 import com.knesarcreation.playbeat.dialogs.CreatePlaylistDialog
 import com.knesarcreation.playbeat.dialogs.ImportPlaylistDialog
 import com.knesarcreation.playbeat.extensions.accentColor
 import com.knesarcreation.playbeat.extensions.dip
-import com.knesarcreation.playbeat.extensions.showToast
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote
 import com.knesarcreation.playbeat.interfaces.IScrollHelper
+import com.knesarcreation.playbeat.interfaces.OnRecyclerItemClickListener
 import com.knesarcreation.playbeat.util.PreferenceUtil
 import com.knesarcreation.playbeat.util.ThemedFastScroller.create
 import me.zhanghai.android.fastscroll.FastScroller
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
+import java.util.concurrent.TimeUnit
 
 
 abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : RecyclerView.LayoutManager> :
@@ -56,7 +65,8 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
     abstract val isShuffleVisible: Boolean
     private var installStateUpdatedListener: InstallStateUpdatedListener? = null
     private val RC_APP_UPDATE = 11
-
+    var nativeAdHelper: NewNativeAdHelper? = null
+    private var firebasePrefs: SharedPreferences? = null
 
     private fun getAppUpdate() {
         appUpdateManager = AppUpdateManagerFactory.create(activity as Context)
@@ -159,7 +169,28 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
         setUpRecyclerView()
         setupToolbar()
 
+        firebasePrefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+
+        setUpAtMeGamesBanners()
+
+        binding.nativeShimmer.isVisible = true
+        binding.nativeShimmer.startShimmer()
+
+        nativeAdHelper = activity?.let { NewNativeAdHelper(it) }
+
+        binding.nativeLayout.let { frameLayout ->
+            // NativeAdHelper(this, it).refreshAd(
+            //     true, R.layout.native_layout_small, NATIVE_LOADING_DIALOG, shimmerGettingVideo
+            // )
+            nativeAdHelper?.refreshAd(NATIVE_HOME_SCREEN, frameLayout, binding.nativeShimmer)
+
+        }
+
+        binding.nativeLayout.isVisible = false
+        binding.nativeShimmer.isVisible = false
+
         getAppUpdate()
+
 
         binding.shuffleButton.fitsSystemWindows = PreferenceUtil.isFullScreenMode
         // Add listeners when shuffle is visible
@@ -368,4 +399,43 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
             appUpdateManager!!.unregisterListener(installStateUpdatedListener!!)
         }
     }
+
+    private fun setUpAtMeGamesBanners() {
+        if (isConnectedToInternet()) {
+            //binding.homeBanner.viewPagerImageSlider.isVisible = true
+            binding.rlPlayQuizIcon.isVisible = true
+            val sliderItems = firebasePrefs?.let { bannerSliderItems(it) }
+            val sliderAdapter = SliderAdapter(object : OnRecyclerItemClickListener {
+                override fun onBannerItemClick(sliderItem: SliderAdapter.Page) {
+                    super.onBannerItemClick(sliderItem)
+                    val customIntent = CustomTabsIntent.Builder()
+                    //customIntent.setToolbarColor(ContextCompat.getColor(MainActivity.this, R.color.purple_200));
+                    openCustomTab(customIntent.build(), Uri.parse(sliderItem.url))
+                    Log.d("listenerUrl", "bind: ${sliderItem.url}")
+                }
+            })
+            binding.playlistContainer.homeBanner.adapter = sliderAdapter
+
+            // Calling the start method to start carousel by passing in the interval.
+            binding.playlistContainer.homeBanner.start(3, TimeUnit.SECONDS)
+            if (sliderItems != null) {
+                sliderAdapter.setData(sliderItems)
+            }
+
+            firebasePrefs?.let { setIconForQuiz(binding.playQuizImg, it) }
+            binding.playQuizImg.setOnClickListener {
+                openCustomTab(CustomTabsIntent.Builder().build(), Uri.parse(PLAY_QUIZ))
+                binding.rlPlayQuizIcon.isVisible = false
+            }
+            binding.quizIconCloseBtn.setOnClickListener {
+                binding.rlPlayQuizIcon.isVisible = false
+            }
+
+        } else {
+            binding.playlistContainer.homeBanner.isVisible = false
+            binding.rlPlayQuizIcon.isVisible = false
+        }
+    }
+
+
 }

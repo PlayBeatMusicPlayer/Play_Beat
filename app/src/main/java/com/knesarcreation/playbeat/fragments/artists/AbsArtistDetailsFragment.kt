@@ -26,11 +26,11 @@ import com.afollestad.materialcab.attached.destroy
 import com.afollestad.materialcab.attached.isActive
 import com.afollestad.materialcab.createCab
 import com.google.android.material.transition.MaterialContainerTransform
-import com.knesarcreation.playbeat.App
-import com.knesarcreation.playbeat.EXTRA_ALBUM_ID
-import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.*
 import com.knesarcreation.playbeat.adapter.album.HorizontalAlbumAdapter
 import com.knesarcreation.playbeat.adapter.song.SimpleSongAdapter
+import com.knesarcreation.playbeat.ads.InterstitialAdHelperClass
+import com.knesarcreation.playbeat.ads.NativeAdHelper
 import com.knesarcreation.playbeat.databinding.FragmentArtistDetailsBinding
 import com.knesarcreation.playbeat.dialogs.AddToPlaylistDialog
 import com.knesarcreation.playbeat.extensions.*
@@ -60,6 +60,7 @@ abstract class AbsArtistDetailsFragment : AbsMainActivityFragment(R.layout.fragm
     private var _binding: FragmentArtistDetailsBinding? = null
     private val binding get() = _binding!!
 
+    private var mInterstitialAdHelper: InterstitialAdHelperClass? = null
     abstract val detailsViewModel: ArtistDetailsViewModel
     abstract val artistId: Long?
     abstract val artistName: String?
@@ -73,6 +74,12 @@ abstract class AbsArtistDetailsFragment : AbsMainActivityFragment(R.layout.fragm
     private val savedSongSortOrder: String
         get() = PreferenceUtil.artistDetailSongSortOrder
 
+    override fun onDestroy() {
+        super.onDestroy()
+        if (mInterstitialAdHelper != null)
+            mInterstitialAdHelper = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedElementEnterTransition = MaterialContainerTransform().apply {
@@ -80,6 +87,12 @@ abstract class AbsArtistDetailsFragment : AbsMainActivityFragment(R.layout.fragm
             scrimColor = Color.TRANSPARENT
             setAllContainerColors(surfaceColor())
         }
+
+        mInterstitialAdHelper = InterstitialAdHelperClass(requireContext())
+        mInterstitialAdHelper?.loadInterstitialAd(
+            INTERSTITIAL_ARTIST_DETAILS_PLAY_SHUFFLE
+        )
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -97,6 +110,13 @@ abstract class AbsArtistDetailsFragment : AbsMainActivityFragment(R.layout.fragm
                 startPostponedEnterTransition()
             }
             showArtist(it, view)
+        }
+
+        binding.nativeLayout.let {
+            NativeAdHelper(requireContext()).refreshAd(
+                it,
+                NATIVE_ARTIST_DETAILS
+            )
         }
 
         when (App.getContext().generalThemeValue) {
@@ -124,10 +144,35 @@ abstract class AbsArtistDetailsFragment : AbsMainActivityFragment(R.layout.fragm
         setupRecyclerView()
 
         binding.fragmentArtistContent.playAction.apply {
-            setOnClickListener { MusicPlayerRemote.openQueue(artist.sortedSongs, 0, true) }
+            setOnClickListener {
+                mInterstitialAdHelper?.showInterstitial(
+                    INTERSTITIAL_ARTIST_DETAILS_PLAY_SHUFFLE,
+                    PLAY_BUTTON,
+                    artist.sortedSongs,
+                    0
+                )
+                //MusicPlayerRemote.openQueue(artist.sortedSongs, 0, true)
+            }
         }
         binding.fragmentArtistContent.shuffleAction.apply {
-            setOnClickListener { MusicPlayerRemote.openAndShuffleQueue(artist.songs, true) }
+            setOnClickListener {
+                mInterstitialAdHelper?.showInterstitial(
+                    INTERSTITIAL_ARTIST_DETAILS_PLAY_SHUFFLE,
+                    SHUFFLE_BUTTON,
+                    artist.sortedSongs, 0
+                )
+                // MusicPlayerRemote.openAndShuffleQueue(artist.songs, true)
+            }
+        }
+
+        binding.fragmentArtistContent.moreSongs.apply {
+            setOnClickListener {
+                findNavController().navigate(
+                    R.id.moreArtistSongsFragment,
+                    bundleOf(EXTRA_ARTIST_ID to artistId),
+                    null,
+                )
+            }
         }
 
         binding.fragmentArtistContent.biographyText.setOnClickListener {
@@ -203,6 +248,12 @@ abstract class AbsArtistDetailsFragment : AbsMainActivityFragment(R.layout.fragm
         binding.fragmentArtistContent.albumTitle.text = albumText
         songAdapter.swapDataSet(artist.sortedSongs)
         albumAdapter.swapDataSet(artist.albums)
+
+        if (artist.sortedSongs.size > 5) {
+            binding.fragmentArtistContent.moreSongs.show()
+        } else {
+            binding.fragmentArtistContent.moreSongs.hide()
+        }
     }
 
     private fun loadBiography(

@@ -126,7 +126,7 @@ public class PlayBeatUtil {
             @NonNull Resources res,
             @DrawableRes int resId,
             @Nullable Resources.Theme theme,
-              int color) {
+            int color) {
         return TintHelper.createTintedDrawable(getVectorDrawable(res, resId, theme), color);
     }
 

@@ -1,11 +1,11 @@
-
 package com.knesarcreation.playbeat
 
 import android.provider.BaseColumns
 import android.provider.MediaStore
 
 object Constants {
-    const val RATE_ON_GOOGLE_PLAY = "https://play.google.com/store/apps/details?id=com.knesarcreation.playbeat"
+    const val RATE_ON_GOOGLE_PLAY =
+        "https://play.google.com/store/apps/details?id=com.knesarcreation.playbeat"
     const val GITHUB_PROJECT = "https://github.com/PlayBeatMusicPlayer/Play_Beat"
 
     const val IS_MUSIC =
@@ -57,6 +57,7 @@ const val GENERAL_THEME = "general_theme"
 const val ACCENT_COLOR = "accent_color"
 const val SHOULD_COLOR_APP_SHORTCUTS = "should_color_app_shortcuts"
 const val CIRCULAR_ALBUM_ART = "circular_album_art"
+
 //const val USER_NAME = "user_name"
 const val TOGGLE_FULL_SCREEN = "toggle_full_screen"
 const val TOGGLE_VOLUME = "toggle_volume"
@@ -141,3 +142,15 @@ const val SWIPE_ANYWHERE_NOW_PLAYING = "swipe_anywhere_now_playing"
 const val PAUSE_HISTORY = "pause_history"
 const val SLEEP_TIME = "Sleep_time"
 const val SLEEP_TIME_ENABLED = "Sleep_time_enabled"
+const val PLAY_BUTTON = "openQueue"
+const val SONG_CLICK = "songClick"
+const val SHUFFLE_BUTTON = "openAndShuffleQueue"
+const val NEXT_SONG = "nextSong"
+const val BACK_SONG = "backSong"
+
+const val PLAY_QUIZ = "https://play484.atmequiz.com/"
+const val PLAY_FREE_GAMES = "https://play484.atmegame.com/"
+
+const val EXTRAS_QUIZ = "quiz"
+const val EXTRAS_FREE_GAMES = "free_game"
+

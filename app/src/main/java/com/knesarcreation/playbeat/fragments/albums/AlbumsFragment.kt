@@ -5,6 +5,7 @@ import android.view.*
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -50,7 +51,8 @@ class AlbumsFragment : AbsRecyclerViewCustomGridSizeFragment<AlbumAdapter, GridL
         }
 
         binding.playlistContainer.playlistViewContainer.visibility = View.GONE
-
+        binding.nativeLayout.isVisible = true
+        binding.nativeShimmer.isVisible = true
     }
 
     override val titleRes: Int
@@ -155,7 +157,7 @@ class AlbumsFragment : AbsRecyclerViewCustomGridSizeFragment<AlbumAdapter, GridL
         if (PlayBeatUtil.isLandscape()) {
             gridSizeItem.setTitle(R.string.action_grid_size_land)
         }
-        setUpGridSizeMenu(gridSizeItem.subMenu)
+        gridSizeItem.subMenu?.let { setUpGridSizeMenu(it) }
         /*  val layoutItem = menu.findItem(R.id.action_layout_type)
           setupLayoutMenu(layoutItem.subMenu)
           setUpSortOrderMenu(menu.findItem(R.id.action_sort_order).subMenu)*/

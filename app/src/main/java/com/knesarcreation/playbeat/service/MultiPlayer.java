@@ -316,9 +316,9 @@ public class MultiPlayer
         mCurrentMediaPlayer.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
         if (context != null) {
             Toast.makeText(
-                    context,
-                    context.getResources().getString(R.string.unplayable_file),
-                    Toast.LENGTH_SHORT)
+                            context,
+                            context.getResources().getString(R.string.unplayable_file),
+                            Toast.LENGTH_SHORT)
                     .show();
             Log.e(TAG, String.valueOf(what) + extra);
         }

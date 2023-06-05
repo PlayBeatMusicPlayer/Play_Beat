@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="Theme.PlayBeat.Base.Adaptive" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="toolbarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="roundSelector">@drawable/round_selector</item>
@@ -75,9 +76,9 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-   <!-- <style name="EqualizerSwitch" parent="Theme.AppCompat.Light">
-        <item name="colorControlActivated">@color/m3_accent_color</item>
-        <item name="colorSwitchThumbNormal">@color/md_white_1000</item>
-        <item name="android:colorForeground">@color/md_grey_600</item>
-    </style>-->
+    <!-- <style name="EqualizerSwitch" parent="Theme.AppCompat.Light">
+         <item name="colorControlActivated">@color/m3_accent_color</item>
+         <item name="colorSwitchThumbNormal">@color/md_white_1000</item>
+         <item name="android:colorForeground">@color/md_grey_600</item>
+     </style>-->
 </resources>

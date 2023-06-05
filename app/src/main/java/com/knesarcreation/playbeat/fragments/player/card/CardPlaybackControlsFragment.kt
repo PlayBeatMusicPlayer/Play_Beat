@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.fragments.player.card
 
 import android.graphics.PorterDuff

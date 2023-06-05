@@ -1,8 +1,10 @@
 package com.knesarcreation.playbeat.util;
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.NetworkInfo
 import androidx.core.content.edit
 import androidx.core.content.getSystemService
@@ -28,6 +30,26 @@ import com.knesarcreation.playbeat.views.TopAppBarLayout
 import java.io.File
 
 
+fun Context.isConnectedToInternet(): Boolean {
+    var isConnected = false
+    val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val hasTransport = cm.getNetworkCapabilities(cm.activeNetwork)
+    if (hasTransport != null) {
+        // connected to the internet
+        if (hasTransport.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+            // connected to mobile data
+            isConnected = true
+        } else if (hasTransport.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+            // connected to wifi
+            isConnected = true
+        }
+    } else {
+        // not connected to the internet
+        isConnected = false
+    }
+    return isConnected
+}
+
 object PreferenceUtil {
     private val sharedPreferences: SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(App.getContext())
@@ -38,9 +60,9 @@ object PreferenceUtil {
         CategoryInfo(CategoryInfo.Category.Albums, true),
         CategoryInfo(CategoryInfo.Category.Artists, true),
         CategoryInfo(CategoryInfo.Category.Playlists, true),
-        CategoryInfo(CategoryInfo.Category.Genres, false),
-        CategoryInfo(CategoryInfo.Category.Folder, false),
-        CategoryInfo(CategoryInfo.Category.About, true),
+        //CategoryInfo(CategoryInfo.Category.Genres, false),
+        CategoryInfo(CategoryInfo.Category.Folder, true),
+        CategoryInfo(CategoryInfo.Category.About, false),
         // CategoryInfo(CategoryInfo.Category.Setting, true),
     )
 
@@ -206,7 +228,7 @@ object PreferenceUtil {
     val isIgnoreMediaStoreArtwork
         get() = sharedPreferences.getBoolean(
             IGNORE_MEDIA_STORE_ARTWORK,
-            false
+            true
         )
 
     val isVolumeVisibilityMode
@@ -321,7 +343,7 @@ object PreferenceUtil {
 
     val isAdaptiveColor
         get() = sharedPreferences.getBoolean(
-            ADAPTIVE_COLOR_APP, false
+            ADAPTIVE_COLOR_APP, true
         )
 
     val isFullScreenMode
@@ -456,7 +478,7 @@ object PreferenceUtil {
     val tabTitleMode: Int
         get() {
             return when (sharedPreferences.getStringOrDefault(
-                TAB_TEXT_MODE, "1"
+                TAB_TEXT_MODE, "2"
             ).toInt()) {
                 1 -> BottomNavigationView.LABEL_VISIBILITY_LABELED
                 0 -> BottomNavigationView.LABEL_VISIBILITY_AUTO

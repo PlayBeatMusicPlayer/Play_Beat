@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.dialogs
 
 import android.app.Dialog
@@ -45,7 +44,8 @@ class CreatePlaylistDialog : DialogFragment() {
         val playlistView: TextInputEditText = binding.actionNewPlaylist
         val playlistContainer: TextInputLayout = binding.actionNewPlaylistContainer
         return materialDialog(
-            R.string.new_playlist_title)
+            R.string.new_playlist_title
+        )
             .setView(binding.root)
             .setPositiveButton(
                 R.string.create_action

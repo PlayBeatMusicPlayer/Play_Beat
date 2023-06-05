@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.fragments.folder
 
 import android.app.Dialog
@@ -125,18 +124,19 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folder),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setHasOptionsMenu(true)
-        if (savedInstanceState == null) {
-            switchToFileAdapter()
-            setCrumb(
-                Crumb(
-                    FileUtil.safeGetCanonicalFile(startDirectory)
-                ),
-                true
-            )
-        } else {
-            binding.breadCrumbs.restoreFromStateWrapper(savedInstanceState.getParcelable(CRUMBS))
-            LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this)
-        }
+        /* if (savedInstanceState == null) {
+
+         } else {
+             binding.breadCrumbs.restoreFromStateWrapper(savedInstanceState.getParcelable(CRUMBS))
+             LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this)
+         }*/
+        switchToFileAdapter()
+        setCrumb(
+            Crumb(
+                FileUtil.safeGetCanonicalFile(startDirectory)
+            ),
+            true
+        )
     }
 
     override fun onPause() {
@@ -452,7 +452,7 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folder),
 
     private fun checkIsEmpty() {
         if (_binding != null) {
-            binding.emptyEmoji.text = getEmojiByUnicode(0x1F631)
+            // binding.emptyEmoji.text = getEmojiByUnicode(0x1F631)
             binding.empty.isVisible = adapter?.itemCount == 0
         }
     }
@@ -757,15 +757,12 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folder),
     companion object {
         val TAG: String = FoldersFragment::class.java.simpleName
         val AUDIO_FILE_FILTER = FileFilter { file: File ->
-            (!file.isHidden
-                    && (file.isDirectory
-                    || FileUtil.fileIsMimeType(file, "audio/*", MimeTypeMap.getSingleton())
-                    || FileUtil.fileIsMimeType(file, "application/opus", MimeTypeMap.getSingleton())
-                    || FileUtil.fileIsMimeType(
+            (!file.isHidden && (file.isDirectory || FileUtil.fileIsMimeType(
                 file,
-                "application/ogg",
+                "audio/*",
                 MimeTypeMap.getSingleton()
-            )))
+            )
+                    ))
         }
         private const val CRUMBS = "crumbs"
         private const val LOADER_ID = 5
@@ -774,7 +771,7 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folder),
         val defaultStartDirectory: File
             get() {
                 val musicDir =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 val startFolder = if (musicDir.exists() && musicDir.isDirectory) {
                     musicDir
                 } else {

@@ -2,6 +2,7 @@ package com.knesarcreation.playbeat.activities.base
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
+import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -41,7 +42,8 @@ import com.knesarcreation.playbeat.util.ViewUtil
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity() {
+abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
+    SharedPreferences.OnSharedPreferenceChangeListener {
     companion object {
         val TAG: String = AbsSlidingMusicPanelActivity::class.java.simpleName
     }
@@ -107,6 +109,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity() {
     }
 
     fun getBottomSheetBehavior() = bottomSheetBehavior
+    private var valueAnimator: ValueAnimator? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,6 +122,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity() {
             windowInsets = insets
             insets
         }
+
         chooseFragmentForTheme()
         setupSlidingUpPanel()
         setupBottomSheet()
@@ -166,11 +171,13 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity() {
 
     private fun setMiniPlayerAlphaProgress(progress: Float) {
         if (progress < 0) return
+
         val alpha = 1 - progress
         miniPlayerFragment?.view?.alpha = 1 - (progress / 0.2F)
         miniPlayerFragment?.view?.isGone = alpha == 0f
         binding.bottomNavigationView.translationY = progress * 500
         binding.bottomNavigationView.alpha = alpha
+//        binding.playerFragmentContainer.alpha = (progress) / 0.1F
         binding.playerFragmentContainer.alpha = (progress - 0.2F) / 0.2F
     }
 
@@ -179,7 +186,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity() {
         navigationBarColorAnimator?.cancel()
         navigationBarColorAnimator = ValueAnimator
             .ofArgb(window.navigationBarColor, color).apply {
-                duration = ViewUtil.RETRO_MUSIC_ANIM_TIME.toLong()
+                duration = ViewUtil.PLAY_BEAT_MUSIC_ANIM_TIME.toLong()
                 interpolator = PathInterpolator(0.4f, 0f, 1f, 1f)
                 addUpdateListener { animation: ValueAnimator ->
                     setNavigationBarColorPreOreo(

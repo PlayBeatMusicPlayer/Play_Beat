@@ -56,7 +56,6 @@
             app:listItemTitle="@string/rate_app" />
 
 
-
         <com.knesarcreation.playbeat.views.ListItemView
             android:id="@+id/appShare"
             android:layout_width="0dp"
@@ -70,18 +69,18 @@
             app:listItemSummary="@string/share_summary"
             app:listItemTitle="@string/action_share" />
 
-       <!-- <com.knesarcreation.playbeat.views.ListItemView
-            android:id="@+id/faqLink"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constrainedWidth="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/appShare"
-            app:listItemIcon="@drawable/ic_help"
-            app:listItemSummary="@string/help_summary"
-            app:listItemTitle="@string/faq" />-->
+        <!-- <com.knesarcreation.playbeat.views.ListItemView
+             android:id="@+id/faqLink"
+             android:layout_width="0dp"
+             android:layout_height="wrap_content"
+             app:layout_constrainedWidth="true"
+             app:layout_constraintEnd_toEndOf="parent"
+             app:layout_constraintHorizontal_bias="0"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintTop_toBottomOf="@id/appShare"
+             app:listItemIcon="@drawable/ic_help"
+             app:listItemSummary="@string/help_summary"
+             app:listItemTitle="@string/faq" />-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

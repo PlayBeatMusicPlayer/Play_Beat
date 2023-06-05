@@ -188,7 +188,7 @@ class BottomSheetAudioMoreOptions(
                 } else {
                     if (isFavorite) R.drawable.ic_favorite else R.drawable.ic_favorite_border
                 }
-                val drawable: Drawable = if(isFavorite) PlayBeatUtil.getTintedVectorDrawable(
+                val drawable: Drawable = if (isFavorite) PlayBeatUtil.getTintedVectorDrawable(
                     requireContext(),
                     icon,
                     Color.RED

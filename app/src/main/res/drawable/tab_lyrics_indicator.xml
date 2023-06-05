@@ -3,8 +3,7 @@
     android:shape="rectangle">
     <corners
         android:topLeftRadius="@dimen/indicator_radius"
-        android:topRightRadius="@dimen/indicator_radius">
-    </corners>
+        android:topRightRadius="@dimen/indicator_radius"></corners>
 </shape>
 
 

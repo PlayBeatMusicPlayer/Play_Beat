@@ -6,6 +6,7 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuCompat
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.knesarcreation.playbeat.EXTRA_PLAYLIST
@@ -39,7 +40,10 @@ class PlaylistsFragment :
             remove()
             requireActivity().onBackPressed()
         }
+
         binding.playlistContainer.playlistViewContainer.visibility = View.GONE
+        binding.nativeLayout.isVisible = true
+        binding.nativeShimmer.isVisible = true
     }
 
     override val titleRes: Int
@@ -68,11 +72,11 @@ class PlaylistsFragment :
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-         val gridSizeItem: MenuItem = menu.findItem(R.id.action_grid_size)
+        val gridSizeItem: MenuItem = menu.findItem(R.id.action_grid_size)
         if (PlayBeatUtil.isLandscape()) {
             gridSizeItem.setTitle(R.string.action_grid_size_land)
         }
-        setupGridSizeMenu(gridSizeItem.subMenu)
+        gridSizeItem.subMenu?.let { setupGridSizeMenu(it) }
         //menu.removeItem(R.id.action_layout_type)
         menu.add(0, R.id.action_add_to_playlist, 0, R.string.new_playlist_title)
         menu.add(0, R.id.action_import_playlist, 0, R.string.import_playlist)
@@ -84,12 +88,12 @@ class PlaylistsFragment :
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-          if (handleGridSizeMenuItem(item)) {
-              return true
-          }
-          /*if (handleSortOrderMenuItem(item)) {
-              return true
-          }*/
+        if (handleGridSizeMenuItem(item)) {
+            return true
+        }
+        /*if (handleSortOrderMenuItem(item)) {
+            return true
+        }*/
         if (item.itemId == R.id.action_sort) {
             val bottomSheetSongsFragment = BottomSheetSort(getSortOrder(), 4 /*playlist sort*/)
             bottomSheetSongsFragment.show(
@@ -128,37 +132,37 @@ class PlaylistsFragment :
         return super.onOptionsItemSelected(item)
     }
 
-     private fun setupGridSizeMenu(gridSizeMenu: SubMenu) {
-         when (getGridSize()) {
-             1 -> gridSizeMenu.findItem(R.id.action_grid_size_1).isChecked = true
-             2 -> gridSizeMenu.findItem(R.id.action_grid_size_2).isChecked = true
-             3 -> gridSizeMenu.findItem(R.id.action_grid_size_3).isChecked = true
-             4 -> gridSizeMenu.findItem(R.id.action_grid_size_4).isChecked = true
-             5 -> gridSizeMenu.findItem(R.id.action_grid_size_5).isChecked = true
-             6 -> gridSizeMenu.findItem(R.id.action_grid_size_6).isChecked = true
-             7 -> gridSizeMenu.findItem(R.id.action_grid_size_7).isChecked = true
-             8 -> gridSizeMenu.findItem(R.id.action_grid_size_8).isChecked = true
-         }
-         val gridSize = if (PlayBeatUtil.isLandscape()) 4 else 2
-         if (gridSize < 8) {
-             gridSizeMenu.findItem(R.id.action_grid_size_8).isVisible = false
-         }
-         if (gridSize < 7) {
-             gridSizeMenu.findItem(R.id.action_grid_size_7).isVisible = false
-         }
-         if (gridSize < 6) {
-             gridSizeMenu.findItem(R.id.action_grid_size_6).isVisible = false
-         }
-         if (gridSize < 5) {
-             gridSizeMenu.findItem(R.id.action_grid_size_5).isVisible = false
-         }
-         if (gridSize < 4) {
-             gridSizeMenu.findItem(R.id.action_grid_size_4).isVisible = false
-         }
-         if (gridSize < 3) {
-             gridSizeMenu.findItem(R.id.action_grid_size_3).isVisible = false
-         }
-     }
+    private fun setupGridSizeMenu(gridSizeMenu: SubMenu) {
+        when (getGridSize()) {
+            1 -> gridSizeMenu.findItem(R.id.action_grid_size_1).isChecked = true
+            2 -> gridSizeMenu.findItem(R.id.action_grid_size_2).isChecked = true
+            3 -> gridSizeMenu.findItem(R.id.action_grid_size_3).isChecked = true
+            4 -> gridSizeMenu.findItem(R.id.action_grid_size_4).isChecked = true
+            5 -> gridSizeMenu.findItem(R.id.action_grid_size_5).isChecked = true
+            6 -> gridSizeMenu.findItem(R.id.action_grid_size_6).isChecked = true
+            7 -> gridSizeMenu.findItem(R.id.action_grid_size_7).isChecked = true
+            8 -> gridSizeMenu.findItem(R.id.action_grid_size_8).isChecked = true
+        }
+        val gridSize = if (PlayBeatUtil.isLandscape()) 4 else 2
+        if (gridSize < 8) {
+            gridSizeMenu.findItem(R.id.action_grid_size_8).isVisible = false
+        }
+        if (gridSize < 7) {
+            gridSizeMenu.findItem(R.id.action_grid_size_7).isVisible = false
+        }
+        if (gridSize < 6) {
+            gridSizeMenu.findItem(R.id.action_grid_size_6).isVisible = false
+        }
+        if (gridSize < 5) {
+            gridSizeMenu.findItem(R.id.action_grid_size_5).isVisible = false
+        }
+        if (gridSize < 4) {
+            gridSizeMenu.findItem(R.id.action_grid_size_4).isVisible = false
+        }
+        if (gridSize < 3) {
+            gridSizeMenu.findItem(R.id.action_grid_size_3).isVisible = false
+        }
+    }
 
     private fun setUpSortOrderMenu(subMenu: SubMenu) {
         val order: String? = getSortOrder()
@@ -206,25 +210,25 @@ class PlaylistsFragment :
         return false
     }
 
-     private fun handleGridSizeMenuItem(item: MenuItem): Boolean {
-         val gridSize = when (item.itemId) {
-             R.id.action_grid_size_1 -> 1
-             R.id.action_grid_size_2 -> 2
-             R.id.action_grid_size_3 -> 3
-             R.id.action_grid_size_4 -> 4
-             R.id.action_grid_size_5 -> 5
-             R.id.action_grid_size_6 -> 6
-             R.id.action_grid_size_7 -> 7
-             R.id.action_grid_size_8 -> 8
-             else -> 0
-         }
-         if (gridSize > 0) {
-             item.isChecked = true
-             setAndSaveGridSize(gridSize)
-             return true
-         }
-         return false
-     }
+    private fun handleGridSizeMenuItem(item: MenuItem): Boolean {
+        val gridSize = when (item.itemId) {
+            R.id.action_grid_size_1 -> 1
+            R.id.action_grid_size_2 -> 2
+            R.id.action_grid_size_3 -> 3
+            R.id.action_grid_size_4 -> 4
+            R.id.action_grid_size_5 -> 5
+            R.id.action_grid_size_6 -> 6
+            R.id.action_grid_size_7 -> 7
+            R.id.action_grid_size_8 -> 8
+            else -> 0
+        }
+        if (gridSize > 0) {
+            item.isChecked = true
+            setAndSaveGridSize(gridSize)
+            return true
+        }
+        return false
+    }
 
     private fun createId(menu: SubMenu, id: Int, title: Int, checked: Boolean) {
         menu.add(0, id, 0, title).isChecked = checked

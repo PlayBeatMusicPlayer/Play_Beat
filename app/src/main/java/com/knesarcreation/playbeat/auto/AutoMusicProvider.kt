@@ -170,15 +170,15 @@ class AutoMusicProvider(
                             )
                         }
                     }
-                    CategoryInfo.Category.Genres -> {
-                        mediaItems.add(
-                            AutoMediaItem.with(mContext)
-                                .asBrowsable()
-                                .path(AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE)
-                                .icon(R.drawable.ic_guitar)
-                                .title(resources.getString(R.string.genres)).build()
-                        )
-                    }
+                    //CategoryInfo.Category.Genres -> {
+                    //    mediaItems.add(
+                    //        AutoMediaItem.with(mContext)
+                    //            .asBrowsable()
+                    //            .path(AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE)
+                    //            .icon(R.drawable.ic_guitar)
+                    //            .title(resources.getString(R.string.genres)).build()
+                    //    )
+                    // }
                     CategoryInfo.Category.Playlists -> {
                         mediaItems.add(
                             AutoMediaItem.with(mContext)

@@ -1,4 +1,3 @@
-
 package com.knesarcreation.playbeat.adapter
 
 import android.graphics.PorterDuff

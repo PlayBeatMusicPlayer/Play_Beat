@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- <item
+         android:id="@+id/action_playback_speed"
+         android:icon="@drawable/ic_playback_speed"
+         android:orderInCategory="0"
+         android:title="@string/playback_speed"
+         tools:targetApi="23" />-->
     <item
-        android:id="@+id/action_playback_speed"
-        android:icon="@drawable/ic_playback_speed"
-        android:orderInCategory="0"
-        android:title="@string/playback_speed"
-        tools:targetApi="23" />
+        android:id="@+id/action_equalizer"
+        android:icon="@drawable/ic_equalizer"
+        android:orderInCategory="13"
+        android:title="@string/equalizer"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_toggle_lyrics"
         android:checkable="true"
@@ -28,16 +33,16 @@
         android:orderInCategory="3"
         android:title="@string/now_playing_queue"
         app:showAsAction="always" />
-    
-    <item
-        android:id="@+id/action_go_to_album"
-        android:icon="@drawable/ic_album"
-        android:orderInCategory="4"
-        android:title="@string/action_go_to_album" />
-    <item
-        android:id="@+id/action_go_to_artist"
-        android:orderInCategory="4"
-        android:title="@string/action_go_to_artist" />
+
+    <!-- <item
+         android:id="@+id/action_go_to_album"
+         android:icon="@drawable/ic_album"
+         android:orderInCategory="4"
+         android:title="@string/action_go_to_album" />
+     <item
+         android:id="@+id/action_go_to_artist"
+         android:orderInCategory="4"
+         android:title="@string/action_go_to_artist" />-->
     <item
         android:id="@+id/action_go_to_genre"
         android:orderInCategory="4"
@@ -77,11 +82,7 @@
         android:orderInCategory="12"
         android:title="@string/action_sleep_timer"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/action_equalizer"
-        android:orderInCategory="13"
-        android:title="@string/equalizer"
-        app:showAsAction="never" />
+
     <item
         android:id="@+id/action_delete_from_device"
         android:orderInCategory="14"

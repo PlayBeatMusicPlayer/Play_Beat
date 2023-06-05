@@ -200,6 +200,7 @@ class MusicService : MediaBrowserServiceCompat(),
             appWidgetCircle.notifyChange(this@MusicService, FAVORITE_STATE_CHANGED)
         }
     }
+
     /*private val lockScreenReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (isLockScreen && isPlaying) {
@@ -893,7 +894,11 @@ class MusicService : MediaBrowserServiceCompat(),
         if (requestFocus()) {
             if (playback != null && !playback!!.isPlaying) {
 
-                Settings().applyEqualizer(applicationContext)
+                try {
+                    Settings().applyEqualizer(applicationContext)
+                } catch (e: Exception) {
+                    Log.d("ApplyEqualizerThrows", "play: ${e.message} ")
+                }
 
                 if (!playback!!.isInitialized) {
                     playSongAt(getPosition())

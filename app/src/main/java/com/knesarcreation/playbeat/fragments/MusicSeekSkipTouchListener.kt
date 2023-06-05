@@ -1,11 +1,18 @@
 package com.knesarcreation.playbeat.fragments
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
+import com.knesarcreation.playbeat.BACK_SONG
+import com.knesarcreation.playbeat.INTERSTITIAL_NEXT_BACK_AND_SWIPE_ANYWHERE_SONG
+import com.knesarcreation.playbeat.NEXT_SONG
+import com.knesarcreation.playbeat.ads.InterstitialAdHelperClass
+import com.knesarcreation.playbeat.ads.NEXT_ADS_SHOW_TIME
+import com.knesarcreation.playbeat.fragments.player.gradient.mInterstitialAdHelperClass
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote
 import kotlinx.coroutines.*
 
@@ -22,7 +29,7 @@ class MusicSeekSkipTouchListener(val activity: FragmentActivity, val next: Boole
 
     private val gestureDetector = GestureDetector(activity, object :
         GestureDetector.SimpleOnGestureListener() {
-        override fun onDown(e: MotionEvent?): Boolean {
+        override fun onDown(e: MotionEvent): Boolean {
             job = activity.lifecycleScope.launch(Dispatchers.Default) {
                 counter = 0
                 while (isActive) {
@@ -43,19 +50,74 @@ class MusicSeekSkipTouchListener(val activity: FragmentActivity, val next: Boole
     })
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-        val action = event?.actionMasked
+    override fun onTouch(v: View?, event: MotionEvent): Boolean {
+        val action = event.actionMasked
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
             job?.cancel()
             if (!wasSeeking) {
+                Log.d(
+                    "Differencetime",
+                    "onTouch: ${(System.currentTimeMillis() - InterstitialAdHelperClass.prevSeenAdsTime) / 1000}"
+                )
                 if (next) {
+//                    if ((System.currentTimeMillis() - InterstitialAdHelperClass.prevSeenAdsTime) / 1000 >= NEXT_ADS_SHOW_TIME) {
+//                        /* mInterstitialAdHelperClass?.showInterstitial(
+//                             INTERSTITIAL_NEXT_BACK_AND_SWIPE_ANYWHERE_SONG,
+//                             NEXT_SONG
+//                         )*/
+//                        if (
+//                            com.knesarcreation.playbeat.fragments.base.mInterstitialAdHelperClass /*initialized in AbsPlayerFragment*/ != null) {
+//                            /**
+//                             * here mInterstitialAdHelperClass is initialized in all [AbsPlayerControlsFragment] which extends in all player fragment except the [GradientPlayerFragment]
+//                             *  so it will be null when [GradientPlayerFragment] fragment is added on view.*/
+//                            com.knesarcreation.playbeat.fragments.base.mInterstitialAdHelperClass?.showInterstitial(
+//                                INTERSTITIAL_NEXT_BACK_AND_SWIPE_ANYWHERE_SONG,
+//                                NEXT_SONG
+//                            )
+//                        } else {
+//                            // for gradientFragmentPlayer : if mInterstitialAd is null then this code will run
+//                            /** here mInterstitialAdHelperClass is initialized in [GradientPlayerFragment] so it will not be null,
+//                             *  when [GradientPlayerFragment] fragment is added on view.*/
+//                            mInterstitialAdHelperClass?.showInterstitial(
+//                                INTERSTITIAL_NEXT_BACK_AND_SWIPE_ANYWHERE_SONG,
+//                                NEXT_SONG
+//                            )
+//                        }
+//                    } else {
                     MusicPlayerRemote.playNextSong()
+                    // }
+
                 } else {
+//                    if ((System.currentTimeMillis() - InterstitialAdHelperClass.prevSeenAdsTime) / 1000 >= NEXT_ADS_SHOW_TIME) {
+//                        /* mInterstitialAdHelperClass?.showInterstitial(
+//                             INTERSTITIAL_NEXT_BACK_AND_SWIPE_ANYWHERE_SONG,
+//                             BACK_SONG
+//                         )*/
+//                        if (
+//                            com.knesarcreation.playbeat.fragments.base.mInterstitialAdHelperClass /*initialized in AbsPlayerFragment*/ != null) {
+//                            /**
+//                             * here mInterstitialAdHelperClass is initialized in all [AbsPlayerControlsFragment] which extends in all player fragment except the [GradientPlayerFragment]
+//                             *  so it will be null when [GradientPlayerFragment] fragment is added on view.*/
+//                            com.knesarcreation.playbeat.fragments.base.mInterstitialAdHelperClass?.showInterstitial(
+//                                INTERSTITIAL_NEXT_BACK_AND_SWIPE_ANYWHERE_SONG,
+//                                BACK_SONG
+//                            )
+//                        } else {
+//                            // for gradientFragmentPlayer : if mInterstitialAd is null then this code will run
+//                            /** here mInterstitialAdHelperClass is initialized in [GradientPlayerFragment] so it will not be null,
+//                             *  when [GradientPlayerFragment] fragment is added on view.*/
+//                            mInterstitialAdHelperClass?.showInterstitial(
+//                                INTERSTITIAL_NEXT_BACK_AND_SWIPE_ANYWHERE_SONG,
+//                                BACK_SONG
+//                            )
+//                        }
+//                    } else {
                     MusicPlayerRemote.back()
+//                    }
                 }
             }
             wasSeeking = false
         }
-        return gestureDetector.onTouchEvent(event)
+        return event.let { gestureDetector.onTouchEvent(it) }
     }
 }

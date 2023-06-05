@@ -4,8 +4,6 @@ import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.content.ContentValues
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.*
@@ -19,15 +17,15 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.knesarcreation.playbeat.INTERSTITIAL_AUDIO_TRIM
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.ads.InterstitialAdHelperClass
 import com.knesarcreation.playbeat.customAudioViews.MarkerView
 import com.knesarcreation.playbeat.customAudioViews.SamplePlayer
 import com.knesarcreation.playbeat.customAudioViews.SoundFile
@@ -101,7 +99,9 @@ class AudioTrimmerActivity : AppCompatActivity(), View.OnClickListener, MarkerVi
     private lateinit var allSongModle: Song
     private var radioBtn = ""
     private lateinit var loadingDialog: androidx.appcompat.app.AlertDialog
+
     //private var storage = StorageUtil(this)
+    private var mInterstitialAdHelperClass: InterstitialAdHelperClass? = null
 
     private fun updateTheme() {
         AppCompatDelegate.setDefaultNightMode(ThemeManager.getNightMode())
@@ -123,6 +123,10 @@ class AudioTrimmerActivity : AppCompatActivity(), View.OnClickListener, MarkerVi
 
         binding = ActivityTrimBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+
+        mInterstitialAdHelperClass = InterstitialAdHelperClass(this)
+        mInterstitialAdHelperClass?.loadInterstitialAd(INTERSTITIAL_AUDIO_TRIM)
 
 
         binding.arrowBackIV.setOnClickListener {
@@ -214,7 +218,6 @@ class AudioTrimmerActivity : AppCompatActivity(), View.OnClickListener, MarkerVi
         // }
     }
 
-
     private val mTimerRunnable: Runnable = object : Runnable {
         override fun run() {
             // Updating Text is slow on Android.  Make sure
@@ -250,7 +253,7 @@ class AudioTrimmerActivity : AppCompatActivity(), View.OnClickListener, MarkerVi
             alertSaveTrimmedAudio.setView(customDialog)
 
             val dialog = alertSaveTrimmedAudio.create()
-           //dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            //dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             dialog.show()
             dialog.setCancelable(false)
 
@@ -1188,6 +1191,7 @@ class AudioTrimmerActivity : AppCompatActivity(), View.OnClickListener, MarkerVi
         if (mPlayer != null && mPlayer!!.isPlaying) {
             mPlayer!!.release()
         }
+        mInterstitialAdHelperClass?.showInterstitial(INTERSTITIAL_AUDIO_TRIM)
     }
 
 }
