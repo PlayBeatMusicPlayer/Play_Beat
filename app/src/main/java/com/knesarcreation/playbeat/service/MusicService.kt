@@ -132,21 +132,27 @@ class MusicService : MediaBrowserServiceCompat(),
                     AppWidgetClassic.NAME -> {
                         appWidgetClassic.performUpdate(this@MusicService, ids)
                     }
+
                     AppWidgetSmall.NAME -> {
                         appWidgetSmall.performUpdate(this@MusicService, ids)
                     }
+
                     AppWidgetBig.NAME -> {
                         appWidgetBig.performUpdate(this@MusicService, ids)
                     }
+
                     AppWidgetCard.NAME -> {
                         appWidgetCard.performUpdate(this@MusicService, ids)
                     }
+
                     AppWidgetText.NAME -> {
                         appWidgetText.performUpdate(this@MusicService, ids)
                     }
+
                     AppWidgetMD3.NAME -> {
                         appWidgetMd3.performUpdate(this@MusicService, ids)
                     }
+
                     AppWidgetCircle.NAME -> {
                         appWidgetCircle.performUpdate(this@MusicService, ids)
                     }
@@ -250,6 +256,7 @@ class MusicService : MediaBrowserServiceCompat(),
             when (state) {
                 TelephonyManager.CALL_STATE_IDLE ->                             // Not in call: Play music
                     play()
+
                 TelephonyManager.CALL_STATE_RINGING, TelephonyManager.CALL_STATE_OFFHOOK -> {
                     Log.d("SleepTimeAudioPaused", "pause:  Phone state")
                     pause()
@@ -271,6 +278,7 @@ class MusicService : MediaBrowserServiceCompat(),
                             pause()
                             Log.d("SleepTimeAudioPausedMediaSession", "pause:  headset")
                         }
+
                         1 -> play()
                     }
                 }
@@ -366,7 +374,7 @@ class MusicService : MediaBrowserServiceCompat(),
         sendBroadcast(Intent("com.knesarcreation.playbeat.PLAY_BEAT_SERVICE_CREATED"))
         registerHeadsetEvents()
         registerBluetoothConnected()
-        mPackageValidator = PackageValidator(this, R.xml.allowed_media_browser_callers)
+        //mPackageValidator = PackageValidator(this, R.xml.allowed_media_browser_callers)
         mMusicProvider.setMusicService(this)
     }
 
@@ -483,6 +491,7 @@ class MusicService : MediaBrowserServiceCompat(),
             REPEAT_MODE_ALL -> if (isLastTrack) {
                 position = 0
             }
+
             REPEAT_MODE_THIS -> if (force) {
                 if (isLastTrack) {
                     position = 0
@@ -490,9 +499,11 @@ class MusicService : MediaBrowserServiceCompat(),
             } else {
                 position -= 1
             }
+
             REPEAT_MODE_NONE -> if (isLastTrack) {
                 position -= 1
             }
+
             else -> if (isLastTrack) {
                 position -= 1
             }
@@ -520,6 +531,7 @@ class MusicService : MediaBrowserServiceCompat(),
             REPEAT_MODE_ALL -> if (newPosition < 0) {
                 newPosition = playingQueue.size - 1
             }
+
             REPEAT_MODE_THIS -> if (force) {
                 if (newPosition < 0) {
                     newPosition = playingQueue.size - 1
@@ -527,9 +539,11 @@ class MusicService : MediaBrowserServiceCompat(),
             } else {
                 newPosition = getPosition()
             }
+
             REPEAT_MODE_NONE -> if (newPosition < 0) {
                 newPosition = 0
             }
+
             else -> if (newPosition < 0) {
                 newPosition = 0
             }
@@ -559,6 +573,7 @@ class MusicService : MediaBrowserServiceCompat(),
                 makeShuffleList(playingQueue, getPosition())
                 position = 0
             }
+
             SHUFFLE_MODE_NONE -> {
                 this.shuffleMode = shuffleMode
                 val currentSongId = Objects.requireNonNull(currentSong).id
@@ -631,9 +646,11 @@ class MusicService : MediaBrowserServiceCompat(),
             currentPosition in to until from -> {
                 position = currentPosition + 1
             }
+
             currentPosition in (from + 1)..to -> {
                 position = currentPosition - 1
             }
+
             from == currentPosition -> {
                 position = to
             }
@@ -648,40 +665,41 @@ class MusicService : MediaBrowserServiceCompat(),
 
     override fun onBind(intent: Intent): IBinder {
         // For Android auto, need to call super, or onGetRoot won't be called.
-        return if ("android.media.browse.MediaBrowserService" == intent.action) {
-            super.onBind(intent)!!
-        } else musicBind
+        // return if ("android.media.browse.MediaBrowserService" == intent.action) {
+        //     super.onBind(intent)!!
+        // } else musicBind
+        return musicBind
     }
 
-    override fun onGetRoot(
-        clientPackageName: String,
-        clientUid: Int,
-        rootHints: Bundle?
-    ): BrowserRoot {
+    //  override fun onGetRoot(
+    //      clientPackageName: String,
+    //      clientUid: Int,
+    //      rootHints: Bundle?
+    //  ): BrowserRoot {
 
 
-        // Check origin to ensure we're not allowing any arbitrary app to browse app contents
-        return if (!mPackageValidator!!.isKnownCaller(clientPackageName, clientUid)) {
-            // Request from an untrusted package: return an empty browser root
-            BrowserRoot(AutoMediaIDHelper.MEDIA_ID_EMPTY_ROOT, null)
-        } else {
-            /**
-             * By default return the browsable root. Treat the EXTRA_RECENT flag as a special case
-             * and return the recent root instead.
-             */
-            var isRecentRequest = false
-            if (rootHints != null) {
-                isRecentRequest =
-                    rootHints.getBoolean(BrowserRoot.EXTRA_RECENT)
-            }
-            val browserRootPath = if (isRecentRequest) {
-                AutoMediaIDHelper.RECENT_ROOT
-            } else {
-                AutoMediaIDHelper.MEDIA_ID_ROOT
-            }
-            BrowserRoot(browserRootPath, null)
-        }
-    }
+    // Check origin to ensure we're not allowing any arbitrary app to browse app contents
+//        return if (!mPackageValidator!!.isKnownCaller(clientPackageName, clientUid)) {
+//            // Request from an untrusted package: return an empty browser root
+//            BrowserRoot(AutoMediaIDHelper.MEDIA_ID_EMPTY_ROOT, null)
+//        } else {
+//            /**
+//             * By default return the browsable root. Treat the EXTRA_RECENT flag as a special case
+//             * and return the recent root instead.
+//             */
+//            var isRecentRequest = false
+//            if (rootHints != null) {
+//                isRecentRequest =
+//                    rootHints.getBoolean(BrowserRoot.EXTRA_RECENT)
+//            }
+//            val browserRootPath = if (isRecentRequest) {
+//                AutoMediaIDHelper.RECENT_ROOT
+//            } else {
+//                AutoMediaIDHelper.MEDIA_ID_ROOT
+//            }
+//            BrowserRoot(browserRootPath, null)
+//        }
+    // }
 
     override fun onLoadChildren(
         parentId: String,
@@ -704,7 +722,7 @@ class MusicService : MediaBrowserServiceCompat(),
     }
 
     override fun onSharedPreferenceChanged(
-        sharedPreferences: SharedPreferences, key: String
+        sharedPreferences: SharedPreferences?, key: String?
     ) {
         when (key) {
             CROSS_FADE_DURATION -> {
@@ -742,6 +760,7 @@ class MusicService : MediaBrowserServiceCompat(),
                     }
                 }
             }
+
             ALBUM_ART_ON_LOCK_SCREEN, BLURRED_ALBUM_ART -> updateMediaSessionMetaData()
             COLORED_NOTIFICATION -> {
                 playingNotification?.updateMetadata(currentSong) {
@@ -749,6 +768,7 @@ class MusicService : MediaBrowserServiceCompat(),
                     startForegroundOrNotify()
                 }
             }
+
             CLASSIC_NOTIFICATION -> {
                 updateNotification()
                 playingNotification?.updateMetadata(currentSong) {
@@ -756,6 +776,7 @@ class MusicService : MediaBrowserServiceCompat(),
                     startForegroundOrNotify()
                 }
             }
+
             PLAYBACK_SPEED -> updateMediaSessionPlaybackState()
             TOGGLE_HEADSET -> registerHeadsetEvents()
         }
@@ -782,11 +803,13 @@ class MusicService : MediaBrowserServiceCompat(),
                 } else {
                     play()
                 }
+
                 ACTION_PAUSE -> {
                     pause()
                     Log.d("SleepTimeAudioPausedMediaSession", "pause:  ACTION_PAUSE")
 
                 }
+
                 ACTION_PLAY -> play()
                 ACTION_PLAY_PLAYLIST -> playFromPlaylist(intent)
                 ACTION_REWIND -> back(true)
@@ -798,6 +821,7 @@ class MusicService : MediaBrowserServiceCompat(),
                     PreferenceUtil.isSleepTimeEnable = false
                     PreferenceUtil.sleepTime = 0
                 }
+
                 ACTION_PENDING_QUIT -> pendingQuit = true
                 TOGGLE_FAVORITE -> toggleFavorite(applicationContext, currentSong)
             }
@@ -825,6 +849,14 @@ class MusicService : MediaBrowserServiceCompat(),
             stopSelf()
         }
         return true
+    }
+
+    override fun onGetRoot(
+        clientPackageName: String,
+        clientUid: Int,
+        rootHints: Bundle?
+    ): BrowserRoot? {
+        return null
     }
 
     fun openQueue(
@@ -1246,6 +1278,7 @@ class MusicService : MediaBrowserServiceCompat(),
                 playingNotification?.setPlaying(isPlaying)
                 startForegroundOrNotify()
             }
+
             FAVORITE_STATE_CHANGED -> {
                 playingNotification?.updateFavorite(currentSong) {
                     startForegroundOrNotify()
@@ -1262,6 +1295,7 @@ class MusicService : MediaBrowserServiceCompat(),
                 }
                 songPlayCountHelper.notifySongChanged(currentSong)
             }
+
             META_CHANGED -> {
                 playingNotification?.updateMetadata(currentSong) { startForegroundOrNotify() }
                 playingNotification?.updateFavorite(currentSong) { startForegroundOrNotify() }
@@ -1276,6 +1310,7 @@ class MusicService : MediaBrowserServiceCompat(),
                 }
                 songPlayCountHelper.notifySongChanged(currentSong)
             }
+
             QUEUE_CHANGED -> {
                 updateMediaSessionMetaData() // because playing queue size might have changed
                 saveState()

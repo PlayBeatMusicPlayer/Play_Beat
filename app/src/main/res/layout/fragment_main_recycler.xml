@@ -56,29 +56,33 @@
             android:visibility="visible"
             app:layout_scrollFlags="scroll|enterAlways" />
 
-        <FrameLayout
-            android:id="@+id/native_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/actionFavourite"
-            tools:layout="@layout/native_layout_small" />
-
-        <com.facebook.shimmer.ShimmerFrameLayout
-            android:id="@+id/native_shimmer"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/actionFavourite"
-            tools:visibility="visible">
+            android:layout_height="wrap_content">
 
-            <include layout="@layout/native_shimmer_small" />
+            <FrameLayout
+                android:id="@+id/native_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_70mdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:layout="@layout/native_layout_small" />
 
-        </com.facebook.shimmer.ShimmerFrameLayout>
+            <com.facebook.shimmer.ShimmerFrameLayout
+                android:id="@+id/native_shimmer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:visibility="visible">
+
+                <include layout="@layout/native_shimmer_small" />
+
+            </com.facebook.shimmer.ShimmerFrameLayout>
+        </RelativeLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 

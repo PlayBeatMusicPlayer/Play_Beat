@@ -4,7 +4,9 @@ import android.Manifest
 import android.content.*
 import android.os.Bundle
 import android.os.IBinder
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import com.knesarcreation.appthemehelper.util.VersionUtils
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.db.toPlayCount
 import com.knesarcreation.playbeat.helper.MusicPlayerRemote
@@ -174,11 +176,18 @@ abstract class AbsMusicServiceActivity : AbsBaseActivity(), IMusicServiceEventLi
     }
 
     override fun getPermissionsToRequest(): Array<String> {
-        return arrayOf(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.BLUETOOTH
-        )
+        return if (VersionUtils.hasT()) {
+            arrayOf(
+                Manifest.permission.READ_MEDIA_AUDIO,
+                Manifest.permission.BLUETOOTH
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.BLUETOOTH
+            )
+        }
     }
 
     private class MusicStateReceiver(activity: AbsMusicServiceActivity) : BroadcastReceiver() {

@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Toast
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
@@ -111,6 +112,11 @@ class MainActivity : AbsCastActivity(), OnSharedPreferenceChangeListener {
 
         setupNavigationController()
         if (!hasPermissions()) {
+            Toast.makeText(
+                this,
+                "Please allow the required permission to continue.",
+                Toast.LENGTH_SHORT
+            ).show()
             findNavController(R.id.fragment_container).navigate(R.id.permissionFragment)
         }
 

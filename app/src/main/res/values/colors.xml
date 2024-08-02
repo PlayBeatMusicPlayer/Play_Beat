@@ -47,6 +47,7 @@
     <color name="setting_border_color">@color/lighterColorSurface</color>
     <color name="yellow">#80ffb600</color>
     <color name="dark_grey">@color/md_grey_200</color>
+    <color name="red">#EF5350</color>
 
 
 </resources>

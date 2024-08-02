@@ -7,6 +7,7 @@ import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import androidx.core.text.parseAsHtml
@@ -56,6 +57,12 @@ class PermissionActivity : AbsMusicServiceActivity() {
                     )
                 )
                 finish()
+            } else {
+                Toast.makeText(
+                    this,
+                    "Please allow the required permission to continue.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -87,7 +94,11 @@ class PermissionActivity : AbsMusicServiceActivity() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun hasStoragePermission(): Boolean {
-        return checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        return if (VersionUtils.hasT()) {
+            checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED
+        } else {
+            checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)

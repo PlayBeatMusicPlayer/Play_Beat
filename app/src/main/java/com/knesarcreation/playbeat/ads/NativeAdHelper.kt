@@ -3,6 +3,7 @@ package com.knesarcreation.playbeat.ads
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
+import android.preference.PreferenceManager
 import android.util.Log
 import android.view.View
 import android.widget.*
@@ -11,8 +12,8 @@ import com.google.android.gms.ads.*
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
 import com.google.android.gms.ads.nativead.NativeAdView
-import com.knesarcreation.playbeat.NATIVE_TEST_AD
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.showAtMeNativeBannerWithMedia
 import java.util.*
 
 class NativeAdHelper(var context: Context) {
@@ -191,6 +192,9 @@ class NativeAdHelper(var context: Context) {
                 val error = """
            domain: ${loadAdError.domain}, code: ${loadAdError.code}, message: ${loadAdError.message}
           """"
+                val firebasePrefs = PreferenceManager.getDefaultSharedPreferences(context)
+
+                context.showAtMeNativeBannerWithMedia(firebasePrefs, ad_frame)
                 //refresh_button.isEnabled = true
                 //Toast.makeText(
                 //    this@MainActivity, "Failed to load native ad with error $error",

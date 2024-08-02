@@ -24,7 +24,6 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.knesarcreation.appthemehelper.common.prefs.supportv7.ATEDialogPreference
 import com.knesarcreation.playbeat.R
 import com.knesarcreation.playbeat.THEME_REWARD
-import com.knesarcreation.playbeat.THEME_REWARD_TEST
 import com.knesarcreation.playbeat.databinding.PreferenceNowPlayingScreenItemBinding
 import com.knesarcreation.playbeat.extensions.colorButtons
 import com.knesarcreation.playbeat.extensions.colorControlNormal

@@ -7,10 +7,14 @@ import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
+import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.fragment.app.Fragment
 import com.knesarcreation.playbeat.adapter.SliderAdapter
+import com.knesarcreation.playbeat.databinding.AdNativeAtMeGamesBinding
+import com.knesarcreation.playbeat.databinding.NativeLayoutSmallAtMeGameBannerBinding
 
 fun bannerSliderItems(firebasePrefs: SharedPreferences): MutableList<SliderAdapter.Page> {
     return when (firebasePrefs.getString("atMeGamesBanner", "0")) {
@@ -99,6 +103,92 @@ fun setIconForQuiz(iv: ImageView, firebasePrefs: SharedPreferences) {
         }
     }
 }
+
+
+fun Context.showAtMeNativeBannerWithoutMedia(
+    firebasePrefs: SharedPreferences,
+    nativeFrameLayout: FrameLayout,
+) {
+    val nativeAtMeBannerBinding =
+        NativeLayoutSmallAtMeGameBannerBinding.inflate((this as AppCompatActivity).layoutInflater)
+    var atMeGamesOpenLink = ""
+
+    when (firebasePrefs.getString("atMeNativeAtMeGameAd", "0")) {
+        "0" -> {
+            nativeAtMeBannerBinding.bannerBg.setImageResource(R.drawable.banner_free_game_04)
+            atMeGamesOpenLink = PLAY_FREE_GAMES
+        }
+        "1" -> {
+            nativeAtMeBannerBinding.bannerBg.setImageResource(R.drawable.banner_free_game_05)
+            atMeGamesOpenLink = PLAY_FREE_GAMES
+        }
+        "2" -> {
+            nativeAtMeBannerBinding.bannerBg.setImageResource(R.drawable.banner_free_game_06)
+            atMeGamesOpenLink = PLAY_FREE_GAMES
+        }
+    }
+
+    val customIntent = CustomTabsIntent.Builder()
+    nativeAtMeBannerBinding.nativeCard.setOnClickListener {
+        this.openCustomTab(
+            customIntent.build(),
+            Uri.parse(atMeGamesOpenLink)
+        )
+    }
+
+    nativeAtMeBannerBinding.playNowBtn.setOnClickListener {
+        this.openCustomTab(
+            customIntent.build(),
+            Uri.parse(atMeGamesOpenLink)
+        )
+    }
+
+    nativeFrameLayout.addView(nativeAtMeBannerBinding.root)
+
+}
+
+fun Context.showAtMeNativeBannerWithMedia(
+    firebasePrefs: SharedPreferences,
+    nativeFrameLayout: FrameLayout
+) {
+    val nativeAtMeBannerBinding =
+        AdNativeAtMeGamesBinding.inflate((this as AppCompatActivity).layoutInflater)
+    var atMeGamesOpenLink = ""
+
+    when (firebasePrefs.getString("atMeNativeAtMeGameAd", "0")) {
+        "0" -> {
+            nativeAtMeBannerBinding.adMedia.setImageResource(R.drawable.banner_free_game_04)
+            atMeGamesOpenLink = PLAY_FREE_GAMES
+        }
+        "1" -> {
+            nativeAtMeBannerBinding.adMedia.setImageResource(R.drawable.banner_free_game_05)
+            atMeGamesOpenLink = PLAY_FREE_GAMES
+        }
+        "2" -> {
+            nativeAtMeBannerBinding.adMedia.setImageResource(R.drawable.banner_free_game_06)
+            atMeGamesOpenLink = PLAY_FREE_GAMES
+        }
+    }
+
+    val customIntent = CustomTabsIntent.Builder()
+    nativeAtMeBannerBinding.nativeAd.setOnClickListener {
+        this.openCustomTab(
+            customIntent.build(),
+            Uri.parse(atMeGamesOpenLink)
+        )
+    }
+
+    nativeAtMeBannerBinding.adCallToAction.setOnClickListener {
+        this.openCustomTab(
+            customIntent.build(),
+            Uri.parse(atMeGamesOpenLink)
+        )
+    }
+
+    nativeFrameLayout.addView(nativeAtMeBannerBinding.root)
+
+}
+
 
 fun Fragment.openCustomTab(customTabsIntent: CustomTabsIntent, uri: Uri?) {
     // package name is the default package

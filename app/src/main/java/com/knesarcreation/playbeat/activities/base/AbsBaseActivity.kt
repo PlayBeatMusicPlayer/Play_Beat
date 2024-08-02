@@ -8,11 +8,13 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.getSystemService
 import com.google.android.material.snackbar.Snackbar
@@ -76,7 +78,11 @@ abstract class AbsBaseActivity : AbsThemeActivity() {
     }
 
     protected open fun requestPermissions() {
-        if (VersionUtils.hasMarshmallow()) {
+        if (VersionUtils.hasT()) {
+            requestPermissions(
+                permissions, PERMISSION_REQUEST
+            )
+        } else if (VersionUtils.hasMarshmallow()) {
             requestPermissions(permissions, PERMISSION_REQUEST)
         }
     }
@@ -84,6 +90,8 @@ abstract class AbsBaseActivity : AbsThemeActivity() {
     protected fun hasPermissions(): Boolean {
         if (VersionUtils.hasMarshmallow()) {
             for (permission in permissions) {
+                //Toast.makeText(this, "$permission", Toast.LENGTH_SHORT).show()
+                Log.d("CheckPermission", "hasPermissions:${checkSelfPermission(permission)} and $permission")
                 if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
                     return false
                 }

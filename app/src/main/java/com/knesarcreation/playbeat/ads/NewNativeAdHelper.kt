@@ -3,6 +3,7 @@ package com.knesarcreation.playbeat.ads
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
+import android.preference.PreferenceManager
 import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
@@ -18,6 +19,7 @@ import com.google.android.gms.ads.nativead.NativeAdView
 import com.google.android.material.button.MaterialButton
 import com.google.android.gms.ads.*
 import com.knesarcreation.playbeat.R
+import com.knesarcreation.playbeat.showAtMeNativeBannerWithoutMedia
 import com.knesarcreation.playbeat.util.isConnectedToInternet
 
 class NewNativeAdHelper(var context: Context) {
@@ -228,28 +230,35 @@ class NewNativeAdHelper(var context: Context) {
 
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                     val error = """
-           domain: ${loadAdError.domain}, code: ${loadAdError.code}, message: ${loadAdError.message}
-          """"
+                   domain: ${loadAdError.domain}, code: ${loadAdError.code}, message: ${loadAdError.message}
+                  """"
+
+                    val firebasePrefs = PreferenceManager.getDefaultSharedPreferences(context)
+                    nativeShimmer.stopShimmer()
+                    nativeShimmer.isVisible = false
+                    nativeLayout.removeAllViews()
+                    context.showAtMeNativeBannerWithoutMedia(firebasePrefs, nativeLayout)
+                    
                     Log.d(
                         "NativeAdFailed",
                         "onAdFailedToLoad: Small Failed to load native ad with error $error "
                     )
                 }
-            })?.build()
+            }).build()
 
-            adLoader?.loadAd(AdRequest.Builder().build())
+            adLoader.loadAd(AdRequest.Builder().build())
         }
-
-
         //videostatus_text.text = ""
     }
 
-    fun showNativeAd(
+    private fun showNativeAd(
         showMedia: Boolean,
         layoutId: Int,
         frameLayout: FrameLayout,
         shimmer: ShimmerFrameLayout
     ) {
+        val firebasePrefs = PreferenceManager.getDefaultSharedPreferences(context)
+
         if (isAdLoaded) {
             shimmer.stopShimmer()
             shimmer.isVisible = false
@@ -260,6 +269,11 @@ class NewNativeAdHelper(var context: Context) {
             currentNativeAd?.let { populateUnifiedNativeAdView(it, adView, showMedia) }
             frameLayout.removeAllViews()
             frameLayout.addView(view)
+        } else {
+            shimmer.stopShimmer()
+            shimmer.isVisible = false
+            frameLayout.removeAllViews()
+            context.showAtMeNativeBannerWithoutMedia(firebasePrefs, frameLayout)
         }
     }
 }

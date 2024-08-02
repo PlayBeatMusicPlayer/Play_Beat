@@ -1,5 +1,6 @@
 package com.knesarcreation.playbeat.dialogs
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.Dialog
 import android.app.PendingIntent
@@ -57,6 +58,7 @@ class SleepTimerDialog : DialogFragment() {
     private lateinit var timerDisplay: TextView
     private var cancelBtnName = ""
     private var timerUpdater: TimerUpdater? = null
+    @SuppressLint("ScheduleExactAlarm")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val binding = DialogSleepTimerBinding.inflate(layoutInflater)
         shouldFinishLastSong = binding.shouldFinishLastSong
@@ -120,11 +122,13 @@ class SleepTimerDialog : DialogFragment() {
                 val pendingIntent = makeTimerPendingIntent(PendingIntent.FLAG_CANCEL_CURRENT)
                 PreferenceUtil.nextSleepTimerElapsedRealTime = minutes.toInt()
                 val alarmManager = requireContext().getSystemService<AlarmManager>()
-                alarmManager?.setExact(
-                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + minutes,
-                    pendingIntent
-                )
+                if (pendingIntent != null) {
+                    alarmManager?.setExact(
+                        AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        SystemClock.elapsedRealtime() + minutes,
+                        pendingIntent
+                    )
+                }
 
                 Toast.makeText(
                     requireContext(),

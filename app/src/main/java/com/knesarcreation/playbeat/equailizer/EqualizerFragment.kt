@@ -458,21 +458,25 @@ class EqualizerFragment : Fragment() {
                         frequencyHeaderTV = view.findViewById(R.id.textView1)
                         upperrAndLowerEQBandLevel = view.findViewById(R.id.textView01)
                     }
+
                     1 -> {
                         seekBar = view.findViewById(R.id.seekBar2)
                         frequencyHeaderTV = view.findViewById(R.id.textView2)
                         upperrAndLowerEQBandLevel = view.findViewById(R.id.textView02)
                     }
+
                     2 -> {
                         seekBar = view.findViewById(R.id.seekBar3)
                         frequencyHeaderTV = view.findViewById(R.id.textView3)
                         upperrAndLowerEQBandLevel = view.findViewById(R.id.textView03)
                     }
+
                     3 -> {
                         seekBar = view.findViewById(R.id.seekBar4)
                         frequencyHeaderTV = view.findViewById(R.id.textView4)
                         upperrAndLowerEQBandLevel = view.findViewById(R.id.textView04)
                     }
+
                     4 -> {
                         seekBar = view.findViewById(R.id.seekBar5)
                         frequencyHeaderTV = view.findViewById(R.id.textView5)
@@ -664,11 +668,14 @@ class EqualizerFragment : Fragment() {
                     ContextCompat.getColor(ctx!!, R.color.twenty_percent_black_overlay)
                 linePaint = ContextCompat.getColor(ctx!!, R.color.md_grey_600)
             }
+
             ThemeMode.DARK -> {
                 circlePaintColor = ContextCompat.getColor(ctx!!, R.color.md_grey_700)
                 linePaint = ContextCompat.getColor(ctx!!, R.color.md_grey_600)
             }
+
             ThemeMode.AUTO -> {}
+            else -> {}
         }
 
         if (!isChecked) {

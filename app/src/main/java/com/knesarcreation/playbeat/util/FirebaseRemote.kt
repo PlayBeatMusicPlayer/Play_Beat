@@ -57,6 +57,8 @@ abstract class FirebaseRemote(private val activity: Activity) {
                     val atMeGamesBanner: String = mFirebaseRemoteConfig.getString("atMeGamesBanner")
                     val atMeGamesQuizIcon: String =
                         mFirebaseRemoteConfig.getString("atMeGamesQuizIcon")
+                    val atMeNativeAtMeGameAd: String =
+                        mFirebaseRemoteConfig.getString("atMeNativeAtMeGameAd")
 
 //                    editor.putString("INTERSTITIAL_DOWNLOAD", INTERSTITIAL_DOWNLOAD)
 //                    editor.putString("INTERSTITIAL_HISTORY", INTERSTITIAL_HISTORY)
@@ -70,6 +72,7 @@ abstract class FirebaseRemote(private val activity: Activity) {
 //                    editor.putString("policyViolateText", policyViolateText)
                     editor.putString("atMeGamesBanner", atMeGamesBanner)
                     editor.putString("atMeGamesQuizIcon", atMeGamesQuizIcon)
+                    editor.putString("atMeNativeAtMeGameAd", atMeNativeAtMeGameAd)
                     editor.apply()
                     onFetchComplete(updated)
                 } else {
