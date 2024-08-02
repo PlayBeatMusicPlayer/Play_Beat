@@ -15,8 +15,8 @@ android {
         applicationId "com.knesarcreation.playbeat"
         minSdk 24
         targetSdk 34
-        versionCode 28
-        versionName "6.5.3"
+        versionCode 29
+        versionName "7.0"
 
         renderscriptTargetApi 31
         renderscriptSupportModeEnabled true
